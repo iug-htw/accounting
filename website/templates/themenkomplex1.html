@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Prototyp</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class = "navigation_bar_top">
+        <button id="menuButton" class="menu_button">☰ Nach Login sichtbar</button>
+        <div id="menu" class="dropdown_menu">
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 1</a>
+            <a href="{% url 'themenkomplex2' %}" class="menu_link">Themenkomplex 2</a>
+            <a href="{% url 'themenkomplex3' %}" class="menu_link">Themenkomplex 3</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 4</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 5</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 6</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 7</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 8</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 9</a>
+        </div>
+        <div class = "topbar_text">
+            <a class = "menulink" href="{% url 'index' %}">Home</a>
+            <a class = "menulink" href="{% url 'buchungsaufgabe' %}">Buchungsaufgabe</a>
+            <a class = "menulink" href="{% url 'login' %}">Login</a>
+            <a class = "menulink" href="{% url 'vorlage' %}">Vorlage</a>
+        </div>
+    </div>
+    <div class="themenkomplex_container">
+        <!-- Navigation zurück zur Frontpage -->
+        <div class="themenkomplex_navigation">
+            <a href="index.html" class="themenkomplex_back-link">Zurück zur Startseite</a>
+        </div>
+
+        <!-- Hauptinhalt -->
+        <div class="themenkomplex_content">
+            <h1>Themenkomplex: Beispielthema</h1>
+
+            <!-- PDF zum Download -->
+            <div class="themenkomplex_download">
+                <h2>Lehrmaterial</h2>
+                <a href="pdf_sammlung/beispielaufgabe.pdf" download="Lehrmaterial.pdf" class="themenkomplex_download_link">PDF herunterladen</a>
+            </div>
+
+            <!-- Verlinkung zu Übungsaufgaben -->
+            <div class="themenkomplex_exercises_section">
+                <h2>Übungsaufgaben</h2>
+                <a href="buchungsaufgabe.html" class="themenkomplex_exercise_link">Zu den Übungsaufgaben</a>
+            </div>
+
+            <!-- Beschreibungstext und Beispielbuchung -->
+            <div class="themenkomplex_description_section">
+                <h2>Beschreibung des Themenkomplexes</h2>
+                <p>Hier findest du eine detaillierte Beschreibung des Themenkomplexes. Es wird erklärt, wie das Thema aufgebaut ist und welche wichtigen Aspekte zu beachten sind.</p>
+
+                <h3>Beispielbuchung:</h3>
+                <p>Beispieltext zur Buchung: <br>
+                Die Buchung lautet: Soll an Haben. Dies ist ein grundlegendes Beispiel, wie Buchungen innerhalb dieses Themenkomplexes durchgeführt werden.</p>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

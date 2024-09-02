@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Prototyp</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class = "navigation_bar_top">
+        <button id="menuButton" class="menu_button">☰ Nach Login sichtbar</button>
+        <div id="menu" class="dropdown_menu">
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 1</a>
+            <a href="{% url 'themenkomplex2' %}" class="menu_link">Themenkomplex 2</a>
+            <a href="{% url 'themenkomplex3' %}" class="menu_link">Themenkomplex 3</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 4</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 5</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 6</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 7</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 8</a>
+            <a href="{% url 'themenkomplex1' %}" class="menu_link">Themenkomplex 9</a>
+        </div>
+        <div class = "topbar_text">
+            <a class = "menulink" href="{% url 'index' %}">Home</a>
+            <a class = "menulink" href="{% url 'buchungsaufgabe' %}">Buchungsaufgabe</a>
+            <a class = "menulink" href="{% url 'login' %}">Login</a>
+            <a class = "menulink" href="{% url 'vorlage' %}">Vorlage</a>
+        </div>
+    </div>
+    <div class="buchung_container">
+            <!-- Linke Seite mit dem Bild -->
+            <div class="buchung_links">
+                <img src="{% static 'img/beispielrechnung.jpg' %}" alt="Beispielrechnung" class="buchung_rechnungsbeleg">
+            </div>
+    
+            <!-- Rechte Seite mit den Inputfeldern -->
+            <div class="buchung_rechts">
+                <h2>Formular</h2>
+                <div class="buchung_input">
+                    <label for="buchung_input1">Feld 1:</label>
+                    <input type="text" id="buchung_input1" name="buchung_input1"><br><br>
+                </div>
+                <div class="buchung_input">
+                    <label for="buchung_input2">Feld 2:</label>
+                    <input type="text" id="buchung_input2" name="buchung_input2"><br><br>
+                </div>
+                <div class="buchung_input">
+                    <label for="buchung_input3">Feld 3:</label>
+                    <input type="text" id="buchung_input3" name="buchung_input3"><br><br>
+                </div>
+                <div class="buchung_input">
+                    <label for="buchung_input4">Feld 4:</label>
+                    <input type="text" id="buchung_input4" name="buchung_input4"><br><br>
+                </div>
+                <div class="buchung_input">
+                    <label for="buchung_input5">Feld 5:</label>
+                    <input type="text" id="buchung_input5" name="buchung_input5"><br><br>
+                </div>
+            </div>
+        </div>
+        <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
