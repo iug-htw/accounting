@@ -1,0 +1,21 @@
+{% extends 'vorlage.html' %}
+{% load static %}
+{% block title %}
+Website Prototyp
+{% endblock %}
+{% block content %}
+    <div id="loginContainer" class="login_container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Benutzername:</label>
+            <input type="text" id="username" name="username" required><br><br>
+            <label for="password">Passwort:</label>
+            <input type="password" id="password" name="password" required><br><br>
+            <button type="submit">Einloggen</button>
+        </form>
+    </div>
+    <div id="logoutContainer">
+        <button id="logoutButton">Ausloggen</button>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

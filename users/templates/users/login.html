@@ -1,0 +1,16 @@
+{%extends 'vorlage.html' %}
+{% block title %}
+    Login as a User
+{% endblock %}
+
+{% block content %}
+    <h1>Login as a User</h1>
+    <form class="form-with-validation" action="{%url 'users:login'%}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{request.GET.next }}" />
+        {% endif %}
+        <button class="form-submit">Submit</button>
+    </form>
+{% endblock %}

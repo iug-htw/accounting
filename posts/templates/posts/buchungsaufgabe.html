@@ -1,0 +1,47 @@
+{% extends 'vorlage.html' %}
+{% load static %}
+{% block title %}
+Buchungsaufgabe - Website Prototyp
+{% endblock %}
+{% block content %}
+<div class="buchung_container">
+    <!-- Linke Seite mit dem Bild -->
+    <div class="buchung_links">
+        <img src="/media/beispielrechnung.jpg" alt="Beispielrechnung" class="buchung_rechnungsbeleg">
+    </div>
+
+    <!-- Rechte Seite mit den Inputfeldern -->
+    <div class="buchung_rechts">
+        <h2>Testaufgabe</h2>
+        <form method="post" action = "/posts/buchungsaufgabe/">
+            {% csrf_token %}
+            <label for="number1">Zahl 1:</label>
+            <input type="number" id="number1" name="number1" required>
+            <br><br>
+            <label for="number2">Zahl 2:</label>
+            <input type="number" id="number2" name="number2" required>
+            <br><br>
+            <button type="submit">Addieren</button>
+        </form>
+    
+        {% if result is not None %}
+            <h2>Ergebnis: {{ result }}</h2>
+        {% endif %}
+
+        <form method="post" action = "/posts/buchungsaufgabe/">
+            {% csrf_token %}
+            <label for="number11">Zahl 1:</label>
+             <input type="text" id="number11" name="number11" required>
+            <br>
+            <label for="number22">Zahl 2:</label>
+            <input type="text" id="number22" name="number22" required>
+            <br><br>
+            <button type="submit">Addieren</button>
+        </form>
+    
+        {% if result is not None %}
+            <h2>Ergebnis: {{ result1 }}</h2>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

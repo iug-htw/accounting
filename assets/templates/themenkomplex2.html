@@ -1,0 +1,16 @@
+{% extends 'vorlage.html' %}
+{% load static %}
+{% block title %}
+Website Prototyp
+{% endblock %}
+{% block content %}
+    <h1>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magni nesciunt perspiciatis illo minus officia atque similique, praesentium, placeat sunt quidem rem voluptas architecto, ea suscipit maxime aperiam cum saepe eveniet?</h1>
+    <div class="pdf-container">
+        <!-- Zoom Buttons -->
+        <!-- PDF Display -->
+        <div class="pdf-viewer" id="pdfViewer">
+            <iframe id="pdfIframe" src="/media/bilanz.pdf" frameborder="5"></iframe>
+        </div>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+{% endblock %}
