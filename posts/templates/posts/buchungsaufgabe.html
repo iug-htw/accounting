@@ -1,3 +1,4 @@
+<!-- buchungsaufgabe.html -->
 {% extends 'vorlage.html' %}
 {% load static %}
 {% block title %}
@@ -12,36 +13,40 @@ Buchungsaufgabe - Website Prototyp
 
     <!-- Rechte Seite mit den Inputfeldern -->
     <div class="buchung_rechts">
-        <h2>Testaufgabe</h2>
-        <form method="post" action = "/posts/buchungsaufgabe/">
+        <h2>Deine Buchung</h2>
+        <form method="POST">
             {% csrf_token %}
-            <label for="number1">Zahl 1:</label>
-            <input type="number" id="number1" name="number1" required>
-            <br><br>
-            <label for="number2">Zahl 2:</label>
-            <input type="number" id="number2" name="number2" required>
-            <br><br>
-            <button type="submit">Addieren</button>
-        </form>
-    
-        {% if result is not None %}
-            <h2>Ergebnis: {{ result }}</h2>
-        {% endif %}
+            <div id="sollDiv">
+                <h3>Soll</h3>
+                <input type="text" name="soll_konten[]" placeholder="Soll Konto" required>
+                <input type="number" name="soll_betraege[]" placeholder="Betrag" required><br>
+            </div>
+            <button type="button" onclick="addSollFeld()">Weiteres Soll Konto hinzufügen</button><br><br>
 
-        <form method="post" action = "/posts/buchungsaufgabe/">
-            {% csrf_token %}
-            <label for="number11">Zahl 1:</label>
-             <input type="text" id="number11" name="number11" required>
-            <br>
-            <label for="number22">Zahl 2:</label>
-            <input type="text" id="number22" name="number22" required>
-            <br><br>
-            <button type="submit">Addieren</button>
+            <div id="habenDiv">
+                <h3>Haben</h3>
+                <input type="text" name="haben_konten[]" placeholder="Haben Konto" required>
+                <input type="number" name="haben_betraege[]" placeholder="Betrag" required><br>
+            </div>
+            <button type="button" onclick="addHabenFeld()">Weiteres Haben Konto hinzufügen</button><br><br>
+
+            <button type="submit">Buchung abschicken</button>
         </form>
-    
-        {% if result is not None %}
-            <h2>Ergebnis: {{ result1 }}</h2>
-        {% endif %}
+        
     </div>
 </div>
+
+<script>
+    function addSollFeld() {
+        var sollDiv = document.getElementById("sollDiv");
+        sollDiv.innerHTML += '<input type="text" name="soll_konten[]" placeholder="Soll Konto" required>' +
+                             '<input type="number" name="soll_betraege[]" placeholder="Betrag" required><br>';
+    }
+
+    function addHabenFeld() {
+        var habenDiv = document.getElementById("habenDiv");
+        habenDiv.innerHTML += '<input type="text" name="haben_konten[]" placeholder="Haben Konto" required>' +
+                              '<input type="number" name="haben_betraege[]" placeholder="Betrag" required><br>';
+    }
+</script>
 {% endblock %}

@@ -12,3 +12,14 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Aufgabe(models.Model):
+    name = models.CharField(max_length=100)
+    beschreibung = models.TextField()  # Beschreibung der Aufgabe
+    soll_konten = models.JSONField()  # Richtige Soll-Konten als Liste
+    haben_konten = models.JSONField()  # Richtige Haben-Konten als Liste
+    soll_betraege = models.JSONField()  # Richtige Soll-Beträge als Liste
+    haben_betraege = models.JSONField()  # Richtige Haben-Beträge als Liste
+
+    def __str__(self):
+        return self.name

@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from .models import Post
 from django.contrib.auth.decorators import login_required
 from . import forms
+from posts.forms import AddForm, MultiplyForm 
 
 # Create your views here.
 def posts_list(request):
@@ -28,24 +29,25 @@ def post_new(request):
         form = forms.CreatePost()
     return render(request, 'posts/post_new.html', {'form':form})
 
-def buchungsaufgabe1(request):
-    result = None
-
+def buchungsaufgabe_view(request):
     if request.method == 'POST':
-        number1 = int(request.POST.get('number1', 0))
-        number2 = int(request.POST.get('number2', 0))
-        result = number1 + number2
+        # Hier kannst du die Logik hinzufügen, um die Eingaben des Nutzers zu verarbeiten
+        soll_konten = request.POST.getlist('soll_konten[]')
+        haben_konten = request.POST.getlist('haben_konten[]')
+        soll_betraege = request.POST.getlist('soll_betraege[]')
+        haben_betraege = request.POST.getlist('haben_betraege[]')
 
-    return render(request, 'buchungsaufgabe.html', {'result': result})
-
-def add_numbers(request):
-    result = None
-    if request.method == "POST":
-        number1 = request.POST.get("number11")
-        number2 = request.POST.get("number22")
-        try:
-            result1 = float(number1) + float(number2)
-        except (ValueError, TypeError):
-            result1 = "Ungültige Eingabe"
+        # Überprüfen der Eingaben und ggf. Fehlermeldungen oder Bestätigung
+        if validierung_der_buchung(soll_konten, haben_konten, soll_betraege, haben_betraege):
+            # Erfolg, weiter mit der Buchung
+            pass
+        else:
+            # Fehlermeldung an den Nutzer weitergeben
+            pass
     
-    return render(request, 'buchungsaufgabe.html', {'result': result1})
+    return render(request, 'posts/buchungsaufgabe.html')
+
+def validierung_der_buchung(soll_konten, haben_konten, soll_betraege, haben_betraege):
+    # Hier kommt die Logik zur Überprüfung der Buchung
+    return True
+    

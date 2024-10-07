@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('vorlage/', views.vorlage, name = 'vorlage'),
     #path('buchungsaufgabe/', views.buchungsaufgabe, name = 'buchungsaufgabe'),
-    path('index/', views.index, name = 'index'),
+    path('', views.index, name = 'index'),
     path('login/', views.login, name = 'login'),
     path('themenkomplex1/', views.themenkomplex1, name = 'themenkomplex1'),
     path('themenkomplex2/', views.themenkomplex2, name ='themenkomplex2'),
