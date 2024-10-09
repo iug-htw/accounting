@@ -13,40 +13,62 @@ Buchungsaufgabe - Website Prototyp
 
     <!-- Rechte Seite mit den Inputfeldern -->
     <div class="buchung_rechts">
-        <h2>Deine Buchung</h2>
-        <form method="POST">
-            {% csrf_token %}
-            <div id="sollDiv">
-                <h3>Soll</h3>
-                <input type="text" name="soll_konten[]" placeholder="Soll Konto" required>
-                <input type="number" name="soll_betraege[]" placeholder="Betrag" required><br>
+        <h2>Berechnung</h2>
+        <form id="numberForm">
+            <!-- Initial number fields -->
+            <div id="inputFields">
+                <input type="number" name="number" placeholder="Zahl eingeben" required>
+                <input type="number" name="number" placeholder="Zahl eingeben" required>
             </div>
-            <button type="button" onclick="addSollFeld()">Weiteres Soll Konto hinzufügen</button><br><br>
-
-            <div id="habenDiv">
-                <h3>Haben</h3>
-                <input type="text" name="haben_konten[]" placeholder="Haben Konto" required>
-                <input type="number" name="haben_betraege[]" placeholder="Betrag" required><br>
-            </div>
-            <button type="button" onclick="addHabenFeld()">Weiteres Haben Konto hinzufügen</button><br><br>
-
-            <button type="submit">Buchung abschicken</button>
+            <br>
+            <!-- Button to calculate sum -->
+            <button type="button" onclick="calculateSum()">Summe berechnen</button>
+            <br><br>
+            <!-- Button to add more fields -->
+            <button type="button" onclick="addField()">Neues Feld hinzufügen</button>
+            <br><br>
+            <!-- Button to remove the last field -->
+            <button type="button" onclick="removeField()">Letztes Feld entfernen</button>
+            <br><br>
+            <!-- Result display -->
+            <div id="result"></div>
         </form>
-        
     </div>
 </div>
 
 <script>
-    function addSollFeld() {
-        var sollDiv = document.getElementById("sollDiv");
-        sollDiv.innerHTML += '<input type="text" name="soll_konten[]" placeholder="Soll Konto" required>' +
-                             '<input type="number" name="soll_betraege[]" placeholder="Betrag" required><br>';
+    // Function to calculate the sum of all input fields
+    function calculateSum() {
+        let inputs = document.querySelectorAll('#inputFields input[type="number"]');
+        let sum = 0;
+        inputs.forEach(input => {
+            let value = parseFloat(input.value);
+            if (!isNaN(value)) {
+                sum += value;
+            }
+        });
+        document.getElementById('result').innerText = 'Summe: ' + sum;
     }
 
-    function addHabenFeld() {
-        var habenDiv = document.getElementById("habenDiv");
-        habenDiv.innerHTML += '<input type="text" name="haben_konten[]" placeholder="Haben Konto" required>' +
-                              '<input type="number" name="haben_betraege[]" placeholder="Betrag" required><br>';
+    // Function to add a new input field
+    function addField() {
+        let inputFieldsDiv = document.getElementById('inputFields');
+        let newField = document.createElement('input');
+        newField.type = 'number';
+        newField.name = 'number';
+        newField.placeholder = 'Zahl eingeben';
+        inputFieldsDiv.appendChild(newField);
+        inputFieldsDiv.appendChild(document.createElement('br'));
+    }
+
+    // Function to remove the last input field
+    function removeField() {
+        let inputFieldsDiv = document.getElementById('inputFields');
+        let inputs = inputFieldsDiv.querySelectorAll('input[type="number"]');
+        if (inputs.length > 2) { // Ensure at least two fields remain
+            inputFieldsDiv.removeChild(inputs[inputs.length - 1].nextSibling); // Remove <br>
+            inputFieldsDiv.removeChild(inputs[inputs.length - 1]); // Remove last input
+        }
     }
 </script>
 {% endblock %}

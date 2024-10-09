@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect
-from .models import Post
+from .models import Post, Aufgabe
 from django.contrib.auth.decorators import login_required
 from . import forms
-from posts.forms import AddForm, MultiplyForm 
+from .forms import AufgabeForm
 
 # Create your views here.
 def posts_list(request):
@@ -30,24 +30,23 @@ def post_new(request):
     return render(request, 'posts/post_new.html', {'form':form})
 
 def buchungsaufgabe_view(request):
-    if request.method == 'POST':
-        # Hier kannst du die Logik hinzufügen, um die Eingaben des Nutzers zu verarbeiten
-        soll_konten = request.POST.getlist('soll_konten[]')
-        haben_konten = request.POST.getlist('haben_konten[]')
-        soll_betraege = request.POST.getlist('soll_betraege[]')
-        haben_betraege = request.POST.getlist('haben_betraege[]')
-
-        # Überprüfen der Eingaben und ggf. Fehlermeldungen oder Bestätigung
-        if validierung_der_buchung(soll_konten, haben_konten, soll_betraege, haben_betraege):
-            # Erfolg, weiter mit der Buchung
-            pass
-        else:
-            # Fehlermeldung an den Nutzer weitergeben
-            pass
-    
     return render(request, 'posts/buchungsaufgabe.html')
 
-def validierung_der_buchung(soll_konten, haben_konten, soll_betraege, haben_betraege):
-    # Hier kommt die Logik zur Überprüfung der Buchung
-    return True
-    
+
+@login_required
+def neue_aufgabe(request):
+    if request.method == 'POST':
+        form = AufgabeForm(request.POST)
+        if form.is_valid():
+            aufgabe = form.save(commit=False)
+            aufgabe.author = request.user  # Der aktuelle Benutzer wird als Autor gespeichert
+            aufgabe.save()
+            return redirect('aufgaben_liste')
+    else:
+        form = AufgabeForm()
+    return render(request, 'posts/neue_aufgabe.html', {'form': form})
+
+@login_required
+def aufgaben_liste(request):
+    aufgaben = Aufgabe.objects.all().order_by('id')
+    return render(request, 'posts/aufgaben_liste.html', {'aufgaben': aufgaben})    

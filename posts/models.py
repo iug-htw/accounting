@@ -14,12 +14,13 @@ class Post(models.Model):
         return self.title
     
 class Aufgabe(models.Model):
-    name = models.CharField(max_length=100)
-    beschreibung = models.TextField()  # Beschreibung der Aufgabe
-    soll_konten = models.JSONField()  # Richtige Soll-Konten als Liste
-    haben_konten = models.JSONField()  # Richtige Haben-Konten als Liste
-    soll_betraege = models.JSONField()  # Richtige Soll-Beträge als Liste
-    haben_betraege = models.JSONField()  # Richtige Haben-Beträge als Liste
+    kategorie = models.CharField(max_length=100)  # Textfeld für die Kategorie
+    aufgabentext = models.TextField()  # Längeres Textfeld für den Aufgabentext
+    loesung_haben = models.JSONField()  # JSON-Feld für die Lösung Haben
+    loesung_soll = models.JSONField()  # JSON-Feld für die Lösung Soll
+    author = models.ForeignKey(User, on_delete=models.CASCADE)  # Verweis auf den Ersteller
+    erstellungsdatum = models.DateTimeField(auto_now_add=True)  # Automatisch das aktuelle Datum hinzufügen
+    id = models.AutoField(primary_key=True)  # Automatische ID, die hochgezählt wird
 
     def __str__(self):
-        return self.name
+        return f"Aufgabe {self.id}: {self.kategorie}"

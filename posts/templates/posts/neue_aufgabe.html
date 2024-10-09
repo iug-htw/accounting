@@ -1,0 +1,13 @@
+{%extends 'vorlage.html' %}
+{%block title%}
+    Aufgaben_test
+{% endblock%}
+    {{post.title}}
+{%block content%}
+    <h1>Neue Buchungsaufgabe erstellen</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Aufgabe speichern</button>
+    </form>
+{% endblock%}

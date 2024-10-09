@@ -1,0 +1,13 @@
+{%extends 'vorlage.html' %}
+{%block title%}
+    Aufgaben_test
+{% endblock%}
+    {{post.title}}
+{%block content%}
+    <h1>Alle Buchungsaufgaben</h1>
+    <ul>
+        {% for aufgabe in aufgaben %}
+            <li>{{ aufgabe.kategorie }} - Erstellt von: {{ aufgabe.author }} am {{ aufgabe.erstellungsdatum }}</li>
+        {% endfor %}
+    </ul>
+{% endblock%}
