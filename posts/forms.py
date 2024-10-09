@@ -10,4 +10,4 @@ class CreatePost(forms.ModelForm):
 class AufgabeForm(forms.ModelForm):
     class Meta:
         model = Aufgabe
-        fields = ['kategorie', 'aufgabentext', 'loesung_haben', 'loesung_soll']
+        fields = ['kategorie', 'aufgabentext']

@@ -4,10 +4,78 @@
 {% endblock%}
     {{post.title}}
 {%block content%}
-    <h1>Neue Buchungsaufgabe erstellen</h1>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Aufgabe speichern</button>
-    </form>
+<h1>Neue Buchungsaufgabe erstellen</h1>
+<form id="aufgabeForm" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Lösung Haben</h3>
+    <div id="habenFields">
+        <input type="text" placeholder="Konto" name="haben_konto" required>
+        <input type="number" placeholder="Betrag" name="haben_betrag" required><br>
+    </div>
+    <button type="button" onclick="addHabenField()">Weiteres Haben-Feld hinzufügen</button>
+
+    <h3>Lösung Soll</h3>
+    <div id="sollFields">
+        <input type="text" placeholder="Konto" name="soll_konto" required>
+        <input type="number" placeholder="Betrag" name="soll_betrag" required><br>
+    </div>
+    <button type="button" onclick="addSollField()">Weiteres Soll-Feld hinzufügen</button>
+    
+    <br><br>
+    <button type="submit">Aufgabe speichern</button>
+
+    <input type="hidden" name="loesung_haben_json" id="loesung_haben_json">
+    <input type="hidden" name="loesung_soll_json" id="loesung_soll_json">
+</form>
+
+<script>
+    function addHabenField() {
+        let habenFields = document.getElementById('habenFields');
+        let newField = '<input type="text" placeholder="Konto" name="haben_konto" required>' +
+                       '<input type="number" placeholder="Betrag" name="haben_betrag" required><br>';
+        habenFields.innerHTML += newField;
+    }
+
+    function addSollField() {
+        let sollFields = document.getElementById('sollFields');
+        let newField = '<input type="text" placeholder="Konto" name="soll_konto" required>' +
+                       '<input type="number" placeholder="Betrag" name="soll_betrag" required><br>';
+        sollFields.innerHTML += newField;
+    }
+
+    document.getElementById('aufgabeForm').onsubmit = function(event) {
+        event.preventDefault();  // Verhindert das sofortige Absenden des Formulars
+
+        let habenKonten = document.getElementsByName('haben_konto');
+        let habenBetraege = document.getElementsByName('haben_betrag');
+        let loesungHaben = [];
+
+        for (let i = 0; i < habenKonten.length; i++) {
+            let konto = habenKonten[i].value;
+            let betrag = habenBetraege[i].value;
+            loesungHaben.push({ konto: konto, betrag: parseFloat(betrag) });
+        }
+
+        let sollKonten = document.getElementsByName('soll_konto');
+        let sollBetraege = document.getElementsByName('soll_betrag');
+        let loesungSoll = [];
+
+        for (let i = 0; i < sollKonten.length; i++) {
+            let konto = sollKonten[i].value;
+            let betrag = sollBetraege[i].value;
+            loesungSoll.push({ konto: konto, betrag: parseFloat(betrag) });
+        }
+
+        // Speichere die JSON-Daten in den versteckten Feldern
+        document.getElementById('loesung_haben_json').value = JSON.stringify(loesungHaben);
+        document.getElementById('loesung_soll_json').value = JSON.stringify(loesungSoll);
+
+        // Sende das Formular nun ab
+        event.target.submit();
+    }
+</script>
+
+
 {% endblock%}

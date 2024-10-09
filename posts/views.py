@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from .models import Post, Aufgabe
 from django.contrib.auth.decorators import login_required
 from . import forms
+from .models import Aufgabe
 from .forms import AufgabeForm
 
 # Create your views here.
@@ -40,8 +41,13 @@ def neue_aufgabe(request):
         if form.is_valid():
             aufgabe = form.save(commit=False)
             aufgabe.author = request.user  # Der aktuelle Benutzer wird als Autor gespeichert
+
+            # JSON-Daten für Lösung Haben und Lösung Soll aus dem POST-Request holen
+            aufgabe.loesung_haben = request.POST.get('loesung_haben_json')
+            aufgabe.loesung_soll = request.POST.get('loesung_soll_json')
+
             aufgabe.save()
-            return redirect('aufgaben_liste')
+            return redirect('posts:aufgaben_liste')
     else:
         form = AufgabeForm()
     return render(request, 'posts/neue_aufgabe.html', {'form': form})
@@ -50,3 +56,4 @@ def neue_aufgabe(request):
 def aufgaben_liste(request):
     aufgaben = Aufgabe.objects.all().order_by('id')
     return render(request, 'posts/aufgaben_liste.html', {'aufgaben': aufgaben})    
+
