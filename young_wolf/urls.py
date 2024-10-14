@@ -29,7 +29,6 @@ urlpatterns = [
     path('vorlage/', views.vorlage, name = 'vorlage'),
     #path('buchungsaufgabe/', views.buchungsaufgabe, name = 'buchungsaufgabe'),
     path('', views.index, name = 'index'),
-    path('login/', views.login, name = 'login'),
     path('themenkomplex1/', views.themenkomplex1, name = 'themenkomplex1'),
     path('themenkomplex2/', views.themenkomplex2, name ='themenkomplex2'),
     path('themenkomplex3/', views.themenkomplex3, name = 'themenkomplex3'),

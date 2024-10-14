@@ -296,3 +296,10 @@ input[type="text"] {
     width: 100%;
     max-width: 800px;
 }
+.berechnung_felder {
+    display: flex;
+    justify-content: space-between;
+}
+.loesung_soll, .loesung_haben {
+    width: 48%;
+}

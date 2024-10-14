@@ -13,62 +13,152 @@ Buchungsaufgabe - Website Prototyp
 
     <!-- Rechte Seite mit den Inputfeldern -->
     <div class="buchung_rechts">
-        <h2>Berechnung</h2>
-        <form id="numberForm">
-            <!-- Initial number fields -->
-            <div id="inputFields">
-                <input type="number" name="number" placeholder="Zahl eingeben" required>
-                <input type="number" name="number" placeholder="Zahl eingeben" required>
+        <div class="navigation_links">
+            <a href="{% url 'posts:aufgabe_detail' 1 %}">Zur ersten Aufgabe</a>
+            {% if prev_id %}
+                <a href="{% url 'posts:aufgabe_detail' prev_id %}">Letzte Seite</a>
+            {% else %}
+                <a href="{% url 'posts:aufgaben_liste' %}">Alle Aufgaben</a>
+            {% endif %}
+            
+            {% if next_id %}
+                <a href="{% url 'posts:aufgabe_detail' next_id %}">Nächste Seite</a>
+            {% endif %}
+        </div>
+        <div class="buchung_rechts">
+            <!-- Anzeige der Aufgabe -->
+            <h2>Aufgabe {{ aufgabe.id }}: {{ aufgabe.kategorie }}</h2>
+            <p>{{ aufgabe.aufgabentext }}</p>
+    
+            <div class="berechnung_felder">
+                <!-- Linke Hälfte: Lösung Soll -->
+                <div class="loesung_soll">
+                    <h3>Lösung Soll:</h3>
+                    <ul>
+                        {% for eintrag in loesung_soll %}
+                            <li>Konto: {{ eintrag.konto }}, Betrag: {{ eintrag.betrag }}</li>
+                        {% endfor %}
+                    </ul>
+    
+                    <h3>Eingaben für Soll:</h3>
+                    <form id="numberFormSoll">
+                        <div id="inputFieldsSoll">
+                            <div class="inputPairSoll">
+                                <input type="text" name="konto_soll" placeholder="Konto eingeben" required>
+                                <input type="number" name="betrag_soll" placeholder="Betrag eingeben" required>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addField('soll')">Neues Feld hinzufügen (Soll)</button>
+                    </form>
+                </div>
+    
+                <!-- Rechte Hälfte: Lösung Haben -->
+                <div class="loesung_haben">
+                    <h3>Lösung Haben:</h3>
+                    <ul>
+                        {% for eintrag in loesung_haben %}
+                            <li>Konto: {{ eintrag.konto }}, Betrag: {{ eintrag.betrag }}</li>
+                        {% endfor %}
+                    </ul>
+    
+                    <h3>Eingaben für Haben:</h3>
+                    <form id="numberFormHaben">
+                        <div id="inputFieldsHaben">
+                            <div class="inputPairHaben">
+                                <input type="text" name="konto_haben" placeholder="Konto eingeben" required>
+                                <input type="number" name="betrag_haben" placeholder="Betrag eingeben" required>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addField('haben')">Neues Feld hinzufügen (Haben)</button>
+                    </form>
+                </div>
             </div>
-            <br>
-            <!-- Button to calculate sum -->
-            <button type="button" onclick="calculateSum()">Summe berechnen</button>
+    
+            <!-- Button zur Überprüfung -->
+            <button type="button" onclick="calculateAndCheckSum()">Eingaben überprüfen</button>
             <br><br>
-            <!-- Button to add more fields -->
-            <button type="button" onclick="addField()">Neues Feld hinzufügen</button>
-            <br><br>
-            <!-- Button to remove the last field -->
-            <button type="button" onclick="removeField()">Letztes Feld entfernen</button>
-            <br><br>
-            <!-- Result display -->
+    
+            <!-- Ergebnis der Überprüfung -->
             <div id="result"></div>
-        </form>
+        </div>
     </div>
 </div>
 
 <script>
-    // Function to calculate the sum of all input fields
-    function calculateSum() {
-        let inputs = document.querySelectorAll('#inputFields input[type="number"]');
-        let sum = 0;
-        inputs.forEach(input => {
-            let value = parseFloat(input.value);
-            if (!isNaN(value)) {
-                sum += value;
+    // Funktion zum Hinzufügen eines neuen Text- und Zahlenfeldes für Soll oder Haben
+    function addField(type) {
+        let inputFieldsDiv = document.getElementById(`inputFields${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        let newPair = document.createElement('div');
+        newPair.classList.add(`inputPair${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        newPair.innerHTML = `
+            <input type="text" name="konto_${type}" placeholder="Konto eingeben" required>
+            <input type="number" name="betrag_${type}" placeholder="Betrag eingeben" required>
+        `;
+        inputFieldsDiv.appendChild(newPair);
+    }
+
+    // Funktion zur Überprüfung der Eingaben für Soll und Haben
+    function calculateAndCheckSum() {
+        // Erstelle Arrays aus den Eingaben des Benutzers für Soll
+        let inputsSoll = document.querySelectorAll('.inputPairSoll');
+        let userEntriesSoll = [];
+        inputsSoll.forEach(inputPair => {
+            let konto = inputPair.querySelector('input[name="konto_soll"]').value.trim().toLowerCase();
+            let betrag = parseFloat(inputPair.querySelector('input[name="betrag_soll"]').value);
+            if (konto && !isNaN(betrag)) {
+                userEntriesSoll.push({ konto: konto, betrag: betrag });
             }
         });
-        document.getElementById('result').innerText = 'Summe: ' + sum;
-    }
 
-    // Function to add a new input field
-    function addField() {
-        let inputFieldsDiv = document.getElementById('inputFields');
-        let newField = document.createElement('input');
-        newField.type = 'number';
-        newField.name = 'number';
-        newField.placeholder = 'Zahl eingeben';
-        inputFieldsDiv.appendChild(newField);
-        inputFieldsDiv.appendChild(document.createElement('br'));
-    }
+        // Erstelle Arrays aus den Eingaben des Benutzers für Haben
+        let inputsHaben = document.querySelectorAll('.inputPairHaben');
+        let userEntriesHaben = [];
+        inputsHaben.forEach(inputPair => {
+            let konto = inputPair.querySelector('input[name="konto_haben"]').value.trim().toLowerCase();
+            let betrag = parseFloat(inputPair.querySelector('input[name="betrag_haben"]').value);
+            if (konto && !isNaN(betrag)) {
+                userEntriesHaben.push({ konto: konto, betrag: betrag });
+            }
+        });
 
-    // Function to remove the last input field
-    function removeField() {
-        let inputFieldsDiv = document.getElementById('inputFields');
-        let inputs = inputFieldsDiv.querySelectorAll('input[type="number"]');
-        if (inputs.length > 2) { // Ensure at least two fields remain
-            inputFieldsDiv.removeChild(inputs[inputs.length - 1].nextSibling); // Remove <br>
-            inputFieldsDiv.removeChild(inputs[inputs.length - 1]); // Remove last input
+        // JSON-Lösungen aus der Aufgabe für Soll und Haben
+        const loesungSoll = {{ loesung_soll|safe }};
+        let dbEntriesSoll = loesungSoll.map(entry => ({
+            konto: entry.konto.toLowerCase(),
+            betrag: parseFloat(entry.betrag)
+        }));
+
+        const loesungHaben = {{ loesung_haben|safe }};
+        let dbEntriesHaben = loesungHaben.map(entry => ({
+            konto: entry.konto.toLowerCase(),
+            betrag: parseFloat(entry.betrag)
+        }));
+
+        // Sortiere beide Arrays, um Reihenfolge zu ignorieren
+        userEntriesSoll.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
+        dbEntriesSoll.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
+
+        userEntriesHaben.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
+        dbEntriesHaben.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
+
+        // Vergleich der Arrays für Soll und Haben
+        let resultMessageSoll = '';
+        let resultMessageHaben = '';
+
+        if (JSON.stringify(userEntriesSoll) === JSON.stringify(dbEntriesSoll)) {
+            resultMessageSoll = 'Soll passt';
+        } else {
+            resultMessageSoll = 'Fehler, Soll ist falsch';
         }
+
+        if (JSON.stringify(userEntriesHaben) === JSON.stringify(dbEntriesHaben)) {
+            resultMessageHaben = 'Haben passt';
+        } else {
+            resultMessageHaben = 'Fehler, Haben ist falsch';
+        }
+
+        // Zeige das Ergebnis im HTML an
+        document.getElementById('result').innerHTML = resultMessageSoll + '<br>' + resultMessageHaben;
     }
 </script>
 {% endblock %}

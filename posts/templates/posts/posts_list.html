@@ -5,6 +5,11 @@
     {{post.title}}
 {%block content%}
 <body>
+    {% if user.is_authenticated %}
+        <p>Der Benutzer ist eingeloggt</p>
+    {% else %}
+        <p>Der Benutzer ist **nicht** eingeloggt</p>
+    {% endif %}
     <section>
         <h1>Posts List</h1>
         {% for post in posts%}

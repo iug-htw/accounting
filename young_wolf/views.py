@@ -7,8 +7,6 @@ def vorlage(request):
 #    return render(request, 'buchungsaufgabe.html')
 def index(request):
     return render(request, 'index.html')
-def login(request):
-    return render(request, 'login.html')
 def themenkomplex1(request):
     return render(request, 'themenkomplex1.html')
 def themenkomplex2(request):
