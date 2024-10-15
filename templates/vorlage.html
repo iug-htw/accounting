@@ -30,7 +30,6 @@
             <a class = "menulink" href="{% url 'vorlage' %}">Vorlage</a>
             <a class = "menulink" href="{% url 'posts:list' %}">Posts</a>
             {% if user.is_authenticated%}
-                <a class = "menulink" href="{% url 'posts:new-post' %}">New_Post</a>
                 <a class = "menulink" href="{% url 'posts:neue_aufgabe' %}">Aufgabe erstellen</a>
                 <a class = "menulink" href="{% url 'posts:aufgaben_liste' %}">Aufgabenliste</a>
                 <form class="logout" action="{%url 'users:logout' %}" method = "post">

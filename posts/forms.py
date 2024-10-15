@@ -1,11 +1,6 @@
 from django import forms 
-from . import models
 from .models import Aufgabe
-
-class CreatePost(forms.ModelForm):
-    class Meta:
-        model = models.Post
-        fields = ['title', 'body', 'slug', 'banner']
+#funktional 11;17
 
 class AufgabeForm(forms.ModelForm):
     class Meta:
