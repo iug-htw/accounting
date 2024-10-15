@@ -1,9 +1,8 @@
 from django.shortcuts import render,redirect
-from .models import Aufgabe
 from django.contrib.auth.decorators import login_required
-from . import forms
+from .models import Aufgabe
 from .forms import AufgabeForm
-import json
+import json, random
 #funktional 11;17
 
 def buchungsaufgabe(request):
@@ -33,9 +32,10 @@ def handle_buchungssatz(request, aufgabe):
 
 # Separate Logik für Multiple-Choice-Aufgaben
 def handle_multiple_choice(request, aufgabe):
-    antworten = [request.POST.get(f'antwort_{i}') for i in range(1, 4)]
-    aufgabe.multiple_choice_antworten = antworten  # Alle Antwortmöglichkeiten speichern
-    aufgabe.richtige_antwort = antworten[0]        # Die erste Antwort als richtige speichern
+    antworten = request.POST.getlist('antwort')  # Holt die Antworten als Liste
+    aufgabe.multiple_choice_antworten = json.dumps(antworten)  # Speichert sie als JSON
+    aufgabe.richtige_antwort = antworten[0]  # Die erste Antwort ist korrekt
+
 
 # Separate Logik für Texteingabe-Aufgaben
 def handle_texteingabe(request, aufgabe):
@@ -72,12 +72,27 @@ def aufgaben_liste(request):
 @login_required(login_url="/users/login/")
 def aufgabe_detail(request, aufgabe_id):
     aufgabe = Aufgabe.objects.get(id=aufgabe_id)
-    # JSON-Felder für loesung_soll und loesung_haben dekodieren
-    loesung_soll = json.loads(aufgabe.loesung_soll)
-    loesung_haben = json.loads(aufgabe.loesung_haben)
-    total_tasks = Aufgabe.objects.count()  # Get the total number of tasks
+
+    if aufgabe.aufgabentyp == 'buchungssatz':
+        loesung_soll = json.loads(aufgabe.loesung_soll)
+        loesung_haben = json.loads(aufgabe.loesung_haben)
+    else:
+        loesung_soll, loesung_haben = None, None
+
+    if aufgabe.aufgabentyp == 'multiple_choice':
+        # Falls multiple_choice_antworten als String gespeichert ist, konvertiere es in eine Liste
+        if isinstance(aufgabe.multiple_choice_antworten, str):
+            antworten = json.loads(aufgabe.multiple_choice_antworten)
+        else:
+            antworten = aufgabe.multiple_choice_antworten  # Falls es schon eine Liste ist
+        random.shuffle(antworten)  # Antworten mischen
+    else:
+        antworten = None
+
+    total_tasks = Aufgabe.objects.count()
     next_id = aufgabe_id + 1 if aufgabe_id < total_tasks else None
     prev_id = aufgabe_id - 1 if aufgabe_id > 1 else None
+
     return render(request, 'posts/buchungsaufgabe.html', {
         'aufgabe': aufgabe,
         'loesung_soll': loesung_soll,
@@ -86,3 +101,4 @@ def aufgabe_detail(request, aufgabe_id):
         'prev_id': prev_id,
         'total_tasks': total_tasks,
     })
+

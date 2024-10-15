@@ -25,11 +25,11 @@ Buchungsaufgabe - Website Prototyp
                 <a href="{% url 'posts:aufgabe_detail' next_id %}">Nächste Seite</a>
             {% endif %}
         </div>
-        <div class="buchung_rechts">
+        {% if aufgabe.aufgabentyp == 'buchungssatz' %}
             <!-- Anzeige der Aufgabe -->
             <h2>Aufgabe {{ aufgabe.id }}: {{ aufgabe.kategorie }}</h2>
             <p>{{ aufgabe.aufgabentext }}</p>
-    
+        
             <div class="berechnung_felder">
                 <!-- Linke Hälfte: Lösung Soll -->
                 <div class="loesung_soll">
@@ -39,7 +39,7 @@ Buchungsaufgabe - Website Prototyp
                             <li>Konto: {{ eintrag.konto }}, Betrag: {{ eintrag.betrag }}</li>
                         {% endfor %}
                     </ul>
-    
+
                     <h3>Eingaben für Soll:</h3>
                     <form id="numberFormSoll">
                         <div id="inputFieldsSoll">
@@ -51,7 +51,7 @@ Buchungsaufgabe - Website Prototyp
                         <button type="button" onclick="addField('soll')">Neues Feld hinzufügen (Soll)</button>
                     </form>
                 </div>
-    
+
                 <!-- Rechte Hälfte: Lösung Haben -->
                 <div class="loesung_haben">
                     <h3>Lösung Haben:</h3>
@@ -60,7 +60,7 @@ Buchungsaufgabe - Website Prototyp
                             <li>Konto: {{ eintrag.konto }}, Betrag: {{ eintrag.betrag }}</li>
                         {% endfor %}
                     </ul>
-    
+
                     <h3>Eingaben für Haben:</h3>
                     <form id="numberFormHaben">
                         <div id="inputFieldsHaben">
@@ -73,14 +73,43 @@ Buchungsaufgabe - Website Prototyp
                     </form>
                 </div>
             </div>
-    
+
             <!-- Button zur Überprüfung -->
             <button type="button" onclick="calculateAndCheckSum()">Eingaben überprüfen</button>
             <br><br>
-    
+
             <!-- Ergebnis der Überprüfung -->
             <div id="result"></div>
-        </div>
+            
+            {% elif aufgabe.aufgabentyp == 'multiple_choice' %}
+                <!-- Multiple Choice Frage -->
+                <div class="multiple_choice">
+                    <h3>Wähle die richtige Antwort:</h3>
+                    <form id="mcForm">
+                        <ul id="mcAnswers">
+                            {% for antwort in aufgabe.multiple_choice_antworten %}
+                                <li>
+                                    <input type="radio" name="mc_answer" value="{{ antwort }}">{{ antwort }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <button type="button" onclick="checkMCAnswer()">Antwort überprüfen</button>
+                    </form>
+                    <div id="mcResult"></div>
+                </div>
+
+            {% elif aufgabe.aufgabentyp == 'texteingabe' %}
+                <!-- Texteingabe Frage -->
+                <div class="texteingabe">
+                    <h3>Antwort eingeben:</h3>
+                    <form id="textForm">
+                        <input type="text" name="text_answer" placeholder="Ihre Antwort hier">
+                        <button type="button" onclick="checkTextAnswer()">Antwort überprüfen</button>
+                    </form>
+                    <div id="textResult"></div>
+                </div>
+
+        {% endif %}
     </div>
 </div>
 
@@ -90,11 +119,23 @@ Buchungsaufgabe - Website Prototyp
         let inputFieldsDiv = document.getElementById(`inputFields${type.charAt(0).toUpperCase() + type.slice(1)}`);
         let newPair = document.createElement('div');
         newPair.classList.add(`inputPair${type.charAt(0).toUpperCase() + type.slice(1)}`);
-        newPair.innerHTML = `
-            <input type="text" name="konto_${type}" placeholder="Konto eingeben" required>
-            <input type="number" name="betrag_${type}" placeholder="Betrag eingeben" required>
-        `;
+        newPair.innerHTML = `<input type="text" name="konto_${type}" placeholder="Konto eingeben" required>
+                             <input type="number" name="betrag_${type}" placeholder="Betrag eingeben" required>`;
         inputFieldsDiv.appendChild(newPair);
+    }
+
+    function checkMCAnswer() {
+        let userAnswer = document.querySelector('input[name="mc_answer"]:checked').value;
+        let correctAnswer = "{{ aufgabe.richtige_antwort }}";
+        let resultMessage = userAnswer === correctAnswer ? "Richtig!" : "Falsch!";
+        document.getElementById('mcResult').innerHTML = resultMessage;
+    }
+
+    function checkTextAnswer() {
+        let userAnswer = document.querySelector('input[name="text_answer"]').value.trim().toLowerCase();
+        let correctAnswer = "{{ aufgabe.richtige_antwort|lower }}";
+        let resultMessage = userAnswer === correctAnswer ? "Richtig!" : "Falsch!";
+        document.getElementById('textResult').innerHTML = resultMessage;
     }
 
     // Funktion zur Überprüfung der Eingaben für Soll und Haben
@@ -109,7 +150,7 @@ Buchungsaufgabe - Website Prototyp
                 userEntriesSoll.push({ konto: konto, betrag: betrag });
             }
         });
-
+    
         // Erstelle Arrays aus den Eingaben des Benutzers für Haben
         let inputsHaben = document.querySelectorAll('.inputPairHaben');
         let userEntriesHaben = [];
