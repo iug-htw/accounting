@@ -1,0 +1,34 @@
+{% extends 'vorlage.html' %}
+
+{% block title %}
+    Kategorien verwalten
+{% endblock %}
+
+{% block content %}
+<h1>Kategorien verwalten</h1>
+
+<!-- Formular zum Hinzufügen einer neuen Kategorie -->
+<form method="POST">
+    {% csrf_token %}
+    {{ form.name.label_tag }} {{ form.name }}<br>
+    <button type="submit">Kategorie hinzufügen</button>
+</form>
+
+<hr>
+
+<!-- Anzeige aller Kategorien mit Lösch-Button -->
+<h2>Alle Kategorien</h2>
+<ul>
+    {% for kategorie in kategorien %}
+        <li>
+            {{ kategorie.name }}
+            <!-- Lösch-Button -->
+            <form action="{% url 'posts:kategorie_loeschen' kategorie.id %}" method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Willst du diese Kategorie wirklich löschen?');">Löschen</button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

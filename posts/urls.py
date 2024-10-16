@@ -8,5 +8,7 @@ urlpatterns = [
     path('buchungsaufgabe/', views.buchungsaufgabe_view, name = 'buchungsaufgabe'),
     path('neue-aufgabe/', views.neue_aufgabe, name='neue_aufgabe'),
     path('aufgaben/', views.aufgaben_liste, name='aufgaben_liste'),
+    path('neue-kategorie/', views.neue_kategorie, name='neue_kategorie'),
+    path('kategorie-loeschen/<int:kategorie_id>/', views.kategorie_loeschen, name='kategorie_loeschen'),
     path('aufgabe/<int:aufgabe_id>/', views.aufgabe_detail, name='aufgabe_detail'),  # New path for task detail page    
 ]

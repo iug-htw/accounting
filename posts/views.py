@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
-from .models import Aufgabe
-from .forms import AufgabeForm
+from .models import Aufgabe, Kategorie
+from .forms import AufgabeForm, KategorieForm
 import json, random
 #funktional 11;17
 
@@ -11,6 +11,32 @@ def buchungsaufgabe(request):
 def buchungsaufgabe_view(request):
     return render(request, 'posts/buchungsaufgabe.html')
 
+@login_required(login_url="/users/login/")
+def neue_kategorie(request):
+    # Kategorie-Formular zum Hinzufügen neuer Kategorien
+    if request.method == 'POST':
+        form = KategorieForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('posts:neue_kategorie')
+    else:
+        form = KategorieForm()
+
+    # Alle Kategorien abrufen
+    kategorien = Kategorie.objects.all()
+
+    # Template mit Kategorien und Formular rendern
+    return render(request, 'posts/neue_kategorie.html', {'form': form, 'kategorien': kategorien})
+
+@login_required(login_url="/users/login/")
+def kategorie_loeschen(request, kategorie_id):
+    # Versuchen, die Kategorie zu löschen
+    try:
+        kategorie = Kategorie.objects.get(id=kategorie_id)
+        kategorie.delete()
+    except Kategorie.DoesNotExist:
+        pass
+    return redirect('posts:neue_kategorie')
 
 # Separate Logik für Buchungssatz
 def handle_buchungssatz(request, aufgabe):
@@ -32,9 +58,16 @@ def handle_buchungssatz(request, aufgabe):
 
 # Separate Logik für Multiple-Choice-Aufgaben
 def handle_multiple_choice(request, aufgabe):
-    antworten = request.POST.getlist('antwort')  # Holt die Antworten als Liste
-    aufgabe.multiple_choice_antworten = json.dumps(antworten)  # Speichert sie als JSON
-    aufgabe.richtige_antwort = antworten[0]  # Die erste Antwort ist korrekt
+    antworten = []
+    i = 1
+    while f'antwort_{i}' in request.POST:
+        antworten.append(request.POST.get(f'antwort_{i}'))
+        i += 1
+    if len(antworten) < 3:
+        raise ValueError("Es müssen mindestens drei Antworten vorhanden sein.")
+    # Speichere die Antworten als Liste
+    aufgabe.multiple_choice_antworten = antworten
+    aufgabe.richtige_antwort = antworten[0]
 
 
 # Separate Logik für Texteingabe-Aufgaben
@@ -49,7 +82,6 @@ def neue_aufgabe(request):
             aufgabe = form.save(commit=False)
             aufgabe.author = request.user
 
-            # Speichere die spezifischen Daten basierend auf dem Aufgabentyp
             if aufgabe.aufgabentyp == 'buchungssatz':
                 handle_buchungssatz(request, aufgabe)
             elif aufgabe.aufgabentyp == 'multiple_choice':
@@ -62,7 +94,6 @@ def neue_aufgabe(request):
     else:
         form = AufgabeForm()
     return render(request, 'posts/neue_aufgabe.html', {'form': form})
-
 
 @login_required(login_url="/users/login/")
 def aufgaben_liste(request):

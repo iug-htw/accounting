@@ -6,7 +6,7 @@
 
 {% block content %}
 <h1>Neue Aufgabe erstellen</h1>
-
+<a href="{% url 'posts:neue_kategorie' %}">Neue Kategorie hinzufügen</a> 
 <form id="aufgabeForm" method="POST">
     {% csrf_token %}
     
@@ -124,8 +124,9 @@
     // Funktion zum Hinzufügen neuer Antwortfelder für Multiple Choice
     function addMCField() {
         let mcFields = document.getElementById('mcFields');
+        let fieldCount = mcFields.getElementsByTagName('input').length + 1;  // Zählt vorhandene Felder
         let newField = document.createElement('div');
-        newField.innerHTML = '<input type="text" placeholder="Weitere Antwort" name="antwort"><br>';
+        newField.innerHTML = `<input type="text" placeholder="Antwort ${fieldCount}" name="antwort_${fieldCount}"><br>`;
         mcFields.appendChild(newField);
     }
 
