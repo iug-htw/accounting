@@ -29,7 +29,7 @@
             <a class = "menulink" href="{% url 'posts:buchungsaufgabe' %}">Buchungsaufgabe</a>
             <a class = "menulink" href="{% url 'vorlage' %}">Vorlage</a>
             <a class = "menulink" href="{% url 'posts:list' %}">Posts</a>
-            {% if user.is_authenticated%}
+            {% if user.is_authenticated %}
                 <a class = "menulink" href="{% url 'posts:neue_aufgabe' %}">Aufgabe erstellen</a>
                 <a class = "menulink" href="{% url 'posts:aufgaben_liste' %}">Aufgabenliste</a>
                 <form class="logout" action="{%url 'users:logout' %}" method = "post">
@@ -41,6 +41,7 @@
                 <a class = "menulink" href="{% url 'users:register' %}">Registrierung</a>
             {% endif %}
         </div>
+        
     </div>
     {% block content %}
     <!-- Hier wird der spezifische Seiteninhalt platziert -->

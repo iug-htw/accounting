@@ -1,10 +1,24 @@
 {% extends 'vorlage.html' %}
 {% load static %}
+
 {% block title %}
 Website Prototyp
 {% endblock %}
+
 {% block content %}
-    
+    <!-- Anzeige des Nutzernamens und der Rolle -->
+    {% if user.is_authenticated %}
+        <p>Willkommen, {{ user.username }}!</p>
+        
+        {% if user.is_superuser %}
+            <p>Ihre Rolle: Admin</p>
+        {% else %}
+            <p>Ihre Rolle: {{ user.get_role_display }}</p> <!-- get_role_display korrekt verwenden -->
+        {% endif %}
+    {% else %}
+        <p>Bitte <a href="{% url 'users:login' %}">loggen Sie sich ein</a>.</p>
+    {% endif %}
+
     <!-- Bild unten rechts -->
     <div class="bottom_right_image">
         <img src="/media/img1.webp" alt="Meme">
@@ -14,4 +28,3 @@ Website Prototyp
     </div>
     <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}
-

@@ -1,17 +1,20 @@
 from django.shortcuts import render, redirect 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm 
 from django.contrib.auth import login, logout
+from .forms import CustomUserCreationForm
+from django.contrib.auth import get_user_model
 
-# Create your views here.
 def register_view(request):
-    if request.method == "POST": 
-        form = UserCreationForm(request.POST) 
-        if form.is_valid(): 
-            login(request, form.save())
+    if request.method == "POST":
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Verwende das benutzerdefinierte User-Modell
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')  
             return redirect("posts:list")
     else:
-        form = UserCreationForm()
-    return render(request, "users/register.html", { "form": form })
+        form = CustomUserCreationForm()
+    return render(request, "users/register.html", {"form": form})
 
 def login_view(request):
     if request.method == "POST":
