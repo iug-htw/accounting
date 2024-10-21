@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+=7d&r0cu!2mbm4nb(%azg6-$gpog7%5=%7+m(2c$6w)fm5gsa'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost','127.0.0.1']
 
@@ -137,4 +137,4 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-handler403 = 'young_wolf.views.custom_permission_denied_view'
+#handler403 = 'young_wolf.views.custom_permission_denied_view'

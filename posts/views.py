@@ -2,8 +2,10 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from .models import Aufgabe, Kategorie
 from .forms import AufgabeForm, KategorieForm
-from django.core.exceptions import PermissionDenied
+#from django.core.exceptions import PermissionDenied
 import json, random
+from django.urls import reverse
+from django.http import HttpResponse
 #funktional 11;17
 
 # Für Lehrkräfte
@@ -12,14 +14,14 @@ def lehrkraft_required(view_func):
         if request.user.is_authenticated and request.user.role == 'teacher':
             return view_func(request, *args, **kwargs)
         else:
-            raise PermissionDenied("Nur Lehrkräfte dürfen diese Aktion durchführen.")
+            return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
     return _wrapped_view_func
 
 # Für Studierende
 def student_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
         if not request.user.is_authenticated or request.user.role != 'student':
-            raise PermissionDenied("Nur Studierende können diese Aufgabe lösen.")
+            return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
         return view_func(request, *args, **kwargs)
     return _wrapped_view_func
 
