@@ -136,3 +136,5 @@ AUTH_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+handler403 = 'young_wolf.views.custom_permission_denied_view'

@@ -2,17 +2,37 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from .models import Aufgabe, Kategorie
 from .forms import AufgabeForm, KategorieForm
-from django.conf import settings
+from django.core.exceptions import PermissionDenied
 import json, random
 #funktional 11;17
 
+# Für Lehrkräfte
+def lehrkraft_required(view_func):
+    def _wrapped_view_func(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.role == 'teacher':
+            return view_func(request, *args, **kwargs)
+        else:
+            raise PermissionDenied("Nur Lehrkräfte dürfen diese Aktion durchführen.")
+    return _wrapped_view_func
+
+# Für Studierende
+def student_required(view_func):
+    def _wrapped_view_func(request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.role != 'student':
+            raise PermissionDenied("Nur Studierende können diese Aufgabe lösen.")
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view_func
+
+@login_required(login_url="/users/login/")
 def buchungsaufgabe(request):
     return render(request, 'posts/buchungsaufgabe.html')
 
+@login_required(login_url="/users/login/")
 def buchungsaufgabe_view(request):
     return render(request, 'posts/buchungsaufgabe.html')
 
 @login_required(login_url="/users/login/")
+@lehrkraft_required
 def neue_kategorie(request):
     # Kategorie-Formular zum Hinzufügen neuer Kategorien
     if request.method == 'POST':
@@ -30,6 +50,7 @@ def neue_kategorie(request):
     return render(request, 'posts/neue_kategorie.html', {'form': form, 'kategorien': kategorien})
 
 @login_required(login_url="/users/login/")
+@lehrkraft_required
 def kategorie_loeschen(request, kategorie_id):
     # Versuchen, die Kategorie zu löschen
     try:
@@ -40,6 +61,7 @@ def kategorie_loeschen(request, kategorie_id):
     return redirect('posts:neue_kategorie')
 
 # Separate Logik für Buchungssatz
+@lehrkraft_required
 def handle_buchungssatz(request, aufgabe):
     haben_konten = request.POST.getlist('haben_konto')
     haben_betraege = request.POST.getlist('haben_betrag')
@@ -58,6 +80,7 @@ def handle_buchungssatz(request, aufgabe):
     aufgabe.loesung_soll = json.dumps(loesung_soll)
 
 # Separate Logik für Multiple-Choice-Aufgaben
+@lehrkraft_required
 def handle_multiple_choice(request, aufgabe):
     antworten = []
     i = 1
@@ -72,10 +95,12 @@ def handle_multiple_choice(request, aufgabe):
 
 
 # Separate Logik für Texteingabe-Aufgaben
+@lehrkraft_required
 def handle_texteingabe(request, aufgabe):
     aufgabe.richtige_antwort = request.POST.get('richtige_antwort')  # Richtige Antwort speichern
 
 @login_required(login_url="/users/login/")
+@lehrkraft_required
 def neue_aufgabe(request):
     if request.method == 'POST':
         form = AufgabeForm(request.POST)

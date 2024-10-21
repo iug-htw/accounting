@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.core.exceptions import PermissionDenied
+
 
 # Create your views here.
 def vorlage(request):
@@ -14,4 +16,5 @@ def themenkomplex2(request):
 def themenkomplex3(request):
     return render(request, 'themenkomplex3.html')
 
-
+def custom_permission_denied_view(request, exception):
+    return render(request, 'errors/permission_denied.html', status=403)
