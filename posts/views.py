@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from .models import Aufgabe, Kategorie
 from .forms import AufgabeForm, KategorieForm
+from django.conf import settings
 import json, random
 #funktional 11;17
 
@@ -79,6 +80,9 @@ def neue_aufgabe(request):
     if request.method == 'POST':
         form = AufgabeForm(request.POST)
         if form.is_valid():
+            # Debug-Ausgabe für request.user
+            print(type(request.user))  # Gibt den Typ von request.user aus, sollte 'CustomUser' sein
+            print(request.user.id, request.user.email, request.user.role)  # Zusätzliche Informationen
             aufgabe = form.save(commit=False)
             aufgabe.author = request.user
 
