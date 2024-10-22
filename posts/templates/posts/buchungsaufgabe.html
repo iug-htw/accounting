@@ -41,6 +41,16 @@ Buchungsaufgabe - Website Prototyp
                 <a href="{% url 'posts:aufgabe_detail' next_id %}">Nächste Seite</a>
             {% endif %}
         </div>
+
+        {% if kategorie %}
+            <h2>Aufgaben in der Kategorie: {{ kategorie.name }}</h2>
+        {% endif %}
+        <div class="navigation_links">
+            {% for aufgabe in aufgaben %}
+                <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}">Aufgabe {{ aufgabe.aufgabentext }}</a><br>
+            {% endfor %}
+
+        </div>
         {% if aufgabe.aufgabentyp == 'buchungssatz' %}
             <!-- Anzeige der Aufgabe -->
             <h2>Aufgabe {{ aufgabe.id }}: {{ aufgabe.kategorie }}</h2>
@@ -126,6 +136,14 @@ Buchungsaufgabe - Website Prototyp
                 </div>
 
         {% endif %}
+        <div class="navigation_kategorien">
+            <br><br><br><br><br><br>
+            <h3>Weitere Optionen</h3>
+            <ul>
+                <li><a href="{% url 'posts:buchungsaufgabe' %}">Alle Aufgaben anzeigen</a></li>
+                <li><a href="{% url 'posts:kategorien_liste' %}">Alle Kategorien anzeigen</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 

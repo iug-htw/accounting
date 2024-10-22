@@ -194,3 +194,16 @@ def aufgabe_detail(request, aufgabe_id):
         'first_aufgabe_id': first_aufgabe_id,
     })
 
+@login_required(login_url="/users/login/")
+def kategorien_liste(request):
+    kategorien = Kategorie.objects.all()
+    return render(request, 'posts/kategorien_liste.html', {'kategorien': kategorien})
+
+@login_required(login_url="/users/login/")
+def kategorie_aufgaben(request, kategorie_id):
+    kategorie = Kategorie.objects.get(id=kategorie_id)
+    aufgaben = Aufgabe.objects.filter(kategorie=kategorie)
+    return render(request, 'posts/buchungsaufgabe.html', {
+        'aufgaben': aufgaben,
+        'kategorie': kategorie,
+    })
