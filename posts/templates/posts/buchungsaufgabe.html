@@ -5,6 +5,15 @@
 Buchungsaufgabe - Website Prototyp
 {% endblock %}
 {% block content %}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 <div class="buchung_container">
     <!-- Linke Seite mit dem Bild -->
     <div class="buchung_links">
@@ -14,7 +23,14 @@ Buchungsaufgabe - Website Prototyp
     <!-- Rechte Seite mit den Inputfeldern -->
     <div class="buchung_rechts">
         <div class="navigation_links">
-            <a href="{% url 'posts:aufgabe_detail' 1 %}">Zur ersten Aufgabe</a>
+            {% for aufgabe in aufgaben %}
+                <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}">Aufgabe {{ aufgabe.id }}</a><br>
+            {% endfor %}
+
+            {% if first_aufgabe_id %}
+                <a href="{% url 'posts:aufgabe_detail' first_aufgabe_id %}">Zur ersten Aufgabe</a>
+            {% endif %}
+        
             {% if prev_id %}
                 <a href="{% url 'posts:aufgabe_detail' prev_id %}">Letzte Seite</a>
             {% else %}

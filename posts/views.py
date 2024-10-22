@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from .models import Aufgabe, Kategorie
 from .forms import AufgabeForm, KategorieForm
+from django.contrib import messages
 #from django.core.exceptions import PermissionDenied
 import json, random
 from django.urls import reverse
@@ -26,12 +27,16 @@ def student_required(view_func):
     return _wrapped_view_func
 
 @login_required(login_url="/users/login/")
-def buchungsaufgabe(request):
-    return render(request, 'posts/buchungsaufgabe.html')
-
-@login_required(login_url="/users/login/")
 def buchungsaufgabe_view(request):
-    return render(request, 'posts/buchungsaufgabe.html')
+    if request.user.role == 'teacher':
+        # Lehrkraft sieht nur ihre eigenen Aufgaben
+        aufgaben = Aufgabe.objects.filter(author=request.user, aufgabentyp='buchungssatz').order_by('id')
+    elif request.user.role == 'student':
+        # Studierende sehen nur die Buchungsaufgaben ihres Professors
+        aufgaben = Aufgabe.objects.filter(author=request.user.professor, aufgabentyp='buchungssatz').order_by('id')
+    else:
+        aufgaben = None  # Keine Aufgaben für andere Benutzer
+    return render(request, 'posts/buchungsaufgabe.html', {'aufgaben': aufgaben})
 
 @login_required(login_url="/users/login/")
 @lehrkraft_required
@@ -129,12 +134,34 @@ def neue_aufgabe(request):
 @login_required(login_url="/users/login/")
 @lehrkraft_required
 def aufgaben_liste(request):
-    aufgaben = Aufgabe.objects.all().order_by('id')
-    return render(request, 'posts/aufgaben_liste.html', {'aufgaben': aufgaben})    
+    if request.user.role == 'teacher':
+        # Lehrkraft sieht nur ihre eigenen Aufgaben
+        aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
+    elif request.user.role == 'student':
+        # Studierende sehen nur die Aufgaben ihres Professors
+        aufgaben = Aufgabe.objects.filter(author=request.user.professor).order_by('id')
+    else:
+        aufgaben = None  # Keine Aufgaben für andere Benutzer
+    return render(request, 'posts/aufgaben_liste.html', {'aufgaben': aufgaben})
 
 @login_required(login_url="/users/login/")
 def aufgabe_detail(request, aufgabe_id):
-    aufgabe = Aufgabe.objects.get(id=aufgabe_id)
+    if request.user.role == 'teacher':
+        aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
+    elif request.user.role == 'student':
+        aufgaben = Aufgabe.objects.filter(author=request.user.professor).order_by('id')
+    else:
+        aufgaben = None
+
+    # Aktuelle Aufgabe basierend auf Aufgabe ID
+    aufgabe = aufgaben.filter(id=aufgabe_id).first()
+    first_aufgabe = aufgaben.first()
+    first_aufgabe_id = first_aufgabe.id if first_aufgabe else None
+    
+
+    if not aufgabe:
+        messages.error(request, "Sie sind nicht berechtigt, diese Aufgabe zu sehen.")
+        return redirect('posts:buchungsaufgabe', permanent=False)
 
     if aufgabe.aufgabentyp == 'buchungssatz':
         loesung_soll = json.loads(aufgabe.loesung_soll)
@@ -152,16 +179,18 @@ def aufgabe_detail(request, aufgabe_id):
     else:
         antworten = None
 
-    total_tasks = Aufgabe.objects.count()
-    next_id = aufgabe_id + 1 if aufgabe_id < total_tasks else None
-    prev_id = aufgabe_id - 1 if aufgabe_id > 1 else None
+    aufgabe_ids = list(aufgaben.values_list('id', flat=True))
+    current_index = aufgabe_ids.index(aufgabe_id)
+    next_id = aufgabe_ids[current_index + 1] if current_index + 1 < len(aufgabe_ids) else None
+    prev_id = aufgabe_ids[current_index - 1] if current_index > 0 else None
 
     return render(request, 'posts/buchungsaufgabe.html', {
+        'aufgaben': aufgaben,
         'aufgabe': aufgabe,
         'loesung_soll': loesung_soll,
         'loesung_haben': loesung_haben,
         'next_id': next_id,
         'prev_id': prev_id,
-        'total_tasks': total_tasks,
+        'first_aufgabe_id': first_aufgabe_id,
     })
 
