@@ -127,6 +127,7 @@ def neue_aufgabe(request):
     return render(request, 'posts/neue_aufgabe.html', {'form': form})
 
 @login_required(login_url="/users/login/")
+@lehrkraft_required
 def aufgaben_liste(request):
     aufgaben = Aufgabe.objects.all().order_by('id')
     return render(request, 'posts/aufgaben_liste.html', {'aufgaben': aufgaben})    

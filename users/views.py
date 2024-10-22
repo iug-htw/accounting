@@ -9,8 +9,11 @@ def register_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Verwende das benutzerdefinierte User-Modell
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')  
+            # If a student, ensure they have a professor
+            if user.role == 'student' and not user.professor:
+                form.add_error('professor', 'Students must be assigned a professor.')
+                return render(request, "users/register.html", {"form": form})
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect("posts:list")
     else:
         form = CustomUserCreationForm()

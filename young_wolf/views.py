@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 #from django.core.exceptions import PermissionDenied
 
 
@@ -7,8 +8,11 @@ def vorlage(request):
     return render(request, 'vorlage.html')
 #def buchungsaufgabe(request):
 #    return render(request, 'buchungsaufgabe.html')
+@login_required(login_url="/users/login/")
 def index(request):
-    return render(request, 'index.html')
+    # Wenn der eingeloggte Nutzer eine Lehrkraft ist, hole die zugeordneten Studierenden
+    students = request.user.students.all() if request.user.role == 'teacher' else None
+    return render(request, 'index.html', {'students': students})
 def themenkomplex1(request):
     return render(request, 'themenkomplex1.html')
 def themenkomplex2(request):

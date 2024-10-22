@@ -8,16 +8,28 @@ Website Prototyp
 {% block content %}
     <!-- Anzeige des Nutzernamens und der Rolle -->
     {% if user.is_authenticated %}
-        <p>Willkommen, {{ user.username }}!</p>
-        
-        {% if user.is_superuser %}
-            <p>Ihre Rolle: Admin</p>
-        {% else %}
-            <p>Ihre Rolle: {{ user.get_role_display }}</p> <!-- get_role_display korrekt verwenden -->
-        {% endif %}
+    <p>Willkommen, {{ user.username }}!</p>
+    
+    {% if user.is_superuser %}
+        <p>Ihre Rolle: Admin</p>
     {% else %}
-        <p>Bitte <a href="{% url 'users:login' %}">loggen Sie sich ein</a>.</p>
+        <p>Ihre Rolle: {{ user.get_role_display }}</p>
     {% endif %}
+    
+    <!-- Nur für Lehrkräfte die Studierenden anzeigen -->
+    {% if students %}
+        <h2>Ihre Studierenden:</h2>
+        <ul>
+        {% for student in students %}
+            <li>{{ student.username }} - {{ student.email }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Sie haben derzeit keine Studierenden unter Ihrer Betreuung.</p>
+    {% endif %}
+{% else %}
+    <p>Bitte <a href="{% url 'users:login' %}">loggen Sie sich ein</a>.</p>
+{% endif %}
 
     <!-- Bild unten rechts -->
     <div class="bottom_right_image">

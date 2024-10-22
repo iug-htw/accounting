@@ -1,25 +1,49 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    list_display = ['username', 'email', 'role', 'is_staff', 'is_active']
-    list_filter = ['role', 'is_staff', 'is_active']
+# CustomUserAdminForm: Für zusätzliche Validierung im Admin-Panel
+class CustomUserAdminForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = '__all__'
 
-    # Hier fügst du das 'role'-Feld in den Bearbeitungsformularen hinzu
-    fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
-        ('Permissions', {'fields': ('role', 'is_staff', 'is_active', 'groups', 'user_permissions')}),  # Hier wird das 'role'-Feld hinzugefügt
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        professor = cleaned_data.get('professor')
+
+        # Wenn die Rolle 'student' ist, muss ein Professor zugewiesen werden
+        if role == 'student' and not professor:
+            raise forms.ValidationError('Studierende müssen einen Professor zugewiesen bekommen.')
+
+        return cleaned_data
+
+# CustomUserAdmin: Anpassung des Admin-Panels
+class CustomUserAdmin(UserAdmin):
+    form = CustomUserAdminForm  # Verwende das angepasste Formular
+
+    # Felder, die im Admin-Formular angezeigt werden sollen
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('role', 'professor')}),  # Füge die Felder "role" und "professor" hinzu
     )
+
+    # Felder, die beim Hinzufügen eines neuen Benutzers im Admin angezeigt werden
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'role', 'password1', 'password2', 'is_staff', 'is_active')}
-        ),
+            'fields': ('username', 'password1', 'password2', 'email', 'role', 'professor'),  # Hinzufügen von Rolle und Professor
+        }),
     )
 
-# Stelle sicher, dass CustomUser mit CustomUserAdmin registriert ist
+    # Felder, die in der Admin-Listenansicht angezeigt werden
+    list_display = ('username', 'email', 'role', 'professor')
+    
+    # Filter, um nach bestimmten Rollen zu filtern
+    list_filter = ('role',)
+
+    # Suchfelder, um nach Nutzern zu suchen
+    search_fields = ('username', 'email', 'role')
+
 admin.site.register(CustomUser, CustomUserAdmin)

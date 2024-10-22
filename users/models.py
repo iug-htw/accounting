@@ -1,6 +1,5 @@
 from django.db import models
-
-from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
@@ -9,17 +8,14 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
 
-    # Add related_name to groups to avoid clash
-    groups = models.ManyToManyField(
-        'auth.Group',
-        verbose_name='groups',
-        blank=True,
-        related_name='customuser_groups'  # Change related_name to avoid conflict
+    # New field: each student has one professor, and professors can supervise many students
+    professor = models.ForeignKey(
+        'self',
+        null=True, blank=True, 
+        limit_choices_to={'role': 'teacher'},
+        on_delete=models.SET_NULL,
+        related_name='students'
     )
 
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        verbose_name='user permissions',
-        blank=True,
-        related_name='customuser_set'  # Already adjusted previously
-    )
+    def __str__(self):
+        return f'{self.username} ({self.get_role_display()})'
