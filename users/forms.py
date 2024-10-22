@@ -5,9 +5,9 @@ from .models import CustomUser
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'role', 'professor')  # Include any fields you want for user creation
+        fields = ('username',)  # Include any fields you want for user creation
 
-
+ 
     def clean(self):
         cleaned_data = super().clean()
         role = cleaned_data.get('role')

@@ -7,7 +7,7 @@ Website Prototyp
 
 {% block content %}
     <!-- Anzeige des Nutzernamens und der Rolle -->
-    {% if user.is_authenticated %}
+{% if user.is_authenticated %}
     <p>Willkommen, {{ user.username }}!</p>
     
     {% if user.is_superuser %}
@@ -17,16 +17,28 @@ Website Prototyp
     {% endif %}
     
     <!-- Nur für Lehrkräfte die Studierenden anzeigen -->
-    {% if students %}
+    {% if user.role == 'teacher' %}
         <h2>Ihre Studierenden:</h2>
-        <ul>
-        {% for student in students %}
-            <li>{{ student.username }} - {{ student.email }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>Sie haben derzeit keine Studierenden unter Ihrer Betreuung.</p>
+        {% if students %}
+            <ul>
+            {% for student in students %}
+                <li>{{ student.username }} - {{ student.email }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>Sie haben derzeit keine Studierenden unter Ihrer Betreuung.</p>
+        {% endif %}
+    {% elif user.role == 'student' and not user.is_superuser%}
+        <h2>Ihr Professor:</h2>
+        {% if user.professor %}
+            <p>{{ user.professor.username }} - {{ user.professor.email }}</p>
+        {% else %}
+            <p>Sie haben derzeit keinen zugewiesenen Professor.</p>
+        {% endif %}
     {% endif %}
+
+
+ 
 {% else %}
     <p>Bitte <a href="{% url 'users:login' %}">loggen Sie sich ein</a>.</p>
 {% endif %}
