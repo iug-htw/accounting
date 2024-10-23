@@ -46,19 +46,19 @@ def buchungsaufgabe_view(request):
 @login_required(login_url="/users/login/")
 @lehrkraft_required
 def neue_kategorie(request):
-    # Kategorie-Formular zum Hinzufügen neuer Kategorien
     if request.method == 'POST':
         form = KategorieForm(request.POST)
         if form.is_valid():
-            form.save()
+            kategorie = form.save(commit=False)
+            kategorie.author = request.user  # Setze den aktuellen Benutzer als Author
+            kategorie.save()
             return redirect('posts:neue_kategorie')
     else:
         form = KategorieForm()
 
-    # Alle Kategorien abrufen
-    kategorien = Kategorie.objects.all()
-
-    # Template mit Kategorien und Formular rendern
+    # Nur die Kategorien des aktuellen Benutzers abrufen
+    kategorien = Kategorie.objects.filter(author=request.user)
+    
     return render(request, 'posts/neue_kategorie.html', {'form': form, 'kategorien': kategorien})
 
 @login_required(login_url="/users/login/")
@@ -115,11 +115,9 @@ def handle_texteingabe(request, aufgabe):
 @lehrkraft_required
 def neue_aufgabe(request):
     if request.method == 'POST':
-        form = AufgabeForm(request.POST)
+        form = AufgabeForm(request.POST, user=request.user)
         if form.is_valid():
             # Debug-Ausgabe für request.user
-            print(type(request.user))  # Gibt den Typ von request.user aus, sollte 'CustomUser' sein
-            print(request.user.id, request.user.email, request.user.role)  # Zusätzliche Informationen
             aufgabe = form.save(commit=False)
             aufgabe.author = request.user
 
@@ -133,21 +131,15 @@ def neue_aufgabe(request):
             aufgabe.save()
             return redirect('posts:aufgaben_liste')
     else:
-        form = AufgabeForm()
+        form = AufgabeForm(user=request.user)
     return render(request, 'posts/neue_aufgabe.html', {'form': form})
 
 @login_required(login_url="/users/login/")
 @lehrkraft_required
 def aufgaben_liste(request):
-    if request.user.role == 'teacher':
-        # Lehrkraft sieht nur ihre eigenen Aufgaben
-        aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
-    elif request.user.role == 'student':
-        # Studierende sehen nur die Aufgaben ihres Professors
-        aufgaben = Aufgabe.objects.filter(author=request.user.professor).order_by('id')
-    else:
-        aufgaben = None  # Keine Aufgaben für andere Benutzer
+    aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')  # Aufgaben des Lehrers filtern
     return render(request, 'posts/aufgaben_liste.html', {'aufgaben': aufgaben})
+
 
 @login_required(login_url="/users/login/")
 def aufgabe_detail(request, aufgabe_id):
@@ -205,7 +197,15 @@ def aufgabe_detail(request, aufgabe_id):
 
 @login_required(login_url="/users/login/")
 def kategorien_liste(request):
-    kategorien = Kategorie.objects.all()
+    if request.user.role == 'teacher':
+        # Lehrer sieht nur seine eigenen Kategorien
+        kategorien = Kategorie.objects.filter(author=request.user)
+    elif request.user.role == 'student':
+        # Studierende sehen die Kategorien ihres Professors
+        kategorien = Kategorie.objects.filter(author=request.user.professor)
+    else:
+        kategorien = Kategorie.objects.none()  # Keine Kategorien für andere Rollen
+
     return render(request, 'posts/kategorien_liste.html', {'kategorien': kategorien})
 
 @login_required(login_url="/users/login/")

@@ -8,6 +8,12 @@ class AufgabeForm(forms.ModelForm):
         model = Aufgabe
         fields = ['kategorie', 'aufgabentext', 'aufgabentyp']
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')  # Der Lehrer wird an das Formular übergeben
+        super(AufgabeForm, self).__init__(*args, **kwargs)
+        # Kategorienauswahl auf die Kategorien des Lehrers beschränken
+        self.fields['kategorie'].queryset = Kategorie.objects.filter(author=user)
+
 class KategorieForm(forms.ModelForm):
     class Meta:
         model = Kategorie
