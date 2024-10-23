@@ -26,12 +26,15 @@
         {% endif %}
         <div class = "topbar_text">
             <a class = "menulink" href="{% url 'index' %}">Home</a>
-            <a class = "menulink" href="{% url 'posts:buchungsaufgabe' %}">Buchungsaufgabe</a>
+            <a class = "menulink" href="{% url 'posts:buchung_uebersicht' %}">Buchungsaufgabe</a>
             <a class = "menulink" href="{% url 'vorlage' %}">Vorlage</a>
             <a class = "menulink" href="{% url 'posts:list' %}">Posts</a>
             {% if user.is_authenticated %}
                 <a class = "menulink" href="{% url 'posts:neue_aufgabe' %}">Aufgabe erstellen</a>
                 <a class = "menulink" href="{% url 'posts:aufgaben_liste' %}">Aufgabenliste</a>
+                {% if user.role == 'teacher' %}
+                    <a class = "menulink" href="{% url 'users:register' %}">Nutzer anlegen</a>
+                {% endif %}
                 <form class="logout" action="{%url 'users:logout' %}" method = "post">
                     {% csrf_token %}
                     <button class="logout-button" title="User Logout">Logout</button>

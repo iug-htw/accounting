@@ -1,0 +1,14 @@
+<!-- alle_aufgaben.html -->
+{% extends 'vorlage.html' %}
+{% load static %}
+{% block title %}
+Alle Aufgaben - Website Prototyp
+{% endblock %}
+{% block content %}
+    <h2>Alle Aufgaben</h2>
+    <ul>
+        {% for aufgabe in aufgaben %}
+            <li><a href="{% url 'posts:aufgabe_detail' aufgabe.id %}?alle=true">{{ aufgabe.kategorie }} - Aufgabe {{ aufgabe.id }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

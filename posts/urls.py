@@ -5,6 +5,7 @@ app_name = 'posts'
 
 urlpatterns = [
     path('', views.buchungsaufgabe_view, name="list"),
+    path('buchung_uebersicht/', views.buchung_uebersicht_view, name='buchung_uebersicht'),
     path('buchungsaufgabe/', views.buchungsaufgabe_view, name = 'buchungsaufgabe'),
     path('neue-aufgabe/', views.neue_aufgabe, name='neue_aufgabe'),
     path('aufgaben/', views.aufgaben_liste, name='aufgaben_liste'),
@@ -12,5 +13,6 @@ urlpatterns = [
     path('kategorie-loeschen/<int:kategorie_id>/', views.kategorie_loeschen, name='kategorie_loeschen'),
     path('kategorien/', views.kategorien_liste, name='kategorien_liste'),  # Zeigt alle Kategorien an
     path('kategorie/<int:kategorie_id>/', views.kategorie_aufgaben, name='kategorie_aufgaben'),  # Zeigt Aufgaben nach Kategorie
-    path('aufgabe/<int:aufgabe_id>/', views.aufgabe_detail, name='aufgabe_detail'),  # New path for task detail page    
+    path('aufgabe/<int:aufgabe_id>/', views.aufgabe_detail, name='aufgabe_detail'), 
+    path('alle_aufgaben/', views.alle_aufgaben, name='alle_aufgaben'),
 ]

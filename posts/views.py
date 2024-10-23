@@ -9,6 +9,11 @@ from django.urls import reverse
 from django.http import HttpResponse
 #funktional 11;17
 
+@login_required(login_url="/users/login/")
+def buchung_uebersicht_view(request):
+    return render(request, 'posts/buchung_uebersicht.html')
+
+
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
@@ -30,10 +35,10 @@ def student_required(view_func):
 def buchungsaufgabe_view(request):
     if request.user.role == 'teacher':
         # Lehrkraft sieht nur ihre eigenen Aufgaben
-        aufgaben = Aufgabe.objects.filter(author=request.user, aufgabentyp='buchungssatz').order_by('id')
+        aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
     elif request.user.role == 'student':
         # Studierende sehen nur die Buchungsaufgaben ihres Professors
-        aufgaben = Aufgabe.objects.filter(author=request.user.professor, aufgabentyp='buchungssatz').order_by('id')
+        aufgaben = Aufgabe.objects.filter(author=request.user.professor).order_by('id')
     else:
         aufgaben = None  # Keine Aufgaben für andere Benutzer
     return render(request, 'posts/buchungsaufgabe.html', {'aufgaben': aufgaben})
@@ -153,12 +158,14 @@ def aufgabe_detail(request, aufgabe_id):
     else:
         aufgaben = None
 
+    if 'kategorie' in request.GET:
+        kategorie_id = request.GET.get('kategorie')
+        aufgaben = aufgaben.filter(kategorie_id=kategorie_id).order_by('id')
     # Aktuelle Aufgabe basierend auf Aufgabe ID
     aufgabe = aufgaben.filter(id=aufgabe_id).first()
     first_aufgabe = aufgaben.first()
     first_aufgabe_id = first_aufgabe.id if first_aufgabe else None
     
-
     if not aufgabe:
         messages.error(request, "Sie sind nicht berechtigt, diese Aufgabe zu sehen.")
         return redirect('posts:buchungsaufgabe', permanent=False)
@@ -192,6 +199,8 @@ def aufgabe_detail(request, aufgabe_id):
         'next_id': next_id,
         'prev_id': prev_id,
         'first_aufgabe_id': first_aufgabe_id,
+        'kategorie': request.GET.get('kategorie', None),
+        'alle': 'alle' in request.GET,
     })
 
 @login_required(login_url="/users/login/")
@@ -202,8 +211,21 @@ def kategorien_liste(request):
 @login_required(login_url="/users/login/")
 def kategorie_aufgaben(request, kategorie_id):
     kategorie = Kategorie.objects.get(id=kategorie_id)
-    aufgaben = Aufgabe.objects.filter(kategorie=kategorie)
-    return render(request, 'posts/buchungsaufgabe.html', {
+    aufgaben = Aufgabe.objects.filter(kategorie=kategorie).order_by('id')
+    return render(request, 'posts/aufgaben_liste.html', {
         'aufgaben': aufgaben,
         'kategorie': kategorie,
     })
+
+
+@login_required(login_url="/users/login/")
+def alle_aufgaben(request):
+    if request.user.role == 'teacher':
+        # Lehrkraft sieht nur ihre eigenen Aufgaben
+        aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
+    elif request.user.role == 'student':
+        # Studierende sehen nur die Buchungsaufgaben ihres Professors
+        aufgaben = Aufgabe.objects.filter(author=request.user.professor).order_by('id')
+    else:
+        aufgaben = Aufgabe.objects.none()  # Keine Aufgaben für andere Benutzer
+    return render(request, 'posts/alle_aufgaben.html', {'aufgaben': aufgaben})

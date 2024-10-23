@@ -1,0 +1,16 @@
+<!-- buchung_übersicht.html -->
+{% extends 'vorlage.html' %}
+{% load static %}
+{% block title %}
+Buchungsaufgaben Übersicht
+{% endblock %}
+
+{% block content %}
+<div class="navigation_kategorien">
+    <h3>Optionen</h3>
+    <ul>
+        <li><a href="{% url 'posts:alle_aufgaben' %}">Alle Aufgaben anzeigen</a></li>
+        <li><a href="{% url 'posts:kategorien_liste' %}">Aufgaben nach Kategorien anzeigen</a></li>
+    </ul>
+</div>
+{% endblock %}

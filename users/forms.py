@@ -15,4 +15,4 @@ class CustomUserCreationForm(UserCreationForm):
 
         # If the user is a student, a professor must be assigned
         if role == 'student' and not professor:
-            raise forms.ValidationError('Students must be assigned a professor.')
+            raise forms.ValidationError('Students must be assigned a teacher.')

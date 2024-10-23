@@ -23,33 +23,38 @@ Buchungsaufgabe - Website Prototyp
     <!-- Rechte Seite mit den Inputfeldern -->
     <div class="buchung_rechts">
         <div class="navigation_links">
-            {% for aufgabe in aufgaben %}
-                <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}">Aufgabe {{ aufgabe.id }}</a><br>
-            {% endfor %}
-
+            
             {% if first_aufgabe_id %}
-                <a href="{% url 'posts:aufgabe_detail' first_aufgabe_id %}">Zur ersten Aufgabe</a>
+                {% if alle %}
+                    <a href="{% url 'posts:aufgabe_detail' first_aufgabe_id %}?alle=true">Erste Aufgabe</a>
+                {% elif kategorie %}
+                    <a href="{% url 'posts:aufgabe_detail' first_aufgabe_id %}?kategorie={{ kategorie }}">Erste Aufgabe</a>
+                {% endif %}
             {% endif %}
         
             {% if prev_id %}
-                <a href="{% url 'posts:aufgabe_detail' prev_id %}">Letzte Seite</a>
-            {% else %}
-                <a href="{% url 'posts:aufgaben_liste' %}">Alle Aufgaben</a>
+                {% if alle %}
+                    <a href="{% url 'posts:aufgabe_detail' prev_id %}?alle=true">Letzte Aufgabe</a>
+                {% elif kategorie %}
+                    <a href="{% url 'posts:aufgabe_detail' prev_id %}?kategorie={{ kategorie }}">Letzte Aufgabe</a>
+                {% endif %}
             {% endif %}
-            
-            {% if next_id %}
-                <a href="{% url 'posts:aufgabe_detail' next_id %}">Nächste Seite</a>
-            {% endif %}
-        </div>
 
-        {% if kategorie %}
+            {% if next_id %}
+                {% if alle %}
+                    <a href="{% url 'posts:aufgabe_detail' next_id %}?alle=true">Nächste Aufgabe</a>
+                {% elif kategorie %}
+                    <a href="{% url 'posts:aufgabe_detail' next_id %}?kategorie={{ kategorie }}">Nächste Aufgabe</a>
+                {% endif %}
+            {% endif %}
+
+        {% if kategorie and "kategorie" in request.path %}
             <h2>Aufgaben in der Kategorie: {{ kategorie.name }}</h2>
-        {% endif %}
-        <div class="navigation_links">
             {% for aufgabe in aufgaben %}
                 <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}">Aufgabe {{ aufgabe.aufgabentext }}</a><br>
             {% endfor %}
-
+        {% endif %}
+        
         </div>
         {% if aufgabe.aufgabentyp == 'buchungssatz' %}
             <!-- Anzeige der Aufgabe -->
