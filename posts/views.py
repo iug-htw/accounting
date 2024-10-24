@@ -66,44 +66,64 @@ def check_answer(request, aufgabe):
     return False  # Standardmäßig false, wenn Aufgabentyp nicht erkannt wird
 
 def check_buchungssatz(request, aufgabe):
-    # Benutzer-Eingaben aus dem Request abrufen
-    user_soll_entries = request.POST.getlist('konto_soll')
-    user_soll_amounts = request.POST.getlist('betrag_soll')
-    user_haben_entries = request.POST.getlist('konto_haben')
-    user_haben_amounts = request.POST.getlist('betrag_haben')
-    
-    # Lade die Lösungen aus der Aufgabe (JSON)
+    try:
+        # Extrahiere die Eingaben aus dem JSON-Request-Body
+        data = json.loads(request.body)
+        user_soll_entries = [entry['konto'] for entry in data.get('soll', [])]
+        user_soll_amounts = [entry['betrag'] for entry in data.get('soll', [])]
+        user_haben_entries = [entry['konto'] for entry in data.get('haben', [])]
+        user_haben_amounts = [entry['betrag'] for entry in data.get('haben', [])]
+    except json.JSONDecodeError:
+        user_soll_entries, user_soll_amounts, user_haben_entries, user_haben_amounts = [], [], [], []
+
+    print('Benutzer-Eingaben Soll:', list(zip(user_soll_entries, user_soll_amounts)))
+    print('Benutzer-Eingaben Haben:', list(zip(user_haben_entries, user_haben_amounts)))
+
     loesung_soll = json.loads(aufgabe.loesung_soll)
     loesung_haben = json.loads(aufgabe.loesung_haben)
-    
-    # Um die Reihenfolge zu ignorieren, sortieren wir die Eingaben
+
+    print('Erwartete Lösung Soll:', loesung_soll)
+    print('Erwartete Lösung Haben:', loesung_haben)
+
     user_soll = sorted(zip(user_soll_entries, map(float, user_soll_amounts)))
     user_haben = sorted(zip(user_haben_entries, map(float, user_haben_amounts)))
-    
+
     db_soll = sorted([(entry['konto'], float(entry['betrag'])) for entry in loesung_soll])
     db_haben = sorted([(entry['konto'], float(entry['betrag'])) for entry in loesung_haben])
-    
-    # Vergleiche die Benutzer-Eingaben mit der Datenbank-Lösung
+
     return user_soll == db_soll and user_haben == db_haben
 
+
+
 def check_multiple_choice(request, aufgabe):
-    # Benutzer-Antwort aus dem Request abrufen
-    user_answer = request.POST.get('mc_answer')
-    
-    # Richtige Antwort aus der Aufgabe
+    try:
+        # Extrahiere die Antwort aus dem JSON-Request-Body
+        data = json.loads(request.body)
+        user_answer = data.get('mc_answer', None)
+    except json.JSONDecodeError:
+        user_answer = None
+
     correct_answer = aufgabe.richtige_antwort
-    
-    # Vergleich der Benutzer-Antwort mit der richtigen Antwort
+
+    print('Benutzer-Antwort (Multiple Choice):', user_answer)
+    print('Richtige Antwort (Multiple Choice):', correct_answer)
+
     return user_answer == correct_answer
 
 def check_texteingabe(request, aufgabe):
-    # Benutzer-Antwort aus dem Request abrufen
-    user_answer = request.POST.get('text_answer').strip().lower()
-    
-    # Richtige Antwort aus der Aufgabe, ebenfalls in Kleinbuchstaben umwandeln
+    try:
+        # Versuche, die Antwort aus dem JSON-Request-Body zu laden
+        data = json.loads(request.body)
+        user_answer = data.get('text_answer', '').strip().lower()
+    except json.JSONDecodeError:
+        # Fallback, falls JSON nicht korrekt geladen wird
+        user_answer = None
+
     correct_answer = aufgabe.richtige_antwort.strip().lower()
-    
-    # Vergleich der Benutzer-Antwort mit der richtigen Antwort
+
+    print('Benutzer-Antwort:', user_answer)
+    print('Richtige Antwort:', correct_answer)
+
     return user_answer == correct_answer
 
 

@@ -171,121 +171,120 @@ Buchungsaufgabe - Website Prototyp
 
     // Funktion für Buchungsaufgaben
     function calculateAndCheckSum() {
-        let userSollEntries = [];
-        let userHabenEntries = [];
+    let userSollEntries = [];
+    let userHabenEntries = [];
 
-        // Gather entries for Soll
-        document.querySelectorAll('.inputPairSoll').forEach(function(inputPair) {
-            let konto = inputPair.querySelector('input[name="konto_soll"]').value.trim();
-            let betrag = parseFloat(inputPair.querySelector('input[name="betrag_soll"]').value);
-            userSollEntries.push({ konto: konto, betrag: betrag });
-        });
+    document.querySelectorAll('.inputPairSoll').forEach(function(inputPair) {
+        let konto = inputPair.querySelector('input[name="konto_soll"]').value.trim();
+        let betrag = parseFloat(inputPair.querySelector('input[name="betrag_soll"]').value);
+        userSollEntries.push({ konto: konto, betrag: betrag });
+    });
 
-        // Gather entries for Haben
-        document.querySelectorAll('.inputPairHaben').forEach(function(inputPair) {
-            let konto = inputPair.querySelector('input[name="konto_haben"]').value.trim();
-            let betrag = parseFloat(inputPair.querySelector('input[name="betrag_haben"]').value);
-            userHabenEntries.push({ konto: konto, betrag: betrag });
-        });
+    document.querySelectorAll('.inputPairHaben').forEach(function(inputPair) {
+        let konto = inputPair.querySelector('input[name="konto_haben"]').value.trim();
+        let betrag = parseFloat(inputPair.querySelector('input[name="betrag_haben"]').value);
+        userHabenEntries.push({ konto: konto, betrag: betrag });
+    });
 
-        // Send the data to the backend via fetch
-        const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
-        const csrftoken = '{{ csrf_token }}';
-        
-        fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken  // Add CSRF token
-            },
-            body: JSON.stringify({
-                soll: userSollEntries,
-                haben: userHabenEntries
-            })
+    console.log('Benutzereingaben - Soll:', userSollEntries);
+    console.log('Benutzereingaben - Haben:', userHabenEntries);
+
+    const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            soll: userSollEntries,
+            haben: userHabenEntries
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data);  // Log the server response for debugging
-            if (data.status === 'complete') {
-                alert('Aufgabe erfolgreich abgeschlossen!');
-            } else if (data.status === 'pending') {
-                alert('Aufgabe falsch beantwortet.');
-            } else {
-                alert('Fehler bei der Überprüfung der Aufgabe.');
-            }
-        })
-        .catch(error => {
-            console.error('Fehler:', error);
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Serverantwort (Buchungsaufgaben):', data);
+        if (data.status === 'complete') {
+            alert('Aufgabe erfolgreich abgeschlossen!');
+        } else if (data.status === 'pending') {
+            alert('Aufgabe falsch beantwortet.');
+        } else {
             alert('Fehler bei der Überprüfung der Aufgabe.');
-        });
-    }
+        }
+    })
+    .catch(error => {
+        console.error('Fehler (Buchungsaufgaben):', error);
+        alert('Fehler bei der Überprüfung der Aufgabe.');
+    });
+}
+
+
+
+
+
+
 
     // Funktion für Multiple-Choice-Fragen
     function checkMCAnswer() {
-        const userAnswer = document.querySelector('input[name="mc_answer"]:checked').value;
+    const userAnswer = document.querySelector('input[name="mc_answer"]:checked').value;
+    
+    console.log('Benutzerantwort (Multiple Choice):', userAnswer);
 
-        const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
-        const csrftoken = '{{ csrf_token }}';
+    const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        // Sende die Antwort an das Backend
-        fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify({ answer: userAnswer })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.status === 'complete') {
-                alert('Richtige Antwort!');
-            } else {
-                alert('Falsche Antwort.');
-            }
-        })
-        .catch(error => {
-            console.error('Fehler:', error);
-            alert('Fehler bei der Überprüfung der Antwort.');
-        });
-    }
+    // Sende die Antwort als JSON
+    fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ mc_answer: userAnswer })  // Sende die Antwort als JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Serverantwort (Multiple Choice):', data);
+        if (data.status === 'complete') {
+            alert('Richtige Antwort!');
+        } else {
+            alert('Falsche Antwort.');
+        }
+    })
+    .catch(error => {
+        console.error('Fehler (Multiple Choice):', error);
+        alert('Fehler bei der Überprüfung der Antwort.');
+    });
+}
+
+
+
+
+
 
     // Funktion für Textfragen
     function checkTextAnswer() {
         const userAnswer = document.querySelector('input[name="text_answer"]').value.trim();
+        
+        console.log('Benutzerantwort:', userAnswer);
 
         const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
-        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // CSRF token aus dem Formular
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        // Erstelle ein FormData-Objekt, um die Daten wie ein echtes Formular zu senden
-        const formData = new FormData();
-        formData.append('text_answer', userAnswer);  // Füge die Antwort hinzu
-
-        // Sende die Antwort an das Backend
+        // Sende die Antwort explizit als JSON
         fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': csrftoken  // CSRF-Token für den Schutz
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'  // Stellen Sie sicher, dass es als JSON gesendet wird
             },
-            body: formData  // FormData-Objekt anstelle von JSON senden
+            body: JSON.stringify({ text_answer: userAnswer })  // Sende die Antwort als JSON
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
+            console.log('Serverantwort:', data);
             if (data.status === 'complete') {
                 alert('Richtige Antwort!');
             } else {
