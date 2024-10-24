@@ -8,7 +8,10 @@ Alle Aufgaben - Website Prototyp
     <h2>Alle Aufgaben</h2>
     <ul>
         {% for aufgabe in aufgaben %}
-            <li><a href="{% url 'posts:aufgabe_detail' aufgabe.id %}?alle=true">{{ aufgabe.kategorie }} - Aufgabe {{ aufgabe.id }}</a></li>
+            <li>
+                <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}?alle=true">{{ aufgabe.kategorie }} - Aufgabe {{ aufgabe.id }}</a>
+                Status: {{ aufgabe.status_display }}
+            </li>
         {% endfor %}
     </ul>
 {% endblock %}

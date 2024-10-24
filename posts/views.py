@@ -1,18 +1,14 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
-from .models import Aufgabe, Kategorie
+from .models import Aufgabe, Kategorie, AufgabeStatus
+from users.models import CustomUser
 from .forms import AufgabeForm, KategorieForm
 from django.contrib import messages
-#from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 import json, random
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 #funktional 11;17
-
-@login_required(login_url="/users/login/")
-def buchung_uebersicht_view(request):
-    return render(request, 'posts/buchung_uebersicht.html')
-
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -31,6 +27,90 @@ def student_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view_func
 
+def initialize_task_status(aufgabe, lehrer):
+    # Finde alle Studierenden, die dem Lehrer zugeordnet sind
+    students = CustomUser.objects.filter(professor=lehrer, role='student')
+    for student in students:
+        # Initialisiere den Status für jede Aufgabe auf 'non'
+        AufgabeStatus.objects.create(
+            student=student,
+            aufgabe=aufgabe,
+            status='non'
+        )
+
+@login_required
+@student_required
+def update_aufgabe_status(request, aufgabe_id):
+    aufgabe = Aufgabe.objects.get(id=aufgabe_id)
+    status, created = AufgabeStatus.objects.get_or_create(student=request.user, aufgabe=aufgabe)
+    
+    # Determine if the answer is correct
+    is_correct = check_answer(request, aufgabe)
+
+    # Update the task status
+    if is_correct:
+        status.mark_complete()
+    else:
+        status.mark_pending()
+
+    return JsonResponse({'status': status.status})
+
+
+def check_answer(request, aufgabe):
+    if aufgabe.aufgabentyp == 'buchungssatz':
+        return check_buchungssatz(request, aufgabe)
+    elif aufgabe.aufgabentyp == 'multiple_choice':
+        return check_multiple_choice(request, aufgabe)
+    elif aufgabe.aufgabentyp == 'texteingabe':
+        return check_texteingabe(request, aufgabe)
+    return False  # Standardmäßig false, wenn Aufgabentyp nicht erkannt wird
+
+def check_buchungssatz(request, aufgabe):
+    # Benutzer-Eingaben aus dem Request abrufen
+    user_soll_entries = request.POST.getlist('konto_soll')
+    user_soll_amounts = request.POST.getlist('betrag_soll')
+    user_haben_entries = request.POST.getlist('konto_haben')
+    user_haben_amounts = request.POST.getlist('betrag_haben')
+    
+    # Lade die Lösungen aus der Aufgabe (JSON)
+    loesung_soll = json.loads(aufgabe.loesung_soll)
+    loesung_haben = json.loads(aufgabe.loesung_haben)
+    
+    # Um die Reihenfolge zu ignorieren, sortieren wir die Eingaben
+    user_soll = sorted(zip(user_soll_entries, map(float, user_soll_amounts)))
+    user_haben = sorted(zip(user_haben_entries, map(float, user_haben_amounts)))
+    
+    db_soll = sorted([(entry['konto'], float(entry['betrag'])) for entry in loesung_soll])
+    db_haben = sorted([(entry['konto'], float(entry['betrag'])) for entry in loesung_haben])
+    
+    # Vergleiche die Benutzer-Eingaben mit der Datenbank-Lösung
+    return user_soll == db_soll and user_haben == db_haben
+
+def check_multiple_choice(request, aufgabe):
+    # Benutzer-Antwort aus dem Request abrufen
+    user_answer = request.POST.get('mc_answer')
+    
+    # Richtige Antwort aus der Aufgabe
+    correct_answer = aufgabe.richtige_antwort
+    
+    # Vergleich der Benutzer-Antwort mit der richtigen Antwort
+    return user_answer == correct_answer
+
+def check_texteingabe(request, aufgabe):
+    # Benutzer-Antwort aus dem Request abrufen
+    user_answer = request.POST.get('text_answer').strip().lower()
+    
+    # Richtige Antwort aus der Aufgabe, ebenfalls in Kleinbuchstaben umwandeln
+    correct_answer = aufgabe.richtige_antwort.strip().lower()
+    
+    # Vergleich der Benutzer-Antwort mit der richtigen Antwort
+    return user_answer == correct_answer
+
+
+@login_required(login_url="/users/login/")
+def buchung_uebersicht_view(request):
+    return render(request, 'posts/buchung_uebersicht.html')#dfdfdg
+
 @login_required(login_url="/users/login/")
 def buchungsaufgabe_view(request):
     if request.user.role == 'teacher':
@@ -47,24 +127,23 @@ def buchungsaufgabe_view(request):
 @lehrkraft_required
 def neue_kategorie(request):
     if request.method == 'POST':
-        return handle_kategorie_post(request)
-    else:
-        return render_kategorie_form(request)
-
-def handle_kategorie_post(request):
-    form = KategorieForm(request.POST)
-    if form.is_valid():
-        save_kategorie(request, form)
-        return redirect('posts:neue_kategorie')
+        return process_kategorie_form(request, KategorieForm(request.POST))
     return render_kategorie_form(request)
+
+def process_kategorie_form(request, form):
+    if form.is_valid():
+        kategorie = save_kategorie(request, form)
+        return redirect('posts:neue_kategorie')
+    return render_kategorie_form(request, form)
 
 def save_kategorie(request, form):
     kategorie = form.save(commit=False)
     kategorie.author = request.user
     kategorie.save()
+    return kategorie
 
-def render_kategorie_form(request):
-    form = KategorieForm()
+def render_kategorie_form(request, form=None):
+    form = form or KategorieForm()
     kategorien = Kategorie.objects.filter(author=request.user)
     return render(request, 'posts/neue_kategorie.html', {'form': form, 'kategorien': kategorien})
 
@@ -128,14 +207,23 @@ def neue_aufgabe(request):
         return render(request, 'posts/neue_aufgabe.html', {'form': form})
 
 def handle_aufgabe_post(request):
-    form = AufgabeForm(request.POST, user=request.user)  # Benutzer in das Formular einfügen
-    if form.is_valid():
-        aufgabe = form.save(commit=False)
-        aufgabe.author = request.user
-        process_aufgabentyp(request, aufgabe)
-        aufgabe.save()
-        return redirect('posts:aufgaben_liste')
-    return render(request, 'posts/neue_aufgabe.html', {'form': form})
+    form = AufgabeForm(request.POST, user=request.user)
+    if not form.is_valid():
+        return render(request, 'posts/neue_aufgabe.html', {'form': form})
+
+    aufgabe = save_aufgabe(request, form)
+    return redirect('posts:aufgaben_liste')
+
+def save_aufgabe(request, form):
+    aufgabe = form.save(commit=False)
+    aufgabe.author = request.user
+    process_aufgabentyp(request, aufgabe)  # Verarbeitet den Aufgabentyp
+    aufgabe.save()
+
+    # Initialisiere den Status für alle Studierenden des Lehrers
+    initialize_task_status(aufgabe, request.user)
+
+    return aufgabe
 
 def process_aufgabentyp(request, aufgabe):
     if aufgabe.aufgabentyp == 'buchungssatz':
@@ -156,22 +244,21 @@ def aufgaben_liste(request):
 @login_required(login_url="/users/login/")
 def aufgabe_detail(request, aufgabe_id):
     aufgaben = get_aufgaben_for_user(request)
-
-    if 'kategorie' in request.GET:
-        aufgaben = filter_aufgaben_by_kategorie(aufgaben, request.GET.get('kategorie'))
-
     aufgabe = get_current_aufgabe(aufgaben, aufgabe_id)
+    
     if not aufgabe:
         messages.error(request, "Sie sind nicht berechtigt, diese Aufgabe zu sehen.")
-        return redirect('posts:buchungsaufgabe', permanent=False)
+        return redirect('posts:buchungsaufgabe')
 
+    context = prepare_aufgabe_detail_context(request, aufgaben, aufgabe)
+    return render(request, 'posts/buchungsaufgabe.html', context)
+
+def prepare_aufgabe_detail_context(request, aufgaben, aufgabe):
     first_aufgabe_id = get_first_aufgabe_id(aufgaben)
-
     loesung_soll, loesung_haben, antworten = get_loesung_and_antworten(aufgabe)
+    next_id, prev_id = get_navigation_ids(aufgaben, aufgabe.id)
 
-    next_id, prev_id = get_navigation_ids(aufgaben, aufgabe_id)
-
-    return render(request, 'posts/buchungsaufgabe.html', {
+    return {
         'aufgaben': aufgaben,
         'aufgabe': aufgabe,
         'loesung_soll': loesung_soll,
@@ -181,7 +268,8 @@ def aufgabe_detail(request, aufgabe_id):
         'first_aufgabe_id': first_aufgabe_id,
         'kategorie': request.GET.get('kategorie', None),
         'alle': 'alle' in request.GET,
-    })
+    }
+
 
 def get_aufgaben_for_user(request):
     if request.user.role == 'teacher':
@@ -251,11 +339,22 @@ def kategorie_aufgaben(request, kategorie_id):
 @login_required(login_url="/users/login/")
 def alle_aufgaben(request):
     if request.user.role == 'teacher':
-        # Lehrkraft sieht nur ihre eigenen Aufgaben
+        # Lehrer sehen ihre eigenen Aufgaben
         aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
     elif request.user.role == 'student':
-        # Studierende sehen nur die Buchungsaufgaben ihres Professors
+        # Studierende sehen die Aufgaben ihres Professors
         aufgaben = Aufgabe.objects.filter(author=request.user.professor).order_by('id')
     else:
         aufgaben = Aufgabe.objects.none()  # Keine Aufgaben für andere Benutzer
-    return render(request, 'posts/alle_aufgaben.html', {'aufgaben': aufgaben})
+
+    # Den Status für jede Aufgabe des aktuellen Benutzers hinzufügen
+    for aufgabe in aufgaben:
+        status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).first()
+        if status:
+            aufgabe.status_display = status.get_status_display()
+        else:
+            aufgabe.status_display = 'non'  # Standardstatus, wenn kein Eintrag vorhanden
+
+    return render(request, 'posts/alle_aufgaben.html', {
+        'aufgaben': aufgaben,
+    })

@@ -22,6 +22,7 @@ Buchungsaufgabe - Website Prototyp
 
     <!-- Rechte Seite mit den Inputfeldern -->
     <div class="buchung_rechts">
+        <div id="taskContainer" data-task-id="{{ aufgabe.id }}"></div>
         <div class="navigation_links">
             
             {% if first_aufgabe_id %}
@@ -73,6 +74,7 @@ Buchungsaufgabe - Website Prototyp
 
                     <h3>Eingaben für Soll:</h3>
                     <form id="numberFormSoll">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                         <div id="inputFieldsSoll">
                             <div class="inputPairSoll">
                                 <input type="text" name="konto_soll" placeholder="Konto eingeben" required>
@@ -94,6 +96,7 @@ Buchungsaufgabe - Website Prototyp
 
                     <h3>Eingaben für Haben:</h3>
                     <form id="numberFormHaben">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                         <div id="inputFieldsHaben">
                             <div class="inputPairHaben">
                                 <input type="text" name="konto_haben" placeholder="Konto eingeben" required>
@@ -117,6 +120,7 @@ Buchungsaufgabe - Website Prototyp
                 <div class="multiple_choice">
                     <h3>Wähle die richtige Antwort:</h3>
                     <form id="mcForm">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                         <ul id="mcAnswers">
                             {% for antwort in aufgabe.multiple_choice_antworten %}
                                 <li>
@@ -134,6 +138,7 @@ Buchungsaufgabe - Website Prototyp
                 <div class="texteingabe">
                     <h3>Antwort eingeben:</h3>
                     <form id="textForm">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                         <input type="text" name="text_answer" placeholder="Ihre Antwort hier">
                         <button type="button" onclick="checkTextAnswer()">Antwort überprüfen</button>
                     </form>
@@ -158,87 +163,149 @@ Buchungsaufgabe - Website Prototyp
         let inputFieldsDiv = document.getElementById(`inputFields${type.charAt(0).toUpperCase() + type.slice(1)}`);
         let newPair = document.createElement('div');
         newPair.classList.add(`inputPair${type.charAt(0).toUpperCase() + type.slice(1)}`);
-        newPair.innerHTML = `<input type="text" name="konto_${type}" placeholder="Konto eingeben" required>
-                             <input type="number" name="betrag_${type}" placeholder="Betrag eingeben" required>`;
+        newPair.innerHTML = `
+            <input type="text" name="konto_${type}" placeholder="Konto eingeben" required>
+            <input type="number" name="betrag_${type}" placeholder="Betrag eingeben" required>`;
         inputFieldsDiv.appendChild(newPair);
     }
 
-    function checkMCAnswer() {
-        let userAnswer = document.querySelector('input[name="mc_answer"]:checked').value;
-        let correctAnswer = "{{ aufgabe.richtige_antwort }}";
-        let resultMessage = userAnswer === correctAnswer ? "Richtig!" : "Falsch!";
-        document.getElementById('mcResult').innerHTML = resultMessage;
-    }
-
-    function checkTextAnswer() {
-        let userAnswer = document.querySelector('input[name="text_answer"]').value.trim().toLowerCase();
-        let correctAnswer = "{{ aufgabe.richtige_antwort|lower }}";
-        let resultMessage = userAnswer === correctAnswer ? "Richtig!" : "Falsch!";
-        document.getElementById('textResult').innerHTML = resultMessage;
-    }
-
-    // Funktion zur Überprüfung der Eingaben für Soll und Haben
+    // Funktion für Buchungsaufgaben
     function calculateAndCheckSum() {
-        // Erstelle Arrays aus den Eingaben des Benutzers für Soll
-        let inputsSoll = document.querySelectorAll('.inputPairSoll');
-        let userEntriesSoll = [];
-        inputsSoll.forEach(inputPair => {
-            let konto = inputPair.querySelector('input[name="konto_soll"]').value.trim().toLowerCase();
+        let userSollEntries = [];
+        let userHabenEntries = [];
+
+        // Gather entries for Soll
+        document.querySelectorAll('.inputPairSoll').forEach(function(inputPair) {
+            let konto = inputPair.querySelector('input[name="konto_soll"]').value.trim();
             let betrag = parseFloat(inputPair.querySelector('input[name="betrag_soll"]').value);
-            if (konto && !isNaN(betrag)) {
-                userEntriesSoll.push({ konto: konto, betrag: betrag });
-            }
+            userSollEntries.push({ konto: konto, betrag: betrag });
         });
-    
-        // Erstelle Arrays aus den Eingaben des Benutzers für Haben
-        let inputsHaben = document.querySelectorAll('.inputPairHaben');
-        let userEntriesHaben = [];
-        inputsHaben.forEach(inputPair => {
-            let konto = inputPair.querySelector('input[name="konto_haben"]').value.trim().toLowerCase();
+
+        // Gather entries for Haben
+        document.querySelectorAll('.inputPairHaben').forEach(function(inputPair) {
+            let konto = inputPair.querySelector('input[name="konto_haben"]').value.trim();
             let betrag = parseFloat(inputPair.querySelector('input[name="betrag_haben"]').value);
-            if (konto && !isNaN(betrag)) {
-                userEntriesHaben.push({ konto: konto, betrag: betrag });
-            }
+            userHabenEntries.push({ konto: konto, betrag: betrag });
         });
 
-        // JSON-Lösungen aus der Aufgabe für Soll und Haben
-        const loesungSoll = {{ loesung_soll|safe }};
-        let dbEntriesSoll = loesungSoll.map(entry => ({
-            konto: entry.konto.toLowerCase(),
-            betrag: parseFloat(entry.betrag)
-        }));
-
-        const loesungHaben = {{ loesung_haben|safe }};
-        let dbEntriesHaben = loesungHaben.map(entry => ({
-            konto: entry.konto.toLowerCase(),
-            betrag: parseFloat(entry.betrag)
-        }));
-
-        // Sortiere beide Arrays, um Reihenfolge zu ignorieren
-        userEntriesSoll.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
-        dbEntriesSoll.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
-
-        userEntriesHaben.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
-        dbEntriesHaben.sort((a, b) => a.konto.localeCompare(b.konto) || a.betrag - b.betrag);
-
-        // Vergleich der Arrays für Soll und Haben
-        let resultMessageSoll = '';
-        let resultMessageHaben = '';
-
-        if (JSON.stringify(userEntriesSoll) === JSON.stringify(dbEntriesSoll)) {
-            resultMessageSoll = 'Soll passt';
-        } else {
-            resultMessageSoll = 'Fehler, Soll ist falsch';
-        }
-
-        if (JSON.stringify(userEntriesHaben) === JSON.stringify(dbEntriesHaben)) {
-            resultMessageHaben = 'Haben passt';
-        } else {
-            resultMessageHaben = 'Fehler, Haben ist falsch';
-        }
-
-        // Zeige das Ergebnis im HTML an
-        document.getElementById('result').innerHTML = resultMessageSoll + '<br>' + resultMessageHaben;
+        // Send the data to the backend via fetch
+        const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
+        const csrftoken = '{{ csrf_token }}';
+        
+        fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken  // Add CSRF token
+            },
+            body: JSON.stringify({
+                soll: userSollEntries,
+                haben: userHabenEntries
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);  // Log the server response for debugging
+            if (data.status === 'complete') {
+                alert('Aufgabe erfolgreich abgeschlossen!');
+            } else if (data.status === 'pending') {
+                alert('Aufgabe falsch beantwortet.');
+            } else {
+                alert('Fehler bei der Überprüfung der Aufgabe.');
+            }
+        })
+        .catch(error => {
+            console.error('Fehler:', error);
+            alert('Fehler bei der Überprüfung der Aufgabe.');
+        });
     }
+
+    // Funktion für Multiple-Choice-Fragen
+    function checkMCAnswer() {
+        const userAnswer = document.querySelector('input[name="mc_answer"]:checked').value;
+
+        const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
+        const csrftoken = '{{ csrf_token }}';
+
+        // Sende die Antwort an das Backend
+        fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ answer: userAnswer })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'complete') {
+                alert('Richtige Antwort!');
+            } else {
+                alert('Falsche Antwort.');
+            }
+        })
+        .catch(error => {
+            console.error('Fehler:', error);
+            alert('Fehler bei der Überprüfung der Antwort.');
+        });
+    }
+
+    // Funktion für Textfragen
+    function checkTextAnswer() {
+        const userAnswer = document.querySelector('input[name="text_answer"]').value.trim();
+
+        const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // CSRF token aus dem Formular
+
+        // Erstelle ein FormData-Objekt, um die Daten wie ein echtes Formular zu senden
+        const formData = new FormData();
+        formData.append('text_answer', userAnswer);  // Füge die Antwort hinzu
+
+        // Sende die Antwort an das Backend
+        fetch(`/posts/update_aufgabe_status/${aufgabeId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken  // CSRF-Token für den Schutz
+            },
+            body: formData  // FormData-Objekt anstelle von JSON senden
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'complete') {
+                alert('Richtige Antwort!');
+            } else {
+                alert('Falsche Antwort.');
+            }
+        })
+        .catch(error => {
+            console.error('Fehler:', error);
+            alert('Fehler bei der Überprüfung der Antwort.');
+        });
+    }
+
+    // Wenn das DOM geladen ist
+    document.addEventListener('DOMContentLoaded', function() {
+        const aufgabeId = document.getElementById('taskContainer').getAttribute('data-task-id');
+        const csrftoken = '{{ csrf_token }}';  // Ensure CSRF token is correct
+        console.log(`Aufgabe ID: ${aufgabeId}`);  // Nur zur Überprüfung der ID
+    });
 </script>
+
+
+
 {% endblock %}

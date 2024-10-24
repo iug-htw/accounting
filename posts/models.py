@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils import timezone
 
 class Kategorie(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -24,3 +25,50 @@ class Aufgabe(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     erstellungsdatum = models.DateTimeField(auto_now_add=True)
     id = models.AutoField(primary_key=True)
+
+from django.db import models
+from django.conf import settings
+
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+
+
+class AufgabeStatus(models.Model):
+    STATUS_CHOICES = [
+        ('non', 'Nicht bearbeitet'),
+        ('pending', 'Falsch eingereicht'),
+        ('complete', 'Richtig eingereicht'),
+    ]
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='aufgaben_status'
+    )
+    aufgabe = models.ForeignKey(
+        'Aufgabe', 
+        on_delete=models.CASCADE,
+        related_name='aufgaben_status'
+    )
+    status = models.CharField(
+        max_length=10, 
+        choices=STATUS_CHOICES, 
+        default='non'
+    )
+    date_completed = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('student', 'aufgabe')
+
+    def mark_complete(self):
+        self.status = 'complete'
+        self.date_completed = timezone.now()
+        self.save()
+
+    def mark_pending(self):
+        self.status = 'pending'
+        self.save()
+
+    def __str__(self):
+        return f"{self.student.username} - {self.aufgabe.id}: {self.get_status_display()}"

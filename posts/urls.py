@@ -15,4 +15,5 @@ urlpatterns = [
     path('kategorie/<int:kategorie_id>/', views.kategorie_aufgaben, name='kategorie_aufgaben'),  # Zeigt Aufgaben nach Kategorie
     path('aufgabe/<int:aufgabe_id>/', views.aufgabe_detail, name='aufgabe_detail'), 
     path('alle_aufgaben/', views.alle_aufgaben, name='alle_aufgaben'),
+    path('update_aufgabe_status/<int:aufgabe_id>/', views.update_aufgabe_status, name='update_aufgabe_status'),
 ]
