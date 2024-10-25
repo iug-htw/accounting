@@ -2,7 +2,7 @@
 #Aufgaben Nutzerspezifisch
 #Anzeige der Aufgabenkategorien
 Stand der bearbeiteten Aufgaben
-    Aufgaben Bearbeitungsstand geben
+    #Aufgaben Bearbeitungsstand geben
     Noch zu bearbeitende Aufgaben Kategorisieren
     Aufgaben Freischalten
     Studis noch weitere Felder geben (Semester, Studiengang)

@@ -16,4 +16,5 @@ urlpatterns = [
     path('aufgabe/<int:aufgabe_id>/', views.aufgabe_detail, name='aufgabe_detail'), 
     path('alle_aufgaben/', views.alle_aufgaben, name='alle_aufgaben'),
     path('update_aufgabe_status/<int:aufgabe_id>/', views.update_aufgabe_status, name='update_aufgabe_status'),
+    path('nicht_abgeschlossene_aufgaben/', views.nicht_abgeschlossene_aufgaben_view, name='nicht_abgeschlossene_aufgaben'),
 ]

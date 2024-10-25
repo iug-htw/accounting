@@ -128,8 +128,54 @@ def check_texteingabe(request, aufgabe):
 
 
 @login_required(login_url="/users/login/")
+def nicht_abgeschlossene_aufgaben_view(request):
+    if request.user.role == 'teacher':
+        # Lehrer sieht nur seine eigenen Aufgaben
+        aufgaben = Aufgabe.objects.filter(author=request.user)
+    elif request.user.role == 'student':
+        # Studierende sehen die Aufgaben ihres Professors
+        aufgaben = Aufgabe.objects.filter(author=request.user.professor)
+    
+    # Finde alle Aufgaben für den Benutzer, deren Status nicht 'complete' ist
+    nicht_abgeschlossene_aufgaben = []
+    for aufgabe in aufgaben:
+        status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).exclude(status='complete').first()
+        # Füge Aufgaben mit Status 'non' oder 'pending' zur Liste hinzu
+        if status:
+            aufgabe.status_display = status.get_status_display()
+            nicht_abgeschlossene_aufgaben.append(aufgabe)
+        else:
+            # Füge Aufgaben ohne Status-Eintrag als 'non' hinzu
+            aufgabe.status_display = 'non'
+            nicht_abgeschlossene_aufgaben.append(aufgabe)
+
+    return render(request, 'posts/alle_aufgaben.html', {
+        'aufgaben': nicht_abgeschlossene_aufgaben,
+        'not_complete': True,
+    })
+
+
+
+@login_required(login_url="/users/login/")
 def buchung_uebersicht_view(request):
-    return render(request, 'posts/buchung_uebersicht.html')#dfdfdg
+    if request.user.role == 'teacher':
+        aufgaben = Aufgabe.objects.filter(author=request.user)
+    elif request.user.role == 'student':
+        aufgaben = Aufgabe.objects.filter(author=request.user.professor)
+    
+    # Filter für nicht abgeschlossene Aufgaben mit Statusanzeige
+    nicht_abgeschlossene_aufgaben = []
+    for aufgabe in aufgaben:
+        status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).first()
+        if status and status.status != 'complete':
+            aufgabe.status_display = status.get_status_display()  # Status-Attribut hinzufügen
+            nicht_abgeschlossene_aufgaben.append(aufgabe)
+        else:
+            aufgabe.status_display = 'non'  # Standardstatus für nicht gestartete Aufgaben
+
+    return render(request, 'posts/buchung_uebersicht.html', {
+        'aufgaben': nicht_abgeschlossene_aufgaben,
+    })
 
 @login_required(login_url="/users/login/")
 def buchungsaufgabe_view(request):
@@ -264,14 +310,41 @@ def aufgaben_liste(request):
 @login_required(login_url="/users/login/")
 def aufgabe_detail(request, aufgabe_id):
     aufgaben = get_aufgaben_for_user(request)
-    aufgabe = get_current_aufgabe(aufgaben, aufgabe_id)
-    
-    if not aufgabe:
-        messages.error(request, "Sie sind nicht berechtigt, diese Aufgabe zu sehen.")
-        return redirect('posts:buchungsaufgabe')
+    # Status für jede Aufgabe setzen
+    for aufgabe in aufgaben:
+        status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).first()
+        aufgabe.status_display = status.status if status else 'non'
 
+
+    # Filterung anwenden, falls nach Kategorie oder Status gefiltert werden soll
+    if 'kategorie' in request.GET:
+        kategorie_id = int(request.GET['kategorie'])
+        aufgaben = [a for a in aufgaben if a.kategorie_id == kategorie_id]
+    
+    is_not_complete = 'status' in request.GET and request.GET['status'] != 'complete'
+    if is_not_complete:
+        aufgaben = [a for a in aufgaben if a.status_display != 'complete']
+    
+
+    # Aktuelle Aufgabe und Navigations-IDs bestimmen
+    aufgabe = get_current_aufgabe(aufgaben, aufgabe_id)
+    if not aufgabe:
+        messages.error(request, "Aufgabe nicht verfügbar.")
+        return redirect('posts:buchung_uebersicht')
+    
+    next_id, prev_id = get_navigation_ids(aufgaben, aufgabe.id)
     context = prepare_aufgabe_detail_context(request, aufgaben, aufgabe)
+    context.update({
+        'next_id': next_id,
+        'prev_id': prev_id,
+        'not_complete': is_not_complete,
+        'kategorie': request.GET.get('kategorie', None),
+    })
     return render(request, 'posts/buchungsaufgabe.html', context)
+
+
+
+
 
 def prepare_aufgabe_detail_context(request, aufgaben, aufgabe):
     first_aufgabe_id = get_first_aufgabe_id(aufgaben)
@@ -302,11 +375,16 @@ def filter_aufgaben_by_kategorie(aufgaben, kategorie_id):
     return aufgaben.filter(kategorie_id=kategorie_id).order_by('id')
 
 def get_current_aufgabe(aufgaben, aufgabe_id):
-    return aufgaben.filter(id=aufgabe_id).first()
+    # Durchlaufe die Aufgabenliste und finde die Aufgabe mit der passenden ID
+    for aufgabe in aufgaben:
+        if aufgabe.id == aufgabe_id:
+            return aufgabe
+    return None  # Falls keine passende Aufgabe gefunden wird
 
 def get_first_aufgabe_id(aufgaben):
-    first_aufgabe = aufgaben.first()
-    return first_aufgabe.id if first_aufgabe else None
+    # Überprüfen, ob die Liste nicht leer ist, und gebe die ID der ersten Aufgabe zurück
+    return aufgaben[0].id if aufgaben else None
+
 
 def get_loesung_and_antworten(aufgabe):
     loesung_soll, loesung_haben = None, None
@@ -326,11 +404,12 @@ def get_loesung_and_antworten(aufgabe):
     return loesung_soll, loesung_haben, antworten
 
 def get_navigation_ids(aufgaben, aufgabe_id):
-    aufgabe_ids = list(aufgaben.values_list('id', flat=True))
+    aufgabe_ids = [aufgabe.id for aufgabe in aufgaben]  # IDs manuell aus der Liste extrahieren
     current_index = aufgabe_ids.index(aufgabe_id)
     next_id = aufgabe_ids[current_index + 1] if current_index + 1 < len(aufgabe_ids) else None
     prev_id = aufgabe_ids[current_index - 1] if current_index > 0 else None
     return next_id, prev_id
+
 
 @login_required(login_url="/users/login/")
 def kategorien_liste(request):

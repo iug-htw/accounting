@@ -7,22 +7,6 @@ document.getElementById('menuButton').addEventListener('click', function() {
     }
 });
 
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    // Dummy-Daten für den Login-Vorgang
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    if (username === 'admin' && password === 'admin') {
-        localStorage.setItem('loggedIn', true);
-        alert('Login erfolgreich!');
-        showLoggedInView();
-    } else {
-        alert('Falscher Benutzername oder Passwort!');
-    }
-});
-
 function showLoggedInView() {
     document.getElementById('loginContainer').style.display = 'none';
     document.querySelector('.navigation_bar_top').style.display = 'flex';
@@ -30,12 +14,6 @@ function showLoggedInView() {
     document.querySelector('.menu_button').style.display = 'flex';// Zeigt den Logout-Button an
 
 }
-
-document.getElementById('logoutButton').addEventListener('click', function() {
-    localStorage.removeItem('loggedIn');
-    alert('Sie haben sich erfolgreich ausgeloggt!');
-    window.location.reload(); // Seite neu laden, um den Login-Bildschirm anzuzeigen
-});
 
 function checkLoginStatus() {
     if (localStorage.getItem('loggedIn')) {
@@ -49,5 +27,3 @@ function checkLoginStatus() {
     }
 }
 
-// Initialer Aufruf der Funktion, um den Login-Status zu prüfen
-checkLoginStatus();

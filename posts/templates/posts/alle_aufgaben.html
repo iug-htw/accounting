@@ -2,14 +2,19 @@
 {% extends 'vorlage.html' %}
 {% load static %}
 {% block title %}
-Alle Aufgaben - Website Prototyp
+{% if not_complete %}Nicht abgeschlossene Aufgaben{% else %}Alle Aufgaben{% endif %}
 {% endblock %}
+
 {% block content %}
-    <h2>Alle Aufgaben</h2>
+    <h2>{% if not_complete %}Nicht abgeschlossene Aufgaben{% else %}Alle Aufgaben{% endif %}</h2>
     <ul>
         {% for aufgabe in aufgaben %}
             <li>
-                <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}?alle=true">{{ aufgabe.kategorie }} - Aufgabe {{ aufgabe.id }}</a>
+                {% if not_complete %}
+                    <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}?status=not_complete">{{ aufgabe.kategorie }} - Aufgabe {{ aufgabe.id }}</a>
+                {% else %}
+                    <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}?alle=true">{{ aufgabe.kategorie }} - Aufgabe {{ aufgabe.id }}</a>
+                {% endif %}
                 Status: {{ aufgabe.status_display }}
             </li>
         {% endfor %}

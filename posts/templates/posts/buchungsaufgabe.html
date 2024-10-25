@@ -24,12 +24,13 @@ Buchungsaufgabe - Website Prototyp
     <div class="buchung_rechts">
         <div id="taskContainer" data-task-id="{{ aufgabe.id }}"></div>
         <div class="navigation_links">
-            
             {% if first_aufgabe_id %}
                 {% if alle %}
                     <a href="{% url 'posts:aufgabe_detail' first_aufgabe_id %}?alle=true">Erste Aufgabe</a>
                 {% elif kategorie %}
                     <a href="{% url 'posts:aufgabe_detail' first_aufgabe_id %}?kategorie={{ kategorie }}">Erste Aufgabe</a>
+                {% elif not_complete %}
+                    <a href="{% url 'posts:aufgabe_detail' first_aufgabe_id %}?status=not_complete">Erste Aufgabe</a>
                 {% endif %}
             {% endif %}
         
@@ -38,24 +39,20 @@ Buchungsaufgabe - Website Prototyp
                     <a href="{% url 'posts:aufgabe_detail' prev_id %}?alle=true">Letzte Aufgabe</a>
                 {% elif kategorie %}
                     <a href="{% url 'posts:aufgabe_detail' prev_id %}?kategorie={{ kategorie }}">Letzte Aufgabe</a>
+                {% elif not_complete %}
+                    <a href="{% url 'posts:aufgabe_detail' prev_id %}?status=not_complete">Letzte Aufgabe</a>
                 {% endif %}
             {% endif %}
-
+        
             {% if next_id %}
                 {% if alle %}
                     <a href="{% url 'posts:aufgabe_detail' next_id %}?alle=true">Nächste Aufgabe</a>
                 {% elif kategorie %}
                     <a href="{% url 'posts:aufgabe_detail' next_id %}?kategorie={{ kategorie }}">Nächste Aufgabe</a>
+                {% elif not_complete %}
+                    <a href="{% url 'posts:aufgabe_detail' next_id %}?status=not_complete">Nächste Aufgabe</a>
                 {% endif %}
             {% endif %}
-
-        {% if kategorie and "kategorie" in request.path %}
-            <h2>Aufgaben in der Kategorie: {{ kategorie.name }}</h2>
-            {% for aufgabe in aufgaben %}
-                <a href="{% url 'posts:aufgabe_detail' aufgabe.id %}">Aufgabe {{ aufgabe.aufgabentext }}</a><br>
-            {% endfor %}
-        {% endif %}
-        
         </div>
         {% if aufgabe.aufgabentyp == 'buchungssatz' %}
             <!-- Anzeige der Aufgabe -->
