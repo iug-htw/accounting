@@ -29,6 +29,8 @@ Website Prototyp
             <p>Sie haben derzeit keine Studierenden unter Ihrer Betreuung.</p>
         {% endif %}
     {% elif user.role == 'student' and not user.is_superuser%}
+        <p><strong>Studiengang:</strong> {{ user.studiengang }}</p>
+        <p><strong>Semester:</strong> {{ user.semester }}</p>
         <h2>Ihr Professor:</h2>
         {% if user.professor %}
             <p>{{ user.professor.username }} - {{ user.professor.email }}</p>

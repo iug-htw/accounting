@@ -141,13 +141,10 @@ def nicht_abgeschlossene_aufgaben_view(request):
     for aufgabe in aufgaben:
         status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).exclude(status='complete').first()
         # Füge Aufgaben mit Status 'non' oder 'pending' zur Liste hinzu
-        if status:
+        if status and status.status in ['non', 'pending']:
             aufgabe.status_display = status.get_status_display()
             nicht_abgeschlossene_aufgaben.append(aufgabe)
-        else:
-            # Füge Aufgaben ohne Status-Eintrag als 'non' hinzu
-            aufgabe.status_display = 'non'
-            nicht_abgeschlossene_aufgaben.append(aufgabe)
+        
 
     return render(request, 'posts/alle_aufgaben.html', {
         'aufgaben': nicht_abgeschlossene_aufgaben,

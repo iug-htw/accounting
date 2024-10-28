@@ -7,7 +7,9 @@
     <h1>Register a New User</h1>
     <form class="form-with-validation" action="{%url 'users:register'%}" method="post">
         {% csrf_token %}
-        {{ form }}
+        {{ form.as_p }}
         <button class="form-submit">Submit</button>
     </form>
+    <br><br><br>
+    <a href="{% url 'users:add_studiengang' %}">Studiengang/Gruppe hinzufügen</a>
 {% endblock %}

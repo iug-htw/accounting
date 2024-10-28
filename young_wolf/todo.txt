@@ -3,7 +3,7 @@
 #Anzeige der Aufgabenkategorien
 Stand der bearbeiteten Aufgaben
     #Aufgaben Bearbeitungsstand geben
-    Noch zu bearbeitende Aufgaben Kategorisieren
+    #Noch zu bearbeitende Aufgaben Kategorisieren
     Aufgaben Freischalten
     Studis noch weitere Felder geben (Semester, Studiengang)
 Oberseiten für die Themenkomplexe
@@ -13,3 +13,22 @@ Oberseiten für die Themenkomplexe
     Lange Funktionen umschreiben
     Logik aus Buchugsaufgabe.html ggf. in Views packen
     View nach Thematik in weitere Datein aufteilen
+
+
+
+
+
+Gitlab Workflow
+SQLite Viewer
+Composer
+Django
+icons
+intelliPHP
+Live Server
+intelliPHP
+PHP Profiler
+Prettier
+Pylance
+Python
+Python Debugger
+SQLite
