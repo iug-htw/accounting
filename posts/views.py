@@ -38,6 +38,13 @@ def initialize_task_status(aufgabe, lehrer):
             status='non'
         )
 
+def initialize_task_status_for_new_user(user):
+    if user.role == 'student':
+        # Alle Aufgaben abrufen
+        aufgaben = Aufgabe.objects.all()
+        for aufgabe in aufgaben:
+            AufgabeStatus.objects.get_or_create(student=user, aufgabe=aufgabe, defaults={'status': 'non'})
+
 @login_required
 @student_required
 def update_aufgabe_status(request, aufgabe_id):
