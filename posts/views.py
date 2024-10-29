@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Aufgabe, Kategorie, AufgabeStatus
 from users.models import CustomUser, Studiengang, Semester
@@ -8,7 +8,6 @@ from django.utils import timezone
 import json, random
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
-#funktional 11;17
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -187,13 +186,14 @@ def check_texteingabe(request, aufgabe):
 @login_required(login_url="/users/login/")
 def nicht_abgeschlossene_aufgaben_view(request):
     if request.user.role == 'teacher':
-        # Lehrer sieht nur seine eigenen Aufgaben
         aufgaben = Aufgabe.objects.filter(author=request.user)
     elif request.user.role == 'student':
-        # Studierende sehen die Aufgaben ihres Professors
-        aufgaben = Aufgabe.objects.filter(author=request.user.professor)
-    
-    # Finde alle Aufgaben für den Benutzer, deren Status nicht 'complete' ist
+        aufgaben = Aufgabe.objects.filter(
+            author=request.user.professor,
+            aufgaben_status__student=request.user,
+            aufgaben_status__freigeschaltet=True,
+            aufgaben_status__status__in=['non', 'pending']
+        )
     nicht_abgeschlossene_aufgaben = []
     for aufgabe in aufgaben:
         status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).exclude(status='complete').first()
@@ -389,6 +389,7 @@ def aufgaben_liste(request):
 @login_required(login_url="/users/login/")
 def aufgabe_detail(request, aufgabe_id):
     aufgaben = get_aufgaben_for_user(request)
+    kategorie_id = request.GET.get('kategorie')
     # Status für jede Aufgabe setzen
     for aufgabe in aufgaben:
         status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).first()
@@ -396,9 +397,8 @@ def aufgabe_detail(request, aufgabe_id):
 
 
     # Filterung anwenden, falls nach Kategorie oder Status gefiltert werden soll
-    if 'kategorie' in request.GET:
-        kategorie_id = int(request.GET['kategorie'])
-        aufgaben = [a for a in aufgaben if a.kategorie_id == kategorie_id]
+    if kategorie_id:
+        aufgaben = [a for a in aufgaben if str(a.kategorie_id) == kategorie_id]
     
     is_not_complete = 'status' in request.GET and request.GET['status'] != 'complete'
     if is_not_complete:
@@ -417,7 +417,7 @@ def aufgabe_detail(request, aufgabe_id):
         'next_id': next_id,
         'prev_id': prev_id,
         'not_complete': is_not_complete,
-        'kategorie': request.GET.get('kategorie', None),
+        'kategorie': kategorie_id,
     })
     return render(request, 'posts/buchungsaufgabe.html', context)
 
@@ -447,7 +447,12 @@ def get_aufgaben_for_user(request):
     if request.user.role == 'teacher':
         return Aufgabe.objects.filter(author=request.user).order_by('id')
     elif request.user.role == 'student':
-        return Aufgabe.objects.filter(author=request.user.professor).order_by('id')
+        # Nur freigeschaltete Aufgaben für Studierende anzeigen
+        return Aufgabe.objects.filter(
+            author=request.user.professor,
+            aufgaben_status__student=request.user,
+            aufgaben_status__freigeschaltet=True
+        ).order_by('id')
     return None
 
 def filter_aufgaben_by_kategorie(aufgaben, kategorie_id):
@@ -483,11 +488,15 @@ def get_loesung_and_antworten(aufgabe):
     return loesung_soll, loesung_haben, antworten
 
 def get_navigation_ids(aufgaben, aufgabe_id):
-    aufgabe_ids = [aufgabe.id for aufgabe in aufgaben]  # IDs manuell aus der Liste extrahieren
+    # IDs der sichtbaren Aufgaben für die Navigation
+    aufgabe_ids = [aufgabe.id for aufgabe in aufgaben]
     current_index = aufgabe_ids.index(aufgabe_id)
+
     next_id = aufgabe_ids[current_index + 1] if current_index + 1 < len(aufgabe_ids) else None
     prev_id = aufgabe_ids[current_index - 1] if current_index > 0 else None
+
     return next_id, prev_id
+
 
 
 @login_required(login_url="/users/login/")
@@ -496,8 +505,11 @@ def kategorien_liste(request):
         # Lehrer sieht nur seine eigenen Kategorien
         kategorien = Kategorie.objects.filter(author=request.user)
     elif request.user.role == 'student':
-        # Studierende sehen die Kategorien ihres Professors
-        kategorien = Kategorie.objects.filter(author=request.user.professor)
+        # Filter nur für Kategorien mit mindestens einer freigeschalteten Aufgabe für den Studenten
+        kategorien = Kategorie.objects.filter(
+            aufgabe__aufgaben_status__student=request.user,
+            aufgabe__aufgaben_status__freigeschaltet=True
+        ).distinct()
     else:
         kategorien = Kategorie.objects.none()  # Keine Kategorien für andere Rollen
 
@@ -506,9 +518,34 @@ def kategorien_liste(request):
 
 @login_required(login_url="/users/login/")
 def kategorie_aufgaben(request, kategorie_id):
-    kategorie = Kategorie.objects.get(id=kategorie_id)
-    aufgaben = Aufgabe.objects.filter(kategorie=kategorie).order_by('id')
-    return render(request, 'posts/aufgaben_liste.html', {
+    kategorie = get_object_or_404(Kategorie, id=kategorie_id)
+    
+    if request.user.role == 'student':
+        # Filtere nur freigeschaltete Aufgaben des zugewiesenen Lehrers
+        aufgaben = Aufgabe.objects.filter(
+            kategorie=kategorie,
+            author=request.user.professor,
+            aufgaben_status__student=request.user,
+            aufgaben_status__freigeschaltet=True
+        ).order_by('id')
+
+        # Falls keine Aufgaben gefunden, Zugriff verweigern oder umleiten
+        if not aufgaben.exists():
+            messages.error(request, "Keine freigeschalteten Aufgaben in dieser Kategorie.")
+            return redirect('posts:kategorien_liste')  # Zurück zur Kategorienliste für Studierende
+
+        template = 'posts/kategorie_aufgaben_student.html'
+    else:
+        # Für Lehrer: alle Aufgaben in der Kategorie anzeigen
+        aufgaben = Aufgabe.objects.filter(kategorie=kategorie, author=request.user).order_by('id')
+        template = 'posts/aufgaben_liste.html'  # Template für Lehrer
+
+    # Status für jede Aufgabe hinzufügen
+    for aufgabe in aufgaben:
+        status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).first()
+        aufgabe.status_display = status.get_status_display() if status else 'non'
+
+    return render(request, template, {
         'aufgaben': aufgaben,
         'kategorie': kategorie,
     })
@@ -517,13 +554,16 @@ def kategorie_aufgaben(request, kategorie_id):
 @login_required(login_url="/users/login/")
 def alle_aufgaben(request):
     if request.user.role == 'teacher':
-        # Lehrer sehen ihre eigenen Aufgaben
         aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
     elif request.user.role == 'student':
-        # Studierende sehen die Aufgaben ihres Professors
-        aufgaben = Aufgabe.objects.filter(author=request.user.professor).order_by('id')
+        # Studierende sehen nur freigeschaltete Aufgaben
+        aufgaben = Aufgabe.objects.filter(
+            author=request.user.professor,
+            aufgaben_status__student=request.user,
+            aufgaben_status__freigeschaltet=True
+        ).order_by('id')
     else:
-        aufgaben = Aufgabe.objects.none()  # Keine Aufgaben für andere Benutzer
+        aufgaben = Aufgabe.objects.none()
 
     # Den Status für jede Aufgabe des aktuellen Benutzers hinzufügen
     for aufgabe in aufgaben:
