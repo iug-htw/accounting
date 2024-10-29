@@ -57,6 +57,7 @@ class AufgabeStatus(models.Model):
         default='non'
     )
     date_completed = models.DateTimeField(null=True, blank=True)
+    freigeschaltet = models.BooleanField(default=True)  # Neues Feld hinzugefügt
 
     class Meta:
         unique_together = ('student', 'aufgabe')

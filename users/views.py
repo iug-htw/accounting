@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.http import HttpResponse
-from .models import Studiengang
+from .models import Studiengang, Semester
 from posts.views import lehrkraft_required
 from posts.views import initialize_task_status_for_new_user
 
@@ -23,7 +23,9 @@ def register_view(request):
             user.role = 'student'  # Ensure the created user is always a student
             user.professor = request.user  # Automatically assign the logged-in teacher as the professor
             user.studiengang = form.cleaned_data.get('studiengang')
-            user.semester = form.cleaned_data.get('semester')
+            user.semester = form.cleaned_data.get('semester') or Semester.objects.get(id=1)
+            print(form.cleaned_data)
+            print(user.semester)
             user.save()
             initialize_task_status_for_new_user(user)
             #login(request, user, backend='django.contrib.auth.backends.ModelBackend')

@@ -1,10 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Studiengang
+from .models import CustomUser, Studiengang, Semester
 
 class CustomUserCreationForm(UserCreationForm):
-    semester = forms.ChoiceField(
-        choices=CustomUser.SEMESTER_CHOICES,
+    semester = forms.ModelChoiceField(
+        queryset=Semester.objects.all(),
         required=True,
         label="Semester"
     )

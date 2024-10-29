@@ -40,10 +40,14 @@ def initialize_task_status(aufgabe, lehrer):
 
 def initialize_task_status_for_new_user(user):
     if user.role == 'student':
-        # Alle Aufgaben abrufen
-        aufgaben = Aufgabe.objects.all()
+        # Aufgaben des zugeordneten Professors abrufen
+        aufgaben = Aufgabe.objects.filter(author=user.professor)
         for aufgabe in aufgaben:
-            AufgabeStatus.objects.get_or_create(student=user, aufgabe=aufgabe, defaults={'status': 'non'})
+            AufgabeStatus.objects.get_or_create(
+                student=user, 
+                aufgabe=aufgabe, 
+                defaults={'status': 'non', 'freigeschaltet': True}  # Freigeschaltet vorerst auf True setzen
+            )
 
 @login_required
 @student_required

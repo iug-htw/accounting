@@ -5,7 +5,10 @@ Stand der bearbeiteten Aufgaben
     #Aufgaben Bearbeitungsstand geben
     #Noch zu bearbeitende Aufgaben Kategorisieren
     Aufgaben Freischalten
-    Studis noch weitere Felder geben (Semester, Studiengang)
+        Profs haben Übersicht für alle AUfgaben die sie einzeln freischalten können
+        Prof haben Übersicht um Aufgaben nach Kategorien für Semester/Studiengang freizuschalten
+        Profs können bei Aufgabenerstellung nach Semester/Studiengang freischalten
+    #Studis noch weitere Felder geben (Semester, Studiengang)
 Oberseiten für die Themenkomplexe
 
 #Optimierung: 
@@ -14,21 +17,3 @@ Oberseiten für die Themenkomplexe
     Logik aus Buchugsaufgabe.html ggf. in Views packen
     View nach Thematik in weitere Datein aufteilen
 
-
-
-
-
-Gitlab Workflow
-SQLite Viewer
-Composer
-Django
-icons
-intelliPHP
-Live Server
-intelliPHP
-PHP Profiler
-Prettier
-Pylance
-Python
-Python Debugger
-SQLite

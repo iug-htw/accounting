@@ -7,20 +7,19 @@ class Studiengang(models.Model):
     def __str__(self):
         return self.name
 
+class Semester(models.Model):
+    name = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('student', 'Studierende'),
         ('teacher', 'Lehrkraft'),
     )
-    SEMESTER_CHOICES = [
-        ('WS 24/25', 'WS 24/25'),
-        ('SS 25', 'SS 25'),
-        ('WS 25/26', 'WS 25/26'),
-        ('SS 26', 'SS 26'),
-        ('WS 26/27', 'WS 26/27'),
-    ]
+    
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
-
     # New field: each student has one professor, and professors can supervise many students
     professor = models.ForeignKey(
         'self',
@@ -29,7 +28,7 @@ class CustomUser(AbstractUser):
         on_delete=models.SET_NULL,
         related_name='students'
     )
-    semester = models.CharField(max_length=10, choices=SEMESTER_CHOICES, default='WS 24/25')
+    semester = models.ForeignKey(Semester, null = True, on_delete=models.CASCADE, default = 1)
     studiengang = models.ForeignKey(
         Studiengang,
         on_delete=models.CASCADE,
