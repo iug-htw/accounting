@@ -58,7 +58,21 @@
         <input type="text" placeholder="Richtige Antwort" name="richtige_antwort"><br>
     </div>
 
+    <h3>Freischaltung nach Semester und Studiengang</h3>
+    {% for semester, studiengaenge in studiengaenge_per_semester.items %}
+        <div>
+            <strong>{{ semester.name }}</strong>
+            {% for studiengang in studiengaenge %}
+                <label>
+                    <input type="checkbox" name="studiengang_ids" value="{{ studiengang.id }}-{{ semester.id }}">
+                    {{ studiengang.name }}
+                </label>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
     <br><br>
+
     <button type="submit" style="display: none;" id="submitButton">Aufgabe speichern</button> <!-- Versteckter Button -->
 </form>
 

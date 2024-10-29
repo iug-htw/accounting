@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from .models import Aufgabe, Kategorie, AufgabeStatus
-from users.models import CustomUser
+from users.models import CustomUser, Studiengang, Semester
 from .forms import AufgabeForm, KategorieForm
 from django.contrib import messages
 from django.utils import timezone
@@ -49,7 +49,53 @@ def initialize_task_status_for_new_user(user):
                 defaults={'status': 'non', 'freigeschaltet': True}  # Freigeschaltet vorerst auf True setzen
             )
 
+def update_task_status_for_study_programs(request, aufgaben_ids, studiengang_ids_raw, freigeschaltet_status, default=False):
+    # Durchlaufe die kombinierten Werte von studiengang_id und semester_id
+    selected_students = []
+    for value in studiengang_ids_raw:
+        studiengang_id, semester_id = value.split('-')
+        students = CustomUser.objects.filter(
+            professor=request.user,
+            studiengang_id=studiengang_id,
+            semester_id=semester_id
+        )
+        selected_students.extend(students)
+
+        # Aktualisiere den 'freigeschaltet'-Status für die ausgewählten Aufgaben und Studenten
+        AufgabeStatus.objects.filter(
+            student__in=students,
+            aufgabe__id__in=aufgaben_ids
+        ).update(freigeschaltet=freigeschaltet_status)
+
+    # Setze 'freigeschaltet' auf False für nicht ausgewählte Programme, falls default=False
+    if not default:
+        other_students = CustomUser.objects.filter(
+            professor=request.user
+        ).exclude(id__in=[student.id for student in selected_students])
+        
+        AufgabeStatus.objects.filter(
+            student__in=other_students,
+            aufgabe__id__in=aufgaben_ids
+        ).update(freigeschaltet=False)
+
+
+
 @login_required
+@lehrkraft_required
+def update_aufgabe_status_multiple(request):
+    if request.method == 'POST':
+        aufgaben_ids = request.POST.getlist('aufgaben_ids')
+        studiengang_ids_raw = request.POST.getlist('studiengang_ids')
+        action = request.POST.get('action')
+        
+        freigeschaltet_status = True if action == 'freischalten' else False
+        # Nutze die Hilfsfunktion zur Statusaktualisierung
+        update_task_status_for_study_programs(request, aufgaben_ids, studiengang_ids_raw, freigeschaltet_status)
+
+        return redirect('posts:aufgaben_liste')
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
 @student_required
 def update_aufgabe_status(request, aufgabe_id):
     aufgabe = Aufgabe.objects.get(id=aufgabe_id)
@@ -271,22 +317,37 @@ def handle_multiple_choice(request, aufgabe):
 def handle_texteingabe(request, aufgabe):
     aufgabe.richtige_antwort = request.POST.get('richtige_antwort')  # Richtige Antwort speichern
 
-@login_required(login_url="/users/login/")
 @lehrkraft_required
 def neue_aufgabe(request):
     if request.method == 'POST':
         return handle_aufgabe_post(request)
-    else:
-        form = AufgabeForm(user=request.user)  # Benutzer in das Formular einfügen
-        return render(request, 'posts/neue_aufgabe.html', {'form': form})
+    form = AufgabeForm(user=request.user)
+    
+    # Prepare study programs by semester
+    studiengaenge_per_semester = {}
+    for semester in Semester.objects.all():
+        studiengaenge_per_semester[semester] = Studiengang.objects.filter(
+            students__professor=request.user,
+            students__semester=semester
+        ).distinct()
+
+    return render(request, 'posts/neue_aufgabe.html', {
+        'form': form,
+        'studiengaenge_per_semester': studiengaenge_per_semester
+    })
 
 def handle_aufgabe_post(request):
     form = AufgabeForm(request.POST, user=request.user)
-    if not form.is_valid():
-        return render(request, 'posts/neue_aufgabe.html', {'form': form})
+    if form.is_valid():
+        aufgabe = save_aufgabe(request, form)
+        selected_studiengang_ids = request.POST.getlist('studiengang_ids')
+        
+        # Setze 'freigeschaltet' auf True für die ausgewählten und False für die nicht ausgewählten Studiengänge und Semester
+        update_task_status_for_study_programs(request, [aufgabe.id], selected_studiengang_ids, freigeschaltet_status=True, default=False)
 
-    aufgabe = save_aufgabe(request, form)
-    return redirect('posts:aufgaben_liste')
+        return redirect('posts:aufgaben_liste')
+    
+    return render(request, 'posts/neue_aufgabe.html', {'form': form})
 
 def save_aufgabe(request, form):
     aufgabe = form.save(commit=False)
@@ -308,11 +369,21 @@ def process_aufgabentyp(request, aufgabe):
         handle_texteingabe(request, aufgabe)
 
 
-@login_required(login_url="/users/login/")
 @lehrkraft_required
 def aufgaben_liste(request):
-    aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')  # Aufgaben des Lehrers filtern
-    return render(request, 'posts/aufgaben_liste.html', {'aufgaben': aufgaben})
+    aufgaben = Aufgabe.objects.filter(author=request.user).order_by('id')
+    studiengaenge_per_semester = {}
+
+    # Organize study programs by semester
+    for semester in Semester.objects.all():
+        studiengaenge_per_semester[semester] = Studiengang.objects.filter(
+            students__professor=request.user, students__semester=semester
+        ).distinct()
+
+    return render(request, 'posts/aufgaben_liste.html', {
+        'aufgaben': aufgaben,
+        'studiengaenge_per_semester': studiengaenge_per_semester
+    })
 
 
 @login_required(login_url="/users/login/")
