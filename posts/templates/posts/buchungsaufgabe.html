@@ -54,6 +54,9 @@ Buchungsaufgabe - Website Prototyp
                 {% endif %}
             {% endif %}
         </div>
+        <br><br><br>
+        <div>{{aufgabe.aufgabentext}}</div>
+
         {% if aufgabe.aufgabentyp == 'buchungssatz' %}
             <!-- Anzeige der Aufgabe -->
             <h2>Aufgabe {{ aufgabe.id }}: {{ aufgabe.kategorie }}</h2>

@@ -4,16 +4,56 @@
 Stand der bearbeiteten Aufgaben
     #Aufgaben Bearbeitungsstand geben
     #Noch zu bearbeitende Aufgaben Kategorisieren
-    Aufgaben Freischalten
-        Profs haben Übersicht für alle AUfgaben die sie einzeln freischalten können
-        Prof haben Übersicht um Aufgaben nach Kategorien für Semester/Studiengang freizuschalten
-        Profs können bei Aufgabenerstellung nach Semester/Studiengang freischalten
+    #Aufgaben Freischalten
+        #Profs haben Übersicht für alle AUfgaben die sie einzeln freischalten können
+        #Prof haben Übersicht um Aufgaben nach Kategorien für Semester/Studiengang freizuschalten
+        #Profs können bei Aufgabenerstellung nach Semester/Studiengang freischalten
     #Studis noch weitere Felder geben (Semester, Studiengang)
 Oberseiten für die Themenkomplexe
+
 
 #Optimierung: 
     Funktionen wie Rollenabgreifen mehrfach verwenden
     Lange Funktionen umschreiben
     Logik aus Buchugsaufgabe.html ggf. in Views packen
     View nach Thematik in weitere Datein aufteilen
-
+Nächste Schritte
+- Allgemein    
+    - CSS/Design Anpassung
+    - Tests schreiben
+    - Vorlage für Rechnungen erstellen (Blaupause)
+    - Code optimieren/übersichtlicher gestalten
+    - KI 
+        - Anbindung
+        - Aufgabengenerierung
+        - Feedbackgenerierung
+        - Rechnungsgenerierung
+- ToDo 
+    - Kurzfristig
+        - Fehlermeldung bei falschem Login
+        - Fehlermeldung bei falschen/unvollständigem Input für Buchungsaufgaben
+        - Studiengang + Semester auf Index
+        - Buchungsaufgabe (Link oben) Lehrer anpassen (ggf. entfernen)
+        - Vorlage ggf. raus
+        - Posts raus
+        - Lehrer: Übersicht wer auf was Berechtigung hat (Welche Semester/Studiengänge sehen welche Aufgaben)
+        - Massennutzeranlegen (bis zu 50)
+        - Kategorien löschen nur über Formular
+        - kategorien löschen nur für Profs der Kategorie 
+        - Studiengangansicht Profspezifisch
+        - Aufgabenstatus nur über Formularabsenden möglich
+        - Studi: PW/Name ändern
+        - Übersicht für Semester verbessern (nicht alle anzeigen, irgendwie mit alten Semestern umgehen)
+    - Aus Konzept
+        - Schwierigkeitsgrade für Aufgaben
+        - Anpassung von Aufgaben (Name + Kategorie änderbar)
+        - "Richtigkeit" der Aufgabe mit Server kommunizieren
+        - Aufgabenfeedback generieren 
+        - Löschen von Aufgaben
+        - Gruppieren von Aufgaben um Tests zu entwickeln
+        - Seiten für Themenbereiche erstellen
+            - Aufgabenübersicht
+            - Lehrmaterial sichtbar/hinzufügbar
+        - Nutzer löschen
+        - Passwort ändern
+        - Bearbeitungsstand von Aufgaben für Lehrkraft sichtbar

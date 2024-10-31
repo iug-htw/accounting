@@ -22,7 +22,7 @@ Website Prototyp
         {% if students %}
             <ul>
             {% for student in students %}
-                <li>{{ student.username }} - {{ student.email }}</li>
+                <li>{{ student.username }} - {{ student.email }} {{student.semester}} {{student.studiengang}}</li>
             {% endfor %}
             </ul>
         {% else %}
