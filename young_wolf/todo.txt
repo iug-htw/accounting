@@ -57,3 +57,7 @@ Nächste Schritte
         - Nutzer löschen
         - Passwort ändern
         - Bearbeitungsstand von Aufgaben für Lehrkraft sichtbar
+
+10.11 Konzept
+
+1a3b5c7d
