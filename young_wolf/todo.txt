@@ -1,62 +1,179 @@
-#Studi <> Prof Beziehung
-#Aufgaben Nutzerspezifisch
-#Anzeige der Aufgabenkategorien
-Stand der bearbeiteten Aufgaben
-    #Aufgaben Bearbeitungsstand geben
-    #Noch zu bearbeitende Aufgaben Kategorisieren
-    #Aufgaben Freischalten
-        #Profs haben Übersicht für alle AUfgaben die sie einzeln freischalten können
-        #Prof haben Übersicht um Aufgaben nach Kategorien für Semester/Studiengang freizuschalten
-        #Profs können bei Aufgabenerstellung nach Semester/Studiengang freischalten
-    #Studis noch weitere Felder geben (Semester, Studiengang)
-Oberseiten für die Themenkomplexe
-
-
-#Optimierung: 
-    Funktionen wie Rollenabgreifen mehrfach verwenden
-    Lange Funktionen umschreiben
-    Logik aus Buchugsaufgabe.html ggf. in Views packen
-    View nach Thematik in weitere Datein aufteilen
 Nächste Schritte
-- Allgemein    
-    - CSS/Design Anpassung
-    - Tests schreiben
-    - Vorlage für Rechnungen erstellen (Blaupause)
-    - Code optimieren/übersichtlicher gestalten
-    - KI 
-        - Anbindung
-        - Aufgabengenerierung
-        - Feedbackgenerierung
-        - Rechnungsgenerierung
-- ToDo 
-    - Kurzfristig
-        - Fehlermeldung bei falschem Login
-        - Fehlermeldung bei falschen/unvollständigem Input für Buchungsaufgaben
-        - Studiengang + Semester auf Index
-        - Buchungsaufgabe (Link oben) Lehrer anpassen (ggf. entfernen)
-        - Vorlage ggf. raus
-        - Posts raus
-        - Lehrer: Übersicht wer auf was Berechtigung hat (Welche Semester/Studiengänge sehen welche Aufgaben)
-        - Massennutzeranlegen (bis zu 50)
-        - Kategorien löschen nur über Formular
-        - kategorien löschen nur für Profs der Kategorie 
-        - Studiengangansicht Profspezifisch
-        - Aufgabenstatus nur über Formularabsenden möglich
-        - Studi: PW/Name ändern
-        - Übersicht für Semester verbessern (nicht alle anzeigen, irgendwie mit alten Semestern umgehen)
-    - Aus Konzept
-        - Schwierigkeitsgrade für Aufgaben
-        - Anpassung von Aufgaben (Name + Kategorie änderbar)
-        - "Richtigkeit" der Aufgabe mit Server kommunizieren
-        - Aufgabenfeedback generieren 
-        - Löschen von Aufgaben
-        - Gruppieren von Aufgaben um Tests zu entwickeln
-        - Seiten für Themenbereiche erstellen
-            - Aufgabenübersicht
-            - Lehrmaterial sichtbar/hinzufügbar
-        - Nutzer löschen
-        - Passwort ändern
-        - Bearbeitungsstand von Aufgaben für Lehrkraft sichtbar
+    Codeoptimierung
+        Funktionen verkleinern
+        Funktionen mehrfach verwenden
+        Datein auslagern und in zusammenhängende Komponenten packen (Aufgabe erstellen, aufgabe lesen etc.)
+        Logiken auf html ggf. in View packen (buchungsaufgabe.html verschlanken)
+    Massennutzeranlegen (bis zu 50 am Stück)
+        Generischen Namen für Studis generieren
+        Prof, Studiengang, Semester Zuweisung automatisch
+        Prof kann weiterhin Studiengänge/Semester hinzufügen für sich
+    Startups festlegen
+        KI generiertes Konzept
+        In Datenbank hinterlegt
+            ID
+            Videoverweis
+            Konzept 
+    Geschäftsvorfälle auswählen
+        10 Thematiken wählen
+        1. Geschäftsvorfall erstellen generisch
+            Startup Konzept übermitteln,
+            Falls zu teuer --> manuell
+        2. Für Jede Thematik mindestens 2 (Außer Bilanz/GuV) 
+            Konten sind dabei fest 
+            Fallback/Standart Zahlen verwenden
+        3. Rechnungsvorlage erstellen (hier nur GV)
+        4. Rechnungsvorlage und Geschäftsvorfall verbinden 
+            4.1 Zahlenwerte generieren
+            4.2 Aufgabe:
+                Lösung Haben
+                Lösung Soll
+                Aufgabentext
+                ID Geschäftsvorfall
+                ID kommt mehrmals vor, jeder Studi sieht aber nur eine  
+            4.2 Abwicklung in Datenbank irgendwie
+            4.3 Nutzerbedingte veränderung der Zahlenwerte
+        5. Generierung individueller Rechnung / Lösung
+    Anschließend die anderen Punkte, die alle auf die Aufgabe hinauslaufen
+
+Datenbank könnte so Aussehen
+Startup Konzepte erstellt
+10 Geschäftsvorfälle a 2 Aufgaben pro Startup Konzept
+    Text, Konten, Platzhalterwert Haben/Soll
+    -->20 Datenbankeinträge pro Startup
+Jeder Studi hat 10 Aufgaben. 
+    jede Aufgabe hat individuelle haben/Soll Werte
+    -->10 Datensätze pro Studi
+    Konten dabei fest und nur abhängig, welche Aufgabe angesprochen wird
+--> Insgesamt werden alle Buchungen also über die Konten aus der AufgabenID abgewickelt
+    Die Werte werden über Studi abgewickelt
+
+    
+
+Insgesamt (Auch auf Gitlab vorhanden)
+Nachfragen
+    Geschäftsvorfälle 
+    Testkonzept
+    Feedback für falsche Antworten, soll Aufgabe einreichbar sein, wenn bereits falsch?
+    Constructive Alignment
+- Aus Konzept
+    -Startup Konzept
+        -Entwicklung/Festlegung Design Konzept
+            -Startup Design
+            -Logo entwickeln mit Midjourney
+            -Buchungen
+            -Rechnungen
+            -Kennzahlen für Lehrende
+            -Adminansicht
+            -Hauptbuch
+            -Posteingang
+            -Ansicht für fehlende Berechtigungen
+            -Nutzeranlegen
+        -Umsetzung des Designs im Backend
+        -Testen des Designs (konsistent, websiteübergreifend)
+        -Erstellung Begrüßungsvideos
+            -5 Stück
+    -Posteingang
+        -Hervorgehoben, wenn Aufgabe  nicht bearbeit
+        -Ausgegraut, wenn Aufgabe bearbeitet
+        -Weiterleitung Aufgabe 
+        -Individualisierung
+    -Buchungen
+        -Rechnung eine Seite
+            -Festlegung Vorlage
+                -individuell
+                    -Anschrift
+                    -Ansprache
+                    -Logo
+                    -Zahlenwerte
+                -Kostenstellen fest  
+            -Individualisierung Kopf + Logo 
+            -Zahlenwerte individuell  / in Datenbank hinterlegt  
+        -Buchung andere Seite 
+            -Eingabe von Konten für Soll und Haben inkl. Beträge
+            -Bestätigung erfragen mit Warnung, dass Buchung fest ist(
+                Auf Korrekturbuchung im sonstigen Fall verweisen)
+    -Hauptbuch
+        -Übersicht über alle Buchungen 
+        -Verlinkung zu den Aufgaben 
+    -Korrekturen
+        -Selbe Ansicht wie Buchung nur mit extravermerk, dass Korrekturbuchung 
+        -Feedback wird dem Studi dazugegeben 
+            -Erfragen, wie oft das quasi passieren soll 
+            -Soll Buchung nicht einreichbar sein, falls wieder falsch?
+    -Geschäftsvorfälle
+        -Mit KI vorfomulierte Geschäftsvorfälle
+        -Individualisierung über Nutzernamen, ggf. mehrere Vorlagen erstellen 
+        -10 Geschäftsvorfälle
+            -hier die 10 
+            -..
+            -..
+    -Individualisierung
+        -Nutzername änderbar / verlinkung bei erstem Login
+        -Ggf. durch Mail einfach handhabbar, sodass man zu Namensänderung weitergeleitet wird
+        -Zahlenwerte bei Buchungen 
+        -Feedback bei Aufgaben 
+        -Zuordnung Startup
+            -Begrüßungsvideo 
+            -Logo zum Startup
+    -Nutzerverwaltung
+        -Admin noch zu machen
+        -Studi Prof beziehung 
+        -Prof muss Kurs erst anlegen
+            -Semester/Studiengang 
+        -Wenn Prof Studi anlegt passiert:
+            -Studi wird dem entsprechenden Prof zugewiesen
+            -Studi wird Kurs vom Prof zugewiesen 
+                -erhält daraus Semester/Studiengang
+            -Studi erhält Begrüßungsmail
+            -Studi erhält Mail mit Namensänderung
+        -Prof kann Kurs starten
+            -Auswahl, welche Aufgaben rankommen
+            -nachträgliches Hinzufügen von Aufgaben möglich
+            -Auswahl Turnus
+                -Sofort, manuell, wöchentlich, 2 wöchentlich
+    -Anonymität
+        -Geregelt, da nie Daten eingegeben werden müssen
+        -Namen bei Erstellung anonymisiert
+        -Ansprechname der Studierenden nur für sich selbst sichtbar
+    -Einfachheit für Lehrende
+        -Nur wenige Funktionen
+            -Erstellen Kurs
+            -Anlegen Studis
+            -Starten von Kurs
+            -Kennzahlen inkl. Filter auf Frontpage
+            -Kann zunächst nicht die spezifische Aufgabe vom Studi sehen
+    -Messbarkeit
+        -Kennzahlen für Bearbeitung von Aufgaben
+            -Bearbeitungsstand
+            -Richtigkeit
+            -Filterbar nach Jahr/Semester/Kurs
+    -Adminansicht
+        -Wie Profansicht, jedoch mit globaler Ansicht der Studierenden,
+    -Feedbackformular
+        -Irgendwo Verlinkung dazu, um etwas an Admin zu schicken
+
+
+
+- Kleinere Änderungen 
+    - #Lehrer: Übersicht wer auf was Berechtigung hat (Welche Semester/Studiengänge sehen welche Aufgaben)
+    - #Massennutzeranlegen (bis zu 50)
+    - #Nutzer löschen
+    - #Studi: PW/Name ändern
+    - #Bearbeitungsstand von Aufgaben für Lehrkraft sichtbar
+QoL
+    - Fehlermeldung bei falschem Login
+    - Fehlermeldung bei falschen/unvollständigem Input für Buchungsaufgaben
+    - Studiengang + Semester auf Index
+    - Buchungsaufgabe (Link oben) Lehrer anpassen (ggf. entfernen)
+    - Vorlage ggf. raus
+    - Posts raus
+    - Kategorien löschen nur über Formular
+    - kategorien löschen nur für Profs der Kategorie 
+    - Übersicht für Semester verbessern (nicht alle anzeigen, irgendwie mit alten Semestern umgehen)
+
+
+
 
 10.11 Konzept
 
