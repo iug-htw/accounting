@@ -65,7 +65,7 @@ def update_task_status_for_study_programs(request, aufgaben_ids, studiengang_ids
             student__in=students,
             aufgabe__id__in=aufgaben_ids
         ).update(freigeschaltet=freigeschaltet_status)
-
+##nicht nötig?
     # Setze 'freigeschaltet' auf False für nicht ausgewählte Programme, falls default=False
     if not default:
         other_students = CustomUser.objects.filter(
@@ -216,19 +216,8 @@ def buchung_uebersicht_view(request):
         aufgaben = Aufgabe.objects.filter(author=request.user)
     elif request.user.role == 'student':
         aufgaben = Aufgabe.objects.filter(author=request.user.professor)
-    
-    # Filter für nicht abgeschlossene Aufgaben mit Statusanzeige
-    nicht_abgeschlossene_aufgaben = []
-    for aufgabe in aufgaben:
-        status = AufgabeStatus.objects.filter(aufgabe=aufgabe, student=request.user).first()
-        if status and status.status != 'complete':
-            aufgabe.status_display = status.get_status_display()  # Status-Attribut hinzufügen
-            nicht_abgeschlossene_aufgaben.append(aufgabe)
-        else:
-            aufgabe.status_display = 'non'  # Standardstatus für nicht gestartete Aufgaben
 
     return render(request, 'posts/buchung_uebersicht.html', {
-        'aufgaben': nicht_abgeschlossene_aufgaben,
     })
 
 @login_required(login_url="/users/login/")

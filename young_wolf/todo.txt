@@ -55,7 +55,11 @@ Nachfragen
     Geschäftsvorfälle 
     Testkonzept
     Feedback für falsche Antworten, soll Aufgabe einreichbar sein, wenn bereits falsch?
+        Falsche Konten/falsch rum als Korrekturbuchung, falsche Werte geht nicht
     Constructive Alignment
+    #Antwort für Korrekturbuchung von wem?
+    #Logo Auswahl im Namensformular
+    #Aktiv/Passiv in Übersicht
 - Aus Konzept
     -Startup Konzept
         -Entwicklung/Festlegung Design Konzept
