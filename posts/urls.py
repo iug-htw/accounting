@@ -18,4 +18,5 @@ urlpatterns = [
     path('update_aufgabe_status/<int:aufgabe_id>/', views.update_aufgabe_status, name='update_aufgabe_status'),
     path('nicht_abgeschlossene_aufgaben/', views.nicht_abgeschlossene_aufgaben_view, name='nicht_abgeschlossene_aufgaben'),
     path('update_aufgabe_status_multiple/', views.update_aufgabe_status_multiple, name='update_aufgabe_status_multiple'),
+    path('aufgabe_erstellen/', views.aufgabe_neu_erstellen, name='aufgabe_erstellen'),
 ]

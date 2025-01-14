@@ -1,5 +1,5 @@
 from django import forms
-from .models import Aufgabe, Kategorie
+from .models import Aufgabe, Kategorie, Aufgabe_neu
 
 class AufgabeForm(forms.ModelForm):
     kategorie = forms.ModelChoiceField(queryset=Kategorie.objects.all(), empty_label="Kategorie wählen")
@@ -18,3 +18,22 @@ class KategorieForm(forms.ModelForm):
     class Meta:
         model = Kategorie
         fields = ['name']
+
+class Aufgabe_neu_Form(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)  # Hole den Benutzer aus den Keyword-Argumenten
+        super().__init__(*args, **kwargs)
+    
+    class Meta:
+        model = Aufgabe_neu
+        fields = [
+            'unternehmen_kategorie',
+            'fragentyp',
+            'fragentyp_text',
+            'mailtext',
+            'frage',
+            'bezugswert',
+            'min_wert',
+            'max_wert',
+            'nutzungsdauer',
+        ]

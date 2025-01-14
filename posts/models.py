@@ -73,3 +73,29 @@ class AufgabeStatus(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.aufgabe.id}: {self.get_status_display()}"
+
+class Aufgabe_neu(models.Model):
+    unternehmen_kategorie = models.IntegerField()
+    fragentyp = models.IntegerField()
+    fragentyp_text = models.CharField(max_length=255)
+    mailtext = models.TextField()
+    frage = models.TextField()
+    bezugswert = models.FloatField()
+    min_wert = models.FloatField(null=True, blank=True)
+    max_wert = models.FloatField(null=True, blank=True)
+    nutzungsdauer = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.frage} ({self.fragentyp_text})"
+
+class AufgabeDetail(models.Model):
+    aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, related_name="details")
+    kontoname = models.CharField(max_length=255)
+    soll_haben = models.CharField(max_length=50, choices=[("Soll", "Soll"), ("Haben", "Haben")])
+    betrag = models.FloatField()
+    monatsangabe = models.BooleanField(default=False)
+    monat = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.kontoname} - {self.soll_haben} - {self.betrag}"
+

@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Aufgabe, Kategorie, AufgabeStatus
+from .models import Aufgabe, Kategorie, AufgabeStatus, AufgabeDetail
 from users.models import CustomUser, Studiengang, Semester
-from .forms import AufgabeForm, KategorieForm
+from .forms import AufgabeForm, KategorieForm, Aufgabe_neu_Form
 from django.contrib import messages
 from django.utils import timezone
 import json, random
@@ -565,3 +565,36 @@ def alle_aufgaben(request):
     return render(request, 'posts/alle_aufgaben.html', {
         'aufgaben': aufgaben,
     })
+def aufgabe_neu_erstellen(request):
+    if request.method == 'POST':
+        form = Aufgabe_neu_Form(request.POST)
+        if form.is_valid():
+            aufgabe = form.save()
+
+            # Verarbeite die Listenfelder
+            kontonamen = request.POST.getlist('kontoname[]')
+            soll_haben = request.POST.getlist('soll_haben[]')
+            betraege = request.POST.getlist('betrag[]')
+            monatsangaben = request.POST.getlist('monatsangabe[]')
+            monate = request.POST.getlist('monat[]')
+
+            # Erstelle Einträge für AufgabeDetail
+            for i in range(len(kontonamen)):
+                AufgabeDetail.objects.create(
+                    aufgabe=aufgabe,
+                    kontoname=kontonamen[i],
+                    soll_haben=soll_haben[i],
+                    betrag=float(betraege[i]),
+                    monatsangabe=monatsangaben[i] == "true",
+                    monat=int(monate[i]) if monate[i] else None,
+                )
+
+            return redirect('posts:buchung_uebersicht')
+        else:
+            messages.error(request, "Das Formular ist nicht gültig.")
+    else:
+        form = Aufgabe_neu_Form()
+
+    return render(request, 'posts/aufgabe_erstellen.html', {'form': form})
+
+

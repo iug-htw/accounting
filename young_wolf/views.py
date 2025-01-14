@@ -15,6 +15,8 @@ def index(request):
     return render(request, 'index.html', {'students': students})
 def themenkomplex1(request):
     return render(request, 'themenkomplex1.html')
+def frontpage2(request):
+    return render(request, 'frontpage2.html')
 def themenkomplex2(request):
     return render(request, 'themenkomplex2.html')
 def themenkomplex3(request):
