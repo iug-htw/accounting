@@ -19,4 +19,7 @@ urlpatterns = [
     path('nicht_abgeschlossene_aufgaben/', views.nicht_abgeschlossene_aufgaben_view, name='nicht_abgeschlossene_aufgaben'),
     path('update_aufgabe_status_multiple/', views.update_aufgabe_status_multiple, name='update_aufgabe_status_multiple'),
     path('aufgabe_erstellen/', views.aufgabe_neu_erstellen, name='aufgabe_erstellen'),
+    path('rechnung/', views.rechnung_view, name='rechnung'),
+    path('rechnung/<int:aufgabe_id>/', views.rechnung_detail_view, name='rechnung_detail'),
+    path('zufaellige_aufgabe_zuweisen/<int:aufgabe_id>/', views.zufaellige_aufgabe_zuweisen, name='zufaellige_aufgabe_zuweisen'),
 ]

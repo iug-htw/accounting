@@ -1,15 +1,40 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aufgabe erstellen</title>
+{% extends 'vorlage2.html' %}
+
+{% block content %}
+    <a href={% url 'frontpage2' %} class="navigation-item">Aufgabe erstellen</a>
+    <h1>Neue Aufgabe erstellen</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <h2>Felder hinzufügen</h2>
+        <div id="fields-container_aufgabe_erstellen">
+            <div class="field-group_aufgabe_erstellen">
+                <input type="text" placeholder="Kontoname" name="kontoname[]" required>
+                <select name="soll_haben[]" required>
+                    <option value="Soll">Soll</option>
+                    <option value="Haben">Haben</option>
+                </select>
+                <input type="number" placeholder="Betrag" name="betrag[]" required>
+                <select name="monatsangabe[]" required>
+                    <option value="true">Ja</option>
+                    <option value="false">Nein</option>
+                </select>
+                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12">
+            </div>
+        </div>
+
+        <button type="button" onclick="addFieldGroup()">Weitere Felder hinzufügen</button>
+        <br><br>
+        <button type="submit">Speichern</button>
+    </form>
+
     <script>
         // Funktion zum Hinzufügen neuer Felder
         function addFieldGroup() {
-            let container = document.getElementById('fields-container');
+            let container = document.getElementById('fields-container_aufgabe_erstellen');
             let newFieldGroup = document.createElement('div');
-            newFieldGroup.classList.add('field-group');
+            newFieldGroup.classList.add('field-group_aufgabe_erstellen');
 
             newFieldGroup.innerHTML = `
                 <input type="text" placeholder="Kontoname" name="kontoname[]" required>
@@ -29,44 +54,4 @@
             container.appendChild(newFieldGroup);
         }
     </script>
-    <style>
-        .field-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .field-group input, .field-group select {
-            flex: 1;
-        }
-    </style>
-</head>
-<body>
-    <a href={% url 'frontpage2' %} class="navigation-item">Aufgabe erstellen</a>
-    <h1>Neue Aufgabe erstellen</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-
-        <h2>Felder hinzufügen</h2>
-        <div id="fields-container">
-            <div class="field-group">
-                <input type="text" placeholder="Kontoname" name="kontoname[]" required>
-                <select name="soll_haben[]" required>
-                    <option value="Soll">Soll</option>
-                    <option value="Haben">Haben</option>
-                </select>
-                <input type="number" placeholder="Betrag" name="betrag[]" required>
-                <select name="monatsangabe[]" required>
-                    <option value="true">Ja</option>
-                    <option value="false">Nein</option>
-                </select>
-                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12">
-            </div>
-        </div>
-
-        <button type="button" onclick="addFieldGroup()">Weitere Felder hinzufügen</button>
-        <br><br>
-        <button type="submit">Speichern</button>
-    </form>
-</body>
-</html>
+{% endblock %}

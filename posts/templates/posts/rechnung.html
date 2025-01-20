@@ -1,0 +1,86 @@
+{% extends 'vorlage2.html' %}
+
+{% block content %}
+<div class="container_rechnung">
+    <h1 class="headline_rechnung">Rechnung Nr.{{ aufgabe.id }} - {{ aufgabe.fragentyp_text }}</h1>
+    {% if user.is_authenticated and nutzer_aufgabe %}
+        <p><strong>Zufällig generierte Werte:</strong></p>
+        <ul>
+            <li><strong>Soll-Konto:</strong> {{ nutzer_aufgabe.soll_konto }}</li>
+            <li><strong>Haben-Konto:</strong> {{ nutzer_aufgabe.haben_konto }}</li>
+            <li><strong>Betrag:</strong> {{ nutzer_aufgabe.betrag }}</li>
+        </ul>
+    {% endif %}
+    {% if user.is_authenticated and not aufgabe.geloest %}
+        <form method="post" action="{% url 'posts:zufaellige_aufgabe_zuweisen' aufgabe.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-assign-task">Aufgabe zuweisen</button>
+        </form>
+    {% endif %}
+    <div class="content-wrapper_rechnung">
+        <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->
+        <div class="left-section_rechnung">
+            <div class="invoice-placeholder_rechnung">Fiktive Rechnung</div>
+        </div>
+
+        <!-- Rechter Bereich: Eingabefelder -->
+        <div class="right-section_rechnung">
+            <h2>Versuch 1</h2>
+            <p class="business-case_rechnung">
+                <strong>Fragentext:</strong> {{ aufgabe.frage }}
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="inputs-container_rechnung">
+                    <div id="soll-container_rechnung">
+                        <label><strong>Eingaben Soll:</strong></label>
+                        <div class="input-group_rechnung">
+                            <input type="text" placeholder="Konto eingeben" name="soll_konto[]">
+                            <input type="number" placeholder="Betrag eingeben" name="soll_betrag[]">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">Neues Soll-Feld hinzufügen</button>
+            
+                    <div id="haben-container_rechnung">
+                        <label><strong>Eingaben Haben:</strong></label>
+                        <div class="input-group_rechnung">
+                            <input type="text" placeholder="Konto eingeben" name="haben_konto[]">
+                            <input type="number" placeholder="Betrag eingeben" name="haben_betrag[]">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">Neues Haben-Feld hinzufügen</button>
+                </div>
+            
+                <button type="submit" class="btn-submit_rechnung">Eingaben übermitteln</button>
+            </form>
+            
+
+            {% if next_aufgabe %}
+                <a href="{% url 'posts:rechnung_detail' next_aufgabe.id %}" class="btn-next_rechnung">Nächste Aufgabe ➡️</a>
+            {% else %}
+                <p>Keine weiteren Aufgaben verfügbar.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function addField(containerId) {
+        let container = document.getElementById(containerId);
+        let newFieldGroup = document.createElement('div');
+        newFieldGroup.classList.add('input-group_rechnung');
+
+        newFieldGroup.innerHTML = `
+            <input type="text" placeholder="Konto eingeben" name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" required>
+            <input type="number" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
+            <button type="button" class="btn-remove_rechnung" onclick="removeField(this)">🗑️</button>
+        `;
+
+        container.appendChild(newFieldGroup);
+    }
+
+    function removeField(button) {
+        button.parentElement.remove();
+    }
+</script>
+{% endblock %}

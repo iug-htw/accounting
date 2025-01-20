@@ -1,13 +1,14 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Aufgabe, Kategorie, AufgabeStatus, AufgabeDetail
+from .models import Aufgabe, Kategorie, AufgabeStatus, AufgabeDetail, Aufgabe_neu, NutzerAufgabe
 from users.models import CustomUser, Studiengang, Semester
-from .forms import AufgabeForm, KategorieForm, Aufgabe_neu_Form
+from .forms import AufgabeForm, KategorieForm, Aufgabe_neu_Form, BuchungForm
 from django.contrib import messages
 from django.utils import timezone
 import json, random
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
+from random import uniform
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -589,7 +590,7 @@ def aufgabe_neu_erstellen(request):
                     monat=int(monate[i]) if monate[i] else None,
                 )
 
-            return redirect('posts:buchung_uebersicht')
+            return redirect('frontpage2')
         else:
             messages.error(request, "Das Formular ist nicht gültig.")
     else:
@@ -598,3 +599,75 @@ def aufgabe_neu_erstellen(request):
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form})
 
 
+def rechnung_view(request):
+    aufgabe = Aufgabe_neu.objects.first()  # Beispiel für eine zufällige Aufgabe
+    return render(request, 'posts/rechnung.html', {'aufgabe': aufgabe})
+
+@login_required
+def rechnung_detail_view(request, aufgabe_id):
+    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+
+    # Nutzer-Aufgabe abrufen oder neue erstellen
+    nutzer_aufgabe = NutzerAufgabe.objects.filter(aufgabe=aufgabe, nutzer=request.user).first()
+
+    if not nutzer_aufgabe:
+        messages.error(request, "Bitte weise dir die Aufgabe zuerst zu.")
+        return redirect('posts:rechnung')
+
+    # Nächste Aufgabe abrufen
+    next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
+
+    if request.method == 'POST':
+        soll_konto = request.POST.get('soll_konto')
+        haben_konto = request.POST.get('haben_konto')
+        betrag = int(request.POST.get('betrag'))
+
+        if (
+            nutzer_aufgabe.soll_konto == soll_konto and
+            nutzer_aufgabe.haben_konto == haben_konto and
+            nutzer_aufgabe.betrag == betrag
+        ):
+            nutzer_aufgabe.geloest = True
+            nutzer_aufgabe.save()
+            messages.success(request, "Aufgabe erfolgreich gelöst!")
+        else:
+            messages.error(request, "Die Lösung ist falsch.")
+
+    return render(request, 'posts/rechnung.html', {
+        'aufgabe': aufgabe,
+        'nutzer_aufgabe': nutzer_aufgabe,
+        'next_aufgabe': next_aufgabe
+    })
+
+
+
+@login_required
+def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
+    """ Erstellt oder überschreibt eine zufällige Aufgabe für den Nutzer basierend auf min/max-Werten """
+    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+
+    # Zufällige Beträge als Ganzzahl generieren
+    zufaelliger_betrag = random.randint(int(aufgabe.min_wert), int(aufgabe.max_wert))
+
+    # Konten aus AufgabeDetail abrufen
+    soll_konto_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").first()
+    haben_konto_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").first()
+
+    # Fallback-Werte, falls keine Konten gefunden wurden
+    soll_konto = soll_konto_detail.kontoname if soll_konto_detail else "Unbekannt"
+    haben_konto = haben_konto_detail.kontoname if haben_konto_detail else "Unbekannt"
+
+    # Falls bereits vorhanden, Eintrag überschreiben
+    nutzer_aufgabe, created = NutzerAufgabe.objects.update_or_create(
+        aufgabe=aufgabe,
+        nutzer=request.user,
+        defaults={
+            'soll_konto': soll_konto,
+            'haben_konto': haben_konto,
+            'betrag': zufaelliger_betrag,
+            'geloest': False
+        }
+    )
+
+    messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
+    return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
