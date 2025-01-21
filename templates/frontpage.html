@@ -1,0 +1,60 @@
+
+{% extends 'master_layout.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/frontpage.css' %}">
+{% endblock %}
+{% block content %}
+<div class="logo-and-description">
+    <img src="/media/securenet-logo.png" alt="SecureNet Logo" class="securenet-logo">
+    <div class="description">
+        <h1>Willkommen bei SecureNet!</h1>
+        <p>
+            Als Teil von SecureNet schützt dein Cyber-Security-Startup Unternehmen mit
+            Schwachstellenanalysen und Penetrationstests vor Angriffen. Deine zentrale
+            Anlaufstelle ist der Posteingang, wo alle Rechnungen und Aufgaben eintreffen.
+        </p>
+        <p>
+            Im Hauptbuch findest du eine übersichtliche Darstellung der T-Konten, und die
+            Rechnungsübersicht bietet dir den perfekten Überblick über offene und
+            bearbeitete Rechnungen.
+        </p>
+        <p>
+            Die Bilanz hilft dir, die finanzielle Lage deines Startups im Blick zu behalten.
+            Sie zeigt dir, wie sich Vermögenswerte (Aktiva) und Finanzierung (Passiva) ausgleichen,
+            und hilft dir, fundierte Entscheidungen für dein Unternehmen zu treffen.
+        </p>
+        <p>Starte jetzt und halte die Finanzen deines Startups auf Kurs! 🚀</p>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="action-buttons">
+    <div class="widget-button">
+        <a href="#" class="button">Meine Bilanz</a>
+    </div>
+    <div class="widget-button">
+        <a href="#" class="button">Mein Hauptbuch</a>
+    </div>
+</div>
+
+<!-- Progress Section -->
+<section class="progress-container">
+    <h2>Dein Fortschritt</h2>
+    <div class="progress-circle">
+        <svg viewBox="0 0 36 36" class="circular-chart green">
+            <path class="circle-bg"
+                  d="M18 2.0845
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+            <path class="circle"
+                  stroke-dasharray="85, 100"
+                  d="M18 2.0845
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+            <text x="18" y="20.35" class="percentage">85%</text>
+        </svg>
+    </div>
+    <p>Erledigt: 85% | Noch zu erledigen: 15%</p>
+</section>
+{% endblock %}

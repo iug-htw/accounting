@@ -29,11 +29,9 @@ urlpatterns = [
     path('vorlage/', views.vorlage, name = 'vorlage'),
     #path('buchungsaufgabe/', views.buchungsaufgabe, name = 'buchungsaufgabe'),
     path('', views.index, name = 'index'),
-    path('themenkomplex1/', views.themenkomplex1, name = 'themenkomplex1'),
-    path('themenkomplex2/', views.themenkomplex2, name ='themenkomplex2'),
-    path('themenkomplex3/', views.themenkomplex3, name = 'themenkomplex3'),
     path('posts/', include('posts.urls')),
     path('users/', include('users.urls')),
     path('frontpage2/', views.frontpage2, name = 'frontpage2' ),
+    path('frontpage/', views.frontpage, name = 'frontpage' ),
 ]
 #urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

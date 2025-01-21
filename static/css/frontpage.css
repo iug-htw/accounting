@@ -1,15 +1,10 @@
 /* General Styling */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-}
 
 /* Navigation Bar */
+/*
 .navigation-bar {
     display: flex;
-    justify-content: space-between; /* Space between nav elements */
+    justify-content: space-between;  Space between nav elements 
     align-items: center;
     background-color: white;
     padding: 1rem 2rem;
@@ -36,10 +31,10 @@ body {
 }
 
 .nav-icon {
-    width: 1.5rem; /* Slightly larger icon */
+    width: 1.5rem; 
     height: 1.5rem;
 }
-
+*/
 /* Logo and Description */
 .logo-and-description {
     display: flex;
@@ -48,12 +43,12 @@ body {
     padding: 2rem;
     gap: 2rem;
 }
-
+/*
 .securenet-logo {
-    width: 25rem; /* Adjusted for better balance */
+    width: 25rem; 
     height: auto;
 }
-
+*/
 .description {
     max-width: 60%;
 }

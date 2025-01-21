@@ -29,7 +29,7 @@ def register_view(request):
             user.save()
             initialize_task_status_for_new_user(user)
             #login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect("frontpage2")  # Redirect to a suitable page after registration
+            return redirect("frontpage")  # Redirect to a suitable page after registration
     else:
         form = CustomUserCreationForm()
     
@@ -43,8 +43,8 @@ def login_view(request):
             if "next" in request.POST:
                 return redirect(request.POST.get('next'))
             else: 
-                return redirect("frontpage2")
-        return redirect("frontpage2")
+                return redirect("frontpage")
+        return redirect("frontpage")
     else:
         form = AuthenticationForm()
     return render(request, "users/login.html", { "form": form })

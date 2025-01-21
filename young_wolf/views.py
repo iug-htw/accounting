@@ -13,14 +13,10 @@ def index(request):
     # Wenn der eingeloggte Nutzer eine Lehrkraft ist, hole die zugeordneten Studierenden
     students = request.user.students.all() if request.user.role == 'teacher' else None
     return render(request, 'index.html', {'students': students})
-def themenkomplex1(request):
-    return render(request, 'themenkomplex1.html')
 def frontpage2(request):
     return render(request, 'frontpage2.html')
-def themenkomplex2(request):
-    return render(request, 'themenkomplex2.html')
-def themenkomplex3(request):
-    return render(request, 'themenkomplex3.html')
+def frontpage(request):
+    return render(request, 'frontpage.html')
 
 #def custom_permission_denied_view(request, exception):
 #    return render(request, 'errors/permission_denied.html', status=403)
