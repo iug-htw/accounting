@@ -607,12 +607,12 @@ def rechnung_view(request):
 def rechnung_detail_view(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
 
-    # Nutzer-Aufgabe abrufen oder neue erstellen
-    nutzer_aufgabe = NutzerAufgabe.objects.filter(aufgabe=aufgabe, nutzer=request.user).first()
-
-    if not nutzer_aufgabe:
-        messages.error(request, "Bitte weise dir die Aufgabe zuerst zu.")
-        return redirect('posts:rechnung')
+    # Nutzer-Aufgabe abrufen oder neue erstellen, falls nicht vorhanden
+    nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
+        aufgabe=aufgabe,
+        nutzer=request.user,
+        defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'geloest': False}
+    )
 
     # Nächste Aufgabe abrufen
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
@@ -622,11 +622,9 @@ def rechnung_detail_view(request, aufgabe_id):
         haben_konto = request.POST.get('haben_konto')
         betrag = int(request.POST.get('betrag'))
 
-        if (
-            nutzer_aufgabe.soll_konto == soll_konto and
+        if (nutzer_aufgabe.soll_konto == soll_konto and
             nutzer_aufgabe.haben_konto == haben_konto and
-            nutzer_aufgabe.betrag == betrag
-        ):
+            nutzer_aufgabe.betrag == betrag):
             nutzer_aufgabe.geloest = True
             nutzer_aufgabe.save()
             messages.success(request, "Aufgabe erfolgreich gelöst!")
@@ -638,7 +636,6 @@ def rechnung_detail_view(request, aufgabe_id):
         'nutzer_aufgabe': nutzer_aufgabe,
         'next_aufgabe': next_aufgabe
     })
-
 
 
 @login_required
