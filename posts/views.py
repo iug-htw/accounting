@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Aufgabe, Kategorie, AufgabeStatus, AufgabeDetail, Aufgabe_neu, NutzerAufgabe
+from .models import Aufgabe, Kategorie, AufgabeStatus, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung
 from users.models import CustomUser, Studiengang, Semester
 from .forms import AufgabeForm, KategorieForm, Aufgabe_neu_Form, BuchungForm
 from django.contrib import messages
@@ -618,13 +618,33 @@ def rechnung_detail_view(request, aufgabe_id):
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
 
     if request.method == 'POST':
-        soll_konto = request.POST.get('soll_konto')
-        haben_konto = request.POST.get('haben_konto')
-        betrag = int(request.POST.get('betrag'))
+        soll_konten = request.POST.getlist('soll_konto[]')
+        haben_konten = request.POST.getlist('haben_konto[]')
+        betraege_soll = request.POST.getlist('soll_betrag[]')
+        betraege_haben = request.POST.getlist('haben_betrag[]')
 
-        if (nutzer_aufgabe.soll_konto == soll_konto and
-            nutzer_aufgabe.haben_konto == haben_konto and
-            nutzer_aufgabe.betrag == betrag):
+        # Debugging-Ausgabe zur Überprüfung der übermittelten Daten
+        print(f"Soll-Konten: {soll_konten}")
+        print(f"Haben-Konten: {haben_konten}")
+        print(f"Beträge Soll: {betraege_soll}")
+        print(f"Beträge Haben: {betraege_haben}")
+
+        # Speichere die Nutzereingaben als Buchung in der Datenbank
+        Buchung.objects.create(
+            aufgabe=aufgabe,
+            nutzer=request.user,
+            antwort_konten_soll=json.dumps(soll_konten),
+            antwort_konten_haben=json.dumps(haben_konten),
+            antwort_betrag_soll=json.dumps([float(b) for b in betraege_soll]),
+            antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
+        )
+
+        # Überprüfe, ob die Eingabe korrekt ist
+        korrekt = (nutzer_aufgabe.soll_konto in soll_konten and
+                   nutzer_aufgabe.haben_konto in haben_konten and
+                   str(nutzer_aufgabe.betrag) in betraege_soll)
+
+        if korrekt:
             nutzer_aufgabe.geloest = True
             nutzer_aufgabe.save()
             messages.success(request, "Aufgabe erfolgreich gelöst!")
@@ -636,6 +656,7 @@ def rechnung_detail_view(request, aufgabe_id):
         'nutzer_aufgabe': nutzer_aufgabe,
         'next_aufgabe': next_aufgabe
     })
+
 
 
 @login_required

@@ -1,34 +1,26 @@
-{% extends 'vorlage.html' %}
-
-{% block title %}
-    Kategorien verwalten
-{% endblock %}
+{% extends 'master_layout.html' %}
+{% load static %}
 
 {% block content %}
-<h1>Kategorien verwalten</h1>
+<h1>Aufgabenkategorien verwalten</h1>
 
-<!-- Formular zum Hinzufügen einer neuen Kategorie -->
-<form method="POST">
+<form method="post">
     {% csrf_token %}
-    {{ form.name.label_tag }} {{ form.name }}<br>
-    <button type="submit">Kategorie hinzufügen</button>
+    {{ form.as_p }}
+    <button type="submit">Aufgabenkategorie hinzufügen</button>
 </form>
 
-<hr>
-
-<!-- Anzeige aller Kategorien mit Lösch-Button -->
-<h2>Alle Kategorien</h2>
+<h2>Bestehende Aufgabenkategorien</h2>
 <ul>
-    {% for kategorie in kategorien %}
+    {% for aufgabenkategorie in aufgabenkategorien %}
         <li>
-            {{ kategorie.name }}
-            <!-- Lösch-Button -->
-            <form action="{% url 'posts:kategorie_loeschen' kategorie.id %}" method="POST" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" onclick="return confirm('Willst du diese Kategorie wirklich löschen?');">Löschen</button>
-            </form>
+            {{ aufgabenkategorie.name }}
+            <a href="{% url 'posts:aufgabenkategorie_loeschen' aufgabenkategorie.id %}" class="btn btn-danger">Löschen</a>
         </li>
+    {% empty %}
+        <li>Keine Aufgabenkategorien vorhanden.</li>
     {% endfor %}
 </ul>
 
+<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">Zurück zur Aufgabenerstellung</a>
 {% endblock %}

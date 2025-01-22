@@ -1,0 +1,25 @@
+{% extends 'master_layout.html' %}
+{% load static%}
+{% block content %}
+<h1>Unternehmen verwalten</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Unternehmen hinzufügen</button>
+</form>
+
+<h2>Bestehende Unternehmen</h2>
+<ul>
+    {% for unternehmen in unternehmen %}
+        <li>
+            {{ unternehmen.name }}
+            <a href="{% url 'posts:unternehmen_loeschen' unternehmen.id %}" class="btn btn-danger">Löschen</a>
+        </li>
+    {% empty %}
+        <li>Keine Unternehmen vorhanden.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">Zurück zur Aufgabenerstellung</a>
+{% endblock %}

@@ -1,10 +1,26 @@
 1a3b5c7d
 
+
+-Erstellung von Aufgaben möglich
+-Werte für Lösungen können randomisiert werden
+-Nutzereingaben können gespeichert werden
+
+
+
 Aufgabenerstellung
-    Eingabemaske, vor allem für Haben/Soll anpassen
+    +Eingabemaske, vor allem für Haben/Soll anpassen
     Erweitern um Feedbackeingaben
     Referenz auf Kategorien
+Logik für Lösung implementieren
+    Ganzahlige Werte
 Nutzerlösung
+    +Anzeige der einzelnen Aufgabe inklusive Testlösung
+    +Speichern der Nutzereingabe in Datenbank
+    Vergleich der Musterlösung mit Nutzerlösung
 Hauptbuch
 Korrekturbuchung
 Mail
+Rechnungsgenerierung
+Nutzerverwaltung
+    Zuweisung per Zeitintervall/Prof
+

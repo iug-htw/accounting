@@ -1,7 +1,9 @@
-{% extends 'vorlage2.html' %}
-
+{% extends 'master_layout.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
 {% block content %}
-    <a href={% url 'frontpage2' %} class="navigation-item">Aufgabe erstellen</a>
     <h1>Neue Aufgabe erstellen</h1>
     <form method="post">
         {% csrf_token %}
