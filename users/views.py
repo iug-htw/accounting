@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.http import HttpResponse
 from .models import Studiengang, Semester
 from posts.views import lehrkraft_required
-from posts.views import initialize_task_status_for_new_user
 
 @login_required  # Ensure only logged-in users can access this view
 def register_view(request):
@@ -27,7 +26,6 @@ def register_view(request):
             print(form.cleaned_data)
             print(user.semester)
             user.save()
-            initialize_task_status_for_new_user(user)
             #login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect("frontpage")  # Redirect to a suitable page after registration
     else:
@@ -52,7 +50,7 @@ def login_view(request):
 def logout_view(request):
     if request.method == "POST":
         logout(request)
-        return redirect("posts:list")
+        return redirect("frontpage")
     
 @lehrkraft_required
 def add_studiengang_view(request):

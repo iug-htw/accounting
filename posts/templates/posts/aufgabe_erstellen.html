@@ -7,6 +7,15 @@
     <h1>Neue Aufgabe erstellen</h1>
     <form method="post">
         {% csrf_token %}
+        <label for="unternehmen_kategorie">Unternehmen Kategorie:</label>
+        {{ form.unternehmen_kategorie }}
+        <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">Unternehmen verwalten</a>
+
+        <!-- Fragentyp -->
+        <label for="fragentyp">Fragentyp:</label>
+        {{ form.fragentyp }}
+        <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">Fragentyp verwalten</a>
+
         {{ form.as_p }}
 
         <h2>Felder hinzufügen</h2>

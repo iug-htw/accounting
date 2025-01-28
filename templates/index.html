@@ -1,13 +1,10 @@
-{% extends 'vorlage.html' %}
+{% extends 'master_layout.html' %}
 {% load static %}
-
-{% block title %}
-Website Prototyp
-{% endblock %}
 
 {% block content %}
     <!-- Anzeige des Nutzernamens und der Rolle -->
 {% if user.is_authenticated %}
+    <h1>Temporäre Indexsseite</h1>
     <p>Willkommen, {{ user.username }}!</p>
     
     {% if user.is_superuser %}
@@ -38,17 +35,4 @@ Website Prototyp
             <p>Sie haben derzeit keinen zugewiesenen Professor.</p>
         {% endif %}
     {% endif %}
-
-
- 
-{% else %}
-    <p>Bitte <a href="{% url 'users:login' %}">loggen Sie sich ein</a>.</p>
-{% endif %}
-
-    <!-- Bild unten rechts -->
-    <div class="bottom_right_image">
-        <img src="/media/img1.webp" alt="Meme">
-    </div>
-    
-    <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}
