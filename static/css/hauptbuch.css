@@ -1,0 +1,40 @@
+.hauptbuch {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+.konto {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #4CAF50;
+}
+
+.konto h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.konto table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.konto td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.konto .highlight {
+    background-color: #e3f7d0;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .hauptbuch {
+        grid-template-columns: 1fr;
+    }
+}

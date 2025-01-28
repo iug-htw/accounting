@@ -10,7 +10,7 @@
 Aufgabenerstellung
     +Eingabemaske, vor allem für Haben/Soll anpassen
     Erweitern um Feedbackeingaben
-    Referenz auf Kategorien
+    +Referenz auf Kategorien
 Logik für Lösung implementieren
     Ganzahlige Werte
 Nutzerlösung

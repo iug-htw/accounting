@@ -194,3 +194,35 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
     kategorie = get_object_or_404(Aufgabenkategorie, id=kategorie_id)
     kategorie.delete()
     return redirect('posts:aufgabenkategorie_verwalten')
+
+@login_required
+def hauptbuch(request):
+    # Alle Buchungen des angemeldeten Nutzers abrufen
+    buchungen = Buchung.objects.filter(nutzer=request.user)
+
+    # Dictionary zur Speicherung der T-Konten-Daten
+    t_konten = {}
+
+    for buchung in buchungen:
+        # Daten aus JSON-Feldern laden
+        soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
+        haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
+        soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
+        haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
+
+        # Soll-Konten verarbeiten
+        for konto, betrag in zip(soll_konten, soll_betraege):
+            if konto not in t_konten:
+                t_konten[konto] = {"soll": [], "haben": []}
+            t_konten[konto]["soll"].append((buchung.buchung_id, betrag))
+
+        # Haben-Konten verarbeiten
+        for konto, betrag in zip(haben_konten, haben_betraege):
+            if konto not in t_konten:
+                t_konten[konto] = {"soll": [], "haben": []}
+            t_konten[konto]["haben"].append((buchung.buchung_id, betrag))
+
+    return render(request, 'posts/hauptbuch.html', {
+        't_konten': t_konten
+    })
+

@@ -1,0 +1,55 @@
+{% extends 'master_layout.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/hauptbuch.css' %}">
+{% endblock %}
+{% block content %}
+<h1>Dein Hauptbuch</h1>
+<p>Hier findest du dein Hauptbuch mit all deinen offenen T-Konten</p>
+<div class="sort-option">
+    <label>Sort by:</label>
+    <select>
+        <option>Neuste</option>
+    </select>
+</div>
+
+<section class="hauptbuch">
+    {% for konto, daten in t_konten.items %}
+    <div class="konto">
+        <h2>{{ konto }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Soll</th>
+                    <th>Haben</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <table>
+                            {% for buchung_id, betrag in daten.soll %}
+                            <tr>
+                                <td>{{ buchung_id }}</td>
+                                <td>{{ betrag|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td>
+                        <table>
+                            {% for buchung_id, betrag in daten.haben %}
+                            <tr>
+                                <td>{{ buchung_id }}</td>
+                                <td>{{ betrag|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}
