@@ -14,4 +14,6 @@ urlpatterns = [
     path('aufgabenkategorie_verwalten/', views.aufgabenkategorie_verwalten, name='aufgabenkategorie_verwalten'),
     path('aufgabenkategorie_loeschen/<int:kategorie_id>/', views.aufgabenkategorie_loeschen, name='aufgabenkategorie_loeschen'),
     path('hauptbuch/', views.hauptbuch, name='hauptbuch'),
+    path('aufgabe_bearbeiten/<int:aufgabe_id>/', views.aufgabe_bearbeiten, name='aufgabe_bearbeiten'),
+    path('aufgabe_loeschen/<int:aufgabe_id>/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
 ]

@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie
 from users.models import CustomUser, Studiengang, Semester
-from .forms import  Aufgabe_neu_Form, BuchungForm, AufgabenkategorieForm, UnternehmenForm
+from .forms import  Aufgabe_neu_Form, BuchungForm, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm
 from django.contrib import messages
 from django.utils import timezone
 import json, random
@@ -225,4 +225,42 @@ def hauptbuch(request):
     return render(request, 'posts/hauptbuch.html', {
         't_konten': t_konten
     })
+
+@login_required
+def aufgabe_bearbeiten(request, aufgabe_id):
+    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+    details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
+    
+    if request.method == 'POST':
+        form = AufgabeBearbeitenForm(request.POST, instance=aufgabe)
+        detail_forms = [
+            AufgabeDetailBearbeitenForm(request.POST, prefix=str(detail.id), instance=detail) for detail in details
+        ]
+        
+        if form.is_valid() and all(df.is_valid() for df in detail_forms):
+            form.save()
+            for df in detail_forms:
+                df.save()
+            messages.success(request, "Aufgabe erfolgreich bearbeitet.")
+            return redirect('posts:hauptbuch')
+        else:
+            messages.error(request, "Fehler beim Bearbeiten der Aufgabe.")
+    else:
+        form = AufgabeBearbeitenForm(instance=aufgabe)
+        detail_forms = [
+            AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail) for detail in details
+        ]
+    
+    return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
+
+@login_required
+def aufgabe_loeschen(request, aufgabe_id):
+    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+
+    if request.method == "POST":
+        aufgabe.delete()
+        messages.success(request, "Aufgabe erfolgreich gelöscht.")
+        return redirect('posts:hauptbuch')
+
+    return render(request, 'posts/aufgabe_loeschen.html', {'aufgabe': aufgabe})
 

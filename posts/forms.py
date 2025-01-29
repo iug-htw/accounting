@@ -1,15 +1,16 @@
 from django import forms
-from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie
+from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail
 import json
 
 class Aufgabe_neu_Form(forms.ModelForm):
     unternehmen_kategorie = forms.ModelChoiceField(
         queryset=Unternehmen.objects.all(),
         required=True,
-        label="Unternehmen Kategorie"
+        label="Unternehmen"
     )
+    
     fragentyp = forms.ModelChoiceField(
-        queryset=Aufgabe_neu.objects.values_list('fragentyp_text', flat=True).distinct(),
+        queryset=Aufgabenkategorie.objects.all(),
         required=True,
         label="Fragentyp"
     )
@@ -53,3 +54,13 @@ class AufgabenkategorieForm(forms.ModelForm):
     class Meta:
         model = Aufgabenkategorie
         fields = ['name']
+
+class AufgabeBearbeitenForm(forms.ModelForm):
+    class Meta:
+        model = Aufgabe_neu
+        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'mailtext', 'frage', 'bezugswert', 'min_wert', 'max_wert', 'nutzungsdauer']
+
+class AufgabeDetailBearbeitenForm(forms.ModelForm):
+    class Meta:
+        model = AufgabeDetail
+        fields = ['kontoname', 'soll_haben', 'betrag', 'monatsangabe', 'monat']

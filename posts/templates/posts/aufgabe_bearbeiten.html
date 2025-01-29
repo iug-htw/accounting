@@ -1,0 +1,13 @@
+{% extends "master_layout.html" %}
+{% load static %}
+{% block content %}
+<h2>Aufgabe bearbeiten</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% for detail_form in detail_forms %}
+        {{ detail_form.as_p }}
+    {% endfor %}
+    <button type="submit">Speichern</button>
+</form>
+{% endblock %}
