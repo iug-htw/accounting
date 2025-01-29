@@ -264,3 +264,4 @@ def aufgabe_loeschen(request, aufgabe_id):
 
     return render(request, 'posts/aufgabe_loeschen.html', {'aufgabe': aufgabe})
 
+

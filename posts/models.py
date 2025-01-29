@@ -17,8 +17,8 @@ class Aufgabenkategorie(models.Model):
         return self.name
 
 class Aufgabe_neu(models.Model):
-    unternehmen_kategorie = models.IntegerField()
-    fragentyp = models.IntegerField()
+    unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE)
+    fragentyp = models.ForeignKey(Aufgabenkategorie, on_delete=models.CASCADE)
     fragentyp_text = models.CharField(max_length=255)
     mailtext = models.TextField()
     frage = models.TextField()
@@ -28,7 +28,8 @@ class Aufgabe_neu(models.Model):
     nutzungsdauer = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.frage} ({self.fragentyp_text})"
+        return f"{self.frage} ({self.fragentyp})"
+
 
 class AufgabeDetail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, related_name="details")

@@ -432,3 +432,6 @@ input[type="text"] {
 .field-group_aufgabe_erstellen input, .field-group_aufgabe_erstellen select {
     flex: 1;
 }
+.hidden {
+    display: none;
+}

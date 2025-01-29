@@ -3,22 +3,10 @@ from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, Aufgab
 import json
 
 class Aufgabe_neu_Form(forms.ModelForm):
-    unternehmen_kategorie = forms.ModelChoiceField(
-        queryset=Unternehmen.objects.all(),
-        required=True,
-        label="Unternehmen"
-    )
-    
-    fragentyp = forms.ModelChoiceField(
-        queryset=Aufgabenkategorie.objects.all(),
-        required=True,
-        label="Fragentyp"
-    )
-
     class Meta:
         model = Aufgabe_neu
         fields = [
-            'unternehmen_kategorie',
+            'unternehmen_kategorie',  # Jetzt automatisch als Dropdown gerendert
             'fragentyp',
             'fragentyp_text',
             'mailtext',

@@ -16,4 +16,5 @@ urlpatterns = [
     path('hauptbuch/', views.hauptbuch, name='hauptbuch'),
     path('aufgabe_bearbeiten/<int:aufgabe_id>/', views.aufgabe_bearbeiten, name='aufgabe_bearbeiten'),
     path('aufgabe_loeschen/<int:aufgabe_id>/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
+    
 ]
