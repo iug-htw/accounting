@@ -10,9 +10,9 @@
     {% if user.is_authenticated and nutzer_aufgabe %}
         <p><strong>Zufällig generierte Werte:</strong></p>
         <ul>
-            <li><strong>Soll-Konto:</strong> {{ nutzer_aufgabe.soll_konto }}</li>
-            <li><strong>Haben-Konto:</strong> {{ nutzer_aufgabe.haben_konto }}</li>
-            <li><strong>Betrag:</strong> {{ nutzer_aufgabe.betrag }}</li>
+            <p><strong>Soll-Konto:</strong> {{ nutzer_aufgabe.soll_konto }}</p>
+            <p><strong>Haben-Konto:</strong> {{ nutzer_aufgabe.haben_konto }}</p>
+            <p><strong>Betrag:</strong> {{ nutzer_aufgabe.betrag }}</p>
         </ul>
     {% endif %}
     {% if user.is_authenticated and not aufgabe.geloest %}
@@ -21,6 +21,7 @@
             <button type="submit" class="btn-assign-task">Aufgabe zuweisen</button>
         </form>
     {% endif %}
+    
     <div class="content-wrapper_rechnung">
         <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->
         <div class="left-section_rechnung">
@@ -29,6 +30,31 @@
 
         <!-- Rechter Bereich: Eingabefelder -->
         <div class="right-section_rechnung">
+            
+            <h2>Buchungs-Navigation</h2>
+            <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">Buchungen anzeigen/verstecken</button>
+
+            <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
+                <h3>Frühere Versuche:</h3>
+                {% if buchungen %}
+                    <ul>
+                        {% for buchung in buchungen %}
+                            <li>
+                                <button onclick="showBuchungDetail('{{ buchung.buchung_id }}')">Versuch {{ forloop.counter }}</button>
+                            </li>
+                            <div id="buchung-detail-{{ buchung.buchung_id }}" class="buchung-detail" style="display: none;">
+                                <p><strong>Soll-Konten:</strong> {{ buchung.antwort_konten_soll }}</p>
+                                <p><strong>Haben-Konten:</strong> {{ buchung.antwort_konten_haben }}</p>
+                                <p><strong>Beträge Soll:</strong> {{ buchung.antwort_betrag_soll }}</p>
+                                <p><strong>Beträge Haben:</strong> {{ buchung.antwort_betrag_haben }}</p>
+                            </div>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                <p>Keine vorherigen Buchungen gefunden.</p>
+            {% endif %}
+            </div>
+
             <h2>Versuch 1</h2>
             <p class="business-case_rechnung">
                 <strong>Fragentext:</strong> {{ aufgabe.frage }}
@@ -85,6 +111,22 @@
 
     function removeField(button) {
         button.parentElement.remove();
+    }
+
+    function showBuchung(buchungId) {
+        const buchungDetail = document.getElementById(`buchung-${buchungId}`);
+        const isVisible = buchungDetail.style.display === 'block';
+        buchungDetail.style.display = isVisible ? 'none' : 'block';
+    }
+    document.getElementById('toggle-buchung-ansicht').addEventListener('click', function () {
+        const buchungenAnsicht = document.getElementById('buchungen-ansicht');
+        buchungenAnsicht.style.display = buchungenAnsicht.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Details der einzelnen Buchungen anzeigen
+    function showBuchungDetail(buchungId) {
+        const buchungDetail = document.getElementById(`buchung-detail-${buchungId}`);
+        buchungDetail.style.display = buchungDetail.style.display === 'none' ? 'block' : 'none';
     }
 </script>
 {% endblock %}

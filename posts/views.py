@@ -74,7 +74,7 @@ def rechnung_detail_view(request, aufgabe_id):
         nutzer=request.user,
         defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'geloest': False}
     )
-
+    buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     # Nächste Aufgabe abrufen
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
 
@@ -83,12 +83,6 @@ def rechnung_detail_view(request, aufgabe_id):
         haben_konten = request.POST.getlist('haben_konto[]')
         betraege_soll = request.POST.getlist('soll_betrag[]')
         betraege_haben = request.POST.getlist('haben_betrag[]')
-
-        # Debugging-Ausgabe zur Überprüfung der übermittelten Daten
-        print(f"Soll-Konten: {soll_konten}")
-        print(f"Haben-Konten: {haben_konten}")
-        print(f"Beträge Soll: {betraege_soll}")
-        print(f"Beträge Haben: {betraege_haben}")
 
         # Speichere die Nutzereingaben als Buchung in der Datenbank
         Buchung.objects.create(
@@ -115,7 +109,8 @@ def rechnung_detail_view(request, aufgabe_id):
     return render(request, 'posts/rechnung.html', {
         'aufgabe': aufgabe,
         'nutzer_aufgabe': nutzer_aufgabe,
-        'next_aufgabe': next_aufgabe
+        'next_aufgabe': next_aufgabe,
+        'buchungen': buchungen
     })
 
 

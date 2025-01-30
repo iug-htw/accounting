@@ -435,3 +435,27 @@ input[type="text"] {
 .hidden {
     display: none;
 }
+.buchungen-ansicht {
+    padding: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn-toggle_rechnung {
+    background-color: #006400;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.buchung-detail {
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #e0f7fa;
+    border: 1px solid #009688;
+    border-radius: 4px;
+}
