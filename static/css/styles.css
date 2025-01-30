@@ -459,3 +459,33 @@ input[type="text"] {
     border: 1px solid #009688;
     border-radius: 4px;
 }
+
+.korrekturbuchung-maske {
+    position: fixed;
+    top: 20%;
+    left: 30%;
+    width: 40%;
+    background-color: white;
+    padding: 20px;
+    border: 2px solid #006400;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.korrekturbuchung-maske h3 {
+    color: #006400;
+}
+
+.korrekturbuchung-maske button {
+    background-color: #006400;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.korrekturbuchung-maske input[readonly] {
+    background-color: #e9ecef;
+    border: none;
+    padding: 5px;
+}

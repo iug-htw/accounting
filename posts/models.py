@@ -58,6 +58,7 @@ class Buchung(models.Model):
     antwort_konten_haben = models.JSONField(null=True, blank=True)
     antwort_betrag_soll = models.JSONField(null=True, blank=True)
     antwort_betrag_haben = models.JSONField(null=True, blank=True)
+    korrekturbuchung = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.antwort_konten_soll = self.antwort_konten_soll or []

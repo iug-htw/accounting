@@ -2,6 +2,7 @@
 {% load static %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 {% block content %}
 <p>Next Aufgabe ID: {{ next_aufgabe.id }}</p>
@@ -48,8 +49,15 @@
                                         ✅ Lösung korrekt
                                     {% else %}
                                         ❌ Lösung falsch
+                                        <button onclick="fillKorrekturbuchung('{{ item.buchung.antwort_konten_soll }}', '{{ item.buchung.antwort_konten_haben }}', '{{ item.buchung.antwort_betrag_soll }}', '{{ item.buchung.antwort_betrag_haben }}')">
+                                            Korrekturbuchung vorschlagen
+                                        </button>
+                                        <button onclick="showKorrekturbuchungMaske('{{ item.buchung.buchung_id }}')">Korrekturbuchung durchführen</button>
                                     {% endif %}
                                 </span>
+                                {% if item.buchung.korrekturbuchung %}
+                                    <span>🔁 Korrekturbuchung</span>
+                                {% endif %}
                             </li>
                             <div id="buchung-detail-{{ item.buchung.buchung_id }}" class="buchung-detail" style="display: none;">
                                 <p><strong>Soll-Konten:</strong> {{ item.buchung.antwort_konten_soll }}</p>
@@ -62,6 +70,14 @@
                 {% else %}
                     <p>Keine vorherigen Buchungen gefunden.</p>
                 {% endif %}
+                <div id="korrekturbuchung-maske" class="korrekturbuchung-maske" style="display: none;">
+                    <h3>Korrekturbuchung bestätigen</h3>
+                    <p>Die umgekehrte Buchung wird durchgeführt, um die falsche Buchung auszugleichen.</p>
+                    <div id="korrekturbuchung-details">
+                        <!-- Hier werden die Buchungsdetails dynamisch eingefügt -->
+                    </div>
+                    <button onclick="durchfuehrenKorrekturbuchung()">Korrekturbuchung durchführen</button>
+                </div>
             </div>
 
             <h2>Versuch 1</h2>
@@ -136,6 +152,116 @@
     function showBuchungDetail(buchungId) {
         const buchungDetail = document.getElementById(`buchung-detail-${buchungId}`);
         buchungDetail.style.display = buchungDetail.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHaben) {
+        sollKonten = JSON.parse(sollKonten);
+        habenKonten = JSON.parse(habenKonten);
+        betraegeSoll = JSON.parse(betraegeSoll);
+        betraegeHaben = JSON.parse(betraegeHaben);
+
+        const sollContainer = document.getElementById('soll-container_rechnung');
+        const habenContainer = document.getElementById('haben-container_rechnung');
+
+        // Bestehende Eingabefelder leeren
+        sollContainer.innerHTML = '';
+        habenContainer.innerHTML = '';
+
+        // Korrekturbuchung: Soll und Haben vertauschen
+        for (let i = 0; i < habenKonten.length; i++) {
+            let newSollField = document.createElement('div');
+            newSollField.classList.add('input-group_rechnung');
+            newSollField.innerHTML = `
+                <input type="text" name="soll_konto[]" value="${habenKonten[i]}" required>
+                <input type="number" name="soll_betrag[]" value="${betraegeHaben[i]}" required>
+            `;
+            sollContainer.appendChild(newSollField);
+        }
+
+        for (let i = 0; i < sollKonten.length; i++) {
+            let newHabenField = document.createElement('div');
+            newHabenField.classList.add('input-group_rechnung');
+            newHabenField.innerHTML = `
+                <input type="text" name="haben_konto[]" value="${sollKonten[i]}" required>
+                <input type="number" name="haben_betrag[]" value="${betraegeSoll[i]}" required>
+            `;
+            habenContainer.appendChild(newHabenField);
+        }
+    }
+
+    let aktuelleBuchungId = null;
+
+    function showKorrekturbuchungMaske(buchungId) {
+        aktuelleBuchungId = buchungId;
+        document.getElementById('korrekturbuchung-maske').style.display = 'block';
+    }
+
+    function durchfuehrenKorrekturbuchung() {
+        if (aktuelleBuchungId) {
+            fetch(`/posts/korrekturbuchung_durchfuehren/${aktuelleBuchungId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(() => {
+                // Popup sofort schließen
+                document.getElementById('korrekturbuchung-maske').style.display = 'none';
+    
+                // Seite sofort neu laden
+                window.location.reload();
+            })
+            .catch(error => {
+                alert('Fehler bei der Durchführung der Korrekturbuchung.');
+                console.error('Error:', error);
+            });
+        }
+    }
+
+    function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHaben) {
+        sollKonten = JSON.parse(sollKonten);
+        habenKonten = JSON.parse(habenKonten);
+        betraegeSoll = JSON.parse(betraegeSoll);
+        betraegeHaben = JSON.parse(betraegeHaben);
+    
+        const sollContainer = document.getElementById('soll-container_rechnung');
+        const habenContainer = document.getElementById('haben-container_rechnung');
+    
+        // Bestehende Eingabefelder leeren
+        sollContainer.innerHTML = '';
+        habenContainer.innerHTML = '';
+    
+        // Korrekturbuchung: Soll und Haben vertauschen (nicht bearbeitbar)
+        const korrekturSollContainer = document.createElement('div');
+        const korrekturHabenContainer = document.createElement('div');
+    
+        korrekturSollContainer.innerHTML = '<h4>Korrekturbuchung (nicht bearbeitbar)</h4>';
+        korrekturHabenContainer.innerHTML = '';
+    
+        for (let i = 0; i < habenKonten.length; i++) {
+            korrekturSollContainer.innerHTML += `
+                <div>
+                    <label>Soll-Konto:</label>
+                    <input type="text" value="${habenKonten[i]}" readonly>
+                    <label>Betrag:</label>
+                    <input type="number" value="${betraegeHaben[i]}" readonly>
+                </div>
+            `;
+        }
+    
+        for (let i = 0; i < sollKonten.length; i++) {
+            korrekturHabenContainer.innerHTML += `
+                <div>
+                    <label>Haben-Konto:</label>
+                    <input type="text" value="${sollKonten[i]}" readonly>
+                    <label>Betrag:</label>
+                    <input type="number" value="${betraegeSoll[i]}" readonly>
+                </div>
+            `;
+        }
+    
+        sollContainer.appendChild(korrekturSollContainer);
+        habenContainer.appendChild(korrekturHabenContainer);
     }
 </script>
 {% endblock %}

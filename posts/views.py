@@ -94,8 +94,9 @@ def rechnung_detail_view(request, aufgabe_id):
             antwort_konten_haben=json.dumps(haben_konten),
             antwort_betrag_soll=json.dumps([float(b) for b in betraege_soll]),
             antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
+            korrekturbuchung=False
         )
-
+        return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
     for buchung in buchungen:
         # Nutzereingaben und korrekte Lösung laden
         soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
@@ -279,3 +280,25 @@ def aufgabe_loeschen(request, aufgabe_id):
     return render(request, 'posts/aufgabe_loeschen.html', {'aufgabe': aufgabe})
 
 
+@login_required
+def korrekturbuchung_durchfuehren(request, buchung_id):
+    try:
+        buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
+
+        # Korrekturbuchung speichern
+        Buchung.objects.create(
+            aufgabe=buchung.aufgabe,
+            nutzer=request.user,
+            antwort_konten_soll=buchung.antwort_konten_haben,
+            antwort_konten_haben=buchung.antwort_konten_soll,
+            antwort_betrag_soll=buchung.antwort_betrag_haben,
+            antwort_betrag_haben=buchung.antwort_betrag_soll,
+            korrekturbuchung=True
+        )
+
+        messages.success(request, 'Korrekturbuchung erfolgreich durchgeführt.')
+        return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
+
+    except Exception as e:
+        messages.error(request, f'Fehler bei der Durchführung der Korrekturbuchung: {e}')
+        return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
