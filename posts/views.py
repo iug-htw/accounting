@@ -1,14 +1,11 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie
-from users.models import CustomUser, Studiengang, Semester
-from .forms import  Aufgabe_neu_Form, BuchungForm, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm
+from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm
 from django.contrib import messages
-from django.utils import timezone
 import json, random
 from django.urls import reverse
-from django.http import HttpResponse, JsonResponse
-from random import uniform
+from django.http import HttpResponse
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -27,38 +24,68 @@ def student_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view_func
 
+def handle_form_submission(request, form_class, success_message, redirect_url, instance=None):
+    form = form_class(request.POST, instance=instance)
+    if form.is_valid():
+        form.save()
+        messages.success(request, success_message)
+        return redirect(redirect_url)
+    else:
+        messages.error(request, "Das Formular ist nicht gültig.")
+        return None
+
+def create_buchung(aufgabe, nutzer, soll_konten, haben_konten, betraege_soll, betraege_haben, korrekturbuchung=False):
+    Buchung.objects.create(
+        aufgabe=aufgabe,
+        nutzer=nutzer,
+        antwort_konten_soll=json.dumps(soll_konten),
+        antwort_konten_haben=json.dumps(haben_konten),
+        antwort_betrag_soll=json.dumps([float(b) for b in betraege_soll]),
+        antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
+        korrekturbuchung=korrekturbuchung
+    )
+
 def aufgabe_neu_erstellen(request):
     if request.method == 'POST':
         form = Aufgabe_neu_Form(request.POST)
         if form.is_valid():
             aufgabe = form.save()
-
-            # Verarbeite die Listenfelder
-            kontonamen = request.POST.getlist('kontoname[]')
-            soll_haben = request.POST.getlist('soll_haben[]')
-            betraege = request.POST.getlist('betrag[]')
-            monatsangaben = request.POST.getlist('monatsangabe[]')
-            monate = request.POST.getlist('monat[]')
-
-            # Erstelle Einträge für AufgabeDetail
-            for i in range(len(kontonamen)):
-                AufgabeDetail.objects.create(
-                    aufgabe=aufgabe,
-                    kontoname=kontonamen[i],
-                    soll_haben=soll_haben[i],
-                    betrag=float(betraege[i]),
-                    monatsangabe=monatsangaben[i] == "true",
-                    monat=int(monate[i]) if monate[i] else None,
-                )
-
+            speichere_aufgabe_details(request, aufgabe)
+            messages.success(request, 'Aufgabe und Details erfolgreich erstellt.')
             return redirect('frontpage')
         else:
-            messages.error(request, "Das Formular ist nicht gültig.")
+            messages.error(request, 'Das Formular ist nicht gültig.')
     else:
         form = Aufgabe_neu_Form()
-
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form})
 
+def speichere_aufgabe_details(request, aufgabe):
+    kontonamen = request.POST.getlist('kontoname[]')
+    soll_haben = request.POST.getlist('soll_haben[]')
+    betraege = request.POST.getlist('betrag[]')
+    monatsangaben = request.POST.getlist('monatsangabe[]')
+    monate = request.POST.getlist('monat[]')
+
+    for i in range(len(kontonamen)):
+        AufgabeDetail.objects.create(
+            aufgabe=aufgabe,
+            kontoname=kontonamen[i],
+            soll_haben=soll_haben[i],
+            betrag=float(betraege[i]),
+            monatsangabe=(monatsangaben[i].lower() == 'true'),
+            monat=(int(monate[i]) if monate[i] else None)
+        )
+
+def is_buchung_korrekt(buchung, nutzer_aufgabe):
+    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
+    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
+    betraege_soll_nutzer = json.loads(buchung.antwort_betrag_soll)
+
+    return (
+        nutzer_aufgabe.soll_konto in soll_konten_nutzer and
+        nutzer_aufgabe.haben_konto in haben_konten_nutzer and
+        nutzer_aufgabe.betrag in betraege_soll_nutzer
+    )
 
 def rechnung_view(request):
     aufgabe = Aufgabe_neu.objects.first()  # Beispiel für eine zufällige Aufgabe
@@ -67,63 +94,21 @@ def rechnung_view(request):
 @login_required
 def rechnung_detail_view(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+    nutzer_aufgabe, _ = NutzerAufgabe.objects.get_or_create(
+        aufgabe=aufgabe, nutzer=request.user,
+        defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'geloest': False})
 
-    # Nutzer-Aufgabe abrufen oder neue erstellen, falls nicht vorhanden
-    nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
-        aufgabe=aufgabe,
-        nutzer=request.user,
-        defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'geloest': False}
-    )
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
-    # Nächste Aufgabe abrufen
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
 
-    buchung_status = []
-
     if request.method == 'POST':
-        soll_konten = request.POST.getlist('soll_konto[]')
-        haben_konten = request.POST.getlist('haben_konto[]')
-        betraege_soll = request.POST.getlist('soll_betrag[]')
-        betraege_haben = request.POST.getlist('haben_betrag[]')
-
-        # Speichere die Nutzereingaben als Buchung in der Datenbank
-        Buchung.objects.create(
-            aufgabe=aufgabe,
-            nutzer=request.user,
-            antwort_konten_soll=json.dumps(soll_konten),
-            antwort_konten_haben=json.dumps(haben_konten),
-            antwort_betrag_soll=json.dumps([float(b) for b in betraege_soll]),
-            antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
-            korrekturbuchung=False
-        )
+        handle_nutzer_buchung(request, aufgabe)
         return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
-    for buchung in buchungen:
-        # Nutzereingaben und korrekte Lösung laden
-        soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
-        haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
-        betraege_soll_nutzer = json.loads(buchung.antwort_betrag_soll)
-        betraege_haben_nutzer = json.loads(buchung.antwort_betrag_haben)
 
-        # Richtige Lösung aus NutzerAufgabe laden
-        soll_konto_loesung = nutzer_aufgabe.soll_konto
-        haben_konto_loesung = nutzer_aufgabe.haben_konto
-        betrag_loesung = nutzer_aufgabe.betrag
-
-        # Prüfen, ob die Eingaben korrekt sind
-        korrekt = (
-            soll_konto_loesung in soll_konten_nutzer and
-            haben_konto_loesung in haben_konten_nutzer and
-            betrag_loesung in betraege_soll_nutzer
-        )
-
-        # Wenn korrekt, setzen wir den Status in NutzerAufgabe
-        if korrekt:
-            nutzer_aufgabe.geloest = True
-            nutzer_aufgabe.save()
-        else:
-            nutzer_aufgabe.geloest = False
-            nutzer_aufgabe.save()
-        buchung_status.append({'buchung': buchung, 'korrekt': korrekt})
+    buchung_status = [
+        {'buchung': buchung, 'korrekt': is_buchung_korrekt(buchung, nutzer_aufgabe)}
+        for buchung in buchungen
+    ]
 
     return render(request, 'posts/rechnung.html', {
         'aufgabe': aufgabe,
@@ -133,26 +118,31 @@ def rechnung_detail_view(request, aufgabe_id):
         'buchung_status': buchung_status
     })
 
+def handle_nutzer_buchung(request, aufgabe):
+    soll_konten = request.POST.getlist('soll_konto[]')
+    haben_konten = request.POST.getlist('haben_konto[]')
+    betraege_soll = request.POST.getlist('soll_betrag[]')
+    betraege_haben = request.POST.getlist('haben_betrag[]')
+    create_buchung(aufgabe, request.user, soll_konten, haben_konten, betraege_soll, betraege_haben)
 
+def is_buchung_korrekt(buchung, nutzer_aufgabe):
+    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
+    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
+    betraege_soll_nutzer = json.loads(buchung.antwort_betrag_soll)
+
+    return (
+        nutzer_aufgabe.soll_konto in soll_konten_nutzer and
+        nutzer_aufgabe.haben_konto in haben_konten_nutzer and
+        nutzer_aufgabe.betrag in betraege_soll_nutzer
+    )
 
 @login_required
 def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
-    """ Erstellt oder überschreibt eine zufällige Aufgabe für den Nutzer basierend auf min/max-Werten """
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
-
-    # Zufällige Beträge als Ganzzahl generieren
     zufaelliger_betrag = random.randint(int(aufgabe.min_wert), int(aufgabe.max_wert))
+    soll_konto, haben_konto = get_fallback_konten(aufgabe)
 
-    # Konten aus AufgabeDetail abrufen
-    soll_konto_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").first()
-    haben_konto_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").first()
-
-    # Fallback-Werte, falls keine Konten gefunden wurden
-    soll_konto = soll_konto_detail.kontoname if soll_konto_detail else "Unbekannt"
-    haben_konto = haben_konto_detail.kontoname if haben_konto_detail else "Unbekannt"
-
-    # Falls bereits vorhanden, Eintrag überschreiben
-    nutzer_aufgabe, created = NutzerAufgabe.objects.update_or_create(
+    NutzerAufgabe.objects.update_or_create(
         aufgabe=aufgabe,
         nutzer=request.user,
         defaults={
@@ -162,25 +152,28 @@ def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
             'geloest': False
         }
     )
-
     messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
     return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
+def get_fallback_konten(aufgabe):
+    soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").first()
+    haben_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").first()
+    return (soll_konto.kontoname if soll_konto else "Unbekannt",
+            haben_konto.kontoname if haben_konto else "Unbekannt")
+
+
 @lehrkraft_required
 def unternehmen_verwalten(request):
-    if request.method == 'POST':
-        form = UnternehmenForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('posts:unternehmen_verwalten')
-    else:
-        form = UnternehmenForm()
+    return handle_post_request(request, UnternehmenForm, 'posts:unternehmen_verwalten', 'posts/neues_unternehmen.html')
 
-    unternehmen = Unternehmen.objects.all()
-    return render(request, 'posts/neues_unternehmen.html', {
-        'form': form,
-        'unternehmen': unternehmen
-    })
+
+def handle_post_request(request, form_class, redirect_url, template_name):
+    if request.method == 'POST':
+        result = handle_form_submission(request, form_class, "Erfolgreich gespeichert.", redirect_url)
+        if result:
+            return result
+    form = form_class()
+    return render(request, template_name, {'form': form})
 
 @lehrkraft_required
 def unternehmen_loeschen(request, unternehmen_id):
@@ -190,19 +183,8 @@ def unternehmen_loeschen(request, unternehmen_id):
 
 @lehrkraft_required
 def aufgabenkategorie_verwalten(request):
-    if request.method == 'POST':
-        form = AufgabenkategorieForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('posts:aufgabenkategorie_verwalten')
-    else:
-        form = AufgabenkategorieForm()
+    return handle_post_request(request, AufgabenkategorieForm, 'posts:aufgabenkategorie_verwalten', 'posts/neue_kategorie.html')
 
-    aufgabenkategorien = Aufgabenkategorie.objects.all()
-    return render(request, 'posts/neue_kategorie.html', {
-        'form': form,
-        'aufgabenkategorien': aufgabenkategorien
-    })
 
 @lehrkraft_required
 def aufgabenkategorie_loeschen(request, kategorie_id):
@@ -212,60 +194,41 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
 
 @login_required
 def hauptbuch(request):
-    # Alle Buchungen des angemeldeten Nutzers abrufen
     buchungen = Buchung.objects.filter(nutzer=request.user)
+    t_konten = build_t_konten(buchungen)
+    return render(request, 'posts/hauptbuch.html', {'t_konten': t_konten})
 
-    # Dictionary zur Speicherung der T-Konten-Daten
+def build_t_konten(buchungen):
     t_konten = {}
-
     for buchung in buchungen:
-        # Daten aus JSON-Feldern laden
-        soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
-        haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
-        soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
-        haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
+        soll_konten, haben_konten = json.loads(buchung.antwort_konten_soll or "[]"), json.loads(buchung.antwort_konten_haben or "[]")
+        soll_betraege, haben_betraege = json.loads(buchung.antwort_betrag_soll or "[]"), json.loads(buchung.antwort_betrag_haben or "[]")
 
-        # Soll-Konten verarbeiten
         for konto, betrag in zip(soll_konten, soll_betraege):
-            if konto not in t_konten:
-                t_konten[konto] = {"soll": [], "haben": []}
-            t_konten[konto]["soll"].append((buchung.buchung_id, betrag))
-
-        # Haben-Konten verarbeiten
+            t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((buchung.buchung_id, betrag))
         for konto, betrag in zip(haben_konten, haben_betraege):
-            if konto not in t_konten:
-                t_konten[konto] = {"soll": [], "haben": []}
-            t_konten[konto]["haben"].append((buchung.buchung_id, betrag))
+            t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((buchung.buchung_id, betrag))
 
-    return render(request, 'posts/hauptbuch.html', {
-        't_konten': t_konten
-    })
+    return t_konten
 
 @login_required
 def aufgabe_bearbeiten(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
     details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
-    
+
     if request.method == 'POST':
-        form = AufgabeBearbeitenForm(request.POST, instance=aufgabe)
-        detail_forms = [
-            AufgabeDetailBearbeitenForm(request.POST, prefix=str(detail.id), instance=detail) for detail in details
-        ]
-        
-        if form.is_valid() and all(df.is_valid() for df in detail_forms):
-            form.save()
-            for df in detail_forms:
-                df.save()
-            messages.success(request, "Aufgabe erfolgreich bearbeitet.")
-            return redirect('posts:hauptbuch')
-        else:
-            messages.error(request, "Fehler beim Bearbeiten der Aufgabe.")
-    else:
-        form = AufgabeBearbeitenForm(instance=aufgabe)
-        detail_forms = [
-            AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail) for detail in details
-        ]
-    
+        result = handle_form_submission(request, AufgabeBearbeitenForm, "Aufgabe erfolgreich bearbeitet.", 'posts:hauptbuch', instance=aufgabe)
+        if result:
+            for detail in details:
+                detail_form = AufgabeDetailBearbeitenForm(request.POST, prefix=str(detail.id), instance=detail)
+                if detail_form.is_valid():
+                    detail_form.save()
+                else:
+                    messages.error(request, "Fehler beim Bearbeiten der Details.")
+            return result
+
+    form = AufgabeBearbeitenForm(instance=aufgabe)
+    detail_forms = [AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail) for detail in details]
     return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
 
 @login_required
@@ -282,23 +245,15 @@ def aufgabe_loeschen(request, aufgabe_id):
 
 @login_required
 def korrekturbuchung_durchfuehren(request, buchung_id):
-    try:
-        buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
-
-        # Korrekturbuchung speichern
-        Buchung.objects.create(
-            aufgabe=buchung.aufgabe,
-            nutzer=request.user,
-            antwort_konten_soll=buchung.antwort_konten_haben,
-            antwort_konten_haben=buchung.antwort_konten_soll,
-            antwort_betrag_soll=buchung.antwort_betrag_haben,
-            antwort_betrag_haben=buchung.antwort_betrag_soll,
-            korrekturbuchung=True
-        )
-
-        messages.success(request, 'Korrekturbuchung erfolgreich durchgeführt.')
-        return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
-
-    except Exception as e:
-        messages.error(request, f'Fehler bei der Durchführung der Korrekturbuchung: {e}')
-        return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
+    buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
+    create_buchung(
+        aufgabe=buchung.aufgabe,
+        nutzer=request.user,
+        soll_konten=json.loads(buchung.antwort_konten_haben),
+        haben_konten=json.loads(buchung.antwort_konten_soll),
+        betraege_soll=json.loads(buchung.antwort_betrag_haben),
+        betraege_haben=json.loads(buchung.antwort_betrag_soll),
+        korrekturbuchung=True
+    )
+    messages.success(request, 'Korrekturbuchung erfolgreich durchgeführt.')
+    return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
