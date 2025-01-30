@@ -36,23 +36,32 @@
 
             <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
                 <h3>Frühere Versuche:</h3>
-                {% if buchungen %}
+                {% if buchung_status %}
                     <ul>
-                        {% for buchung in buchungen %}
+                        {% for item in buchung_status %}
                             <li>
-                                <button onclick="showBuchungDetail('{{ buchung.buchung_id }}')">Versuch {{ forloop.counter }}</button>
+                                <button onclick="showBuchungDetail('{{ item.buchung.buchung_id }}')">
+                                    Versuch {{ forloop.counter }}
+                                </button>
+                                <span>
+                                    {% if item.korrekt %}
+                                        ✅ Lösung korrekt
+                                    {% else %}
+                                        ❌ Lösung falsch
+                                    {% endif %}
+                                </span>
                             </li>
-                            <div id="buchung-detail-{{ buchung.buchung_id }}" class="buchung-detail" style="display: none;">
-                                <p><strong>Soll-Konten:</strong> {{ buchung.antwort_konten_soll }}</p>
-                                <p><strong>Haben-Konten:</strong> {{ buchung.antwort_konten_haben }}</p>
-                                <p><strong>Beträge Soll:</strong> {{ buchung.antwort_betrag_soll }}</p>
-                                <p><strong>Beträge Haben:</strong> {{ buchung.antwort_betrag_haben }}</p>
+                            <div id="buchung-detail-{{ item.buchung.buchung_id }}" class="buchung-detail" style="display: none;">
+                                <p><strong>Soll-Konten:</strong> {{ item.buchung.antwort_konten_soll }}</p>
+                                <p><strong>Haben-Konten:</strong> {{ item.buchung.antwort_konten_haben }}</p>
+                                <p><strong>Beträge Soll:</strong> {{ item.buchung.antwort_betrag_soll }}</p>
+                                <p><strong>Beträge Haben:</strong> {{ item.buchung.antwort_betrag_haben }}</p>
                             </div>
                         {% endfor %}
                     </ul>
                 {% else %}
-                <p>Keine vorherigen Buchungen gefunden.</p>
-            {% endif %}
+                    <p>Keine vorherigen Buchungen gefunden.</p>
+                {% endif %}
             </div>
 
             <h2>Versuch 1</h2>

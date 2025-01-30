@@ -16,10 +16,17 @@ Logik für Lösung implementieren
 Nutzerlösung
     +Anzeige der einzelnen Aufgabe inklusive Testlösung
     +Speichern der Nutzereingabe in Datenbank
-    Vergleich der Musterlösung mit Nutzerlösung
-Hauptbuch
+    Warnung, dass Buchung final ist einfügen
++Hauptbuch
 Korrekturbuchung
-Mail
+    +Anzeige alter Lösungen
+    Abgleich der alten Lösung
+    Vorlage Korrektur
+    Abspeichern als Korrektur
+
+Posteingang
+    Mail generierung
+    Korrekturanfrage
 Rechnungsgenerierung
 Nutzerverwaltung
     Zuweisung per Zeitintervall/Prof

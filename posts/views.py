@@ -78,6 +78,8 @@ def rechnung_detail_view(request, aufgabe_id):
     # Nächste Aufgabe abrufen
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
 
+    buchung_status = []
+
     if request.method == 'POST':
         soll_konten = request.POST.getlist('soll_konto[]')
         haben_konten = request.POST.getlist('haben_konto[]')
@@ -94,23 +96,40 @@ def rechnung_detail_view(request, aufgabe_id):
             antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
         )
 
-        # Überprüfe, ob die Eingabe korrekt ist
-        korrekt = (nutzer_aufgabe.soll_konto in soll_konten and
-                   nutzer_aufgabe.haben_konto in haben_konten and
-                   str(nutzer_aufgabe.betrag) in betraege_soll)
+    for buchung in buchungen:
+        # Nutzereingaben und korrekte Lösung laden
+        soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
+        haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
+        betraege_soll_nutzer = json.loads(buchung.antwort_betrag_soll)
+        betraege_haben_nutzer = json.loads(buchung.antwort_betrag_haben)
 
+        # Richtige Lösung aus NutzerAufgabe laden
+        soll_konto_loesung = nutzer_aufgabe.soll_konto
+        haben_konto_loesung = nutzer_aufgabe.haben_konto
+        betrag_loesung = nutzer_aufgabe.betrag
+
+        # Prüfen, ob die Eingaben korrekt sind
+        korrekt = (
+            soll_konto_loesung in soll_konten_nutzer and
+            haben_konto_loesung in haben_konten_nutzer and
+            betrag_loesung in betraege_soll_nutzer
+        )
+
+        # Wenn korrekt, setzen wir den Status in NutzerAufgabe
         if korrekt:
             nutzer_aufgabe.geloest = True
             nutzer_aufgabe.save()
-            messages.success(request, "Aufgabe erfolgreich gelöst!")
         else:
-            messages.error(request, "Die Lösung ist falsch.")
+            nutzer_aufgabe.geloest = False
+            nutzer_aufgabe.save()
+        buchung_status.append({'buchung': buchung, 'korrekt': korrekt})
 
     return render(request, 'posts/rechnung.html', {
         'aufgabe': aufgabe,
         'nutzer_aufgabe': nutzer_aufgabe,
         'next_aufgabe': next_aufgabe,
-        'buchungen': buchungen
+        'buchungen': buchungen,
+        'buchung_status': buchung_status
     })
 
 
