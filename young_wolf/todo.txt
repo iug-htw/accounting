@@ -7,27 +7,33 @@
 
 
 
-Aufgabenerstellung
-    +Eingabemaske, vor allem für Haben/Soll anpassen
+-Aufgabenerstellung
+    +
+    Eingabemaske, vor allem für Haben/Soll anpassen
+    Referenz auf Kategorien
+    -
     Erweitern um Feedbackeingaben
-    +Referenz auf Kategorien
-Logik für Lösung implementieren
+-Logik für Lösung implementieren
+    -
     Ganzahlige Werte
-Nutzerlösung
+-Nutzerlösung
+    +
     +Anzeige der einzelnen Aufgabe inklusive Testlösung
     +Speichern der Nutzereingabe in Datenbank
+    -
     Warnung, dass Buchung final ist einfügen
 +Hauptbuch
-Korrekturbuchung
++Korrekturbuchung
+    +
     +Anzeige alter Lösungen
-    Abgleich der alten Lösung
-    Vorlage Korrektur
-    Abspeichern als Korrektur
-
-Posteingang
+    +Abgleich der alten Lösung
+    +Vorlage Korrektur
+    +Abspeichern als Korrektur
+-Posteingang
+    -
     Mail generierung
     Korrekturanfrage
-Rechnungsgenerierung
-Nutzerverwaltung
+-Rechnungsgenerierung
+-Nutzerverwaltung
     Zuweisung per Zeitintervall/Prof
 
