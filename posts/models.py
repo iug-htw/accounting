@@ -81,3 +81,18 @@ class NutzerAufgabe(models.Model):
 
     def __str__(self):
         return f"NutzerAufgabe für {self.nutzer.username} - {self.aufgabe.fragentyp_text}"
+    
+class Mail(models.Model):
+    nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE)
+    betreff = models.CharField(max_length=255)
+    mailtext = models.TextField()
+    von = models.CharField(max_length=100, default="system@secure-net.de")
+    datum = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, choices=[
+        ('nicht bearbeitet', 'Nicht bearbeitet'),
+        ('bearbeitet', 'Bearbeitet')
+    ], default='nicht bearbeitet')
+
+    def __str__(self):
+        return f"Mail an {self.nutzer.username}: {self.betreff}"

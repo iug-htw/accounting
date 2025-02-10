@@ -1,0 +1,29 @@
+{% extends 'master_layout.html' %}
+{% load static%}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/posteingang.css' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <h1 class="title">Mail-Details</h1>
+
+        <div class="mail-detail-box">
+            <div class="mail-header">
+                <p><strong>Betreff:</strong> {{ mail.betreff }}</p>
+                <p><strong>Von:</strong> {{ mail.von }}</p>
+                <p><strong>Empfangen am:</strong> {{ mail.datum|date:"d.m.Y H:i" }}</p>
+            </div>
+
+            <div class="mail-content">
+                <h2 class="content-title">Inhalt der Nachricht</h2>
+                <p>{{ mail.mailtext }}</p>
+            </div>
+
+            <div class="mail-footer">
+                <a href="{{ aufgabe_link }}" class="btn btn-primary">Zur Aufgabe</a>
+                <a href="{% url 'posts:posteingang' %}" class="btn btn-secondary">Zurück zum Posteingang</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

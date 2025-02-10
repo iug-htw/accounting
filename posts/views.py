@@ -1,11 +1,12 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie
+from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm
 from django.contrib import messages
 import json, random
 from django.urls import reverse
 from django.http import HttpResponse
+from django.core.mail import send_mail
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -96,13 +97,16 @@ def rechnung_detail_view(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
     nutzer_aufgabe, _ = NutzerAufgabe.objects.get_or_create(
         aufgabe=aufgabe, nutzer=request.user,
-        defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'geloest': False})
+        defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'geloest': False}
+    )
 
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
 
     if request.method == 'POST':
-        handle_nutzer_buchung(request, aufgabe)
+        buchung = handle_nutzer_buchung(request, aufgabe)
+        if not is_buchung_korrekt(buchung, nutzer_aufgabe):
+            send_korrektur_mail(request.user, aufgabe, aufgabe.fragentyp)
         return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
     buchung_status = [
@@ -123,7 +127,18 @@ def handle_nutzer_buchung(request, aufgabe):
     haben_konten = request.POST.getlist('haben_konto[]')
     betraege_soll = request.POST.getlist('soll_betrag[]')
     betraege_haben = request.POST.getlist('haben_betrag[]')
-    create_buchung(aufgabe, request.user, soll_konten, haben_konten, betraege_soll, betraege_haben)
+
+    # Erstelle oder speichere die Buchung und gib sie zurück
+    buchung = Buchung.objects.create(
+        aufgabe=aufgabe,
+        nutzer=request.user,
+        antwort_konten_soll=json.dumps(soll_konten),
+        antwort_konten_haben=json.dumps(haben_konten),
+        antwort_betrag_soll=json.dumps([float(b) for b in betraege_soll]),
+        antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
+        korrekturbuchung=False
+    )
+    return buchung
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
@@ -152,8 +167,19 @@ def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
             'geloest': False
         }
     )
+    # Mail erstellen
+    betreff = f"Offene Rechnung: {aufgabe.fragentyp.name}"
+    mailtext = aufgabe.mailtext
+
+    Mail.objects.create(
+        nutzer=request.user,
+        aufgabe=aufgabe,
+        betreff=betreff,
+        mailtext=mailtext
+    )
     messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
     return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
+
 
 def get_fallback_konten(aufgabe):
     soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").first()
@@ -257,3 +283,44 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
     )
     messages.success(request, 'Korrekturbuchung erfolgreich durchgeführt.')
     return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
+
+@login_required
+def posteingang(request):
+    mails = Mail.objects.filter(nutzer=request.user).order_by('-datum')
+    return render(request, 'posts/posteingang.html', {'mails': mails})
+
+@login_required
+def mail_detail(request, mail_id):
+    mail = get_object_or_404(Mail, id=mail_id, nutzer=request.user)
+    aufgabe_link = reverse('posts:rechnung_detail', args=[mail.aufgabe.id])
+    return render(request, 'posts/mail_detail.html', {
+        'mail': mail,
+        'aufgabe_link': aufgabe_link
+    })
+
+def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
+    mail_betreff = f"Anfrage Korrekturbuchung - {aufgabenkategorie.name}"
+    mail_text = (
+        f"Sehr geehrte/r {nutzer.username},\n\n"
+        f"Ihre Buchung zur Aufgabe '{aufgabe.fragentyp_text}' enthält einen Fehler. "
+        "Bitte korrigieren Sie Ihre Eingaben über den folgenden Link:\n"
+        f"http://localhost:8000{reverse('posts:rechnung_detail', args=[aufgabe.id])}\n\n"
+        "Vielen Dank.\nIhr Buchhaltungsteam"
+    )
+
+    # Speichern der Mail im Postfach
+    Mail.objects.create(
+        nutzer=nutzer,
+        aufgabe=aufgabe,
+        betreff=mail_betreff,
+        mailtext=mail_text,
+    )
+
+    # Optionale echte E-Mail-Versendung
+    send_mail(
+        mail_betreff,
+        mail_text,
+        'system@secure-net.de',  # Absender
+        [nutzer.email],
+        fail_silently=True,
+    )
