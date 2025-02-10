@@ -30,9 +30,11 @@
     +Vorlage Korrektur
     +Abspeichern als Korrektur
 -Posteingang
-    -
+    +
     Mail generierung
     Korrekturanfrage
+    -
+    Platzhalter Von und Datum
 -Rechnungsgenerierung
 -Nutzerverwaltung
     Zuweisung per Zeitintervall/Prof

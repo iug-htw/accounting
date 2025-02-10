@@ -43,16 +43,18 @@ class AufgabeDetail(models.Model):
         return f"{self.kontoname} - {self.soll_haben} - {self.betrag}"
 
 class Buchung(models.Model):
+    STATUS_CHOICES = [
+        ('offen', 'Offen'),
+        ('bearbeitet', 'Bearbeitet'),
+        ('korrekt', 'Korrekt'),
+    ]
     buchung_id = models.AutoField(primary_key=True)
     aufgabe = models.ForeignKey('Aufgabe_neu', on_delete=models.CASCADE)
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ersteller = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='ersteller')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offen')
     freischaltung = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=[
-        ('gelöst', 'Gelöst'),
-        ('falsch', 'Falsch'),
-        ('offen', 'Offen'),
-    ], default='offen')
+    versuch = models.PositiveIntegerField(default=1)  # Zählt die Versuche
     abgeschlossen_datum = models.DateField(null=True, blank=True)
     antwort_konten_soll = models.JSONField(null=True, blank=True)
     antwort_konten_haben = models.JSONField(null=True, blank=True)
@@ -61,6 +63,10 @@ class Buchung(models.Model):
     korrekturbuchung = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        if not self.versuch:
+            # Wenn kein Versuch angegeben ist, den nächsten automatisch ermitteln
+            letzte_buchung = Buchung.objects.filter(aufgabe=self.aufgabe, nutzer=self.nutzer).order_by('-versuch').first()
+            self.versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
         self.antwort_konten_soll = self.antwort_konten_soll or []
         self.antwort_konten_haben = self.antwort_konten_haben or []
         self.antwort_betrag_soll = self.antwort_betrag_soll or []
@@ -87,6 +93,7 @@ class Mail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE)
     betreff = models.CharField(max_length=255)
     mailtext = models.TextField()
+    versuch = models.PositiveIntegerField(default=1)
     von = models.CharField(max_length=100, default="system@secure-net.de")
     datum = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=[

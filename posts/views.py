@@ -122,23 +122,40 @@ def rechnung_detail_view(request, aufgabe_id):
         'buchung_status': buchung_status
     })
 
-def handle_nutzer_buchung(request, aufgabe):
-    soll_konten = request.POST.getlist('soll_konto[]')
-    haben_konten = request.POST.getlist('haben_konto[]')
-    betraege_soll = request.POST.getlist('soll_betrag[]')
-    betraege_haben = request.POST.getlist('haben_betrag[]')
+def update_buchung_status(buchung, ist_korrekt):
+    if ist_korrekt:
+        buchung.status = 'korrekt'
+    else:
+        buchung.status = 'bearbeitet'
+    buchung.save()
 
-    # Erstelle oder speichere die Buchung und gib sie zurück
+def handle_nutzer_buchung(request, aufgabe):
+    # Den höchsten bisherigen Versuch ermitteln
+    letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
+    neuer_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
+
+    # Neue Buchung mit korrektem `versuch` erstellen
     buchung = Buchung.objects.create(
         aufgabe=aufgabe,
         nutzer=request.user,
-        antwort_konten_soll=json.dumps(soll_konten),
-        antwort_konten_haben=json.dumps(haben_konten),
-        antwort_betrag_soll=json.dumps([float(b) for b in betraege_soll]),
-        antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
-        korrekturbuchung=False
+        antwort_konten_soll=json.dumps(request.POST.getlist('soll_konto[]')),
+        antwort_konten_haben=json.dumps(request.POST.getlist('haben_konto[]')),
+        antwort_betrag_soll=json.dumps(request.POST.getlist('soll_betrag[]')),
+        antwort_betrag_haben=json.dumps(request.POST.getlist('haben_betrag[]')),
+        status='bearbeitet',
+        versuch=neuer_versuch  # Hier wird der Versuch korrekt gezählt
     )
+
+    # Richtigkeit prüfen und ggf. Korrekturmail senden
+    nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
+    if is_buchung_korrekt(buchung, nutzer_aufgabe):
+        update_buchung_status(buchung, ist_korrekt=True)
+    else:
+        update_buchung_status(buchung, ist_korrekt=False)
+        
+
     return buchung
+
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
@@ -154,29 +171,31 @@ def is_buchung_korrekt(buchung, nutzer_aufgabe):
 @login_required
 def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
-    zufaelliger_betrag = random.randint(int(aufgabe.min_wert), int(aufgabe.max_wert))
-    soll_konto, haben_konto = get_fallback_konten(aufgabe)
 
-    NutzerAufgabe.objects.update_or_create(
-        aufgabe=aufgabe,
-        nutzer=request.user,
-        defaults={
-            'soll_konto': soll_konto,
-            'haben_konto': haben_konto,
-            'betrag': zufaelliger_betrag,
-            'geloest': False
-        }
+    # Den höchsten bisherigen Versuch ermitteln
+    letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
+    letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
+
+    hoechster_versuch = max(
+        (letzter_mail_versuch.versuch if letzter_mail_versuch else 0),
+        (letzter_buchung_versuch.versuch if letzter_buchung_versuch else 0)
     )
+
+    naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
+
     # Mail erstellen
-    betreff = f"Offene Rechnung: {aufgabe.fragentyp.name}"
-    mailtext = aufgabe.mailtext
+    betreff = f"Neue Aufgabe Versuch {naechster_versuch}"
+    mailtext = f"Bitte bearbeiten Sie die Aufgabe: {aufgabe.fragentyp_text}"
 
     Mail.objects.create(
         nutzer=request.user,
         aufgabe=aufgabe,
         betreff=betreff,
-        mailtext=mailtext
+        mailtext=mailtext,
+        versuch=naechster_versuch,  # Hier den neuen Versuch speichern
+        status='nicht bearbeitet'
     )
+
     messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
     return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
@@ -272,26 +291,51 @@ def aufgabe_loeschen(request, aufgabe_id):
 @login_required
 def korrekturbuchung_durchfuehren(request, buchung_id):
     buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
-    create_buchung(
+
+    letzte_buchung = Buchung.objects.filter(aufgabe=buchung.aufgabe, nutzer=request.user).order_by('-versuch').first()
+    naechster_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
+
+    neue_buchung = Buchung.objects.create(
         aufgabe=buchung.aufgabe,
         nutzer=request.user,
-        soll_konten=json.loads(buchung.antwort_konten_haben),
-        haben_konten=json.loads(buchung.antwort_konten_soll),
-        betraege_soll=json.loads(buchung.antwort_betrag_haben),
-        betraege_haben=json.loads(buchung.antwort_betrag_soll),
-        korrekturbuchung=True
+        antwort_konten_soll=buchung.antwort_konten_haben,
+        antwort_konten_haben=buchung.antwort_konten_soll,
+        antwort_betrag_soll=buchung.antwort_betrag_haben,
+        antwort_betrag_haben=buchung.antwort_betrag_soll,
+        status='bearbeitet',
+        versuch=naechster_versuch
     )
-    messages.success(request, 'Korrekturbuchung erfolgreich durchgeführt.')
+
+    messages.success(request, f'Korrekturbuchung im Versuch {naechster_versuch} erfolgreich durchgeführt.')
     return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
 
 @login_required
 def posteingang(request):
     mails = Mail.objects.filter(nutzer=request.user).order_by('-datum')
+
+    for mail in mails:
+        # Prüfen, ob eine Buchung für den aktuellen Versuch existiert
+        buchung_vorhanden = Buchung.objects.filter(
+            aufgabe=mail.aufgabe,
+            nutzer=request.user,
+            versuch=mail.versuch  # Korrekte Zuordnung zum Versuch
+        ).exists()
+
+        # Status aktualisieren
+        if buchung_vorhanden:
+            mail.status = 'bearbeitet'
+        else:
+            mail.status = 'nicht bearbeitet'
+        mail.save()
+
     return render(request, 'posts/posteingang.html', {'mails': mails})
 
 @login_required
 def mail_detail(request, mail_id):
     mail = get_object_or_404(Mail, id=mail_id, nutzer=request.user)
+    mail.status = 'bearbeitet'
+    mail.save()
+
     aufgabe_link = reverse('posts:rechnung_detail', args=[mail.aufgabe.id])
     return render(request, 'posts/mail_detail.html', {
         'mail': mail,
@@ -299,7 +343,19 @@ def mail_detail(request, mail_id):
     })
 
 def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
-    mail_betreff = f"Anfrage Korrekturbuchung - {aufgabenkategorie.name}"
+    # Den höchsten bisherigen Versuch aus der Buchungs- oder Mail-Tabelle ermitteln
+    letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
+    letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
+
+    # Höchsten Versuch ermitteln
+    hoechster_versuch = max(
+        (letzter_mail_versuch.versuch if letzter_mail_versuch else 0),
+        (letzter_buchung_versuch.versuch if letzter_buchung_versuch else 0)
+    )
+
+    naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
+
+    mail_betreff = f"Korrekturbuchung Versuch {naechster_versuch} - {aufgabenkategorie.name}"
     mail_text = (
         f"Sehr geehrte/r {nutzer.username},\n\n"
         f"Ihre Buchung zur Aufgabe '{aufgabe.fragentyp_text}' enthält einen Fehler. "
@@ -308,19 +364,12 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
         "Vielen Dank.\nIhr Buchhaltungsteam"
     )
 
-    # Speichern der Mail im Postfach
+    # Neue Mail mit dem korrekten Versuchswert erstellen
     Mail.objects.create(
         nutzer=nutzer,
         aufgabe=aufgabe,
         betreff=mail_betreff,
         mailtext=mail_text,
-    )
-
-    # Optionale echte E-Mail-Versendung
-    send_mail(
-        mail_betreff,
-        mail_text,
-        'system@secure-net.de',  # Absender
-        [nutzer.email],
-        fail_silently=True,
+        versuch=naechster_versuch,  # Dynamischer Versuchswert
+        status='nicht bearbeitet'
     )
