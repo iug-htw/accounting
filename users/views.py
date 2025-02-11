@@ -1,14 +1,15 @@
 from django.shortcuts import render, redirect 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm 
 from django.contrib.auth import login, logout
-from .forms import CustomUserCreationForm, StudiengangForm
+from .forms import CustomUserCreationForm, StudiengangForm, SemesterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.http import HttpResponse
-from .models import Studiengang, Semester
+from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required
+from django.contrib import messages
 
 @login_required  # Ensure only logged-in users can access this view
 def register_view(request):
@@ -23,8 +24,6 @@ def register_view(request):
             user.professor = request.user  # Automatically assign the logged-in teacher as the professor
             user.studiengang = form.cleaned_data.get('studiengang')
             user.semester = form.cleaned_data.get('semester') or Semester.objects.get(id=1)
-            print(form.cleaned_data)
-            print(user.semester)
             user.save()
             #login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect("frontpage")  # Redirect to a suitable page after registration
@@ -75,3 +74,56 @@ def delete_studiengang_view(request, studiengang_id):
     studiengang = Studiengang.objects.get(id=studiengang_id)
     studiengang.delete()
     return redirect('users:add_studiengang')
+
+@lehrkraft_required
+def add_semester_view(request):
+    if request.method == 'POST':
+        form = SemesterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Semester erfolgreich hinzugefügt.")
+            return redirect('users:add_semester')
+    else:
+        form = SemesterForm()
+
+    semester = Semester.objects.all()
+    return render(request, 'users/add_semester.html', {
+        'form': form,
+        'semester': semester
+    })
+
+@lehrkraft_required
+def delete_semester_view(request, semester_id):
+    semester = Semester.objects.get(id=semester_id)
+    semester.delete()
+    messages.success(request, "Semester erfolgreich gelöscht.")
+    return redirect('users:add_semester')
+
+@lehrkraft_required
+def bulk_student_creation(request):
+    if request.method == 'POST':
+        anzahl_studierende = int(request.POST.get('anzahl_studierende', 1))
+        studiengang = request.POST.get('studiengang')
+        semester = request.POST.get('semester')
+        lehrkraft = request.user.username[:2]  # Die ersten 2 Buchstaben des Lehrernamens
+
+        for i in range(1, anzahl_studierende + 1):
+            student_name = f"{studiengang}{lehrkraft}{semester}{str(i).zfill(2)}"
+            student = CustomUser.objects.create_user(
+                username=student_name,
+                password=student_name,
+                role='student',
+                professor=request.user,
+                semester=Semester.objects.get(name=semester),
+                studiengang=Studiengang.objects.get(name=studiengang)
+            )
+        
+        messages.success(request, f'{anzahl_studierende} Studierende erfolgreich erstellt.')
+        return redirect('users:bulk_student_creation')
+    
+    studiengaenge = Studiengang.objects.all()
+    semester = Semester.objects.all()
+    return render(request, 'users/bulk_student_creation.html', {
+        'studiengaenge': studiengaenge,
+        'semester': semester
+    })

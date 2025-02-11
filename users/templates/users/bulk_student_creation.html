@@ -1,0 +1,28 @@
+{% extends 'master_layout.html' %}
+
+{% block content %}
+<h1>Mehrere Studierende gleichzeitig anlegen</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <label for="anzahl">Anzahl der Studierenden:</label>
+    <input type="range" id="anzahl" name="anzahl_studierende" min="1" max="50" value="1" oninput="anzahlOutput.value = anzahl.value">
+    <output id="anzahlOutput">1</output>
+
+    <label for="studiengang">Studiengang:</label>
+    <select name="studiengang" required>
+        {% for sg in studiengaenge %}
+            <option value="{{ sg.name }}">{{ sg.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="semester">Semester:</label>
+    <select name="semester" required>
+        {% for sem in semester %}
+            <option value="{{ sem.name }}">{{ sem.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="btn btn-primary">Studierende anlegen</button>
+</form>
+{% endblock %}

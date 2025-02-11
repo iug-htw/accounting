@@ -34,3 +34,9 @@ class StudiengangForm(forms.ModelForm):
         model = Studiengang
         fields = ['name']
         labels = {'name': 'Studiengang Name'}
+
+class SemesterForm(forms.ModelForm):
+    class Meta:
+        model = Semester
+        fields = ['name']
+        labels = {'name': 'Semestername'}
