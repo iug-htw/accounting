@@ -1,11 +1,11 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail
-from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm
+from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto
+from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
 from django.contrib import messages
 import json, random
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.mail import send_mail
 
 # Für Lehrkräfte
@@ -58,7 +58,9 @@ def aufgabe_neu_erstellen(request):
             messages.error(request, 'Das Formular ist nicht gültig.')
     else:
         form = Aufgabe_neu_Form()
-    return render(request, 'posts/aufgabe_erstellen.html', {'form': form})
+    
+    konten = Konto.objects.all()  # Konten abrufen
+    return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
 
 def speichere_aufgabe_details(request, aufgabe):
     kontonamen = request.POST.getlist('kontoname[]')
@@ -112,6 +114,7 @@ def rechnung_detail_view(request, aufgabe_id):
 
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
+    konten = Konto.objects.all()
 
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe)
@@ -129,7 +132,8 @@ def rechnung_detail_view(request, aufgabe_id):
         'nutzer_aufgabe': nutzer_aufgabe,
         'next_aufgabe': next_aufgabe,
         'buchungen': buchungen,
-        'buchung_status': buchung_status
+        'buchung_status': buchung_status,
+        'konten': konten
     })
 
 def update_buchung_status(buchung, ist_korrekt):
@@ -406,3 +410,22 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
         versuch=naechster_versuch,  # Dynamischer Versuchswert
         status='nicht bearbeitet'
     )
+
+def konten_verwalten(request):
+    if request.method == 'POST':
+        form = KontoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Konto erfolgreich hinzugefügt.")
+            return redirect('posts:konten_verwalten')
+    else:
+        form = KontoForm()
+    konten = Konto.objects.all()
+    return render(request, 'posts/konten_verwalten.html', {'form': form, 'konten': konten})
+
+@lehrkraft_required
+def konto_loeschen(request, konto_id):
+    konto = get_object_or_404(Konto, id=konto_id)
+    konto.delete()
+    messages.success(request, f"Konto '{konto.name}' wurde erfolgreich gelöscht.")
+    return redirect('posts:konten_verwalten')

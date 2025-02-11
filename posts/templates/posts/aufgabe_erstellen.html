@@ -7,6 +7,8 @@
     <h1>Neue Aufgabe erstellen</h1>
     <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">Unternehmen verwalten</a>
     <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">Fragentyp verwalten</a>
+    <a href="{% url 'posts:konten_verwalten' %}" class="btn btn-secondary">Konten verwalten</a>
+
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -14,7 +16,11 @@
         <h2>Felder hinzufügen</h2>
         <div id="fields-container_aufgabe_erstellen">
             <div class="field-group_aufgabe_erstellen">
-                <input type="text" placeholder="Kontoname" name="kontoname[]" required>
+                <select name="kontoname[]" required>
+                    {% for konto in konten %}
+                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    {% endfor %}
+                </select>
                 <select name="soll_haben[]" required>
                     <option value="Soll">Soll</option>
                     <option value="Haben">Haben</option>
@@ -28,6 +34,7 @@
             </div>
         </div>
 
+
         <button type="button" onclick="addFieldGroup()">Weitere Felder hinzufügen</button>
         <br><br>
         <button type="submit">Speichern</button>
@@ -39,9 +46,15 @@
             let container = document.getElementById('fields-container_aufgabe_erstellen');
             let newFieldGroup = document.createElement('div');
             newFieldGroup.classList.add('field-group_aufgabe_erstellen');
-
+        
+            let kontenOptions = `
+                {% for konto in konten %}
+                    <option value="{{ konto.name }}">{{ konto.name }}</option>
+                {% endfor %}
+            `;
+        
             newFieldGroup.innerHTML = `
-                <input type="text" placeholder="Kontoname" name="kontoname[]" required>
+                <select name="kontoname[]" required>${kontenOptions}</select>
                 <select name="soll_haben[]" required>
                     <option value="Soll">Soll</option>
                     <option value="Haben">Haben</option>
@@ -54,7 +67,7 @@
                 <input type="number" placeholder="Monat" name="monat[]" min="1" max="12">
                 <br>
             `;
-
+        
             container.appendChild(newFieldGroup);
         }
     </script>

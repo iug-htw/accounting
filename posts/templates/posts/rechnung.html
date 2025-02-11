@@ -90,23 +90,29 @@
                     <div id="soll-container_rechnung">
                         <label><strong>Eingaben Soll:</strong></label>
                         <div class="input-group_rechnung">
-                            <input type="text" placeholder="Konto eingeben" name="soll_konto[]">
-                            <input type="number" placeholder="Betrag eingeben" name="soll_betrag[]">
+                            <select name="soll_konto[]">
+                                {% for konto in konten %}
+                                    <option value="{{ konto.name }}">{{ konto.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="number" placeholder="Betrag eingeben" name="soll_betrag[]" required>
                         </div>
                     </div>
                     <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">Neues Soll-Feld hinzufügen</button>
-            
+                    
                     <div id="haben-container_rechnung">
                         <label><strong>Eingaben Haben:</strong></label>
                         <div class="input-group_rechnung">
-                            <input type="text" placeholder="Konto eingeben" name="haben_konto[]">
-                            <input type="number" placeholder="Betrag eingeben" name="haben_betrag[]">
+                            <select name="haben_konto[]">
+                                {% for konto in konten %}
+                                    <option value="{{ konto.name }}">{{ konto.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="number" placeholder="Betrag eingeben" name="haben_betrag[]" required>
                         </div>
                     </div>
                     <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">Neues Haben-Feld hinzufügen</button>
-                </div>
-            
-                <button type="submit" class="btn-submit_rechnung">Eingaben übermitteln</button>
+                    <button type="submit" class="btn-submit_rechnung">Eingaben übermitteln</button>
             </form>
             
 
@@ -122,15 +128,24 @@
 <script>
     function addField(containerId) {
         let container = document.getElementById(containerId);
+    
+        let kontenOptions = `
+            {% for konto in konten %}
+                <option value="{{ konto.name }}">{{ konto.name }}</option>
+            {% endfor %}
+        `;
+    
         let newFieldGroup = document.createElement('div');
         newFieldGroup.classList.add('input-group_rechnung');
-
+    
         newFieldGroup.innerHTML = `
-            <input type="text" placeholder="Konto eingeben" name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" required>
+            <select name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" required>
+                ${kontenOptions}
+            </select>
             <input type="number" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
             <button type="button" class="btn-remove_rechnung" onclick="removeField(this)">🗑️</button>
         `;
-
+    
         container.appendChild(newFieldGroup);
     }
 

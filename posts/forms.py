@@ -1,5 +1,5 @@
 from django import forms
-from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail
+from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail, Konto
 import json
 
 class Aufgabe_neu_Form(forms.ModelForm):
@@ -52,3 +52,8 @@ class AufgabeDetailBearbeitenForm(forms.ModelForm):
     class Meta:
         model = AufgabeDetail
         fields = ['kontoname', 'soll_haben', 'betrag', 'monatsangabe', 'monat']
+
+class KontoForm(forms.ModelForm):
+    class Meta:
+        model = Konto
+        fields = ['name']

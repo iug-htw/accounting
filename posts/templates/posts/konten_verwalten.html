@@ -1,0 +1,20 @@
+{% extends 'master_layout.html' %}
+{% block content %}
+    <h1>Konten verwalten</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Konto hinzufügen</button>
+    </form>
+
+    <h2>Vorhandene Konten</h2>
+    <ul>
+        {% for konto in konten %}
+            <li>
+                {{ konto.name }}
+                <a href="{% url 'posts:konto_loeschen' konto.id %}" class="btn btn-danger" onclick="return confirm('Sind Sie sicher, dass Sie dieses Konto löschen möchten?')">Löschen</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -19,5 +19,9 @@ urlpatterns = [
     path('korrekturbuchung_durchfuehren/<int:buchung_id>/', views.korrekturbuchung_durchfuehren, name='korrekturbuchung_durchfuehren'),
     path('posteingang/', views.posteingang, name='posteingang'),
     path('mail/<int:mail_id>/', views.mail_detail, name='mail_detail'),
+    path('konten_verwalten/', views.konten_verwalten, name='konten_verwalten'),
+    path('konto_loeschen/<int:konto_id>/', views.konto_loeschen, name='konto_loeschen'),
+
+
 
 ]
