@@ -78,15 +78,25 @@ def speichere_aufgabe_details(request, aufgabe):
         )
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
-    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
-    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
-    betraege_soll_nutzer = json.loads(buchung.antwort_betrag_soll)
+    # JSON-Daten der Buchung laden
+    soll_konten_nutzer = [konto.strip() for konto in json.loads(buchung.antwort_konten_soll)]
+    haben_konten_nutzer = [konto.strip() for konto in json.loads(buchung.antwort_konten_haben)]
+    betraege_soll_nutzer = [round(float(betrag), 0) for betrag in json.loads(buchung.antwort_betrag_soll)]
+    betraege_haben_nutzer = [round(float(betrag), 0) for betrag in json.loads(buchung.antwort_betrag_haben)]
 
-    return (
-        nutzer_aufgabe.soll_konto in soll_konten_nutzer and
-        nutzer_aufgabe.haben_konto in haben_konten_nutzer and
-        nutzer_aufgabe.betrag in betraege_soll_nutzer
-    )
+    # Erwartete Werte aus der Nutzeraufgabe
+    soll_konto_aufgabe = nutzer_aufgabe.soll_konto.strip()
+    haben_konto_aufgabe = nutzer_aufgabe.haben_konto.strip()
+    betrag_aufgabe = round(float(nutzer_aufgabe.betrag), 0)
+
+    # Prüfen, ob Soll- und Haben-Konten korrekt sind
+    soll_konto_korrekt = soll_konto_aufgabe in soll_konten_nutzer
+    haben_konto_korrekt = haben_konto_aufgabe in haben_konten_nutzer
+    betrag_korrekt = betrag_aufgabe in betraege_soll_nutzer
+
+    # Ergebnis zurückgeben: Alle drei Bedingungen müssen erfüllt sein
+    return soll_konto_korrekt and haben_konto_korrekt and betrag_korrekt
+
 
 def rechnung_view(request):
     aufgabe = Aufgabe_neu.objects.first()  # Beispiel für eine zufällige Aufgabe
@@ -156,55 +166,77 @@ def handle_nutzer_buchung(request, aufgabe):
 
     return buchung
 
-
-def is_buchung_korrekt(buchung, nutzer_aufgabe):
-    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
-    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
-    betraege_soll_nutzer = json.loads(buchung.antwort_betrag_soll)
-
-    return (
-        nutzer_aufgabe.soll_konto in soll_konten_nutzer and
-        nutzer_aufgabe.haben_konto in haben_konten_nutzer and
-        nutzer_aufgabe.betrag in betraege_soll_nutzer
-    )
-
 @login_required
 def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+    
+    # Generiere zufällige Werte und speichere oder aktualisiere Nutzeraufgabe
+    zufaellige_werte = generiere_zufaellige_werte(aufgabe)
+    nutzer_aufgabe = speichere_nutzer_aufgabe(request.user, aufgabe, zufaellige_werte)
+    
+    # Berechne den nächsten Versuchswert
+    naechster_versuch = berechne_naechsten_versuch(request.user, aufgabe)
+    
+    # Erstelle eine Mail für den neuen Versuch
+    erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch)
+    
+    messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
+    return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
-    # Den höchsten bisherigen Versuch ermitteln
-    letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
-    letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
+def generiere_zufaellige_werte(aufgabe):
+    soll_konto, haben_konto = get_fallback_konten(aufgabe)
+    zufaelliger_betrag = round(random.uniform(aufgabe.min_wert or 100, aufgabe.max_wert or 1000), 0)
+    return {'soll_konto': soll_konto, 'haben_konto': haben_konto, 'betrag': zufaelliger_betrag}
+
+def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
+    nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
+        aufgabe=aufgabe,
+        nutzer=nutzer,
+        defaults={
+            'soll_konto': zufaellige_werte['soll_konto'],
+            'haben_konto': zufaellige_werte['haben_konto'],
+            'betrag': zufaellige_werte['betrag'],
+            'geloest': False
+        }
+    )
+    
+    if not created:
+        nutzer_aufgabe.soll_konto = zufaellige_werte['soll_konto']
+        nutzer_aufgabe.haben_konto = zufaellige_werte['haben_konto']
+        nutzer_aufgabe.betrag = zufaellige_werte['betrag']
+        nutzer_aufgabe.geloest = False
+        nutzer_aufgabe.save()
+    
+    return nutzer_aufgabe
+
+def berechne_naechsten_versuch(nutzer, aufgabe):
+    letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
+    letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
 
     hoechster_versuch = max(
         (letzter_mail_versuch.versuch if letzter_mail_versuch else 0),
         (letzter_buchung_versuch.versuch if letzter_buchung_versuch else 0)
     )
+    return hoechster_versuch + 1
 
-    naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
-
-    # Mail erstellen
-    betreff = f"Neue Aufgabe Versuch {naechster_versuch}"
+def erstelle_aufgaben_mail(nutzer, aufgabe, versuch):
+    betreff = f"Neue Aufgabe Versuch {versuch}"
     mailtext = f"Bitte bearbeiten Sie die Aufgabe: {aufgabe.fragentyp_text}"
 
     Mail.objects.create(
-        nutzer=request.user,
+        nutzer=nutzer,
         aufgabe=aufgabe,
         betreff=betreff,
         mailtext=mailtext,
-        versuch=naechster_versuch,  # Hier den neuen Versuch speichern
+        versuch=versuch,
         status='nicht bearbeitet'
     )
 
-    messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
-    return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
-
-
 def get_fallback_konten(aufgabe):
-    soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").first()
-    haben_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").first()
-    return (soll_konto.kontoname if soll_konto else "Unbekannt",
-            haben_konto.kontoname if haben_konto else "Unbekannt")
+    soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
+    haben_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").order_by('?').first()
+    return (soll_konto.kontoname if soll_konto else "Soll-Konto-Standard",
+            haben_konto.kontoname if haben_konto else "Haben-Konto-Standard")
 
 
 @lehrkraft_required
@@ -303,6 +335,7 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
         antwort_betrag_soll=buchung.antwort_betrag_haben,
         antwort_betrag_haben=buchung.antwort_betrag_soll,
         status='bearbeitet',
+        korrekturbuchung=True,
         versuch=naechster_versuch
     )
 
