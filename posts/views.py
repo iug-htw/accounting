@@ -447,74 +447,102 @@ def konto_loeschen(request, konto_id):
 def nutzer_fortschritt(request):
     # Anzahl aller Aufgaben des Nutzers
     gesamt_aufgaben = NutzerAufgabe.objects.filter(nutzer=request.user).count()
-
     # Bearbeitungsstand der Aufgaben berechnen
     offen = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="offen").count()
     bearbeitet = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="bearbeitet").count()
     korrekt = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="korrekt").count()
-
     # Sicherstellen, dass keine Division durch 0 stattfindet
     prozent_korrekt = round((korrekt / gesamt_aufgaben) * 100) if gesamt_aufgaben > 0 else 0
-
     return JsonResponse({
-        'gesamt': gesamt_aufgaben,
-        'offen': offen,
-        'bearbeitet': bearbeitet,
-        'korrekt': korrekt,
-        'prozent': prozent_korrekt
+        'gesamt': gesamt_aufgaben,'offen': offen,'bearbeitet': bearbeitet,'korrekt': korrekt,'prozent': prozent_korrekt
     })
 
 
 User = get_user_model()
 @login_required
 def lehrer_fortschritt(request):
+    """Hauptfunktion, die den Fortschritt der Studierenden für Lehrer berechnet."""
     if request.user.role != 'teacher':
         return JsonResponse({'error': 'Keine Berechtigung'}, status=403)
-
-    semester_id = request.GET.get('semester')
-    studiengang_id = request.GET.get('studiengang')
-    aufgabe_id = request.GET.get('aufgabe')
-
-    # Studierende filtern, die dem aktuellen Lehrer zugewiesen sind
-    studenten = User.objects.filter(role='student', professor=request.user)
-
-    # Semester-Filter anwenden
-    if semester_id:
-        studenten = studenten.filter(semester_id=semester_id)
-
-    # Studiengang-Filter anwenden
-    if studiengang_id:
-        studenten = studenten.filter(studiengang_id=studiengang_id)
-
-    # Falls keine Studierenden gefunden wurden, leere Rückgabe
+    studenten = get_studenten(request)
     if not studenten.exists():
-        return JsonResponse({'bearbeitet': 0, 'korrekt': 0})
-
-    # Aufgaben-Fortschritt der gefilterten Studierenden holen
-    nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer__in=studenten)
-
-    # Falls eine spezielle Aufgabe gefiltert werden soll
-    if aufgabe_id:
-        nutzer_aufgaben = nutzer_aufgaben.filter(aufgabe_id=aufgabe_id)
-
-    # Bearbeitungsstand auszählen
-    bearbeitungsstand_data = nutzer_aufgaben.values('bearbeitungsstand').annotate(count=Count('id'))
-
-    bearbeitet_count = next((item['count'] for item in bearbeitungsstand_data if item['bearbeitungsstand'] == 'bearbeitet'), 0)
-    korrekt_count = next((item['count'] for item in bearbeitungsstand_data if item['bearbeitungsstand'] == 'korrekt'), 0)
-
+        return JsonResponse({'gesamt_aufgaben': 0, 'bearbeitet': 0, 'korrekt': 0})
+    nutzer_aufgaben = get_nutzer_aufgaben(studenten, request.GET.get('aufgabe'))
+    gesamt_aufgaben = nutzer_aufgaben.count()
+    bearbeitet, korrekt = get_bearbeitungsstand(nutzer_aufgaben)
     return JsonResponse({
-        'bearbeitet': bearbeitet_count,
-        'korrekt': korrekt_count,
+        'gesamt_aufgaben': gesamt_aufgaben,
+        'bearbeitet': bearbeitet,
+        'korrekt': korrekt
     })
 
-@login_required
-def lehrer_filter_daten(request):
-    if request.user.role != 'teacher':
-        return JsonResponse({'error': 'Keine Berechtigung'}, status=403)
+def get_studenten(request):
+    """Liefert alle Studierenden eines Lehrers mit optionalen Filtern."""
+    studenten = User.objects.filter(role='student', professor=request.user)
+    semester_id = request.GET.get('semester')
+    studiengang_id = request.GET.get('studiengang')
+    if semester_id:
+        studenten = studenten.filter(semester_id=semester_id)
+    if studiengang_id:
+        studenten = studenten.filter(studiengang_id=studiengang_id)
+    return studenten
 
+def get_nutzer_aufgaben(studenten, aufgabe_id):
+    """Holt alle Nutzer-Aufgaben der gefilterten Studierenden."""
+    nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer__in=studenten)
+    if aufgabe_id:
+        nutzer_aufgaben = nutzer_aufgaben.filter(aufgabe_id=aufgabe_id)
+    return nutzer_aufgaben
+
+def get_bearbeitungsstand(nutzer_aufgaben):
+    """Berechnet die Anzahl bearbeiteter und korrekt gelöster Aufgaben."""
+    bearbeitungsstand_data = nutzer_aufgaben.values('bearbeitungsstand').annotate(count=Count('id'))
+    bearbeitet = sum(item['count'] for item in bearbeitungsstand_data if item['bearbeitungsstand'] in ['bearbeitet', 'korrekt'])
+    korrekt = sum(item['count'] for item in bearbeitungsstand_data if item['bearbeitungsstand'] == 'korrekt')
+    return bearbeitet, korrekt
+
+@lehrkraft_required
+def lehrer_filter_daten(request):
+    # Lade alle Studierenden des Lehrers
+    studenten = User.objects.filter(role='student', professor=request.user).values('id', 'first_name', 'last_name', 'username')
+    studierende_liste = [
+        {"id": s["id"], "name": f"{s['first_name']} {s['last_name']}".strip() or s["username"]}
+        for s in studenten
+    ]
     semesters = list(User.objects.filter(role='student').values('semester_id', 'semester__name').distinct())
     studiengaenge = list(User.objects.filter(role='student').values('studiengang_id', 'studiengang__name').distinct())
     aufgaben = list(Aufgabe_neu.objects.values('id', 'fragentyp_text'))
 
-    return JsonResponse({'semesters': semesters, 'studiengaenge': studiengaenge, 'aufgaben': aufgaben})
+    return JsonResponse({
+        'semesters': semesters,
+        'studiengaenge': studiengaenge,
+        'aufgaben': aufgaben,
+        'studierende': studierende_liste  # Studierendenliste hinzufügen
+    })
+
+
+@login_required
+def lehrer_studi_fortschritt(request, student_id):
+    """Zeigt den Fortschritt eines einzelnen Studierenden für den Lehrer."""
+    if request.user.role != 'teacher':
+        return JsonResponse({'error': 'Keine Berechtigung'}, status=403)
+
+    student = get_student(student_id, request.user)
+    if not student:
+        return JsonResponse({'error': 'Studierender nicht gefunden'}, status=404)
+
+    nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer=student)
+    gesamt_aufgaben = nutzer_aufgaben.count()
+
+    bearbeitet, korrekt = get_bearbeitungsstand(nutzer_aufgaben)
+
+    return JsonResponse({
+        'studi_name': student.get_full_name(),
+        'gesamt_aufgaben': gesamt_aufgaben,
+        'bearbeitet': bearbeitet,
+        'korrekt': korrekt
+    })
+
+def get_student(student_id, lehrer):
+    """Gibt den Studierenden zurück, falls er dem Lehrer zugeordnet ist."""
+    return User.objects.filter(id=student_id, role='student', professor=lehrer).first()
