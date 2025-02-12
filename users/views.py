@@ -10,6 +10,8 @@ from django.http import HttpResponse
 from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required
 from django.contrib import messages
+from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail
+from posts.views import Aufgabe_neu
 
 @login_required  # Ensure only logged-in users can access this view
 def register_view(request):
@@ -126,4 +128,42 @@ def bulk_student_creation(request):
     return render(request, 'users/bulk_student_creation.html', {
         'studiengaenge': studiengaenge,
         'semester': semester
+    })
+
+@lehrkraft_required
+def aufgaben_zuweisen_view(request):
+    if not request.user.role == 'teacher':
+        return HttpResponse(f'Fehlende Berechtigung <br><a href="/">Zurück zur Startseite</a>')
+
+    aufgaben = Aufgabe_neu.objects.all()
+    semester = Semester.objects.all()
+    studiengaenge = Studiengang.objects.all()
+
+    if request.method == 'POST':
+        ausgewählte_aufgaben = request.POST.getlist('aufgaben')
+        ausgewählte_semester = request.POST.getlist('semester')
+        ausgewählte_studiengaenge = request.POST.getlist('studiengaenge')
+
+        # Studierende filtern, die den Kriterien entsprechen
+        studierende = CustomUser.objects.filter(
+            role='student',
+            semester__id__in=ausgewählte_semester,
+            studiengang__id__in=ausgewählte_studiengaenge
+        )
+
+        for aufgabe_id in ausgewählte_aufgaben:
+            aufgabe = Aufgabe_neu.objects.get(id=aufgabe_id)
+            for student in studierende:
+                zufaellige_werte = generiere_zufaellige_werte(aufgabe)
+                speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
+                naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
+                erstelle_aufgaben_mail(student, aufgabe, naechster_versuch)
+
+        messages.success(request, "Aufgaben erfolgreich zugewiesen und Mails verschickt.")
+        return redirect('users:aufgaben_zuweisen')
+
+    return render(request, 'users/aufgaben_zuweisen.html', {
+        'aufgaben': aufgaben,
+        'semester': semester,
+        'studiengaenge': studiengaenge
     })

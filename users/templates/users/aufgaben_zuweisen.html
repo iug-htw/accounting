@@ -1,0 +1,34 @@
+{% extends 'master_layout.html' %}
+{% block content %}
+<h1>Aufgaben zuweisen</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <h2>Aufgaben auswählen</h2>
+    {% for aufgabe in aufgaben %}
+        <div>
+            <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}">
+            <label>{{ aufgabe.fragentyp_text }} - {{ aufgabe.frage }}</label>
+        </div>
+    {% endfor %}
+
+    <h2>Semester auswählen</h2>
+    {% for sem in semester %}
+        <div>
+            <input type="checkbox" name="semester" value="{{ sem.id }}">
+            <label>{{ sem.name }}</label>
+        </div>
+    {% endfor %}
+
+    <h2>Studiengänge auswählen</h2>
+    {% for studiengang in studiengaenge %}
+        <div>
+            <input type="checkbox" name="studiengaenge" value="{{ studiengang.id }}">
+            <label>{{ studiengang.name }}</label>
+        </div>
+    {% endfor %}
+
+    <button type="submit">Aufgabe zuweisen</button>
+</form>
+{% endblock %}

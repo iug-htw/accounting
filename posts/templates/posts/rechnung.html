@@ -16,12 +16,6 @@
             <p><strong>Betrag:</strong> {{ nutzer_aufgabe.betrag }}</p>
         </ul>
     {% endif %}
-    {% if user.is_authenticated and not aufgabe.geloest %}
-        <form method="post" action="{% url 'posts:zufaellige_aufgabe_zuweisen' aufgabe.id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn-assign-task">Aufgabe zuweisen</button>
-        </form>
-    {% endif %}
     
     <div class="content-wrapper_rechnung">
         <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->

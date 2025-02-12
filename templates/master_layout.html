@@ -23,16 +23,11 @@
             </div>
             <!-- Navigation Bar -->
             <nav class="navigation-bar">
-                <div class="nav-element">
-                    <img src="/media/notification-alert-svgrepo-com.png"
-                         alt="Notifications"
-                         class="nav-icon">
-                    <span>Posteingang</span>
-                </div>
+                
                     <a href="{% url 'posts:posteingang' %}" class="nav-element">Posteingang</a>
+                    <a href="{% url 'frontpage' %}" class="nav-element">Home</a>
                     <a href="#" class="nav-element">Finanzverwaltung</a>
                     <a href="{% url 'posts:rechnung' %}" class="nav-element">Rechnungen</a>
-                    <a href="{% url 'frontpage' %}" class="nav-element">Home</a>
                     <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
                     {% if user.is_authenticated %}
                     <form class="logout" action="{%url 'users:logout' %}" method = "post">
@@ -40,6 +35,9 @@
                         <button class="logout-button" title="User Logout">Logout</button>
                         <a class = "nav-element" href="{% url 'users:register' %}">Nutzer anlegen</a>
                     </form>
+                        {% if request.user.role == 'teacher' %}
+                            <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">Aufgaben zuweisen</a>
+                        {% endif %}
                     {% else %}
                         <a class = "nav-element" href="{% url 'users:login' %}">Login</a>
                     {% endif %}
