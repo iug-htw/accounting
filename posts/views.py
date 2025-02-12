@@ -111,7 +111,7 @@ def rechnung_detail_view(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
     nutzer_aufgabe, _ = NutzerAufgabe.objects.get_or_create(
         aufgabe=aufgabe, nutzer=request.user,
-        defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'geloest': False}
+        defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'bearbeitungsstand': 'offen'}
     )
 
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
@@ -213,7 +213,7 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
             'soll_konto': zufaellige_werte['soll_konto'],
             'haben_konto': zufaellige_werte['haben_konto'],
             'betrag': zufaellige_werte['betrag'],
-            'geloest': False
+            'bearbeitungsstand': 'offen'
         }
     )
     
@@ -221,7 +221,7 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
         nutzer_aufgabe.soll_konto = zufaellige_werte['soll_konto']
         nutzer_aufgabe.haben_konto = zufaellige_werte['haben_konto']
         nutzer_aufgabe.betrag = zufaellige_werte['betrag']
-        nutzer_aufgabe.geloest = False
+        nutzer_aufgabe.bearbeitungsstand = 'offen'
         nutzer_aufgabe.save()
     
     return nutzer_aufgabe
