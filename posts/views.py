@@ -7,6 +7,8 @@ import json, random
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.core.mail import send_mail
+from django.db.models import Count
+from django.contrib.auth import get_user_model
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -159,6 +161,17 @@ def handle_nutzer_buchung(request, aufgabe):
         status='bearbeitet',
         versuch=neuer_versuch  # Hier wird der Versuch korrekt gezählt
     )
+    nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
+
+    if is_buchung_korrekt(buchung, nutzer_aufgabe):
+        update_buchung_status(buchung, ist_korrekt=True)
+        nutzer_aufgabe.bearbeitungsstand = 'korrekt'  # Setzt das Feld auf 1 (True)
+    else:
+        update_buchung_status(buchung, ist_korrekt=False)
+        nutzer_aufgabe.bearbeitungsstand = 'bearbeitet'
+
+    nutzer_aufgabe.save()
+    return buchung
 
     # Richtigkeit prüfen und ggf. Korrekturmail senden
     nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
@@ -429,3 +442,79 @@ def konto_loeschen(request, konto_id):
     konto.delete()
     messages.success(request, f"Konto '{konto.name}' wurde erfolgreich gelöscht.")
     return redirect('posts:konten_verwalten')
+
+@login_required
+def nutzer_fortschritt(request):
+    # Anzahl aller Aufgaben des Nutzers
+    gesamt_aufgaben = NutzerAufgabe.objects.filter(nutzer=request.user).count()
+
+    # Bearbeitungsstand der Aufgaben berechnen
+    offen = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="offen").count()
+    bearbeitet = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="bearbeitet").count()
+    korrekt = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="korrekt").count()
+
+    # Sicherstellen, dass keine Division durch 0 stattfindet
+    prozent_korrekt = round((korrekt / gesamt_aufgaben) * 100) if gesamt_aufgaben > 0 else 0
+
+    return JsonResponse({
+        'gesamt': gesamt_aufgaben,
+        'offen': offen,
+        'bearbeitet': bearbeitet,
+        'korrekt': korrekt,
+        'prozent': prozent_korrekt
+    })
+
+
+User = get_user_model()
+@login_required
+def lehrer_fortschritt(request):
+    if request.user.role != 'teacher':
+        return JsonResponse({'error': 'Keine Berechtigung'}, status=403)
+
+    semester_id = request.GET.get('semester')
+    studiengang_id = request.GET.get('studiengang')
+    aufgabe_id = request.GET.get('aufgabe')
+
+    # Studierende filtern, die dem aktuellen Lehrer zugewiesen sind
+    studenten = User.objects.filter(role='student', professor=request.user)
+
+    # Semester-Filter anwenden
+    if semester_id:
+        studenten = studenten.filter(semester_id=semester_id)
+
+    # Studiengang-Filter anwenden
+    if studiengang_id:
+        studenten = studenten.filter(studiengang_id=studiengang_id)
+
+    # Falls keine Studierenden gefunden wurden, leere Rückgabe
+    if not studenten.exists():
+        return JsonResponse({'bearbeitet': 0, 'korrekt': 0})
+
+    # Aufgaben-Fortschritt der gefilterten Studierenden holen
+    nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer__in=studenten)
+
+    # Falls eine spezielle Aufgabe gefiltert werden soll
+    if aufgabe_id:
+        nutzer_aufgaben = nutzer_aufgaben.filter(aufgabe_id=aufgabe_id)
+
+    # Bearbeitungsstand auszählen
+    bearbeitungsstand_data = nutzer_aufgaben.values('bearbeitungsstand').annotate(count=Count('id'))
+
+    bearbeitet_count = next((item['count'] for item in bearbeitungsstand_data if item['bearbeitungsstand'] == 'bearbeitet'), 0)
+    korrekt_count = next((item['count'] for item in bearbeitungsstand_data if item['bearbeitungsstand'] == 'korrekt'), 0)
+
+    return JsonResponse({
+        'bearbeitet': bearbeitet_count,
+        'korrekt': korrekt_count,
+    })
+
+@login_required
+def lehrer_filter_daten(request):
+    if request.user.role != 'teacher':
+        return JsonResponse({'error': 'Keine Berechtigung'}, status=403)
+
+    semesters = list(User.objects.filter(role='student').values('semester_id', 'semester__name').distinct())
+    studiengaenge = list(User.objects.filter(role='student').values('studiengang_id', 'studiengang__name').distinct())
+    aufgaben = list(Aufgabe_neu.objects.values('id', 'fragentyp_text'))
+
+    return JsonResponse({'semesters': semesters, 'studiengaenge': studiengaenge, 'aufgaben': aufgaben})

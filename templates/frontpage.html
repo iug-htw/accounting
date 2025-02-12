@@ -37,7 +37,7 @@
         <a href="{% url 'posts:hauptbuch' %}" class="button">Mein Hauptbuch</a>
     </div>
 </div>
-
+{% if user.role == 'student' %}
 <!-- Progress Section -->
 <section class="progress-container">
     <h2>Dein Fortschritt</h2>
@@ -48,16 +48,135 @@
                      a 15.9155 15.9155 0 0 1 0 31.831
                      a 15.9155 15.9155 0 0 1 0 -31.831"></path>
             <path class="circle"
-                  stroke-dasharray="85, 100"
+                  id="progress-circle"
+                  stroke-dasharray="0, 100"
                   d="M18 2.0845
                      a 15.9155 15.9155 0 0 1 0 31.831
                      a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-            <text x="18" y="20.35" class="percentage">85%</text>
+            <text x="18" y="20.35" id="progress-percentage" class="percentage">0%</text>
         </svg>
     </div>
-    <p>Erledigt: 85% | Noch zu erledigen: 15%</p>
+    <p id="progress-text">Erledigt: 0% | Noch zu erledigen: 100%</p>
 </section>
-<p>Begrüßungsvideo noch einfügen</p>
-<p>Bearbeitungsstand an Aufgabenstand anpassen</p>
-<p>Lehrkraft: Bearbeitungsstände der Studis</p>
+{% endif %}
+{% if user.role == 'teacher' %}
+    <h2>Leistungsübersicht Studierende</h2>
+
+    <label>Semester:
+        <select id="filter-semester">
+            <option value="">Alle</option>
+        </select>
+    </label>
+
+    <label>Studiengang:
+        <select id="filter-studiengang">
+            <option value="">Alle</option>
+        </select>
+    </label>
+
+    <label>Aufgabe:
+        <select id="filter-aufgabe">
+            <option value="">Alle</option>
+        </select>
+    </label>
+
+    <button onclick="ladeLehrerFortschritt()">Filtern</button>
+
+    <div class="progress-circle">
+        <h3>Bearbeitet</h3>
+        <canvas id="chart-bearbeitet"></canvas>
+    </div>
+    <div class="progress-circle">
+        <h3>Korrekt</h3>
+        <canvas id="chart-korrekt"></canvas>
+    </div>
+{% endif %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("{% url 'posts:nutzer_fortschritt' %}")
+            .then(response => response.json())
+            .then(data => {
+                let korrekt = data.korrekt;
+                let gesamt = data.gesamt;
+                let prozent = data.prozent;  // Wert aus der API
+
+                // Sicherstellen, dass keine Division durch 0 passiert
+                if (gesamt === 0) {
+                    document.getElementById("progress-text").textContent = "Noch keine Aufgaben vorhanden.";
+                    return;
+                }
+
+                // Fortschrittsanzeige aktualisieren
+                let progressCircle = document.getElementById("progress-circle");
+                let progressText = document.getElementById("progress-percentage");
+                let progressDisplayText = document.getElementById("progress-text");
+
+                // Fortschritt in das Kreisdiagramm schreiben
+                progressCircle.setAttribute("stroke-dasharray", `${prozent}, 100`);
+                progressText.textContent = `${prozent}%`;
+                progressDisplayText.textContent = `Erledigt: ${prozent}% | Noch zu erledigen: ${100 - prozent}%`;
+            })
+            .catch(error => console.error("Fehler beim Laden des Fortschritts:", error));
+    });
+    
+    function ladeLehrerFilter() {
+        fetch("{% url 'posts:lehrer_filter_daten' %}")
+            .then(response => response.json())
+            .then(data => {
+                let semesterSelect = document.getElementById('filter-semester');
+                let studiengangSelect = document.getElementById('filter-studiengang');
+                let aufgabeSelect = document.getElementById('filter-aufgabe');
+
+                data.semesters.forEach(item => {
+                    let option = document.createElement('option');
+                    option.value = item.semester_id;
+                    option.textContent = item.semester__name;
+                    semesterSelect.appendChild(option);
+                });
+
+                data.studiengaenge.forEach(item => {
+                    let option = document.createElement('option');
+                    option.value = item.studiengang_id;
+                    option.textContent = item.studiengang__name;
+                    studiengangSelect.appendChild(option);
+                });
+
+                data.aufgaben.forEach(item => {
+                    let option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.fragentyp_text;
+                    aufgabeSelect.appendChild(option);
+                });
+            });
+    }
+
+    function ladeLehrerFortschritt() {
+        let semester = document.getElementById('filter-semester').value;
+        let studiengang = document.getElementById('filter-studiengang').value;
+        let aufgabe = document.getElementById('filter-aufgabe').value;
+
+        fetch(`/posts/lehrer_fortschritt/?semester=${semester}&studiengang=${studiengang}&aufgabe=${aufgabe}`)
+            .then(response => response.json())
+            .then(data => {
+                updateChart('chart-bearbeitet', data.bearbeitet);
+                updateChart('chart-korrekt', data.korrekt);
+            });
+    }
+
+    function updateChart(canvasId, value) {
+        let ctx = document.getElementById(canvasId).getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Erledigt', 'Nicht erledigt'],
+                datasets: [{
+                    data: [value, 100 - value],
+                    backgroundColor: ['green', 'gray']
+                }]
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", ladeLehrerFilter);
+</script>
 {% endblock %}

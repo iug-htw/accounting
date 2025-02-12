@@ -77,13 +77,19 @@ class Buchung(models.Model):
         return f"Buchung {self.buchung_id} für Aufgabe {self.aufgabe.id} von Nutzer {self.nutzer.username}"
 
 class NutzerAufgabe(models.Model):
+    STATUS_CHOICES = [
+        ('offen', 'Offen'),
+        ('bearbeitet', 'Bearbeitet'),
+        ('korrekt', 'Korrekt'),
+    ]
+
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE)
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    soll_konto = models.CharField(max_length=255)  # Konto für Soll
-    haben_konto = models.CharField(max_length=255)  # Konto für Haben
-    betrag = models.FloatField()  # Zufälliger Betrag
+    soll_konto = models.CharField(max_length=255)
+    haben_konto = models.CharField(max_length=255)
+    betrag = models.FloatField()
     erstellt_am = models.DateTimeField(auto_now_add=True)
-    geloest = models.BooleanField(default=False)
+    bearbeitungsstand = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offen')  # Neues Feld
 
     def __str__(self):
         return f"NutzerAufgabe für {self.nutzer.username} - {self.aufgabe.fragentyp_text}"
