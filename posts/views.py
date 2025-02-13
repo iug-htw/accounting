@@ -9,6 +9,7 @@ from django.http import HttpResponse, JsonResponse
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.contrib.auth import get_user_model
+from .absender import ZUFÄLLIGE_ABSENDER
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -173,16 +174,6 @@ def handle_nutzer_buchung(request, aufgabe):
     nutzer_aufgabe.save()
     return buchung
 
-    # Richtigkeit prüfen und ggf. Korrekturmail senden
-    nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
-    if is_buchung_korrekt(buchung, nutzer_aufgabe):
-        update_buchung_status(buchung, ist_korrekt=True)
-    else:
-        update_buchung_status(buchung, ist_korrekt=False)
-        
-
-    return buchung
-
 @login_required
 def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
@@ -237,6 +228,7 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
     return hoechster_versuch + 1
 
 def erstelle_aufgaben_mail(nutzer, aufgabe, versuch):
+    absender = random.choice(ZUFÄLLIGE_ABSENDER)
     betreff = f"Neue Aufgabe Versuch {versuch}"
     mailtext = f"Bitte bearbeiten Sie die Aufgabe: {aufgabe.fragentyp_text}"
 
@@ -246,6 +238,9 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch):
         betreff=betreff,
         mailtext=mailtext,
         versuch=versuch,
+        von=absender["email"],  # Setze zufällige Email
+        absender_name=absender["name"],  # Setze zufälligen Namen
+        absender_adresse=absender["adresse"],  # Setze zufällige Adresse
         status='nicht bearbeitet'
     )
 

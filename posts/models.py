@@ -101,6 +101,8 @@ class Mail(models.Model):
     mailtext = models.TextField()
     versuch = models.PositiveIntegerField(default=1)
     von = models.CharField(max_length=100, default="system@secure-net.de")
+    absender_name = models.CharField(max_length=100, default="")  # Neuer Name
+    absender_adresse = models.CharField(max_length=255, default="")  # Neue Adresse
     datum = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=[
         ('nicht bearbeitet', 'Nicht bearbeitet'),
