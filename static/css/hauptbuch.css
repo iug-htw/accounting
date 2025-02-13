@@ -38,3 +38,20 @@
         grid-template-columns: 1fr;
     }
 }
+.hauptbuch tr {
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.legende span {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+.highlight-task-0 { background-color: #fff7c2; } /* Gelb */
+.highlight-task-1 { background-color: #c2f0c2; } /* Grün */
+.highlight-task-2 { background-color: #c2d6f0; } /* Blau */
+.highlight-task-3 { background-color: #f0c2c2; } /* Rot */
+.highlight-task-4 { background-color: #e0c2f0; } /* Lila */

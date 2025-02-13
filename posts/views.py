@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.db.models import Count
 from django.contrib.auth import get_user_model
 from .absender import ZUFÄLLIGE_ABSENDER
+import hashlib
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -286,7 +287,6 @@ def hauptbuch(request):
     konten = Konto.objects.all()
     konto_filter = request.GET.get("konto", "")
 
-    # Filterung nach Kontoname
     buchungen = Buchung.objects.filter(nutzer=request.user)
     if konto_filter:
         buchungen = buchungen.filter(
@@ -300,21 +300,41 @@ def hauptbuch(request):
     return render(request, "posts/hauptbuch.html", {
         "t_konten": t_konten,
         "konten": konten,
-        "konto_filter": konto_filter
+        "konto_filter": konto_filter,
     })
+
+
+def generate_color(aufgabe_id):
+    """Erzeugt eine konsistente Farbe für eine aufgabe_id."""
+    hash_value = int(hashlib.md5(str(aufgabe_id).encode()).hexdigest(), 16)
+    hue = hash_value % 360  # Erzeugt einen Farbwert im HSL-Farbraum
+    return f"hsl({hue}, 70%, 85%)"  # Pastellfarbene Markierung
 
 def build_t_konten(buchungen):
     t_konten = {}
+    aufgabe_farben = {}
+
     for buchung in buchungen:
-        soll_konten, haben_konten = json.loads(buchung.antwort_konten_soll or "[]"), json.loads(buchung.antwort_konten_haben or "[]")
-        soll_betraege, haben_betraege = json.loads(buchung.antwort_betrag_soll or "[]"), json.loads(buchung.antwort_betrag_haben or "[]")
+        aufgabe_id = buchung.aufgabe.id
+
+        if aufgabe_id not in aufgabe_farben:
+            aufgabe_farben[aufgabe_id] = generate_color(aufgabe_id)
+
+        soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
+        haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
+        soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
+        haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
 
         for konto, betrag in zip(soll_konten, soll_betraege):
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((buchung.buchung_id, betrag))
+            farbe = aufgabe_farben[aufgabe_id]
+            t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((aufgabe_id, betrag, farbe))
+
         for konto, betrag in zip(haben_konten, haben_betraege):
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((buchung.buchung_id, betrag))
+            farbe = aufgabe_farben[aufgabe_id]
+            t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id, betrag, farbe))
 
     return t_konten
+
 
 @login_required
 def aufgabe_bearbeiten(request, aufgabe_id):
