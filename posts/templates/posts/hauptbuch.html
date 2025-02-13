@@ -6,13 +6,17 @@
 {% block content %}
 <h1>Dein Hauptbuch</h1>
 <p>Hier findest du dein Hauptbuch mit all deinen offenen T-Konten</p>
-<div class="sort-option">
-    <label>Sort by:</label>
-    <select>
-        <option>Neuste</option>
+<form method="GET" action="{% url 'posts:hauptbuch' %}">
+    <label for="konto_filter">Filter nach Konto:</label>
+    <select name="konto" id="konto_filter" onchange="this.form.submit()">
+        <option value="">Alle Konten</option>
+        {% for konto in konten %}
+            <option value="{{ konto.name }}" {% if konto_filter == konto.name %}selected{% endif %}>
+                {{ konto.name }}
+            </option>
+        {% endfor %}
     </select>
-</div>
-
+</form>
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
     <div class="konto">

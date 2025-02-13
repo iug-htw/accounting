@@ -283,9 +283,25 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
 
 @login_required
 def hauptbuch(request):
+    konten = Konto.objects.all()
+    konto_filter = request.GET.get("konto", "")
+
+    # Filterung nach Kontoname
     buchungen = Buchung.objects.filter(nutzer=request.user)
+    if konto_filter:
+        buchungen = buchungen.filter(
+            antwort_konten_soll__icontains=konto_filter
+        ) | buchungen.filter(
+            antwort_konten_haben__icontains=konto_filter
+        )
+
     t_konten = build_t_konten(buchungen)
-    return render(request, 'posts/hauptbuch.html', {'t_konten': t_konten})
+
+    return render(request, "posts/hauptbuch.html", {
+        "t_konten": t_konten,
+        "konten": konten,
+        "konto_filter": konto_filter
+    })
 
 def build_t_konten(buchungen):
     t_konten = {}
