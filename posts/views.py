@@ -3,14 +3,13 @@ from django.contrib.auth.decorators import login_required
 from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
 from django.contrib import messages
-import json, random
+import json, random, hashlib
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.core.mail import send_mail
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from .absender import ZUFÄLLIGE_ABSENDER
-import hashlib
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -285,30 +284,21 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
 @login_required
 def hauptbuch(request):
     konten = Konto.objects.all()
-    konto_filter = request.GET.get("konto", "")
-
     buchungen = Buchung.objects.filter(nutzer=request.user)
-    if konto_filter:
-        buchungen = buchungen.filter(
-            antwort_konten_soll__icontains=konto_filter
-        ) | buchungen.filter(
-            antwort_konten_haben__icontains=konto_filter
-        )
 
     t_konten = build_t_konten(buchungen)
+    aufgaben_ids = sorted(set(buchungen.values_list("aufgabe_id", flat=True)))
 
     return render(request, "posts/hauptbuch.html", {
         "t_konten": t_konten,
         "konten": konten,
-        "konto_filter": konto_filter,
+        "aufgaben_ids": aufgaben_ids
     })
 
-
 def generate_color(aufgabe_id):
-    """Erzeugt eine konsistente Farbe für eine aufgabe_id."""
     hash_value = int(hashlib.md5(str(aufgabe_id).encode()).hexdigest(), 16)
-    hue = hash_value % 360  # Erzeugt einen Farbwert im HSL-Farbraum
-    return f"hsl({hue}, 70%, 85%)"  # Pastellfarbene Markierung
+    hue = hash_value % 360
+    return f"hsl({hue}, 70%, 85%)"
 
 def build_t_konten(buchungen):
     t_konten = {}
@@ -334,6 +324,7 @@ def build_t_konten(buchungen):
             t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id, betrag, farbe))
 
     return t_konten
+
 
 
 @login_required

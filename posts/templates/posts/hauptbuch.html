@@ -6,20 +6,27 @@
 {% block content %}
 <h1>Dein Hauptbuch</h1>
 <p>Hier findest du dein Hauptbuch mit all deinen offenen T-Konten</p>
-<form method="GET" action="{% url 'posts:hauptbuch' %}">
+<form>
     <label for="konto_filter">Filter nach Konto:</label>
-    <select name="konto" id="konto_filter" onchange="this.form.submit()">
+    <select name="konto" id="konto_filter">
         <option value="">Alle Konten</option>
         {% for konto in konten %}
-            <option value="{{ konto.name }}" {% if konto_filter == konto.name %}selected{% endif %}>
-                {{ konto.name }}
-            </option>
+            <option value="{{ konto.name }}">{{ konto.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="aufgabe_filter">Filter nach Aufgabe:</label>
+    <select name="aufgabe_id" id="aufgabe_filter">
+        <option value="">Alle Aufgaben</option>
+        {% for aufgabe_id in aufgaben_ids %}
+            <option value="{{ aufgabe_id }}">Aufgabe {{ aufgabe_id }}</option>
         {% endfor %}
     </select>
 </form>
+
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto">
+    <div class="konto" data-konto="{{ konto }}">
         <h2>{{ konto }}</h2>
         <table>
             <thead>
@@ -33,7 +40,7 @@
                     <td>
                         <table>
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
-                            <tr style="background-color: {{ farbe }};">
+                            <tr style="background-color: {{ farbe }};" data-konto="{{ konto }}" data-aufgabe="{{ aufgabe_id }}">
                                 <td>{{ aufgabe_id }}</td>
                                 <td>{{ betrag|floatformat:2 }}</td>
                             </tr>
@@ -43,7 +50,7 @@
                     <td>
                         <table>
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
-                            <tr style="background-color: {{ farbe }};">
+                            <tr style="background-color: {{ farbe }};" data-konto="{{ konto }}" data-aufgabe="{{ aufgabe_id }}">
                                 <td>{{ aufgabe_id }}</td>
                                 <td>{{ betrag|floatformat:2 }}</td>
                             </tr>
@@ -52,9 +59,38 @@
                     </td>
                 </tr>
             </tbody>
-            
         </table>
     </div>
     {% endfor %}
 </section>
+
+<script>
+    function filterTable() {
+        let selectedKonto = document.getElementById("konto_filter").value;
+        let selectedAufgabe = document.getElementById("aufgabe_filter").value;
+        let kontenDivs = document.querySelectorAll(".konto");
+        
+        kontenDivs.forEach(div => {
+            let rows = div.querySelectorAll("tr[data-konto]");
+            let hasVisibleRow = false;
+            
+            rows.forEach(row => {
+                let kontoMatch = (selectedKonto === "" || row.dataset.konto === selectedKonto);
+                let aufgabeMatch = (selectedAufgabe === "" || row.dataset.aufgabe === selectedAufgabe);
+                
+                if (kontoMatch && aufgabeMatch) {
+                    row.style.display = "table-row";
+                    hasVisibleRow = true;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+            
+            div.style.display = hasVisibleRow ? "block" : "none";
+        });
+    }
+
+    document.getElementById("konto_filter").addEventListener("change", filterTable);
+    document.getElementById("aufgabe_filter").addEventListener("change", filterTable);
+</script>
 {% endblock %}
