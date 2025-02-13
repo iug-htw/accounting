@@ -446,6 +446,7 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
         status='nicht bearbeitet'
     )
 
+@lehrkraft_required
 def konten_verwalten(request):
     if request.method == 'POST':
         form = KontoForm(request.POST)
@@ -453,10 +454,32 @@ def konten_verwalten(request):
             form.save()
             messages.success(request, "Konto erfolgreich hinzugefügt.")
             return redirect('posts:konten_verwalten')
+        else:
+            messages.error(request, "Fehler: Überprüfe deine Eingaben.")
     else:
         form = KontoForm()
-    konten = Konto.objects.all()
+
+    konten = Konto.objects.all().order_by('kategorie', 'unterkategorie')
+
     return render(request, 'posts/konten_verwalten.html', {'form': form, 'konten': konten})
+
+@lehrkraft_required
+def konto_bearbeiten(request, konto_id):
+    konto = get_object_or_404(Konto, id=konto_id)
+
+    if request.method == 'POST':
+        form = KontoForm(request.POST, instance=konto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Konto erfolgreich aktualisiert.")
+            return redirect('posts:konten_verwalten')
+        else:
+            messages.error(request, "Fehler: Überprüfe deine Eingaben.")
+    else:
+        form = KontoForm(instance=konto)
+
+    return render(request, 'posts/konto_bearbeiten.html', {'form': form, 'konto': konto})
+
 
 @lehrkraft_required
 def konto_loeschen(request, konto_id):

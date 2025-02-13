@@ -56,4 +56,20 @@ class AufgabeDetailBearbeitenForm(forms.ModelForm):
 class KontoForm(forms.ModelForm):
     class Meta:
         model = Konto
-        fields = ['name']
+        fields = ['name', 'kategorie', 'unterkategorie']  # NEUE FELDER HINZUGEFÜGT
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Abhängig von der Hauptkategorie (Bestandskonto/Erfolgskonto) sollen nur passende Unterkategorien angezeigt werden
+        self.fields['unterkategorie'].queryset = Konto.objects.none()
+
+        if 'kategorie' in self.data:
+            try:
+                kategorie = self.data.get('kategorie')
+                if kategorie == "Bestandskonto":
+                    self.fields['unterkategorie'].choices = [('Aktiva', 'Aktiva'), ('Passiva', 'Passiva')]
+                elif kategorie == "Erfolgskonto":
+                    self.fields['unterkategorie'].choices = [('Aufwand', 'Aufwand'), ('Ertrag', 'Ertrag')]
+            except (ValueError, TypeError):
+                pass  # Falls falsche Werte eingegeben wurden, bleibt die Auswahl leer

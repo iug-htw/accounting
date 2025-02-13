@@ -114,7 +114,23 @@ class Mail(models.Model):
 
 
 class Konto(models.Model):
+    KATEGORIE_CHOICES = [
+        ('Bestandskonto', 'Bestandskonto'),
+        ('Erfolgskonto', 'Erfolgskonto'),
+    ]
+
+    UNTERKATEGORIE_CHOICES = [
+        ('Aktiva', 'Aktiva'),
+        ('Passiva', 'Passiva'),
+        ('Aufwand', 'Aufwand'),
+        ('Ertrag', 'Ertrag'),
+    ]
+
     name = models.CharField(max_length=255, unique=True)
+    kategorie = models.CharField(max_length=20, choices=KATEGORIE_CHOICES, blank=True, null=True)
+    unterkategorie = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
+    eins = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.kategorie} - {self.unterkategorie})"
+

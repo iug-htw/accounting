@@ -20,6 +20,7 @@ urlpatterns = [
     path('posteingang/', views.posteingang, name='posteingang'),
     path('mail/<int:mail_id>/', views.mail_detail, name='mail_detail'),
     path('konten_verwalten/', views.konten_verwalten, name='konten_verwalten'),
+    path("konto_bearbeiten/<int:konto_id>/", views.konto_bearbeiten, name="konto_bearbeiten"),
     path('konto_loeschen/<int:konto_id>/', views.konto_loeschen, name='konto_loeschen'),
     path('nutzer_fortschritt/', views.nutzer_fortschritt, name='nutzer_fortschritt'),
     path('lehrer_fortschritt/', views.lehrer_fortschritt, name='lehrer_fortschritt'),
