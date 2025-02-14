@@ -26,5 +26,6 @@ urlpatterns = [
     path('lehrer_fortschritt/', views.lehrer_fortschritt, name='lehrer_fortschritt'),
     path('lehrer_filter_daten/', views.lehrer_filter_daten, name='lehrer_filter_daten'),
     path('lehrer_studi_fortschritt/<int:student_id>/', views.lehrer_studi_fortschritt, name='lehrer_studi_fortschritt'),
+    path('guv/', views.guv_uebersicht, name='guv_uebersicht'),
 
 ]

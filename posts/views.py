@@ -591,3 +591,19 @@ def lehrer_studi_fortschritt(request, student_id):
 def get_student(student_id, lehrer):
     """Gibt den Studierenden zurück, falls er dem Lehrer zugeordnet ist."""
     return User.objects.filter(id=student_id, role='student', professor=lehrer).first()
+
+@login_required
+def guv_uebersicht(request):
+    konten = Konto.objects.all()
+    buchungen = Buchung.objects.filter(nutzer=request.user)
+    t_konten = build_t_konten(buchungen)
+
+    # Konten mit ihren Kategorien verknüpfen
+    konto_kategorien = {konto.name: konto.kategorie for konto in konten}
+
+    return render(request, "posts/guv.html", {
+        "t_konten": t_konten,
+        "konten": konten,
+        "konto_kategorien": konto_kategorien  # Neue Variable für das Frontend
+    })
+
