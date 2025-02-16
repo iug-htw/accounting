@@ -9,9 +9,12 @@ from django.urls import reverse
 from django.http import HttpResponse
 from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required
+from posts.models import Mail
 from django.contrib import messages
 from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail
 from posts.views import Aufgabe_neu
+from django.core.mail import send_mail
+from django.conf import settings
 
 @login_required  # Ensure only logged-in users can access this view
 def register_view(request):
@@ -107,28 +110,56 @@ def bulk_student_creation(request):
         anzahl_studierende = int(request.POST.get('anzahl_studierende', 1))
         studiengang = request.POST.get('studiengang')
         semester = request.POST.get('semester')
+        name_mode = request.POST.get('name_mode')
+        custom_name = request.POST.get('custom_name', "").strip()
+
         lehrkraft = request.user.username[:2]  # Die ersten 2 Buchstaben des Lehrernamens
 
+        existing_users = CustomUser.objects.values_list('username', flat=True)
+        fehlgeschlagene_namen = []
+
+        neue_studierende = []
         for i in range(1, anzahl_studierende + 1):
-            student_name = f"{studiengang}{lehrkraft}{semester}{str(i).zfill(2)}"
-            student = CustomUser.objects.create_user(
+            if name_mode == "on" and custom_name:
+                student_name = f"{custom_name}{i}"
+            else:
+                student_name = f"{studiengang}{lehrkraft}{semester}{str(i).zfill(2)}"
+
+            if student_name in existing_users:
+                fehlgeschlagene_namen.append(student_name)
+                continue  # Überspringe Erstellung dieses Nutzers
+
+            student = CustomUser(
                 username=student_name,
-                password=student_name,
+                email=f"{student_name}@example.com",
                 role='student',
                 professor=request.user,
                 semester=Semester.objects.get(name=semester),
-                studiengang=Studiengang.objects.get(name=studiengang)
+                studiengang=Studiengang.objects.get(name=studiengang),
+                display_name=student_name
             )
-        
-        messages.success(request, f'{anzahl_studierende} Studierende erfolgreich erstellt.')
+            student.set_password(student_name)  # Passwort richtig hashen
+            student.save()
+
+            # Erstelle interne Nachricht statt E-Mail zu senden
+            send_profile_update_mail(student)
+
+            neue_studierende.append(student)
+
+        if fehlgeschlagene_namen:
+            messages.error(request, f"Folgende Namen sind bereits vergeben: {', '.join(fehlgeschlagene_namen)}")
+        else:
+            messages.success(request, f'{len(neue_studierende)} Studierende erfolgreich erstellt.')
+
         return redirect('users:bulk_student_creation')
-    
+
     studiengaenge = Studiengang.objects.all()
     semester = Semester.objects.all()
     return render(request, 'users/bulk_student_creation.html', {
         'studiengaenge': studiengaenge,
         'semester': semester
     })
+
 
 @lehrkraft_required
 def aufgaben_zuweisen_view(request):
@@ -167,3 +198,42 @@ def aufgaben_zuweisen_view(request):
         'semester': semester,
         'studiengaenge': studiengaenge
     })
+
+@login_required
+def update_profile(request):
+    if request.method == "POST":
+        display_name = request.POST.get("display_name")
+        password = request.POST.get("password")
+
+        user = request.user
+        if display_name:
+            user.display_name = display_name
+        if password:
+            user.set_password(password)
+        user.save()
+
+        # Status der Mail aktualisieren
+        Mail.objects.filter(nutzer=user, betreff__contains="Bitte aktualisieren Sie").update(status="bearbeitet")
+
+        messages.success(request, "Profil erfolgreich aktualisiert.")
+        return redirect("frontpage")
+    
+    return render(request, "users/update_profile.html")
+
+def send_profile_update_mail(user):
+    """Erstellt eine interne Mail für den Nutzer zur Aufforderung, Namen & Passwort zu ändern."""
+    Mail.objects.create(
+        nutzer=user,
+        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
+        betreff="Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort",
+        mailtext=f"""
+        Hallo {user.username},
+
+        Bitte setzen Sie Ihren Anzeigenamen und Ihr Passwort über den folgenden Link:
+        <a href='/users/update-profile/'>Profil aktualisieren</a>
+
+        Vielen Dank!
+        """,
+        versuch=1,  # Standardversuch
+        status="nicht bearbeitet"
+    )

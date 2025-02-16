@@ -66,6 +66,10 @@ class CustomUser(AbstractUser):
         null=True, blank=True,  # Allow empty reference initially
         related_name='students'  # Optional but recommended for clarity
     )
-
+    display_name = models.CharField(max_length=150, blank=True, null=True)
     def __str__(self):
         return f'{self.username} ({self.get_role_display()})'
+    def save(self, *args, **kwargs):
+        if not self.display_name:
+            self.display_name = self.username  # Standardwert setzen
+        super().save(*args, **kwargs)

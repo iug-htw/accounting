@@ -105,7 +105,7 @@ class NutzerAufgabe(models.Model):
     
 class Mail(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE)
+    aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, null=True, blank=True)
     betreff = models.CharField(max_length=255)
     mailtext = models.TextField()
     versuch = models.PositiveIntegerField(default=1)
