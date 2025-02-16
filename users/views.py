@@ -199,26 +199,50 @@ def aufgaben_zuweisen_view(request):
         'studiengaenge': studiengaenge
     })
 
+
 @login_required
 def update_profile(request):
+    user = request.user
+    name_geändert = False
+    passwort_geändert = False
+
     if request.method == "POST":
-        display_name = request.POST.get("display_name")
-        password = request.POST.get("password")
+        if "save_display_name" in request.POST:
+            neuer_name = request.POST.get("display_name", "").strip()
+            if neuer_name and neuer_name != user.display_name:
+                user.display_name = neuer_name
+                name_geändert = True
 
-        user = request.user
-        if display_name:
-            user.display_name = display_name
-        if password:
-            user.set_password(password)
-        user.save()
+        if "save_password" in request.POST:
+            neues_passwort = request.POST.get("password", "").strip()
+            passwort_bestätigung = request.POST.get("password_confirm", "").strip()
 
-        # Status der Mail aktualisieren
-        Mail.objects.filter(nutzer=user, betreff__contains="Bitte aktualisieren Sie").update(status="bearbeitet")
+            if neues_passwort and neues_passwort == passwort_bestätigung:
+                user.set_password(neues_passwort)
+                passwort_geändert = True
+                update_session_auth_hash(request, user)  # Nutzer bleibt eingeloggt
 
-        messages.success(request, "Profil erfolgreich aktualisiert.")
-        return redirect("frontpage")
-    
-    return render(request, "users/update_profile.html")
+            elif neues_passwort and neues_passwort != passwort_bestätigung:
+                messages.error(request, "Passwörter stimmen nicht überein.")
+                return redirect("users:update_profile")
+
+        if name_geändert or passwort_geändert:
+            user.save()
+            messages.success(request, "Profil erfolgreich aktualisiert.")
+
+            # Älteste Mail des Nutzers ohne Aufgabe als bearbeitet markieren
+            mail = Mail.objects.filter(nutzer=user, aufgabe__isnull=True).order_by("datum").first()
+            print(mail.id)
+            if mail:
+                mail.status = "bearbeitet"
+                mail.save(update_fields=["status"])
+
+            return redirect("users:update_profile")
+
+        messages.warning(request, "Keine Änderungen vorgenommen.")
+
+    return render(request, "users/update_profile.html", {"user": user})
+
 
 def send_profile_update_mail(user):
     """Erstellt eine interne Mail für den Nutzer zur Aufforderung, Namen & Passwort zu ändern."""

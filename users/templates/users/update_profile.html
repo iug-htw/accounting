@@ -1,15 +1,28 @@
 {% extends 'master_layout.html' %}
+
 {% block content %}
 <h2>Profil aktualisieren</h2>
 
 <form method="post">
     {% csrf_token %}
-    <label for="display_name">Anzeigename:</label>
-    <input type="text" name="display_name" value="{{ user.display_name }}" required>
+    
+    <div>
+        <label for="display_name">Neuer Anzeigename (optional):</label>
+        <input type="text" name="display_name" value="{{ user.display_name }}">
+        <button type="submit" name="save_display_name">Anzeigename speichern</button>
+    </div>
 
-    <label for="password">Neues Passwort:</label>
-    <input type="password" name="password" required>
-
-    <button type="submit">Ändern</button>
+    <div>
+        <label for="password">Neues Passwort (optional):</label>
+        <input type="password" name="password">
+    </div>
+    
+    <div>
+        <label for="password_confirm">Passwort bestätigen:</label>
+        <input type="password" name="password_confirm">
+        <button type="submit" name="save_password">Passwort speichern</button>
+    </div>
 </form>
+
+
 {% endblock %}

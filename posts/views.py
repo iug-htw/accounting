@@ -434,8 +434,6 @@ def posteingang(request):
         # Status aktualisieren
         if buchung_vorhanden:
             mail.status = 'bearbeitet'
-        else:
-            mail.status = 'nicht bearbeitet'
         mail.save()
 
     return render(request, 'posts/posteingang.html', {'mails': mails})
