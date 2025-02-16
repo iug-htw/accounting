@@ -165,24 +165,6 @@ document.addEventListener("DOMContentLoaded", function() {
         let totalRow = document.createElement("tr");
         totalRow.innerHTML = `<td>Gesamt</td><td>${totalAktiv.toFixed(2)}</td><td>${totalPassiv.toFixed(2)}</td>`;
         bilanzBody.appendChild(totalRow);
-
-        // AJAX-Request zum Speichern des Bilanz-Ergebnisses
-        fetch("{% url 'posts:speichere_bilanz_ergebnis' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRFToken": getCSRFToken()
-            },
-            body: new URLSearchParams({ bilanz_result: totalAktiv.toFixed(2) })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert("Alle Konten wurden abgeschlossen. Bilanz-Ergebnis wurde gespeichert.");
-            } else {
-                alert("Fehler beim Speichern des Bilanz-Ergebnisses.");
-            }
-        });
     });
 
     function getCSRFToken() {
