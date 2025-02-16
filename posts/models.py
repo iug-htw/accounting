@@ -26,6 +26,8 @@ class Aufgabe_neu(models.Model):
     min_wert = models.FloatField(null=True, blank=True)
     max_wert = models.FloatField(null=True, blank=True)
     nutzungsdauer = models.IntegerField(null=True, blank=True)
+    feedback_konto_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
+    feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn der Betrag falsch ist.")
 
     def __str__(self):
         return f"{self.frage} ({self.fragentyp})"
@@ -48,6 +50,12 @@ class Buchung(models.Model):
         ('bearbeitet', 'Bearbeitet'),
         ('korrekt', 'Korrekt'),
     ]
+    KORREKT_CHOICES = [
+        (0, "Richtig"),
+        (1, "Soll ist falsch"),
+        (2, "Haben ist falsch"),
+        (3, "Beide sind falsch"),
+    ]
     buchung_id = models.AutoField(primary_key=True)
     aufgabe = models.ForeignKey('Aufgabe_neu', on_delete=models.CASCADE)
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -61,7 +69,8 @@ class Buchung(models.Model):
     antwort_betrag_soll = models.JSONField(null=True, blank=True)
     antwort_betrag_haben = models.JSONField(null=True, blank=True)
     korrekturbuchung = models.BooleanField(default=False)
-
+    konto_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=0)  # 0=Richtig, 1=Soll falsch, 2=Haben falsch, 3=Beide falsch
+    betrag_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=True)  # True=Richtig, False=Falsch
     def save(self, *args, **kwargs):
         if not self.versuch:
             # Wenn kein Versuch angegeben ist, den nächsten automatisch ermitteln

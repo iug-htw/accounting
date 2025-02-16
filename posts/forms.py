@@ -12,6 +12,8 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'mailtext',
             'frage',
             'bezugswert',
+            'feedback_konto_falsch',
+            'feedback_betrag_falsch',
             'min_wert',
             'max_wert',
             'nutzungsdauer',
@@ -46,7 +48,7 @@ class AufgabenkategorieForm(forms.ModelForm):
 class AufgabeBearbeitenForm(forms.ModelForm):
     class Meta:
         model = Aufgabe_neu
-        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'mailtext', 'frage', 'bezugswert', 'min_wert', 'max_wert', 'nutzungsdauer']
+        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'mailtext', 'frage', 'bezugswert', 'min_wert', 'max_wert', 'nutzungsdauer', 'feedback_konto_falsch', 'feedback_betrag_falsch']
 
 class AufgabeDetailBearbeitenForm(forms.ModelForm):
     class Meta:

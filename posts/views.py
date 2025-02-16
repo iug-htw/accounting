@@ -97,10 +97,12 @@ def is_buchung_korrekt(buchung, nutzer_aufgabe):
     # Prüfen, ob Soll- und Haben-Konten korrekt sind
     soll_konto_korrekt = soll_konto_aufgabe in soll_konten_nutzer
     haben_konto_korrekt = haben_konto_aufgabe in haben_konten_nutzer
-    betrag_korrekt = betrag_aufgabe in betraege_soll_nutzer
+    betrag_korrekt_soll = betrag_aufgabe in betraege_soll_nutzer
+    betrag_korrekt_haben = betrag_aufgabe in betraege_haben_nutzer
+
 
     # Ergebnis zurückgeben: Alle drei Bedingungen müssen erfüllt sein
-    return soll_konto_korrekt and haben_konto_korrekt and betrag_korrekt
+    return soll_konto_korrekt and haben_konto_korrekt and betrag_korrekt_soll and betrag_korrekt_haben
 
 
 def rechnung_view(request):
@@ -147,11 +149,9 @@ def update_buchung_status(buchung, ist_korrekt):
     buchung.save()
 
 def handle_nutzer_buchung(request, aufgabe):
-    # Den höchsten bisherigen Versuch ermitteln
     letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
     neuer_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
 
-    # Neue Buchung mit korrektem `versuch` erstellen
     buchung = Buchung.objects.create(
         aufgabe=aufgabe,
         nutzer=request.user,
@@ -160,19 +160,57 @@ def handle_nutzer_buchung(request, aufgabe):
         antwort_betrag_soll=json.dumps(request.POST.getlist('soll_betrag[]')),
         antwort_betrag_haben=json.dumps(request.POST.getlist('haben_betrag[]')),
         status='bearbeitet',
-        versuch=neuer_versuch  # Hier wird der Versuch korrekt gezählt
+        versuch=neuer_versuch
     )
+
     nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
 
-    if is_buchung_korrekt(buchung, nutzer_aufgabe):
-        update_buchung_status(buchung, ist_korrekt=True)
-        nutzer_aufgabe.bearbeitungsstand = 'korrekt'  # Setzt das Feld auf 1 (True)
+    # JSON-Daten der Buchung laden
+    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
+    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
+    betraege_soll_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_soll)]
+    betraege_haben_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_haben)]
+
+    soll_konto_korrekt = nutzer_aufgabe.soll_konto in soll_konten_nutzer
+    haben_konto_korrekt = nutzer_aufgabe.haben_konto in haben_konten_nutzer
+    soll_betrag_korrekt = nutzer_aufgabe.betrag in betraege_soll_nutzer
+    haben_betrag_korrekt = nutzer_aufgabe.betrag in betraege_haben_nutzer
+
+    # Fehlerstatus für Konten setzen
+    if not soll_konto_korrekt and not haben_konto_korrekt:
+        konto_status = 3
+    elif not soll_konto_korrekt:
+        konto_status = 1
+    elif not haben_konto_korrekt:
+        konto_status = 2
     else:
-        update_buchung_status(buchung, ist_korrekt=False)
-        nutzer_aufgabe.bearbeitungsstand = 'bearbeitet'
+        konto_status = 0
+
+    # Fehlerstatus für Beträge setzen
+    if not soll_betrag_korrekt and not haben_betrag_korrekt:
+        betrag_status = 3  # Beide falsch
+    elif not soll_betrag_korrekt:
+        betrag_status = 1  # Soll falsch
+    elif not haben_betrag_korrekt:
+        betrag_status = 2  # Haben falsch
+    else:
+        betrag_status = 0  # Beide korrekt
+
+    # Speichern der Fehlerstatus in der Datenbank
+    buchung.konto_korrekt = konto_status
+    buchung.betrag_korrekt = betrag_status
+    buchung.save()
+
+    # **Neue Bedingung für die Aufgabe als korrekt**
+    if konto_status == 0 and betrag_status == 0:
+        buchung.status = "korrekt"
+        nutzer_aufgabe.bearbeitungsstand = "korrekt"
+    else:
+        nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
     nutzer_aufgabe.save()
     return buchung
+
 
 @login_required
 def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
