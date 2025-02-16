@@ -165,7 +165,32 @@
         });
     });
     
+    document.addEventListener("DOMContentLoaded", function() {
+        if ("{{ user.role }}" === "student") {
+            ladeStudentenFortschritt();
+        }
+    });
+
+    function ladeStudentenFortschritt() {
+        fetch("/posts/nutzer_fortschritt/")
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fortschritt geladen:", data);
     
+                let gesamt = data.gesamt;
+                if (gesamt === 0) {
+                    console.log("Keine Aufgaben für den Nutzer.");
+                    return;
+                }
+    
+                let korrektProzent = Math.round((data.korrekt / gesamt) * 100);
+                aktualisiereSVG("progress-circle", korrektProzent);
+                document.getElementById("progress-percentage").textContent = `${korrektProzent}%`;
+                document.getElementById("progress-text").textContent = `Erledigt: ${korrektProzent}% | Noch zu erledigen: ${100 - korrektProzent}%`;
+            })
+            .catch(error => console.error("Fehler beim Laden des Fortschritts:", error));
+    }
+
     // Funktion zum Laden von Daten von einer API
     function ladeDaten(url, callback) {
         fetch(url)
