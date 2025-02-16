@@ -1,0 +1,194 @@
+{% extends 'master_layout.html' %}
+{% load my_filters %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/hauptbuch.css' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+
+{% block content %}
+<h1>Bilanz Übersicht</h1>
+<p>Hier kannst du deine Bestandskonten abschließen und die Bilanz erstellen.</p>
+
+<section class="hauptbuch">
+    {% for konto, daten in t_konten.items %}
+    <div class="konto" data-konto="{{ konto }}" data-kategorie="{{ konto_kategorien|get_item:konto }}">
+        <h2>{{ konto }}</h2>
+        <label>Unterkategorie:</label>
+        <select class="konto-kategorie">
+            <option value="" selected disabled>Bitte wählen...</option>
+            <option value="Aktiv">Aktiv</option>
+            <option value="Passiv">Passiv</option>
+        </select>
+        <button class="konto-abschluss-btn">Konto abschließen</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Soll</th>
+                    <th>Haben</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="soll-werte">
+                        <table>
+                            {% for aufgabe_id, betrag, farbe in daten.soll %}
+                            <tr style="background-color: {{ farbe }};">
+                                <td>{{ aufgabe_id }}</td>
+                                <td>{{ betrag|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td class="haben-werte">
+                        <table>
+                            {% for aufgabe_id, betrag, farbe in daten.haben %}
+                            <tr style="background-color: {{ farbe }};">
+                                <td>{{ aufgabe_id }}</td>
+                                <td>{{ betrag|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</section>
+
+<button id="abschluss-alle-btn">Alle Konten abschließen</button>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let abgeschlosseneBilanzkonten = new Set();
+
+    document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
+        button.addEventListener("click", function() {
+            let kontoDiv = this.closest(".konto");
+            let kontoName = kontoDiv.dataset.konto;
+            let dropdown = kontoDiv.querySelector(".konto-kategorie");
+            let selectedValue = dropdown.value;
+            let actualValue = kontoDiv.dataset.kategorie; // Erwartet "Aktiv" oder "Passiv"
+
+            if (!actualValue) {
+                alert(`Fehler: ${kontoName} hat keine zugewiesene Unterkategorie.`);
+                return;
+            }
+
+            // Summiere die Buchungsbeträge (sowohl Soll als auch Haben)
+            let sollSum = Array.from(kontoDiv.querySelectorAll(".soll-werte td:last-child"))
+                .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+            let habenSum = Array.from(kontoDiv.querySelectorAll(".haben-werte td:last-child"))
+                .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+
+            let differenz = Math.abs(sollSum - habenSum);
+            let bilanzRow = document.createElement("tr");
+            bilanzRow.classList.add("bilanz-row");
+
+            // Bei Aktivkonten wird der Differenzbetrag links (Soll) eingetragen,
+            // bei Passivkonten rechts (Haben)
+            if (actualValue === "Aktiv") {
+                bilanzRow.innerHTML = `<td>${differenz.toFixed(2)}</td><td></td>`;
+            } else {
+                bilanzRow.innerHTML = `<td></td><td>${differenz.toFixed(2)}</td>`;
+            }
+
+            if (actualValue === "Aktiv") {
+                kontoDiv.querySelector(".soll-werte table").appendChild(bilanzRow);
+            } else {
+                kontoDiv.querySelector(".haben-werte table").appendChild(bilanzRow);
+            }
+
+            abgeschlosseneBilanzkonten.add(kontoName);
+            this.disabled = true;
+        });
+    });
+
+    document.getElementById("abschluss-alle-btn").addEventListener("click", function() {
+        document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
+            if (!button.disabled) {
+                button.click();
+            }
+        });
+
+        // Dynamisch Bilanz-Konto erstellen
+        let bilanzDiv = document.createElement("div");
+        bilanzDiv.classList.add("konto");
+        bilanzDiv.dataset.konto = "Bilanz";
+        bilanzDiv.innerHTML = `
+            <h2>Bilanz-Konto</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Konto</th>
+                        <th>Aktiv</th>
+                        <th>Passiv</th>
+                    </tr>
+                </thead>
+                <tbody class="bilanz-body">
+                </tbody>
+            </table>
+        `;
+        document.querySelector(".hauptbuch").appendChild(bilanzDiv);
+        let bilanzBody = bilanzDiv.querySelector(".bilanz-body");
+
+        // Übernehme alle abgeschlossenen Konten in die Bilanz
+        document.querySelectorAll(".konto").forEach(kontoDiv => {
+            let kontoName = kontoDiv.dataset.konto;
+            if (!abgeschlosseneBilanzkonten.has(kontoName)) return;
+            let bilanzRow = kontoDiv.querySelector("tr.bilanz-row");
+            if (bilanzRow) {
+                let aktivValue = bilanzRow.cells[0].innerText.trim();
+                let passivValue = bilanzRow.cells[1].innerText.trim();
+                if (aktivValue) {
+                    let newRow = document.createElement("tr");
+                    newRow.innerHTML = `<td>${kontoName}</td><td>${parseFloat(aktivValue).toFixed(2)}</td><td></td>`;
+                    bilanzBody.appendChild(newRow);
+                } else if (passivValue) {
+                    let newRow = document.createElement("tr");
+                    newRow.innerHTML = `<td>${kontoName}</td><td></td><td>${parseFloat(passivValue).toFixed(2)}</td>`;
+                    bilanzBody.appendChild(newRow);
+                }
+            }
+        });
+
+        // Berechne die Gesamtsummen beider Seiten
+        let totalAktiv = 0, totalPassiv = 0;
+        document.querySelectorAll(".bilanz-body tr").forEach(row => {
+            let aktivCell = row.cells[1].innerText.trim();
+            let passivCell = row.cells[2].innerText.trim();
+            if (aktivCell) totalAktiv += parseFloat(aktivCell);
+            if (passivCell) totalPassiv += parseFloat(passivCell);
+        });
+        let totalRow = document.createElement("tr");
+        totalRow.innerHTML = `<td>Gesamt</td><td>${totalAktiv.toFixed(2)}</td><td>${totalPassiv.toFixed(2)}</td>`;
+        bilanzBody.appendChild(totalRow);
+
+        // AJAX-Request zum Speichern des Bilanz-Ergebnisses
+        fetch("{% url 'posts:speichere_bilanz_ergebnis' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: new URLSearchParams({ bilanz_result: totalAktiv.toFixed(2) })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert("Alle Konten wurden abgeschlossen. Bilanz-Ergebnis wurde gespeichert.");
+            } else {
+                alert("Fehler beim Speichern des Bilanz-Ergebnisses.");
+            }
+        });
+    });
+
+    function getCSRFToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : '';
+    }
+});
+</script>
+{% endblock %}

@@ -347,20 +347,20 @@ def build_t_konten(buchungen, anfangsbestände):
     t_konten = {}
     aufgabe_farben = {}
 
-    # Anfangsbestände einlesen – GuV-Konto überspringen
+    # Anfangsbestände in die T-Konten-Struktur aufnehmen
     for bestand in anfangsbestände:
         konto_name = bestand.konto.name
-        if konto_name == "GuV":
-            continue
         t_konten.setdefault(konto_name, {"soll": [], "haben": []})
+
         if bestand.konto.unterkategorie == "Aktiva":  # EBK für Aktivkonten auf Soll-Seite
             t_konten[konto_name]["soll"].append(("EBK", bestand.betrag, "#D3D3D3"))
         elif bestand.konto.unterkategorie == "Passiva":  # EBK für Passivkonten auf Haben-Seite
             t_konten[konto_name]["haben"].append(("EBK", bestand.betrag, "#D3D3D3"))
 
-    # Bestehende Buchungen hinzufügen
+    # Bestehende Buchungen hinzufügen (Originalfunktion bleibt erhalten)
     for buchung in buchungen:
         aufgabe_id = buchung.aufgabe.id
+
         if aufgabe_id not in aufgabe_farben:
             aufgabe_farben[aufgabe_id] = generate_color(aufgabe_id)
 
@@ -370,19 +370,14 @@ def build_t_konten(buchungen, anfangsbestände):
         haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
 
         for konto, betrag in zip(soll_konten, soll_betraege):
-            if konto == "GuV":
-                continue
             farbe = aufgabe_farben[aufgabe_id]
             t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((aufgabe_id, betrag, farbe))
 
         for konto, betrag in zip(haben_konten, haben_betraege):
-            if konto == "GuV":
-                continue
             farbe = aufgabe_farben[aufgabe_id]
             t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id, betrag, farbe))
 
     return t_konten
-
 
 @login_required
 def aufgabe_bearbeiten(request, aufgabe_id):
@@ -705,3 +700,19 @@ def speichere_guv_ergebnis(request):
          )
          return JsonResponse({"success": True})
     return JsonResponse({"error": "Nur POST erlaubt"}, status=400)
+
+@login_required
+def bilanz_uebersicht(request):
+    # Nur Bestandskonten (Balance) verwenden
+    konten = Konto.objects.filter(kategorie="Bestandskonto")
+    buchungen = Buchung.objects.filter(nutzer=request.user)
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
+    t_konten_all = build_t_konten(buchungen, anfangsbestaende)
+    # Hier wird die Unterkategorie (Aktiva/Passiva) weitergegeben
+    konto_kategorien = {konto.name: konto.unterkategorie for konto in konten}
+    t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
+    return render(request, "posts/bilanz.html", {
+        "t_konten": t_konten,
+        "konten": konten,
+        "konto_kategorien": konto_kategorien
+    })

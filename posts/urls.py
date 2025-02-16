@@ -28,5 +28,5 @@ urlpatterns = [
     path('lehrer_studi_fortschritt/<int:student_id>/', views.lehrer_studi_fortschritt, name='lehrer_studi_fortschritt'),
     path('guv/', views.guv_uebersicht, name='guv_uebersicht'),
     path('speichere_guv_ergebnis/', views.speichere_guv_ergebnis, name='speichere_guv_ergebnis'),
-
+    path('bilanz/', views.bilanz_uebersicht, name='bilanz'),
 ]
