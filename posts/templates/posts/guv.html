@@ -4,6 +4,7 @@
 {% load static %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/hauptbuch.css' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 
 {% block content %}
@@ -56,112 +57,153 @@
 
 <button id="abschluss-alle-btn">Alle Konten abschließen</button>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let abgeschlosseneErfolgskonten = new Set(); // Speichert die erfolgreich abgeschlossenen Erfolgskonten
-        let abgeschlosseneBestandskonten = new Set(); // Speichert die erfolgreich abgeschlossenen Bestandskonten
-    
-        document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
-            button.addEventListener("click", function() {
-                let kontoDiv = this.closest(".konto");
-                let kontoName = kontoDiv.dataset.konto;
-                let kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
-                let kategorie = kategorieDropdown.value;
-                let echteKategorie = kontoDiv.dataset.kategorie; // Die tatsächliche Kategorie aus dem Backend
-    
-                // Wenn das Konto nicht zugeordnet wurde, Fehler anzeigen
-                if (!echteKategorie) {
-                    alert(`Fehler: ${kontoName} hat keine zugewiesene Kategorie.`);
-                    return;
-                }
-    
-                // Bestandskonten abschließen und ausblenden
-                if (echteKategorie === "Bestandskonto" && kategorie === "Bestandskonto") {
-                    abgeschlosseneBestandskonten.add(kontoName);
-                    kontoDiv.style.display = "none"; // Blendet das Bestandskonto aus
-                    return;
-                }
-    
-                // Erfolgskonten dürfen nur abgeschlossen werden, wenn sie als Erfolgskonto markiert wurden
-                if (echteKategorie === "Erfolgskonto" && kategorie !== "Erfolgskonto") {
-                    alert(`Fehler: ${kontoName} ist ein Erfolgskonto, aber im Dropdown ist etwas anderes ausgewählt.`);
-                    return;
-                }
-                
-                if (echteKategorie === "Bestandskonto" && kategorie === "Erfolgskonto") {
-                    alert(`Fehler: ${kontoName} ist ein Erfolgskonto, aber im Dropdown ist etwas anderes ausgewählt.`);
-                    return;
-                }
 
-                let sollSum = Array.from(kontoDiv.querySelectorAll(".soll-werte td:last-child"))
-                    .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
-                let habenSum = Array.from(kontoDiv.querySelectorAll(".haben-werte td:last-child"))
-                    .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let abgeschlosseneErfolgskonten = new Set(); // Speichert die erfolgreich abgeschlossenen Erfolgskonten
+    let abgeschlosseneBestandskonten = new Set(); // Speichert die erfolgreich abgeschlossenen Bestandskonten
+
+    document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
+        button.addEventListener("click", function() {
+            let kontoDiv = this.closest(".konto");
+            let kontoName = kontoDiv.dataset.konto;
+            let kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
+            let kategorie = kategorieDropdown.value;
+            let echteKategorie = kontoDiv.dataset.kategorie; // Die tatsächliche Kategorie aus dem Backend
+
+            // Wenn das Konto nicht zugeordnet wurde, Fehler anzeigen
+            if (!echteKategorie) {
+                alert(`Fehler: ${kontoName} hat keine zugewiesene Kategorie.`);
+                return;
+            }
+
+            // Bestandskonten abschließen und ausblenden
+            if (echteKategorie === "Bestandskonto" && kategorie === "Bestandskonto") {
+                abgeschlosseneBestandskonten.add(kontoName);
+                kontoDiv.style.display = "none"; // Blendet das Bestandskonto aus
+                return;
+            }
+
+            // Erfolgskonten dürfen nur abgeschlossen werden, wenn sie als Erfolgskonto markiert wurden
+            if (echteKategorie === "Erfolgskonto" && kategorie !== "Erfolgskonto") {
+                alert(`Fehler: ${kontoName} ist ein Erfolgskonto, aber im Dropdown ist etwas anderes ausgewählt.`);
+                return;
+            }
+            
+            if (echteKategorie === "Bestandskonto" && kategorie === "Erfolgskonto") {
+                alert(`Fehler: ${kontoName} ist ein Erfolgskonto, aber im Dropdown ist etwas anderes ausgewählt.`);
+                return;
+            }
+
+            let sollSum = Array.from(kontoDiv.querySelectorAll(".soll-werte td:last-child"))
+                .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+            let habenSum = Array.from(kontoDiv.querySelectorAll(".haben-werte td:last-child"))
+                .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+
+            let differenz = Math.abs(sollSum - habenSum);
+            let guvBuchung = document.createElement("tr");
+            guvBuchung.classList.add("guv-row");
+            guvBuchung.innerHTML = `<td>GuV</td><td>${sollSum > habenSum ? differenz.toFixed(2) : ''}</td><td>${habenSum > sollSum ? differenz.toFixed(2) : ''}</td>`;
+
+
+            // Erfolgskonto korrekt abgeschlossen -> speichern
+            if (echteKategorie === "Erfolgskonto" && kategorie === "Erfolgskonto") {
+                abgeschlosseneErfolgskonten.add(kontoName);
+                if (sollSum > habenSum) {
+                    kontoDiv.querySelector(".haben-werte").appendChild(guvBuchung);
+                } else {
+                    kontoDiv.querySelector(".soll-werte").appendChild(guvBuchung);
+                }
+            }
+
+            this.disabled = true;
+        });
+    });
+
+    document.getElementById("abschluss-alle-btn").addEventListener("click", function() {
+        document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
+            if (!button.disabled) {
+                button.click();
+            }
+        });
     
-                let differenz = Math.abs(sollSum - habenSum);
-                let guvBuchung = document.createElement("tr");
-                guvBuchung.innerHTML = `<td>GuV</td><td>${sollSum > habenSum ? differenz.toFixed(2) : ''}</td><td>${habenSum > sollSum ? differenz.toFixed(2) : ''}</td>`;
+        // GuV Konto erstellen und automatisch abschließen mit nur den zuvor abgeschlossenen Erfolgskonten
+        let guvDiv = document.createElement("div");
+        guvDiv.classList.add("konto");
+        guvDiv.dataset.konto = "GuV";
+        guvDiv.innerHTML = `
+            <h2>GuV-Konto</h2>
+            <table>
+                <thead>
+                    <tr><th>Konto</th><th>Soll</th><th>Haben</th></tr>
+                </thead>
+                <tbody class="guv-body">
+                </tbody>
+            </table>
+        `;
     
-                // Erfolgskonto korrekt abgeschlossen -> speichern
-                if (echteKategorie === "Erfolgskonto" && kategorie === "Erfolgskonto") {
-                    abgeschlosseneErfolgskonten.add(kontoName);
-                    if (sollSum > habenSum) {
-                        kontoDiv.querySelector(".haben-werte").appendChild(guvBuchung);
-                    } else {
-                        kontoDiv.querySelector(".soll-werte").appendChild(guvBuchung);
+        document.querySelector(".hauptbuch").appendChild(guvDiv);
+        let guvBody = guvDiv.querySelector(".guv-body");
+    
+        document.querySelectorAll(".konto").forEach(kontoDiv => {
+            let kontoName = kontoDiv.dataset.konto;
+            if (!abgeschlosseneErfolgskonten.has(kontoName)) return; // Nur abgeschlossene Erfolgskonten übernehmen
+    
+            let guvBuchungen = kontoDiv.querySelectorAll("tr:last-child");
+            guvBuchungen.forEach(row => {
+                if (row.cells[0].innerText === "GuV") {
+                    let betragCell = row.cells[1].innerText || row.cells[2].innerText;
+                    let betrag = parseFloat(betragCell) || 0;
+                    if (betrag > 0) {
+                        let newRow = document.createElement("tr");
+                        newRow.innerHTML = `<td>${kontoName}</td><td>${row.cells[2].innerText ? betrag.toFixed(2) : ''}</td><td>${row.cells[1].innerText ? betrag.toFixed(2) : ''}</td>`;
+                        guvBody.appendChild(newRow);
                     }
                 }
-    
-                this.disabled = true;
             });
         });
     
-        document.getElementById("abschluss-alle-btn").addEventListener("click", function() {
-            document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
-                if (!button.disabled) {
-                    button.click();
+        // Berechnung des Gesamt-GuV-Saldos: Gewinne als positiv, Verluste als negativ
+        let totalGUV = 0;
+        document.querySelectorAll(".konto").forEach(kontoDiv => {
+            let kontoName = kontoDiv.dataset.konto;
+            if (!abgeschlosseneErfolgskonten.has(kontoName)) return;
+            let guvRow = kontoDiv.querySelector("tr.guv-row");
+            if (guvRow) {
+                let sollValue = guvRow.cells[1].innerText.trim();
+                let habenValue = guvRow.cells[2].innerText.trim();
+                if (habenValue !== "") {
+                    totalGUV += parseFloat(habenValue);
+                } else if (sollValue !== "") {
+                    totalGUV -= parseFloat(sollValue);
                 }
-            });
-    
-            // GuV Konto erstellen und automatisch abschließen mit nur den zuvor abgeschlossenen Erfolgskonten
-            let guvDiv = document.createElement("div");
-            guvDiv.classList.add("konto");
-            guvDiv.dataset.konto = "GuV";
-            guvDiv.innerHTML = `
-                <h2>GuV-Konto</h2>
-                <table>
-                    <thead>
-                        <tr><th>Konto</th><th>Soll</th><th>Haben</th></tr>
-                    </thead>
-                    <tbody class="guv-body">
-                    </tbody>
-                </table>
-            `;
-    
-            document.querySelector(".hauptbuch").appendChild(guvDiv);
-            let guvBody = guvDiv.querySelector(".guv-body");
-    
-            document.querySelectorAll(".konto").forEach(kontoDiv => {
-                let kontoName = kontoDiv.dataset.konto;
-                if (!abgeschlosseneErfolgskonten.has(kontoName)) return; // Nur abgeschlossene Erfolgskonten übernehmen
-    
-                let guvBuchungen = kontoDiv.querySelectorAll("tr:last-child");
-                guvBuchungen.forEach(row => {
-                    if (row.cells[0].innerText === "GuV") {
-                        let betragCell = row.cells[1].innerText || row.cells[2].innerText;
-                        let betrag = parseFloat(betragCell) || 0;
-                        if (betrag > 0) {
-                            let newRow = document.createElement("tr");
-                            newRow.innerHTML = `<td>${kontoName}</td><td>${row.cells[2].innerText ? betrag.toFixed(2) : ''}</td><td>${row.cells[1].innerText ? betrag.toFixed(2) : ''}</td>`;
-                            guvBody.appendChild(newRow);
-                        }
-                    }
-                });
-            });
-    
-            alert("Alle Konten wurden abgeschlossen. Das GuV-Konto enthält nur die zuvor abgeschlossenen Erfolgskonten.");
+            }
         });
-    });    
+
     
+        // AJAX-Request zum Speichern des GuV-Ergebnisses auf dem Server
+        fetch("{% url 'posts:speichere_guv_ergebnis' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: new URLSearchParams({ guv_result: totalGUV.toFixed(2) })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert("Alle Konten wurden abgeschlossen. GuV-Ergebnis wurde gespeichert.");
+            } else {
+                alert("Fehler beim Speichern des GuV-Ergebnisses.");
+            }
+        });
+    });
+
+    function getCSRFToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : '';
+    }
+});
 </script>
 {% endblock %}

@@ -143,3 +143,13 @@ class Konto(models.Model):
     def __str__(self):
         return f"{self.name} ({self.kategorie} - {self.unterkategorie})"
 
+class Anfangsbestand(models.Model):
+    nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="anfangsbestaende")
+    konto = models.ForeignKey(Konto, on_delete=models.CASCADE, related_name="anfangsbestaende")
+    betrag = models.FloatField()
+
+    class Meta:
+        unique_together = ("nutzer", "konto")  # Jeder Nutzer hat für jedes Konto genau einen Eintrag
+
+    def __str__(self):
+        return f"{self.nutzer.username} - {self.konto.name}: {self.betrag} €"

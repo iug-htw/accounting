@@ -13,7 +13,7 @@ urlpatterns = [
     path('unternehmen_loeschen/<int:unternehmen_id>/', views.unternehmen_loeschen, name='unternehmen_loeschen'),
     path('aufgabenkategorie_verwalten/', views.aufgabenkategorie_verwalten, name='aufgabenkategorie_verwalten'),
     path('aufgabenkategorie_loeschen/<int:kategorie_id>/', views.aufgabenkategorie_loeschen, name='aufgabenkategorie_loeschen'),
-    path('hauptbuch/', views.hauptbuch, name='hauptbuch'),
+    path('hauptbuch/', views.hauptbuch_view, name='hauptbuch'),
     path('aufgabe_bearbeiten/<int:aufgabe_id>/', views.aufgabe_bearbeiten, name='aufgabe_bearbeiten'),
     path('aufgabe_loeschen/<int:aufgabe_id>/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
     path('korrekturbuchung_durchfuehren/<int:buchung_id>/', views.korrekturbuchung_durchfuehren, name='korrekturbuchung_durchfuehren'),
@@ -27,5 +27,6 @@ urlpatterns = [
     path('lehrer_filter_daten/', views.lehrer_filter_daten, name='lehrer_filter_daten'),
     path('lehrer_studi_fortschritt/<int:student_id>/', views.lehrer_studi_fortschritt, name='lehrer_studi_fortschritt'),
     path('guv/', views.guv_uebersicht, name='guv_uebersicht'),
+    path('speichere_guv_ergebnis/', views.speichere_guv_ergebnis, name='speichere_guv_ergebnis'),
 
 ]

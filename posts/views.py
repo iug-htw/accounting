@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto
+from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
 from django.contrib import messages
 import json, random, hashlib
@@ -320,31 +320,47 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
     return redirect('posts:aufgabenkategorie_verwalten')
 
 @login_required
-def hauptbuch(request):
-    konten = Konto.objects.all()
-    buchungen = Buchung.objects.filter(nutzer=request.user)
+def hauptbuch_view(request):
+    user = request.user
 
-    t_konten = build_t_konten(buchungen)
-    aufgaben_ids = sorted(set(buchungen.values_list("aufgabe_id", flat=True)))
+    # Falls noch keine anfangsbestaende existieren, generiere sie
+    generate_user_anfangsbestaende(user)
 
-    return render(request, "posts/hauptbuch.html", {
-        "t_konten": t_konten,
-        "konten": konten,
-        "aufgaben_ids": aufgaben_ids
-    })
+    # anfangsbestaende des Nutzers abrufen
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=user)
+
+    # Alle Buchungen des Nutzers abrufen
+    buchungen = Buchung.objects.filter(nutzer=user)
+
+    # T-Konten erstellen mit anfangsbestaenden UND Buchungen
+    t_konten = build_t_konten(buchungen, anfangsbestaende)
+
+    return render(request, "posts/hauptbuch.html", {"t_konten": t_konten})
+
 
 def generate_color(aufgabe_id):
     hash_value = int(hashlib.md5(str(aufgabe_id).encode()).hexdigest(), 16)
     hue = hash_value % 360
     return f"hsl({hue}, 70%, 85%)"
 
-def build_t_konten(buchungen):
+def build_t_konten(buchungen, anfangsbestände):
     t_konten = {}
     aufgabe_farben = {}
 
+    # Anfangsbestände einlesen – GuV-Konto überspringen
+    for bestand in anfangsbestände:
+        konto_name = bestand.konto.name
+        if konto_name == "GuV":
+            continue
+        t_konten.setdefault(konto_name, {"soll": [], "haben": []})
+        if bestand.konto.unterkategorie == "Aktiva":  # EBK für Aktivkonten auf Soll-Seite
+            t_konten[konto_name]["soll"].append(("EBK", bestand.betrag, "#D3D3D3"))
+        elif bestand.konto.unterkategorie == "Passiva":  # EBK für Passivkonten auf Haben-Seite
+            t_konten[konto_name]["haben"].append(("EBK", bestand.betrag, "#D3D3D3"))
+
+    # Bestehende Buchungen hinzufügen
     for buchung in buchungen:
         aufgabe_id = buchung.aufgabe.id
-
         if aufgabe_id not in aufgabe_farben:
             aufgabe_farben[aufgabe_id] = generate_color(aufgabe_id)
 
@@ -354,15 +370,18 @@ def build_t_konten(buchungen):
         haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
 
         for konto, betrag in zip(soll_konten, soll_betraege):
+            if konto == "GuV":
+                continue
             farbe = aufgabe_farben[aufgabe_id]
             t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((aufgabe_id, betrag, farbe))
 
         for konto, betrag in zip(haben_konten, haben_betraege):
+            if konto == "GuV":
+                continue
             farbe = aufgabe_farben[aufgabe_id]
             t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id, betrag, farbe))
 
     return t_konten
-
 
 
 @login_required
@@ -642,7 +661,8 @@ def get_student(student_id, lehrer):
 def guv_uebersicht(request):
     konten = Konto.objects.all()
     buchungen = Buchung.objects.filter(nutzer=request.user)
-    t_konten = build_t_konten(buchungen)
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
+    t_konten = build_t_konten(buchungen, anfangsbestaende)
 
     # Konten mit ihren Kategorien verknüpfen
     konto_kategorien = {konto.name: konto.kategorie for konto in konten}
@@ -653,3 +673,35 @@ def guv_uebersicht(request):
         "konto_kategorien": konto_kategorien  # Neue Variable für das Frontend
     })
 
+def generate_user_anfangsbestaende(user):
+    """
+    Erstellt anfangsbestaende für einen Nutzer, falls diese noch nicht existieren.
+    """
+    bestandskonten = Konto.objects.filter(kategorie="Bestandskonto")
+
+    for konto in bestandskonten:
+        # Prüfen, ob bereits ein Anfangsbestand existiert
+        if not Anfangsbestand.objects.filter(nutzer=user, konto=konto).exists():
+            betrag = random.choice(range(5000, 10001, 100))  # Zufälliger Wert (durch 100 teilbar)
+            Anfangsbestand.objects.create(nutzer=user, konto=konto, betrag=betrag)
+
+@login_required
+def speichere_guv_ergebnis(request):
+    if request.method == "POST":
+         try:
+              guv_result = float(request.POST.get("guv_result"))
+         except (TypeError, ValueError):
+              return JsonResponse({"error": "Ungültiger Betrag"}, status=400)
+         # Hole oder erstelle das GuV-Konto (als Erfolgskonto)
+         guv_konto, created = Konto.objects.get_or_create(
+              name="GuV",
+              defaults={"kategorie": "Erfolgskonto"}
+         )
+         # Aktualisiere oder erstelle den Datensatz in Anfangsbestand
+         Anfangsbestand.objects.update_or_create(
+              nutzer=request.user,
+              konto=guv_konto,
+              defaults={"betrag": guv_result}
+         )
+         return JsonResponse({"success": True})
+    return JsonResponse({"error": "Nur POST erlaubt"}, status=400)
