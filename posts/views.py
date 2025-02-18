@@ -703,16 +703,23 @@ def speichere_guv_ergebnis(request):
 
 @login_required
 def bilanz_uebersicht(request):
-    # Nur Bestandskonten (Balance) verwenden
-    konten = Konto.objects.filter(kategorie="Bestandskonto")
-    buchungen = Buchung.objects.filter(nutzer=request.user)
-    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
-    t_konten_all = build_t_konten(buchungen, anfangsbestaende)
-    # Hier wird die Unterkategorie (Aktiva/Passiva) weitergegeben
-    konto_kategorien = {konto.name: konto.unterkategorie for konto in konten}
-    t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
+    user = request.user
+
+    # Alle Bestandskonten abrufen
+    bestandskonten = Konto.objects.filter(kategorie="Bestandskonto")
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=user, konto__in=bestandskonten)
+    buchungen = Buchung.objects.filter(nutzer=user, antwort_konten_soll__isnull=False, antwort_konten_haben__isnull=False)
+
+    # T-Konten für die Bestandskonten erstellen
+    t_konten = build_t_konten(buchungen, anfangsbestaende)
+
+    # Filteroptionen für Aktiv- und Passivkonten
+    aktive_konten = [konto.name for konto in bestandskonten if konto.unterkategorie == "Aktiva"]
+    passive_konten = [konto.name for konto in bestandskonten if konto.unterkategorie == "Passiva"]
+
     return render(request, "posts/bilanz.html", {
         "t_konten": t_konten,
-        "konten": konten,
-        "konto_kategorien": konto_kategorien
+        "aktive_konten": aktive_konten,
+        "passive_konten": passive_konten,
+        "bestandskonten": bestandskonten
     })

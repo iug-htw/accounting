@@ -3,6 +3,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     padding: 20px;
+    align-items: flex-start;
 }
 
 .konto {
@@ -11,6 +12,8 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-left: 5px solid #4CAF50;
+    
+    align-items: flex-start;
 }
 
 .konto h2 {
@@ -26,6 +29,7 @@
 .konto td {
     padding: 8px;
     border: 1px solid #ddd;
+    vertical-align: top;
 }
 
 .konto .highlight {
@@ -55,3 +59,7 @@
 .highlight-task-2 { background-color: #c2d6f0; } /* Blau */
 .highlight-task-3 { background-color: #f0c2c2; } /* Rot */
 .highlight-task-4 { background-color: #e0c2f0; } /* Lila */
+
+.hauptbuch table td {
+    height: 20px; /* Alle Zeilen bekommen die gleiche Höhe */
+}

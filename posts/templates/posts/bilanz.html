@@ -1,52 +1,48 @@
 {% extends 'master_layout.html' %}
-{% load my_filters %}
 {% load static %}
-
+{% load my_filters %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/hauptbuch.css' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 
 {% block content %}
-<h1>Bilanz Übersicht</h1>
-<p>Hier kannst du deine Bestandskonten abschließen und die Bilanz erstellen.</p>
+<h1>Bilanz</h1>
+<p>Hier kannst du deine Bestandskonten abschließen.</p>
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ konto }}" data-kategorie="{{ konto_kategorien|get_item:konto }}">
+    <div class="konto" data-konto="{{ konto }}" data-kategorie="{{ bestandskonten|get_item:konto }}">
         <h2>{{ konto }}</h2>
-        <label>Unterkategorie:</label>
+        <label>Kategorie:</label>
         <select class="konto-kategorie">
             <option value="" selected disabled>Bitte wählen...</option>
-            <option value="Aktiv">Aktiv</option>
-            <option value="Passiv">Passiv</option>
+            <option value="Aktiva">Aktiva</option>
+            <option value="Passiva">Passiva</option>
         </select>
         <button class="konto-abschluss-btn">Konto abschließen</button>
         <table>
             <thead>
-                <tr>
-                    <th>Soll</th>
-                    <th>Haben</th>
-                </tr>
+                <tr><th>Soll</th><th>Haben</th></tr>
             </thead>
             <tbody>
                 <tr>
                     <td class="soll-werte">
-                        <table>
+                        <table class="soll-tabelle">
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td>{{ betrag|floatformat:2 }}</td>
+                                <td class="betrag">{{ betrag|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                         </table>
                     </td>
                     <td class="haben-werte">
-                        <table>
+                        <table class="haben-tabelle">
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td>{{ betrag|floatformat:2 }}</td>
+                                <td class="betrag">{{ betrag|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -62,115 +58,66 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    let abgeschlosseneBilanzkonten = new Set();
-
     document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
         button.addEventListener("click", function() {
             let kontoDiv = this.closest(".konto");
-            let kontoName = kontoDiv.dataset.konto;
-            let dropdown = kontoDiv.querySelector(".konto-kategorie");
-            let selectedValue = dropdown.value;
-            let actualValue = kontoDiv.dataset.kategorie; // Erwartet "Aktiv" oder "Passiv"
+            let sollTabelle = kontoDiv.querySelector(".soll-tabelle");
+            let habenTabelle = kontoDiv.querySelector(".haben-tabelle");
 
-            if (!actualValue) {
-                alert(`Fehler: ${kontoName} hat keine zugewiesene Unterkategorie.`);
-                return;
+            let sollWerte = Array.from(sollTabelle.querySelectorAll("td.betrag"));
+            let habenWerte = Array.from(habenTabelle.querySelectorAll("td.betrag"));
+
+            let sollSumme = sollWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+            let habenSumme = habenWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+
+            let differenz = Math.abs(sollSumme - habenSumme);
+            let istAktiv = kontoDiv.querySelector(".konto-kategorie").value === "Aktiva";
+
+            // **Zeilenanzahl ausgleichen**
+            let sollZeilen = sollTabelle.rows.length;
+            let habenZeilen = habenTabelle.rows.length;
+            let maxZeilen = Math.max(sollZeilen, habenZeilen);
+
+            while (sollTabelle.rows.length < maxZeilen -1) {
+                let leerZeile = sollTabelle.insertRow();
+                leerZeile.innerHTML = "<td></td><td></td>";
+            }
+            while (habenTabelle.rows.length < maxZeilen -1) {
+                let leerZeile = habenTabelle.insertRow();
+                leerZeile.innerHTML = "<td></td><td></td>";
             }
 
-            // Summiere die Buchungsbeträge (sowohl Soll als auch Haben)
-            let sollSum = Array.from(kontoDiv.querySelectorAll(".soll-werte td:last-child"))
-                .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
-            let habenSum = Array.from(kontoDiv.querySelectorAll(".haben-werte td:last-child"))
-                .reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
-
-            let differenz = Math.abs(sollSum - habenSum);
-            let bilanzRow = document.createElement("tr");
-            bilanzRow.classList.add("bilanz-row");
-
-            // Bei Aktivkonten wird der Differenzbetrag links (Soll) eingetragen,
-            // bei Passivkonten rechts (Haben)
-            if (actualValue === "Aktiv") {
-                bilanzRow.innerHTML = `<td>${differenz.toFixed(2)}</td><td></td>`;
+            // **Differenz auf der kleineren Seite unter der ersten leeren Zeile hinzufügen**
+            let differenzZeile = document.createElement("tr");
+            if (sollSumme > habenSumme) {
+                differenzZeile.innerHTML = `<td>SBK</td><td>${differenz.toFixed(2)}</td>`;
+                habenTabelle.appendChild(differenzZeile);
             } else {
-                bilanzRow.innerHTML = `<td></td><td>${differenz.toFixed(2)}</td>`;
+                differenzZeile.innerHTML = `<td>SBK</td><td>${differenz.toFixed(2)}</td>`;
+                sollTabelle.appendChild(differenzZeile);
             }
+            
 
-            if (actualValue === "Aktiv") {
-                kontoDiv.querySelector(".soll-werte table").appendChild(bilanzRow);
-            } else {
-                kontoDiv.querySelector(".haben-werte table").appendChild(bilanzRow);
-            }
 
-            abgeschlosseneBilanzkonten.add(kontoName);
+            // **Summenzeile auf der größeren Seite hinzufügen**
+            let summenZeile = document.createElement("tr");
+            summenZeile.style.fontWeight = "bold";
+            summenZeile.innerHTML = `<td>Summe</td><td>${Math.max(sollSumme, habenSumme).toFixed(2)}</td>`;
+
+            sollTabelle.appendChild(summenZeile.cloneNode(true)); 
+            habenTabelle.appendChild(summenZeile);
+
+
             this.disabled = true;
+            this.innerText = "Abgeschlossen";
         });
     });
 
     document.getElementById("abschluss-alle-btn").addEventListener("click", function() {
-        document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
-            if (!button.disabled) {
-                button.click();
-            }
+        document.querySelectorAll(".konto-abschluss-btn:not([disabled])").forEach(button => {
+            button.click();
         });
-
-        // Dynamisch Bilanz-Konto erstellen
-        let bilanzDiv = document.createElement("div");
-        bilanzDiv.classList.add("konto");
-        bilanzDiv.dataset.konto = "Bilanz";
-        bilanzDiv.innerHTML = `
-            <h2>Bilanz-Konto</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Konto</th>
-                        <th>Aktiv</th>
-                        <th>Passiv</th>
-                    </tr>
-                </thead>
-                <tbody class="bilanz-body">
-                </tbody>
-            </table>
-        `;
-        document.querySelector(".hauptbuch").appendChild(bilanzDiv);
-        let bilanzBody = bilanzDiv.querySelector(".bilanz-body");
-
-        // Übernehme alle abgeschlossenen Konten in die Bilanz
-        document.querySelectorAll(".konto").forEach(kontoDiv => {
-            let kontoName = kontoDiv.dataset.konto;
-            if (!abgeschlosseneBilanzkonten.has(kontoName)) return;
-            let bilanzRow = kontoDiv.querySelector("tr.bilanz-row");
-            if (bilanzRow) {
-                let aktivValue = bilanzRow.cells[0].innerText.trim();
-                let passivValue = bilanzRow.cells[1].innerText.trim();
-                if (aktivValue) {
-                    let newRow = document.createElement("tr");
-                    newRow.innerHTML = `<td>${kontoName}</td><td>${parseFloat(aktivValue).toFixed(2)}</td><td></td>`;
-                    bilanzBody.appendChild(newRow);
-                } else if (passivValue) {
-                    let newRow = document.createElement("tr");
-                    newRow.innerHTML = `<td>${kontoName}</td><td></td><td>${parseFloat(passivValue).toFixed(2)}</td>`;
-                    bilanzBody.appendChild(newRow);
-                }
-            }
-        });
-
-        // Berechne die Gesamtsummen beider Seiten
-        let totalAktiv = 0, totalPassiv = 0;
-        document.querySelectorAll(".bilanz-body tr").forEach(row => {
-            let aktivCell = row.cells[1].innerText.trim();
-            let passivCell = row.cells[2].innerText.trim();
-            if (aktivCell) totalAktiv += parseFloat(aktivCell);
-            if (passivCell) totalPassiv += parseFloat(passivCell);
-        });
-        let totalRow = document.createElement("tr");
-        totalRow.innerHTML = `<td>Gesamt</td><td>${totalAktiv.toFixed(2)}</td><td>${totalPassiv.toFixed(2)}</td>`;
-        bilanzBody.appendChild(totalRow);
     });
-
-    function getCSRFToken() {
-        const meta = document.querySelector('meta[name="csrf-token"]');
-        return meta ? meta.getAttribute('content') : '';
-    }
 });
 </script>
 {% endblock %}
