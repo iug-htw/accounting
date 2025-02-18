@@ -706,12 +706,14 @@ def bilanz_uebersicht(request):
     user = request.user
 
     # Alle Bestandskonten abrufen
-    bestandskonten = Konto.objects.filter(kategorie="Bestandskonto")
-    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=user, konto__in=bestandskonten)
-    buchungen = Buchung.objects.filter(nutzer=user, antwort_konten_soll__isnull=False, antwort_konten_haben__isnull=False)
+    bestandskonten = Konto.objects.filter(kategorie="Bestandskonto").exclude(kategorie="Erfolgskonto")
+    buchungen = Buchung.objects.filter(nutzer=request.user)
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
 
-    # T-Konten für die Bestandskonten erstellen
-    t_konten = build_t_konten(buchungen, anfangsbestaende)
+    # T-Konten nur für Bestandskonten erstellen
+    t_konten_all = build_t_konten(buchungen, anfangsbestaende)
+    konto_kategorien = {konto.name: konto.unterkategorie for konto in bestandskonten}
+    t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
 
     # Filteroptionen für Aktiv- und Passivkonten
     aktive_konten = [konto.name for konto in bestandskonten if konto.unterkategorie == "Aktiva"]

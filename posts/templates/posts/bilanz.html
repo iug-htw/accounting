@@ -53,6 +53,39 @@
     </div>
     {% endfor %}
 </section>
+<section>
+        <div class="konto">
+            <h2>Bilanz</h2>
+            <div class="bilanz-container">
+                <table class="bilanz-tabelle">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Aktiva</th>
+                            <th colspan="2">Passiva</th>
+                        </tr>
+                        <tr>
+                            <th>Konto</th>
+                            <th>Betrag</th>
+                            <th>Konto</th>
+                            <th>Betrag</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bilanz-body">
+                        <!-- Hier werden die abgeschlossenen Konten dynamisch eingetragen -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Summe</td>
+                            <td id="summe-aktiv">0.00</td>
+                            <td>Summe</td>
+                            <td id="summe-passiv">0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+</section
+
 
 <button id="abschluss-alle-btn">Alle Konten abschließen</button>
 
@@ -116,6 +149,108 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("abschluss-alle-btn").addEventListener("click", function() {
         document.querySelectorAll(".konto-abschluss-btn:not([disabled])").forEach(button => {
             button.click();
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    let bilanzBody = document.getElementById("bilanz-body");
+    let summeAktivElement = document.getElementById("summe-aktiv");
+    let summePassivElement = document.getElementById("summe-passiv");
+
+    let summeAktiv = 0;
+    let summePassiv = 0;
+
+    document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
+        button.addEventListener("click", function() {
+            let kontoDiv = this.closest(".konto");
+            let kontoName = kontoDiv.querySelector("h2").innerText;
+            let kategorie = kontoDiv.querySelector(".konto-kategorie").value;
+            let sollTabelle = kontoDiv.querySelector(".soll-tabelle");
+            let habenTabelle = kontoDiv.querySelector(".haben-tabelle");
+
+            let sollWerte = Array.from(sollTabelle.querySelectorAll("td.betrag"));
+            let habenWerte = Array.from(habenTabelle.querySelectorAll("td.betrag"));
+
+            let sollSumme = sollWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+            let habenSumme = habenWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+
+            let differenz = Math.abs(sollSumme - habenSumme);
+
+            // Eintrag in die Bilanz-Tabelle
+            let neueZeile = document.createElement("tr");
+
+            let bilanzZeilen = bilanzBody.getElementsByTagName("tr");
+            let aktivZeilen = [];
+            let passivZeilen = [];
+
+            // Bestehende Zeilen analysieren
+            for (let i = 0; i < bilanzZeilen.length; i++) {
+                let zelleAktiv = bilanzZeilen[i].cells[0].innerText.trim();
+                let zellePassiv = bilanzZeilen[i].cells[2].innerText.trim();
+                
+                if (zelleAktiv !== "" || bilanzZeilen[i].cells[1].innerText.trim() !== "") {
+                    aktivZeilen.push(bilanzZeilen[i]);
+                }
+                if (zellePassiv !== "" || bilanzZeilen[i].cells[3].innerText.trim() !== "") {
+                    passivZeilen.push(bilanzZeilen[i]);
+                }
+            }
+
+            // Maximale Zeilenanzahl bestimmen
+            let maxZeilen = Math.max(aktivZeilen.length, passivZeilen.length);
+
+            // Falls Aktiv abgeschlossen wird, prüfe, ob eine freie Zeile in Passiv existiert
+            if (kategorie === "Aktiva") {
+                summeAktiv += differenz;
+                if (passivZeilen.length > aktivZeilen.length) {
+                    // Erste freie Zeile in Aktivseite füllen
+                    for (let i = 0; i < bilanzZeilen.length; i++) {
+                        if (bilanzZeilen[i].cells[0].innerText.trim() === "") {
+                            bilanzZeilen[i].cells[0].innerText = kontoName;
+                            bilanzZeilen[i].cells[1].innerText = differenz.toFixed(2);
+                            break;
+                        }
+                    }
+                } else {
+                    // Neue Zeile hinzufügen
+                    let neueZeile = document.createElement("tr");
+                    neueZeile.innerHTML = `<td>${kontoName}</td><td>${differenz.toFixed(2)}</td><td></td><td></td>`;
+                    bilanzBody.appendChild(neueZeile);
+                }
+            }
+
+            // Falls Passiv abgeschlossen wird, prüfe, ob eine freie Zeile in Aktiv existiert
+            else if (kategorie === "Passiva") {
+                summePassiv += differenz;
+                if (aktivZeilen.length > passivZeilen.length) {
+                    // Erste freie Zeile in Passivseite füllen
+                    for (let i = 0; i < bilanzZeilen.length; i++) {
+                        if (bilanzZeilen[i].cells[2].innerText.trim() === "") {
+                            bilanzZeilen[i].cells[2].innerText = kontoName;
+                            bilanzZeilen[i].cells[3].innerText = differenz.toFixed(2);
+                            break;
+                        }
+                    }
+                } else {
+                    // Neue Zeile hinzufügen
+                    let neueZeile = document.createElement("tr");
+                    neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td>${differenz.toFixed(2)}</td>`;
+                    bilanzBody.appendChild(neueZeile);
+                }
+            }
+
+            // Summe aktualisieren
+            summeAktivElement.innerText = summeAktiv.toFixed(2);
+            summePassivElement.innerText = summePassiv.toFixed(2);
+
+
+            // Summenzeile aktualisieren
+            summeAktivElement.innerHTML = `${summeAktiv.toFixed(2)}`;
+            summePassivElement.innerHTML = `${summePassiv.toFixed(2)}`;
+
+            this.disabled = true;
+            this.innerText = "Abgeschlossen";
         });
     });
 });
