@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Rechnung {{ rechnungsnummer }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; background-color: #fff; border-radius: 8px; }
+        .header, .footer { text-align: center; }
+        .details, .amount { margin-top: 20px; }
+        .amount { font-weight: bold; font-size: 1.2em; }
+        .highlight { background-color: #f0f0f0; padding: 10px; border-radius: 5px; }
+        .no-data { color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-box">
+        <div class="header">
+            <h2>Rechnung</h2>
+            <p><strong>Rechnungsnummer:</strong> {{ rechnungsnummer|default:"Keine Nummer angegeben" }}</p>
+            <p><strong>Datum:</strong> {{ datum|date:"d.m.Y" }}</p>
+        </div>
+
+        <div class="details">
+            <div class="highlight">
+                <p><strong>Von:</strong><br>{{ eigene_ansicht|linebreaks }}</p>
+            </div>
+
+            <div class="highlight" style="margin-top: 10px;">
+                <p><strong>An:</strong><br>{{ anschrift_kunde|linebreaks }}</p>
+            </div>
+        </div>
+
+        <div class="content" style="margin-top: 20px;">
+            <h4>Beschreibung</h4>
+            {% if beschreibung %}
+                <p>{{ beschreibung|linebreaks }}</p>
+            {% else %}
+                <p class="no-data">Keine Beschreibung vorhanden.</p>
+            {% endif %}
+        </div>
+
+        <div class="amount">
+            <p><strong>Rechnungsbetrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+            <p><strong>Zahlweise:</strong> {{ zahlweise|default:"Keine Zahlungsart angegeben" }}</p>
+        </div>
+
+        <div class="footer" style="margin-top: 30px;">
+            <p>{{ verabschiedung|linebreaks }}</p>
+            <p><strong>Kontakt:</strong><br>{{ kontakt|linebreaks }}</p>
+        </div>
+    </div>
+
+</body>
+</html>

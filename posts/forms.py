@@ -7,6 +7,7 @@ class Aufgabe_neu_Form(forms.ModelForm):
         model = Aufgabe_neu
         fields = [
             'unternehmen_kategorie',  # Jetzt automatisch als Dropdown gerendert
+            'rechnungstyp',
             'fragentyp',
             'fragentyp_text',
             'mailtext',

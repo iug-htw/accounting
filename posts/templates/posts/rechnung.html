@@ -19,8 +19,29 @@
 
     <div class="content-wrapper_rechnung">
         <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->
-        <div class="left-section_rechnung">
-            <div class="invoice-placeholder_rechnung">Fiktive Rechnung 📤</div>
+        <div class="invoice-box">
+            <h2>Rechnung Nr. {{ rechnungsnummer }}</h2>
+            <p><strong>Datum:</strong> {{ datum|date:"d.m.Y" }}</p>
+        
+            <div class="details">
+                <p><strong>Von:</strong><br>{{ eigene_ansicht|linebreaks }}</p>
+                <p><strong>An:</strong><br>{{ anschrift_kunde|linebreaks }}</p>
+            </div>
+        
+            <div class="content">
+                <h4>Beschreibung:</h4>
+                <p>{{ beschreibung|default:"Keine Beschreibung angegeben." }}</p>
+            </div>
+        
+            <div class="amount">
+                <p><strong>Rechnungsbetrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+                <p><strong>Zahlweise:</strong> {{ zahlweise|default:"Keine Zahlungsart angegeben" }}</p>
+            </div>
+        
+            <div class="footer">
+                <p>{{ verabschiedung|linebreaks }}</p>
+                <p><strong>Kontakt:</strong><br>{{ kontakt|linebreaks }}</p>
+            </div>
         </div>
 
         <!-- Rechter Bereich: Eingabefelder -->

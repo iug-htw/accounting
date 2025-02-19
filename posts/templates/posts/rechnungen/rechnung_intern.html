@@ -1,0 +1,20 @@
+{% extends 'rechnung_basis.html' %}
+
+{% block content %}
+    <h3>Interner Vorgang</h3>
+    <p>Dies ist kein klassisches Rechnungsdokument, sondern ein interner Buchungsvorgang.</p>
+
+    {% if beschreibung %}
+        <p><strong>Details:</strong> {{ beschreibung|linebreaks }}</p>
+    {% else %}
+        <p class="no-data">Keine weiteren Details vorhanden.</p>
+    {% endif %}
+
+    <div class="amount">
+        {% if rechnungsbetrag > 0 %}
+            <p><strong>Betrag der Anpassung:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+        {% else %}
+            <p class="no-data">Kein Betrag angegeben.</p>
+        {% endif %}
+    </div>
+{% endblock %}
