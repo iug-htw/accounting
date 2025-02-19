@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block content %}
-<h1>Bilanz</h1>
-<p>Hier kannst du deine Bestandskonten abschließen.</p>
+<h1 class="h1">Bilanz</h1>
+<p class="p">Hier kannst du deine Bestandskonten abschließen.</p>
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
@@ -17,18 +17,15 @@
         <label>Kategorie:</label>
         <select class="konto-kategorie">
             <option value="" selected disabled>Bitte wählen...</option>
-            {% if konto == 'GuV' %}
-            <option value="Passiva">Gewinn</option>
-            <option value="Aktiva">Verlust</option>
-            {% else %}
             <option value="Aktiva">Aktiva</option>
             <option value="Passiva">Passiva</option>
-            {% endif %}
         </select>
         <button class="konto-abschluss-btn">Konto abschließen</button>
         <table>
             <thead>
-                <tr><th>Soll</th><th>Haben</th></tr>
+                <tr><th class="soll">Soll</th>
+                    <th class="haben">Haben</th>
+                </tr>
             </thead>
             <tbody>
                 <tr>
@@ -37,7 +34,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td class="betrag">{{ betrag|floatformat:2|abs_value }}</td>
+                                <td class="betrag">{{ betrag|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -47,7 +44,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td class="betrag">{{ betrag|floatformat:2|abs_value }}</td>
+                                <td class="betrag">{{ betrag|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -89,13 +86,12 @@
                 </table>
             </div>
         </div>
-    </section>
+</section>
 
 
 <button id="abschluss-alle-btn">Alle Konten abschließen</button>
 
 <script>
-    //passt
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
         button.addEventListener("click", function() {
@@ -106,8 +102,8 @@ document.addEventListener("DOMContentLoaded", function() {
             let sollWerte = Array.from(sollTabelle.querySelectorAll("td.betrag"));
             let habenWerte = Array.from(habenTabelle.querySelectorAll("td.betrag"));
 
-            let sollSumme = sollWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.innerText) || 0), 0);
-            let habenSumme = habenWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.innerText) || 0), 0);
+            let sollSumme = sollWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+            let habenSumme = habenWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
 
             let differenz = Math.abs(sollSumme - habenSumme);
             let istAktiv = kontoDiv.querySelector(".konto-kategorie").value === "Aktiva";

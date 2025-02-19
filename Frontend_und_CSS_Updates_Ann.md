@@ -91,6 +91,6 @@ Um die App zu starten, sind die folgenden Schritte erforderlich:
 ```bash
 python manage.py runserver
 ```
-
+- git push origin branch1  
 ---
 
