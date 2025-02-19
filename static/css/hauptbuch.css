@@ -33,6 +33,33 @@
     border-collapse: collapse;
     table-layout: fixed;
 }
+.konto-abschluss-btn {
+    background: linear-gradient(135deg, #120639, #3d1b82); /* Farbverlauf */
+    color: white; /* Weiße Schrift für besseren Kontrast */
+    border: none; /* Kein störender Rand */
+    border-radius: 6px; /* Leicht abgerundete Ecken */
+    padding: 6px 12px; /* Kleinere Größe */
+    font-size: 14px; /* Kleinere Schriftgröße */
+    font-weight: bold; /* Kräftige Schrift für bessere Lesbarkeit */
+    cursor: pointer; /* Zeigt an, dass es ein klickbarer Button ist */
+    transition: background 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Hover-Effekt für eine elegante Animation */
+.konto-abschluss-btn:hover {
+    background: linear-gradient(135deg, #1d0a4c, #52289a); /* Etwas heller beim Hover */
+    transform: scale(1.03); /* Leicht vergrößern für eine interaktive Wirkung */
+    opacity: 0.9;
+}
+
+/* Klick-Effekt für ein echtes Button-Feeling */
+.konto-abschluss-btn:active {
+    background: linear-gradient(135deg, #0d0328, #2e145d); /* Dunklere Farben beim Drücken */
+    transform: scale(0.97); /* Leicht verkleinern für Feedback */
+    opacity: 0.8;
+}
+
+
 
 .konto td {
     padding: 8px;

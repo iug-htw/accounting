@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block content %}
-<h1>Bilanz</h1>
-<p>Hier kannst du deine Bestandskonten abschließen.</p>
+<h1 class="h1">Bilanz</h1>
+<p class="p">Hier kannst du deine Bestandskonten abschließen.</p>
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
@@ -23,7 +23,9 @@
         <button class="konto-abschluss-btn">Konto abschließen</button>
         <table>
             <thead>
-                <tr><th>Soll</th><th>Haben</th></tr>
+                <tr><th class="soll">Soll</th>
+                    <th class="haben">Haben</th>
+                </tr>
             </thead>
             <tbody>
                 <tr>
