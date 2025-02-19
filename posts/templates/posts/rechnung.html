@@ -1,7 +1,7 @@
 {% extends 'master_layout.html' %}
 {% load static %}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/rechnung.css' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 {% block content %}
@@ -16,18 +16,18 @@
             <p><strong>Betrag:</strong> {{ nutzer_aufgabe.betrag }}</p>
         </ul>
     {% endif %}
-    
+
     <div class="content-wrapper_rechnung">
         <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->
         <div class="left-section_rechnung">
-            <div class="invoice-placeholder_rechnung">Fiktive Rechnung</div>
+            <div class="invoice-placeholder_rechnung">Fiktive Rechnung 📤</div>
         </div>
 
         <!-- Rechter Bereich: Eingabefelder -->
         <div class="right-section_rechnung">
-            
+
             <h2>Buchungs-Navigation</h2>
-            <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">Buchungen anzeigen/verstecken</button>
+            <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">Buchungen anzeigen/verstecken 💡</button>
 
             <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
                 <h3>Frühere Versuche:</h3>
@@ -58,30 +58,6 @@
                                 <p><strong>Haben-Konten:</strong> {{ item.buchung.antwort_konten_haben }}</p>
                                 <p><strong>Beträge Soll:</strong> {{ item.buchung.antwort_betrag_soll }}</p>
                                 <p><strong>Beträge Haben:</strong> {{ item.buchung.antwort_betrag_haben }}</p>
-                                <h3>Feedback</h3>
-                                    {% if item.buchung.konto_korrekt == 0 %}
-                                        <p>✅ Alle Konten sind korrekt.</p>
-                                    {% elif item.buchung.konto_korrekt == 1 %}
-                                        <p>⚠️ Das Konto auf der Soll-Seite ist inkorrekt.</p>
-                                    {% elif item.buchung.konto_korrekt == 2 %}
-                                        <p>⚠️ Das Konto auf der Haben-Seite ist inkorrekt.</p>
-                                    {% elif item.buchung.konto_korrekt == 3 %}
-                                        <p>⚠️ Beide Konten sind falsch.</p>
-                                    {% endif %}
-
-                                    {% if item.buchung.betrag_korrekt == 0 %}
-                                        <p>✅ Betrag ist korrekt.</p>
-                                    {% elif item.buchung.betrag_korrekt == 1 %}
-                                        <p>⚠️ Der Betrag auf der Soll-Seite ist inkorrekt.</p>
-                                    {% elif item.buchung.betrag_korrekt == 2 %}
-                                        <p>⚠️ Der Betrag auf der Haben-Seite ist inkorrekt.</p>
-                                    {% elif item.buchung.betrag_korrekt == 3 %}
-                                        <p>⚠️ Beide Beträge sind falsch.</p>
-                                    {% endif %}
-                                    
-                                    <h4>Zusätzliches Feedback:</h4>
-                                    <p>{{ aufgabe.feedback_konto_falsch }}</p>
-                                    <p>{{ aufgabe.feedback_betrag_falsch }}</p>
                             </div>
                         {% endfor %}
                     </ul>
@@ -103,36 +79,44 @@
                 <strong>Fragentext:</strong> {{ aufgabe.frage }}
             </p>
             <form method="post">
-                {% csrf_token %}
-                <div class="inputs-container_rechnung">
-                    <div id="soll-container_rechnung">
-                        <label><strong>Eingaben Soll:</strong></label>
-                        <div class="input-group_rechnung">
-                            <select name="soll_konto[]">
-                                {% for konto in konten %}
-                                    <option value="{{ konto.name }}">{{ konto.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <input type="number" placeholder="Betrag eingeben" name="soll_betrag[]" required>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">Neues Soll-Feld hinzufügen</button>
-                    
-                    <div id="haben-container_rechnung">
-                        <label><strong>Eingaben Haben:</strong></label>
-                        <div class="input-group_rechnung">
-                            <select name="haben_konto[]">
-                                {% for konto in konten %}
-                                    <option value="{{ konto.name }}">{{ konto.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <input type="number" placeholder="Betrag eingeben" name="haben_betrag[]" required>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">Neues Haben-Feld hinzufügen</button>
-                    <button type="submit" class="btn-submit_rechnung">Eingaben übermitteln</button>
-            </form>
-            
+    {% csrf_token %}
+    <div class="inputs-container_rechnung">
+
+        <!-- SOLL-KONTEN -->
+        <div id="soll-container_rechnung">
+            <label><strong>Eingaben Soll:</strong></label>
+            <div class="input-group_rechnung">
+                <select name="soll_konto[]">
+                    {% for konto in konten %}
+                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" placeholder="Betrag eingeben" name="soll_betrag[]" required>
+            </div>
+            <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">Neues Soll-Feld hinzufügen</button>
+        </div>
+
+        <!-- HABEN-KONTEN -->
+        <div id="haben-container_rechnung">
+            <label><strong>Eingaben Haben:</strong></label>
+            <div class="input-group_rechnung">
+                <select name="haben_konto[]">
+                    {% for konto in konten %}
+                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" placeholder="Betrag eingeben" name="haben_betrag[]" required>
+            </div>
+            <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">Neues Haben-Feld hinzufügen</button>
+        </div>
+
+    </div>
+
+    <!-- SUBMIT-BUTTON -->
+    <button type="submit" class="btn-submit_rechnung">Eingaben übermitteln</button>
+</form>
+
+
 
             {% if next_aufgabe %}
                 <a href="{% url 'posts:rechnung_detail' next_aufgabe.id %}" class="btn-next_rechnung">Nächste Aufgabe ➡️</a>
@@ -146,22 +130,22 @@
 <script>
     function addField(containerId) {
         let container = document.getElementById(containerId);
-    
+
         let kontenOptions = `
             {% for konto in konten %}
                 <option value="{{ konto.name }}">{{ konto.name }}</option>
             {% endfor %}
         `;
-    
+
         let newFieldGroup = document.createElement('div');
         newFieldGroup.classList.add('input-group_rechnung');
-    
+
         newFieldGroup.innerHTML = `
             <select name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" required>
                 ${kontenOptions}
             </select>
             <input type="number" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
-            <button type="button" class="btn-remove_rechnung" onclick="removeField(this)">🗑️</button>
+            <button type="button" class="btn-remove_rechnung" onclick="removeField(this)"></button>
         `;
     
         container.appendChild(newFieldGroup);

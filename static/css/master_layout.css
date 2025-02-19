@@ -17,7 +17,8 @@ body {
 
 .content-container {
     flex-grow: 1; /* Der Inhalt wächst dynamisch und füllt den verbleibenden Platz */
-    padding: 2rem;
+    margin-top: 6rem; /* Abstand durch Margin, nicht Padding */
+    padding: 2rem; /* Normales Padding beibehalten */
     width: 100%;
     box-sizing: border-box;
 }
@@ -27,7 +28,9 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
+    position: fixed;
     background: #FFFFFF;
+    z-index: 1000;
     border-bottom: 0.1rem solid #E0E0E0;
     box-shadow: 0rem 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
     padding: 1rem 2rem;
@@ -67,6 +70,7 @@ body {
     align-items: center;
     gap: 1rem;
     flex-grow: 1;
+    flex-wrap: wrap;
 }
 
 .nav-element {

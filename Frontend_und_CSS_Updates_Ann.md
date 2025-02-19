@@ -70,6 +70,9 @@ Der initiale Prototyp in Version C wurde in Mockup-Form entwickelt. Eine Impleme
 
 ---
 
+### Stand 2 (17.02)
+- Masterlayout anpassungen
+- Rechnungsansicht angepasst
 ## **Start des Projekts: Virtuelle Umgebung und App**
 Um die App zu starten, sind die folgenden Schritte erforderlich:
 

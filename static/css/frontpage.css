@@ -1,56 +1,25 @@
 /* General Styling */
 
-/* Navigation Bar */
-/*
-.navigation-bar {
-    display: flex;
-    justify-content: space-between;  Space between nav elements 
-    align-items: center;
-    background-color: white;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid #e0e0e0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
-.nav-element {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #262626;
-    font-size: 1rem;
-    text-decoration: none;
-    padding: 0.6rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.nav-element:hover {
-    background-color: #F0F0F0;
-    transform: scale(1.05);
-    cursor: pointer;
-}
-
-.nav-icon {
-    width: 1.5rem; 
-    height: 1.5rem;
-}
-*/
 /* Logo and Description */
 .logo-and-description {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    gap: 2rem;
+    padding: 3rem;
+    gap: 3rem; /* Erhöht den Abstand zwischen Logo und Beschreibung */
 }
-/*
+
 .securenet-logo {
-    width: 25rem; 
-    height: auto;
+    width: 30rem; /* Erhöht die Breite */
+    height: auto; /* Hält das Seitenverhältnis bei */
+    max-width: 100%; /* Verhindert, dass das Logo über den Container hinausgeht */
 }
-*/
+
+
 .description {
-    max-width: 60%;
+    width: 100%;
+    max-width: none; /* Entfernt die Begrenzung */
 }
 
 h1 {
