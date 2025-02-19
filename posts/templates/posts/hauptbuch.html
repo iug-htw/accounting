@@ -28,41 +28,48 @@
     {% for konto, daten in t_konten.items %}
     <div class="konto" data-konto="{{ konto }}">
         <h2>{{ konto }}</h2>
-        <table>
+
+        <table class="hauptbuch-tabelle">
+            <!-- Die Überschrift (Soll/Haben) wird jetzt Teil der Haupttabelle -->
             <thead>
                 <tr>
-                    <th>Soll</th>
-                    <th>Haben</th>
+                    <th class="soll">Soll</th>
+                    <th class="haben">Haben</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>
-                        <table>
+                        <table class="soll-haben-tabelle">
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
                             <tr style="background-color: {{ farbe }};">
-                                <td>{% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}</td>
-                                <td>{{ betrag|floatformat:2 }}</td>
+                                <td class="konto-name">
+                                    {% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}
+                                </td>
+                                <td class="betrag">{{ betrag|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                         </table>
                     </td>
                     <td>
-                        <table>
+                        <table class="soll-haben-tabelle">
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
                             <tr style="background-color: {{ farbe }};">
-                                <td>{% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}</td>
-                                <td>{{ betrag|floatformat:2 }}</td>
+                                <td class="konto-name">
+                                    {% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}
+                                </td>
+                                <td class="betrag">{{ betrag|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
                         </table>
                     </td>
-                </tr>                                
+                </tr>
             </tbody>
         </table>
     </div>
     {% endfor %}
 </section>
+
 
 <script>
     function filterTable() {
