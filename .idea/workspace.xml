@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6fcc3484-d69e-4a1e-9652-dcf098c7cd31" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/static/css/rechnung.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/individuelles-tempo.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/individuelles-tempo.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Frontend_und_CSS_Updates_Ann.md" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend_und_CSS_Updates_Ann.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/posts/templates/posts/rechnung.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/rechnung.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/css/frontpage.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/frontpage.css" afterDir="false" />
@@ -85,7 +89,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1739960479871</updated>
-      <workItem from="1739960481088" duration="937000" />
+      <workItem from="1739960481088" duration="1244000" />
     </task>
     <servers />
   </component>

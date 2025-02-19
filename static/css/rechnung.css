@@ -46,6 +46,79 @@ body {
     padding: 2rem;
     border-radius: 10px;
 }
+/* Styling für die gesamte Buchungsansicht */
+.buchungen-ansicht {
+    background-color: #f9f9f9; /* Heller Hintergrund für bessere Lesbarkeit */
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Leichte Schatten für moderne Optik */
+}
+
+/* Styling für jeden Versuchseintrag */
+.buchungen-ansicht ul {
+    list-style: none; /* Entfernt die Bullet-Points */
+    padding: 0;
+}
+
+.buchungen-ansicht li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #ffffff;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons für Versuche */
+.buchungen-ansicht button {
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 5px;
+}
+
+/* Versuch-Button */
+.btn-attempt {
+    background-color: #120639; /* Dunkles Blau */
+    color: white;
+}
+
+.btn-attempt:hover {
+    background-color: #3c0f79;
+}
+
+/* Falsche Lösung Styling */
+.status-falsch {
+    color: #d32f2f;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Korrekturbuchung Buttons */
+.btn-korrektur {
+    background-color: #f57c00; /* Orange */
+    color: white;
+}
+
+.btn-korrektur:hover {
+    background-color: #e65100;
+}
+
+.btn-korrektur-durchfuehren {
+    background-color: #388e3c; /* Grün */
+    color: white;
+}
+
+.btn-korrektur-durchfuehren:hover {
+    background-color: #2e7d32;
+}
 
 .invoice-placeholder_rechnung {
     width: 90%;

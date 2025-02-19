@@ -1,7 +1,7 @@
 {% extends 'master_layout.html' %}
 {% load static %}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/rechnung.css' %}">
+<link rel="stylesheet" href="{% static 'css/rechnung.css' %}?v={{ timestamp }}">
 <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 {% block content %}
@@ -30,49 +30,61 @@
             <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">Buchungen anzeigen/verstecken 💡</button>
 
             <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
-                <h3>Frühere Versuche:</h3>
-                {% if buchung_status %}
-                    <ul>
-                        {% for item in buchung_status %}
-                            <li>
-                                <button onclick="showBuchungDetail('{{ item.buchung.buchung_id }}')">
-                                    Versuch {{ forloop.counter }}
-                                </button>
-                                <span>
-                                    {% if item.korrekt %}
-                                        ✅ Lösung korrekt
-                                    {% else %}
-                                        ❌ Lösung falsch
-                                        <button onclick="fillKorrekturbuchung('{{ item.buchung.antwort_konten_soll }}', '{{ item.buchung.antwort_konten_haben }}', '{{ item.buchung.antwort_betrag_soll }}', '{{ item.buchung.antwort_betrag_haben }}')">
-                                            Korrekturbuchung vorschlagen
-                                        </button>
-                                        <button onclick="showKorrekturbuchungMaske('{{ item.buchung.buchung_id }}')">Korrekturbuchung durchführen</button>
-                                    {% endif %}
-                                </span>
-                                {% if item.buchung.korrekturbuchung %}
-                                    <span>🔁 Korrekturbuchung</span>
-                                {% endif %}
-                            </li>
-                            <div id="buchung-detail-{{ item.buchung.buchung_id }}" class="buchung-detail" style="display: none;">
-                                <p><strong>Soll-Konten:</strong> {{ item.buchung.antwort_konten_soll }}</p>
-                                <p><strong>Haben-Konten:</strong> {{ item.buchung.antwort_konten_haben }}</p>
-                                <p><strong>Beträge Soll:</strong> {{ item.buchung.antwort_betrag_soll }}</p>
-                                <p><strong>Beträge Haben:</strong> {{ item.buchung.antwort_betrag_haben }}</p>
-                            </div>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>Keine vorherigen Buchungen gefunden.</p>
-                {% endif %}
-                <div id="korrekturbuchung-maske" class="korrekturbuchung-maske" style="display: none;">
-                    <h3>Korrekturbuchung bestätigen</h3>
-                    <p>Die umgekehrte Buchung wird durchgeführt, um die falsche Buchung auszugleichen.</p>
-                    <div id="korrekturbuchung-details">
-                        <!-- Hier werden die Buchungsdetails dynamisch eingefügt -->
-                    </div>
-                    <button onclick="durchfuehrenKorrekturbuchung()">Korrekturbuchung durchführen</button>
+    <h3>Frühere Versuche:</h3>
+    {% if buchung_status %}
+        <ul class="buchungen-liste">
+            {% for item in buchung_status %}
+                <li class="buchung-item">
+                    <button class="btn-attempt" onclick="showBuchungDetail('{{ item.buchung.buchung_id }}')">
+                        Versuch {{ forloop.counter }}
+                    </button>
+
+                    <span class="{% if item.korrekt %}status-korrekt{% else %}status-falsch{% endif %}">
+                        {% if item.korrekt %}
+                            ✅ Lösung korrekt
+                        {% else %}
+                            ❌ Lösung falsch
+                        {% endif %}
+                    </span>
+
+                    {% if not item.korrekt %}
+                        <button class="btn-korrektur" onclick="fillKorrekturbuchung('{{ item.buchung.antwort_konten_soll }}', '{{ item.buchung.antwort_konten_haben }}', '{{ item.buchung.antwort_betrag_soll }}', '{{ item.buchung.antwort_betrag_haben }}')">
+                            Korrekturbuchung vorschlagen
+                        </button>
+
+                        <button class="btn-korrektur-durchfuehren" onclick="showKorrekturbuchungMaske('{{ item.buchung.buchung_id }}')">
+                            Korrekturbuchung durchführen
+                        </button>
+                    {% endif %}
+
+                    {% if item.buchung.korrekturbuchung %}
+                        <span class="status-korrektur">🔁 Korrekturbuchung durchgeführt</span>
+                    {% endif %}
+                </li>
+
+                <!-- Buchungsdetails -->
+                <div id="buchung-detail-{{ item.buchung.buchung_id }}" class="buchung-detail" style="display: none;">
+                    <p><strong>Soll-Konten:</strong> {{ item.buchung.antwort_konten_soll }}</p>
+                    <p><strong>Haben-Konten:</strong> {{ item.buchung.antwort_konten_haben }}</p>
+                    <p><strong>Beträge Soll:</strong> {{ item.buchung.antwort_betrag_soll }}</p>
+                    <p><strong>Beträge Haben:</strong> {{ item.buchung.antwort_betrag_haben }}</p>
                 </div>
-            </div>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Keine vorherigen Buchungen gefunden.</p>
+    {% endif %}
+
+    <!-- Korrekturbuchung Maske -->
+    <div id="korrekturbuchung-maske" class="korrekturbuchung-maske" style="display: none;">
+        <h3>Korrekturbuchung bestätigen</h3>
+        <p>Die umgekehrte Buchung wird durchgeführt, um die falsche Buchung auszugleichen.</p>
+        <div id="korrekturbuchung-details">
+            <!-- Hier werden die Buchungsdetails dynamisch eingefügt -->
+        </div>
+        <button class="btn-korrektur-durchfuehren" onclick="durchfuehrenKorrekturbuchung()">Korrekturbuchung durchführen</button>
+    </div>
+</div>
 
             <h2>Versuch 1</h2>
             <p class="business-case_rechnung">
