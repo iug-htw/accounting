@@ -2,11 +2,11 @@
 {% extends 'master_layout.html' %}
 {% load static %}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/frontpage.css' %}">
+<link rel="stylesheet" href="{% static 'css/frontpage.css' %}?v={{ timestamp }}">
 {% endblock %}
 {% block content %}
 <div class="logo-and-description">
-    <img src="/media/securenet-logo.png" alt="SecureNet Logo" class="securenet-logo">
+    <img src="/media/securenet-logo.png" alt="SecureNet Logo" class="securenet-logo_front">
     <div class="description">
         <h1>Willkommen bei SecureNet!  {{ user.display_name }}!</h1>
         <p>
@@ -31,10 +31,10 @@
 <!-- Action Buttons -->
 <div class="action-buttons">
     <div class="widget-button">
-        <a href="#" class="button">Meine Bilanz</a>
+        <a href="{% url 'posts:bilanz' %}" class="button">Meine Bilanz <span class="emoji">⚖️</span></a>
     </div>
     <div class="widget-button">
-        <a href="{% url 'posts:hauptbuch' %}" class="button">Mein Hauptbuch</a>
+        <a href="{% url 'posts:hauptbuch' %}" class="button">Mein Hauptbuch<span class="emoji">📚</span></a></a>
     </div>
 </div>
 {% if user.role == 'student' %}
