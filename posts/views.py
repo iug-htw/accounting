@@ -10,6 +10,8 @@ from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from .absender import ZUFÄLLIGE_ABSENDER
+import io
+#passt
 
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
@@ -654,19 +656,38 @@ def get_student(student_id, lehrer):
 
 @login_required
 def guv_uebersicht(request):
-    konten = Konto.objects.all()
-    buchungen = Buchung.objects.filter(nutzer=request.user)
-    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
+    # GuV-Konto holen (zur späteren Filterung)
+    guv_konto = Konto.objects.get(name="GuV")
+    
+    # Filtere alle Konten außer GuV
+    konten = Konto.objects.exclude(name="GuV")
+    
+    # Filtere Buchungen ohne GuV (SOLL und HABEN)
+    buchungen = Buchung.objects.filter(nutzer=request.user).exclude(
+        antwort_konten_soll__icontains="GuV"
+    ).exclude(
+        antwort_konten_haben__icontains="GuV"
+    )
+
+    # Anfangsbestände ohne GuV
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user).exclude(konto=guv_konto)
+
+    # Baue T-Konten-Struktur
     t_konten = build_t_konten(buchungen, anfangsbestaende)
 
-    # Konten mit ihren Kategorien verknüpfen
+    # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
+    if "GuV" in t_konten:
+        del t_konten["GuV"]
+
+    # Verknüpfe Konten mit Kategorien
     konto_kategorien = {konto.name: konto.kategorie for konto in konten}
 
     return render(request, "posts/guv.html", {
         "t_konten": t_konten,
         "konten": konten,
-        "konto_kategorien": konto_kategorien  # Neue Variable für das Frontend
+        "konto_kategorien": konto_kategorien
     })
+
 
 def generate_user_anfangsbestaende(user):
     """
@@ -683,23 +704,27 @@ def generate_user_anfangsbestaende(user):
 @login_required
 def speichere_guv_ergebnis(request):
     if request.method == "POST":
-         try:
-              guv_result = float(request.POST.get("guv_result"))
-         except (TypeError, ValueError):
-              return JsonResponse({"error": "Ungültiger Betrag"}, status=400)
-         # Hole oder erstelle das GuV-Konto (als Erfolgskonto)
-         guv_konto, created = Konto.objects.get_or_create(
-              name="GuV",
-              defaults={"kategorie": "Erfolgskonto"}
-         )
-         # Aktualisiere oder erstelle den Datensatz in Anfangsbestand
-         Anfangsbestand.objects.update_or_create(
-              nutzer=request.user,
-              konto=guv_konto,
-              defaults={"betrag": guv_result}
-         )
-         return JsonResponse({"success": True})
+        try:
+            guv_result = float(request.POST.get("guv_result"))
+        except (TypeError, ValueError):
+            return JsonResponse({"error": "Ungültiger Betrag"}, status=400)
+
+        # GuV Konto holen oder erstellen
+        guv_konto, created = Konto.objects.get_or_create(
+            name="GuV",
+            defaults={"kategorie": "Erfolgskonto"}
+        )
+
+        # SBK-Betrag speichern (mit Vorzeichen)
+        Anfangsbestand.objects.update_or_create(
+            nutzer=request.user,
+            konto=guv_konto,
+            defaults={"betrag": guv_result}
+        )
+
+        return JsonResponse({"success": True})
     return JsonResponse({"error": "Nur POST erlaubt"}, status=400)
+
 
 @login_required
 def bilanz_uebersicht(request):

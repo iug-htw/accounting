@@ -8,3 +8,10 @@ def get_item(dictionary, key):
     if isinstance(dictionary, dict):
         return dictionary.get(key, '')
     return ''
+
+@register.filter
+def abs_value(value):
+    try:
+        return abs(float(value))
+    except (ValueError, TypeError):
+        return value
