@@ -268,34 +268,54 @@ def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
     return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
 def generiere_zufaellige_werte(aufgabe):
-    # Alle Soll-Konten aus der Aufgabe abrufen
+    # Alle Soll-Konten abrufen
     soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
-    soll_konten = [konto.kontoname for konto in soll_konten_queryset]
-
-    # Alle Haben-Konten aus der Aufgabe abrufen
     haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
-    haben_konten = [konto.kontoname for konto in haben_konten_queryset]
 
-    # Generiere zufällige ganzzahlige Beträge für Soll-Konten
-    soll_betraege = [random.randint(500, 2000) for _ in soll_konten]
-    gesamt_soll = sum(soll_betraege)
-
-    # Generiere zufällige ganzzahlige Beträge für Haben-Konten,
-    # sodass die Summe der Haben-Beträge der Summe der Soll-Beträge entspricht
+    # Initialisieren der Daten
+    soll_konten = []
+    haben_konten = []
+    soll_betraege = []
     haben_betraege = []
-    for i in range(len(haben_konten) - 1):
-        betrag = random.randint(500, gesamt_soll // len(haben_konten))
-        haben_betraege.append(betrag)
 
-    # Letzter Haben-Betrag gleicht die Differenz aus
-    letzte_haben_betrag = gesamt_soll - sum(haben_betraege)
-    haben_betraege.append(letzte_haben_betrag)
+    # Berechnung der Min-/Max-Werte für Soll-Konten
+    for konto in soll_konten_queryset:
+        referenz_betrag = konto.betrag
+        min_betrag = referenz_betrag * 0.25
+        max_betrag = referenz_betrag * 1.75
 
-    # Shuffle zur Verteilung (optional, falls Reihenfolge variieren soll)
-    random.shuffle(soll_konten)
-    random.shuffle(haben_konten)
-    random.shuffle(soll_betraege)
-    random.shuffle(haben_betraege)
+        zufallswert = random.randint(int(min_betrag), int(max_betrag))
+        soll_konten.append(konto.kontoname)
+        soll_betraege.append(round(zufallswert, 0))
+
+    # Berechnung der Min-/Max-Werte für Haben-Konten
+    for konto in haben_konten_queryset:
+        referenz_betrag = konto.betrag
+        min_betrag = referenz_betrag * 0.25
+        max_betrag = referenz_betrag * 1.75
+
+        zufallswert = random.randint(int(min_betrag), int(max_betrag))
+        haben_konten.append(konto.kontoname)
+        haben_betraege.append(round(zufallswert, 0))
+
+    # Überprüfung der Gesamtsumme
+    summe_soll = sum(soll_betraege)
+    summe_haben = sum(haben_betraege)
+
+    # Sicherstellen, dass Soll = Haben
+    differenz = summe_soll - summe_haben
+    if abs(differenz) > 0:
+        # Passe den letzten Haben-Betrag an, um die Differenz auszugleichen
+        if haben_betraege[-1] + differenz >= 0:
+            haben_betraege[-1] += differenz
+        else:
+            # Falls negativ, generiere die Werte neu
+            return generiere_zufaellige_werte(aufgabe)
+
+    # Überprüfung der min/max-Werte auf Aufgabe-Ebene
+    if not (aufgabe.min_wert <= summe_soll <= aufgabe.max_wert):
+        # Wiederhole die Generierung, wenn die Summe nicht passt
+        return generiere_zufaellige_werte(aufgabe)
 
     return {
         'soll_konten': soll_konten,
