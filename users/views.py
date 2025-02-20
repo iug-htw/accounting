@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout
 from .forms import CustomUserCreationForm, StudiengangForm, SemesterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.urls import reverse
 from django.http import HttpResponse
 from .models import Studiengang, Semester, CustomUser
@@ -232,7 +232,7 @@ def update_profile(request):
 
             # Älteste Mail des Nutzers ohne Aufgabe als bearbeitet markieren
             mail = Mail.objects.filter(nutzer=user, aufgabe__isnull=True).order_by("datum").first()
-            print(mail.id)
+            #rint(mail.id)
             if mail:
                 mail.status = "bearbeitet"
                 mail.save(update_fields=["status"])
