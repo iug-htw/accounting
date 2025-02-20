@@ -86,25 +86,30 @@ def speichere_aufgabe_details(request, aufgabe):
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     # JSON-Daten der Buchung laden
-    soll_konten_nutzer = [konto.strip() for konto in json.loads(buchung.antwort_konten_soll)]
-    haben_konten_nutzer = [konto.strip() for konto in json.loads(buchung.antwort_konten_haben)]
-    betraege_soll_nutzer = [round(float(betrag), 0) for betrag in json.loads(buchung.antwort_betrag_soll)]
-    betraege_haben_nutzer = [round(float(betrag), 0) for betrag in json.loads(buchung.antwort_betrag_haben)]
+    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
+    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
+    soll_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_soll)]
+    haben_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_haben)]
 
     # Erwartete Werte aus der Nutzeraufgabe
-    soll_konto_aufgabe = nutzer_aufgabe.soll_konto.strip()
-    haben_konto_aufgabe = nutzer_aufgabe.haben_konto.strip()
-    betrag_aufgabe = round(float(nutzer_aufgabe.betrag), 0)
+    soll_konten_aufgabe = nutzer_aufgabe.soll_konten
+    haben_konten_aufgabe = nutzer_aufgabe.haben_konten
+    soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
+    haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
 
-    # Prüfen, ob Soll- und Haben-Konten korrekt sind
-    soll_konto_korrekt = soll_konto_aufgabe in soll_konten_nutzer
-    haben_konto_korrekt = haben_konto_aufgabe in haben_konten_nutzer
-    betrag_korrekt_soll = betrag_aufgabe in betraege_soll_nutzer
-    betrag_korrekt_haben = betrag_aufgabe in betraege_haben_nutzer
+    # Prüfen, ob die Konten und Beträge übereinstimmen
+    konten_soll_korrekt = set(soll_konten_nutzer) == set(soll_konten_aufgabe)
+    konten_haben_korrekt = set(haben_konten_nutzer) == set(haben_konten_aufgabe)
+    betraege_soll_korrekt = sum(soll_betraege_nutzer) == sum(soll_betraege_aufgabe)
+    betraege_haben_korrekt = sum(haben_betraege_nutzer) == sum(haben_betraege_aufgabe)
 
+    # Prüfen, ob Summe Soll = Summe Haben
+    summe_soll_nutzer = sum(soll_betraege_nutzer)
+    summe_haben_nutzer = sum(haben_betraege_nutzer)
+    summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
 
-    # Ergebnis zurückgeben: Alle drei Bedingungen müssen erfüllt sein
-    return soll_konto_korrekt and haben_konto_korrekt and betrag_korrekt_soll and betrag_korrekt_haben
+    # Ergebnis zurückgeben
+    return konten_soll_korrekt and konten_haben_korrekt and betraege_soll_korrekt and betraege_haben_korrekt and summe_korrekt
 
 
 @login_required
@@ -175,6 +180,7 @@ def handle_nutzer_buchung(request, aufgabe):
     letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
     neuer_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
 
+    # Buchung erstellen
     buchung = Buchung.objects.create(
         aufgabe=aufgabe,
         nutzer=request.user,
@@ -186,6 +192,7 @@ def handle_nutzer_buchung(request, aufgabe):
         versuch=neuer_versuch
     )
 
+    # Nutzeraufgabe laden
     nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
 
     # JSON-Daten der Buchung laden
@@ -194,46 +201,54 @@ def handle_nutzer_buchung(request, aufgabe):
     betraege_soll_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_soll)]
     betraege_haben_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_haben)]
 
-    soll_konto_korrekt = nutzer_aufgabe.soll_konto in soll_konten_nutzer
-    haben_konto_korrekt = nutzer_aufgabe.haben_konto in haben_konten_nutzer
-    soll_betrag_korrekt = nutzer_aufgabe.betrag in betraege_soll_nutzer
-    haben_betrag_korrekt = nutzer_aufgabe.betrag in betraege_haben_nutzer
+    # Erwartete Werte laden
+    soll_konten_aufgabe = nutzer_aufgabe.soll_konten
+    haben_konten_aufgabe = nutzer_aufgabe.haben_konten
+    soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
+    haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
 
     # Fehlerstatus für Konten setzen
-    if not soll_konto_korrekt and not haben_konto_korrekt:
-        konto_status = 3
-    elif not soll_konto_korrekt:
-        konto_status = 1
-    elif not haben_konto_korrekt:
-        konto_status = 2
+    if set(soll_konten_nutzer) != set(soll_konten_aufgabe) and set(haben_konten_nutzer) != set(haben_konten_aufgabe):
+        konto_status = 3  # Beide falsch
+    elif set(soll_konten_nutzer) != set(soll_konten_aufgabe):
+        konto_status = 1  # Soll falsch
+    elif set(haben_konten_nutzer) != set(haben_konten_aufgabe):
+        konto_status = 2  # Haben falsch
     else:
-        konto_status = 0
+        konto_status = 0  # Beide korrekt
 
     # Fehlerstatus für Beträge setzen
-    if not soll_betrag_korrekt and not haben_betrag_korrekt:
+    if sum(betraege_soll_nutzer) != sum(soll_betraege_aufgabe) and sum(betraege_haben_nutzer) != sum(haben_betraege_aufgabe):
         betrag_status = 3  # Beide falsch
-    elif not soll_betrag_korrekt:
+    elif sum(betraege_soll_nutzer) != sum(soll_betraege_aufgabe):
         betrag_status = 1  # Soll falsch
-    elif not haben_betrag_korrekt:
+    elif sum(betraege_haben_nutzer) != sum(haben_betraege_aufgabe):
         betrag_status = 2  # Haben falsch
     else:
         betrag_status = 0  # Beide korrekt
+
+    # Summe Soll = Summe Haben prüfen
+    summe_soll_nutzer = sum(betraege_soll_nutzer)
+    summe_haben_nutzer = sum(betraege_haben_nutzer)
+    summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
 
     # Speichern der Fehlerstatus in der Datenbank
     buchung.konto_korrekt = konto_status
     buchung.betrag_korrekt = betrag_status
     buchung.save()
 
-    # **Neue Bedingung für die Aufgabe als korrekt**
-    if konto_status == 0 and betrag_status == 0:
+    # Neue Bedingung für die Aufgabe als korrekt
+    if konto_status == 0 and betrag_status == 0 and summe_korrekt:
         buchung.status = "korrekt"
         nutzer_aufgabe.bearbeitungsstand = "korrekt"
     else:
+        buchung.status = "bearbeitet"
         nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
+    buchung.save()
     nutzer_aufgabe.save()
-    return buchung
 
+    return buchung
 
 @login_required
 def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
@@ -253,30 +268,66 @@ def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
     return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
 def generiere_zufaellige_werte(aufgabe):
-    soll_konto, haben_konto = get_fallback_konten(aufgabe)
-    zufaelliger_betrag = round(random.uniform(aufgabe.min_wert or 100, aufgabe.max_wert or 1000), 0)
-    return {'soll_konto': soll_konto, 'haben_konto': haben_konto, 'betrag': zufaelliger_betrag}
+    # Alle Soll-Konten aus der Aufgabe abrufen
+    soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
+    soll_konten = [konto.kontoname for konto in soll_konten_queryset]
+
+    # Alle Haben-Konten aus der Aufgabe abrufen
+    haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
+    haben_konten = [konto.kontoname for konto in haben_konten_queryset]
+
+    # Generiere zufällige ganzzahlige Beträge für Soll-Konten
+    soll_betraege = [random.randint(500, 2000) for _ in soll_konten]
+    gesamt_soll = sum(soll_betraege)
+
+    # Generiere zufällige ganzzahlige Beträge für Haben-Konten,
+    # sodass die Summe der Haben-Beträge der Summe der Soll-Beträge entspricht
+    haben_betraege = []
+    for i in range(len(haben_konten) - 1):
+        betrag = random.randint(500, gesamt_soll // len(haben_konten))
+        haben_betraege.append(betrag)
+
+    # Letzter Haben-Betrag gleicht die Differenz aus
+    letzte_haben_betrag = gesamt_soll - sum(haben_betraege)
+    haben_betraege.append(letzte_haben_betrag)
+
+    # Shuffle zur Verteilung (optional, falls Reihenfolge variieren soll)
+    random.shuffle(soll_konten)
+    random.shuffle(haben_konten)
+    random.shuffle(soll_betraege)
+    random.shuffle(haben_betraege)
+
+    return {
+        'soll_konten': soll_konten,
+        'haben_konten': haben_konten,
+        'soll_betraege': soll_betraege,
+        'haben_betraege': haben_betraege
+    }
+
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
     nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
         aufgabe=aufgabe,
         nutzer=nutzer,
         defaults={
-            'soll_konto': zufaellige_werte['soll_konto'],
-            'haben_konto': zufaellige_werte['haben_konto'],
-            'betrag': zufaellige_werte['betrag'],
+            'soll_konten': zufaellige_werte['soll_konten'],
+            'haben_konten': zufaellige_werte['haben_konten'],
+            'soll_betraege': zufaellige_werte['soll_betraege'],
+            'haben_betraege': zufaellige_werte['haben_betraege'],
             'bearbeitungsstand': 'offen'
         }
     )
-    
+
     if not created:
-        nutzer_aufgabe.soll_konto = zufaellige_werte['soll_konto']
-        nutzer_aufgabe.haben_konto = zufaellige_werte['haben_konto']
-        nutzer_aufgabe.betrag = zufaellige_werte['betrag']
+        nutzer_aufgabe.soll_konten = zufaellige_werte['soll_konten']
+        nutzer_aufgabe.haben_konten = zufaellige_werte['haben_konten']
+        nutzer_aufgabe.soll_betraege = zufaellige_werte['soll_betraege']
+        nutzer_aufgabe.haben_betraege = zufaellige_werte['haben_betraege']
         nutzer_aufgabe.bearbeitungsstand = 'offen'
         nutzer_aufgabe.save()
-    
+
     return nutzer_aufgabe
+
 
 def berechne_naechsten_versuch(nutzer, aufgabe):
     letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()

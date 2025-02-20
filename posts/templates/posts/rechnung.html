@@ -1,4 +1,5 @@
 {% extends 'master_layout.html' %}
+{% load my_filters %}
 {% load static %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/rechnung.css' %}?v={{ timestamp }}">
@@ -9,13 +10,32 @@
 <div class="container_rechnung">
     <h1 class="headline_rechnung">Rechnung Nr.{{ aufgabe.id }} - {{ aufgabe.fragentyp_text }}</h1>
     {% if user.is_authenticated and nutzer_aufgabe %}
-        <p><strong>Zufällig generierte Werte:</strong></p>
-        <ul>
-            <p><strong>Soll-Konto:</strong> {{ nutzer_aufgabe.soll_konto }}</p>
-            <p><strong>Haben-Konto:</strong> {{ nutzer_aufgabe.haben_konto }}</p>
-            <p><strong>Betrag:</strong> {{ nutzer_aufgabe.betrag }}</p>
-        </ul>
-    {% endif %}
+    <p><strong>Zufällig generierte Werte:</strong></p>
+    <ul>
+        <li><strong>Soll-Konten:</strong>
+            <ul>
+                {% for i in nutzer_aufgabe.soll_konten %}
+                    <li>
+                        {{ i }}: {{ nutzer_aufgabe.soll_betraege|index:forloop.counter0 }} €
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+
+        <li><strong>Haben-Konten:</strong>
+            <ul>
+                {% for i in nutzer_aufgabe.haben_konten %}
+                    <li>
+                        {{ i }}: {{ nutzer_aufgabe.haben_betraege|index:forloop.counter0 }} €
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+{% endif %}
+
+
+
  
     <div class="content-wrapper_rechnung">
         <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->

@@ -109,16 +109,18 @@ class NutzerAufgabe(models.Model):
         ('korrekt', 'Korrekt'),
     ]
 
-    aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE)
+    aufgabe = models.ForeignKey('Aufgabe_neu', on_delete=models.CASCADE)
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    soll_konto = models.CharField(max_length=255)
-    haben_konto = models.CharField(max_length=255)
-    betrag = models.FloatField()
+    soll_konten = models.JSONField(default=list)  # Liste der Soll-Konten
+    haben_konten = models.JSONField(default=list)  # Liste der Haben-Konten
+    soll_betraege = models.JSONField(default=list)  # Liste der Soll-Beträge
+    haben_betraege = models.JSONField(default=list)  # Liste der Haben-Beträge
     erstellt_am = models.DateTimeField(auto_now_add=True)
-    bearbeitungsstand = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offen')  # Neues Feld
+    bearbeitungsstand = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offen')
 
     def __str__(self):
         return f"NutzerAufgabe für {self.nutzer.username} - {self.aufgabe.fragentyp_text}"
+
     
 class Mail(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

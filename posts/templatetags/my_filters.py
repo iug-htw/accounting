@@ -15,3 +15,11 @@ def abs_value(value):
         return abs(float(value))
     except (ValueError, TypeError):
         return value
+    
+@register.filter
+def zip(a, b):
+    return zip(a, b)
+
+@register.filter
+def index(sequence, position):
+    return sequence[int(position)]
