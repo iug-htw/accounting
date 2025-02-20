@@ -16,32 +16,11 @@
             <p><strong>Betrag:</strong> {{ nutzer_aufgabe.betrag }}</p>
         </ul>
     {% endif %}
-
+ 
     <div class="content-wrapper_rechnung">
         <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->
-        <div class="invoice-box">
-            <h2>Rechnung Nr. {{ rechnungsnummer }}</h2>
-            <p><strong>Datum:</strong> {{ datum|date:"d.m.Y" }}</p>
-        
-            <div class="details">
-                <p><strong>Von:</strong><br>{{ eigene_ansicht|linebreaks }}</p>
-                <p><strong>An:</strong><br>{{ anschrift_kunde|linebreaks }}</p>
-            </div>
-        
-            <div class="content">
-                <h4>Beschreibung:</h4>
-                <p>{{ beschreibung|default:"Keine Beschreibung angegeben." }}</p>
-            </div>
-        
-            <div class="amount">
-                <p><strong>Rechnungsbetrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
-                <p><strong>Zahlweise:</strong> {{ zahlweise|default:"Keine Zahlungsart angegeben" }}</p>
-            </div>
-        
-            <div class="footer">
-                <p>{{ verabschiedung|linebreaks }}</p>
-                <p><strong>Kontakt:</strong><br>{{ kontakt|linebreaks }}</p>
-            </div>
+        <div class="left-section_rechnung">
+            {% include rechnungs_template %}
         </div>
 
         <!-- Rechter Bereich: Eingabefelder -->
@@ -89,6 +68,31 @@
                     <p><strong>Haben-Konten:</strong> {{ item.buchung.antwort_konten_haben }}</p>
                     <p><strong>Beträge Soll:</strong> {{ item.buchung.antwort_betrag_soll }}</p>
                     <p><strong>Beträge Haben:</strong> {{ item.buchung.antwort_betrag_haben }}</p>
+                    <h3>Feedback</h3>
+                                    {% if item.buchung.konto_korrekt == 0 %}
+                                        <p>✅ Alle Konten sind korrekt.</p>
+                                    {% elif item.buchung.konto_korrekt == 1 %}
+                                        <p>⚠️ Das Konto auf der Soll-Seite ist inkorrekt.</p>
+                                    {% elif item.buchung.konto_korrekt == 2 %}
+                                        <p>⚠️ Das Konto auf der Haben-Seite ist inkorrekt.</p>
+                                    {% elif item.buchung.konto_korrekt == 3 %}
+                                        <p>⚠️ Beide Konten sind falsch.</p>
+                                    {% endif %}
+
+                                    {% if item.buchung.betrag_korrekt == 0 %}
+                                        <p>✅ Betrag ist korrekt.</p>
+                                    {% elif item.buchung.betrag_korrekt == 1 %}
+                                        <p>⚠️ Der Betrag auf der Soll-Seite ist inkorrekt.</p>
+                                    {% elif item.buchung.betrag_korrekt == 2 %}
+                                        <p>⚠️ Der Betrag auf der Haben-Seite ist inkorrekt.</p>
+                                    {% elif item.buchung.betrag_korrekt == 3 %}
+                                        <p>⚠️ Beide Beträge sind falsch.</p>
+                                    {% endif %}
+                                    
+                                    <h4>Zusätzliches Feedback:</h4>
+                                    <p>{{ aufgabe.feedback_konto_falsch }}</p>
+                                    <p>{{ aufgabe.feedback_betrag_falsch }}</p>
+
                 </div>
             {% endfor %}
         </ul>

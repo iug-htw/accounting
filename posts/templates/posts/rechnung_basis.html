@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Rechnung {{ rechnungsnummer }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        .header, .footer { text-align: center; }
+        .details, .amount { margin-top: 20px; }
+        .amount { font-weight: bold; font-size: 1.2em; }
+        .highlight { background-color: #f0f0f0; padding: 10px; border-radius: 5px; }
+        .no-data { color: #999; font-style: italic; }
+        .invoice-box {
+            width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        .company-address, .client-address, .invoice-header, .invoice-description, .invoice-amount, .invoice-footer {
+            margin-bottom: 15px;
+        }
+        .invoice-amount {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <div class="company-address">
+            <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
+        </div>
+    
+        <div class="client-address" style="text-align: right;">
+            <p><strong>{{ anschrift_kunde|linebreaks }}</strong></p>
+        </div>
+    
+        <div class="invoice-header" style="margin-top: 20px;">
+            <p><strong>Datum:</strong> {{ datum|date:"d.m.Y" }}</p>
+            <p><strong>Rechnung Nr.:</strong> {{ rechnungsnummer|default:"Keine Nummer angegeben" }}</p>
+        </div>
+    
+        <div class="invoice-description" style="margin-top: 20px;">
+            <h3>Rechnung</h3>
+            <p>
+                Sehr geehrtes {{ anschrift_kunde|linebreaks }},<br><br>
+                vielen Dank für Ihren Auftrag. Wir freuen uns, Ihnen folgende Dienstleistung(en) anbieten zu dürfen:<br><br>
+                {{ beschreibung|linebreaks }}<br><br>
+                Als unser geschätzter Kunde profitieren Sie von erstklassigem Service und einem 24/7-Support.
+            </p>
+        </div>
+    
+        <div class="invoice-amount" style="margin-top: 20px;">
+            <p><strong>Rechnungsbetrag (Brutto):</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+        </div>
+    
+        <div class="payment-info" style="margin-top: 20px;">
+            <p><strong>Zahlungsweise:</strong> {{ zahlweise|default:"Keine Zahlungsart angegeben" }}</p>
+            <p><strong>Zahlungsziel:</strong> Bitte begleichen Sie den Betrag innerhalb von 30 Tagen.</p>
+        </div>
+    
+        <div class="invoice-footer" style="margin-top: 40px;">
+            <p>Mit freundlichen Grüßen,</p>
+            <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
+            <p><strong>Kontakt:</strong><br>{{ kontakt|linebreaks }}</p>
+        </div>
+    </div>
+</body>
+</html>

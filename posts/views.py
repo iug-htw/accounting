@@ -107,37 +107,6 @@ def is_buchung_korrekt(buchung, nutzer_aufgabe):
     return soll_konto_korrekt and haben_konto_korrekt and betrag_korrekt_soll and betrag_korrekt_haben
 
 
-def rechnung_view(request, aufgabe_id):
-    """
-    Zeigt die passende Rechnung basierend auf dem Rechnungstyp der Aufgabe an.
-    """
-    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
-
-    # Automatische Template-Auswahl
-    template_map = {
-        'eingehend': 'rechnungen/rechnung_eingehend.html',
-        'ausgehend': 'rechnungen/rechnung_ausgehend.html',
-        'intern': 'rechnungen/rechnung_intern.html',
-    }
-
-    template = template_map.get(aufgabe.rechnungstyp, 'rechnungen/rechnung_intern.html')
-
-    # Kontext-Daten für das Template
-    context = {
-        'rechnungsnummer': aufgabe.rechnungsnummer,
-        'datum': aufgabe.datum,
-        'anschrift_kunde': aufgabe.anschrift_kunde,
-        'eigene_ansicht': aufgabe.eigene_ansicht,
-        'beschreibung': aufgabe.beschreibung,
-        'rechnungsbetrag': aufgabe.rechnungsbetrag,
-        'zahlweise': aufgabe.zahlweise,
-        'verabschiedung': aufgabe.verabschiedung,
-        'kontakt': aufgabe.kontakt,
-        'rechnungstyp': aufgabe.get_rechnungstyp_display(),
-    }
-
-    return render(request, template, context)
-
 @login_required
 def rechnung_detail_view(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
@@ -161,14 +130,39 @@ def rechnung_detail_view(request, aufgabe_id):
         for buchung in buchungen
     ]
 
-    return render(request, 'posts/rechnung.html', {
+    # Template für den Rechnungstyp auswählen
+    template_map = {
+        'eingehend': 'posts/rechnungen/rechnung_eingehend.html',
+        'ausgehend': 'posts/rechnungen/rechnung_ausgehend.html',
+        'intern': 'posts/rechnungen/rechnung_intern.html',
+    }
+
+    rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
+
+    # Kontext mit allen notwendigen Daten
+    context = {
+        'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
+        'rechnungsnummer': aufgabe.rechnungsnummer,
+        'datum': aufgabe.datum,
+        'anschrift_kunde': aufgabe.anschrift_kunde,
+        'eigene_ansicht': aufgabe.eigene_ansicht,
+        'beschreibung': aufgabe.beschreibung,
+        'rechnungsbetrag': aufgabe.rechnungsbetrag,
+        'zahlweise': aufgabe.zahlweise,
+        'verabschiedung': aufgabe.verabschiedung,
+        'kontakt': aufgabe.kontakt,
+        'rechnungstyp': aufgabe.get_rechnungstyp_display(),
         'aufgabe': aufgabe,
         'nutzer_aufgabe': nutzer_aufgabe,
         'next_aufgabe': next_aufgabe,
         'buchungen': buchungen,
         'buchung_status': buchung_status,
         'konten': konten
-    })
+    }
+
+    return render(request, 'posts/rechnung.html', context)
+
+
 
 def update_buchung_status(buchung, ist_korrekt):
     if ist_korrekt:
