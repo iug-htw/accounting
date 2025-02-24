@@ -37,7 +37,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td class="betrag">{{ betrag|floatformat:2|abs_value }}</td>
+                                <td class="betrag" data-value="{{ betrag }}">{{ betrag|german_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -47,7 +47,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td class="betrag">{{ betrag|floatformat:2|abs_value }}</td>
+                                <td class="betrag" data-value="{{ betrag }}">{{ betrag|german_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -81,9 +81,9 @@
                     <tfoot>
                         <tr>
                             <td>Summe</td>
-                            <td id="summe-aktiv">0.00</td>
+                            <td id="summe-aktiv">{{summe|german_format}}</td>
                             <td>Summe</td>
-                            <td id="summe-passiv">0.00</td>
+                            <td id="summe-passiv">{{summe|german_format}}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -106,8 +106,9 @@ document.addEventListener("DOMContentLoaded", function() {
             let sollWerte = Array.from(sollTabelle.querySelectorAll("td.betrag"));
             let habenWerte = Array.from(habenTabelle.querySelectorAll("td.betrag"));
 
-            let sollSumme = sollWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.innerText) || 0), 0);
-            let habenSumme = habenWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.innerText) || 0), 0);
+            let sollSumme = sollWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.dataset.value) || 0), 0);
+            let habenSumme = habenWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.dataset.value) || 0), 0);
+
 
             let differenz = Math.abs(sollSumme - habenSumme);
             let istAktiv = kontoDiv.querySelector(".konto-kategorie").value === "Aktiva";
@@ -129,19 +130,17 @@ document.addEventListener("DOMContentLoaded", function() {
             // **Differenz auf der kleineren Seite unter der ersten leeren Zeile hinzufügen**
             let differenzZeile = document.createElement("tr");
             if (sollSumme > habenSumme) {
-                differenzZeile.innerHTML = `<td>SBK</td><td>${differenz.toFixed(2)}</td>`;
+                differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                 habenTabelle.appendChild(differenzZeile);
             } else {
-                differenzZeile.innerHTML = `<td>SBK</td><td>${differenz.toFixed(2)}</td>`;
+                differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                 sollTabelle.appendChild(differenzZeile);
             }
-            
-
 
             // **Summenzeile auf der größeren Seite hinzufügen**
             let summenZeile = document.createElement("tr");
             summenZeile.style.fontWeight = "bold";
-            summenZeile.innerHTML = `<td>Summe</td><td>${Math.max(sollSumme, habenSumme).toFixed(2)}</td>`;
+            summenZeile.innerHTML = `<td>Summe</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
 
             sollTabelle.appendChild(summenZeile.cloneNode(true)); 
             habenTabelle.appendChild(summenZeile);
@@ -178,8 +177,9 @@ document.addEventListener("DOMContentLoaded", function() {
             let sollWerte = Array.from(sollTabelle.querySelectorAll("td.betrag"));
             let habenWerte = Array.from(habenTabelle.querySelectorAll("td.betrag"));
 
-            let sollSumme = sollWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
-            let habenSumme = habenWerte.reduce((sum, cell) => sum + (parseFloat(cell.innerText) || 0), 0);
+            let sollSumme = sollWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.dataset.value) || 0), 0);
+            let habenSumme = habenWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.dataset.value) || 0), 0);
+
 
             let differenz = Math.abs(sollSumme - habenSumme);
 
@@ -214,14 +214,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     for (let i = 0; i < bilanzZeilen.length; i++) {
                         if (bilanzZeilen[i].cells[0].innerText.trim() === "") {
                             bilanzZeilen[i].cells[0].innerText = kontoName;
-                            bilanzZeilen[i].cells[1].innerText = differenz.toFixed(2);
+                            bilanzZeilen[i].cells[1].setAttribute("data-value", differenz);
+                            bilanzZeilen[i].cells[1].innerText = differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                             break;
                         }
                     }
                 } else {
                     // Neue Zeile hinzufügen
                     let neueZeile = document.createElement("tr");
-                    neueZeile.innerHTML = `<td>${kontoName}</td><td>${differenz.toFixed(2)}</td><td></td><td></td>`;
+                    neueZeile.innerHTML = `<td>${kontoName}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
                     bilanzBody.appendChild(neueZeile);
                 }
             }
@@ -234,30 +235,29 @@ document.addEventListener("DOMContentLoaded", function() {
                     for (let i = 0; i < bilanzZeilen.length; i++) {
                         if (bilanzZeilen[i].cells[2].innerText.trim() === "") {
                             bilanzZeilen[i].cells[2].innerText = kontoName;
-                            bilanzZeilen[i].cells[3].innerText = differenz.toFixed(2);
+                            bilanzZeilen[i].cells[3].setAttribute("data-value", differenz);
+                            bilanzZeilen[i].cells[3].innerText = differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                             break;
                         }
                     }
                 } else {
                     // Neue Zeile hinzufügen
                     let neueZeile = document.createElement("tr");
-                    neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td>${differenz.toFixed(2)}</td>`;
+                    neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                     bilanzBody.appendChild(neueZeile);
                 }
             }
 
             // Summe aktualisieren
-            summeAktivElement.innerText = summeAktiv.toFixed(2);
-            summePassivElement.innerText = summePassiv.toFixed(2);
+            summeAktivElement.setAttribute("data-value", summeAktiv);
+            summePassivElement.setAttribute("data-value", summePassiv);
 
-
-            // Summenzeile aktualisieren
-            summeAktivElement.innerHTML = `${summeAktiv.toFixed(2)}`;
-            summePassivElement.innerHTML = `${summePassiv.toFixed(2)}`;
+            summeAktivElement.innerText = summeAktiv.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            summePassivElement.innerText = summePassiv.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
             this.disabled = true;
             this.innerText = "Abgeschlossen";
-        });
+        }); //passt
     });
 });
 </script>

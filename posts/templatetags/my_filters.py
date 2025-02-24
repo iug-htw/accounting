@@ -1,4 +1,5 @@
 from django import template
+import locale
 
 register = template.Library()
 
@@ -23,3 +24,10 @@ def zip(a, b):
 @register.filter
 def index(sequence, position):
     return sequence[int(position)]
+
+@register.filter
+def german_format(value):
+    try:
+        return "{:,.2f}".format(abs(float(value))).replace(",", "X").replace(".", ",").replace("X", ".")
+    except (ValueError, TypeError):
+        return value

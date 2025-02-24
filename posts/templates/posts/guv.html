@@ -33,7 +33,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td>{{ betrag|floatformat:2 }}</td>
+                                <td data-value="{{ betrag }}">{{ betrag|german_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -43,7 +43,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td>{{ betrag|floatformat:2 }}</td>
+                                <td data-value="{{ betrag }}">{{ betrag|german_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -131,8 +131,8 @@
                 let sollWerte = Array.from(sollTabelle.querySelectorAll("tr"));
                 let habenWerte = Array.from(habenTabelle.querySelectorAll("tr"));
     
-                let sollSumme = sollWerte.reduce((sum, row) => sum + (parseFloat(row.cells[1]?.innerText) || 0), 0);
-                let habenSumme = habenWerte.reduce((sum, row) => sum + (parseFloat(row.cells[1]?.innerText) || 0), 0);
+                let sollSumme = sollWerte.reduce((sum, row) => sum + Math.abs(parseFloat(row.cells[1]?.dataset.value) || 0), 0);
+                let habenSumme = habenWerte.reduce((sum, row) => sum + Math.abs(parseFloat(row.cells[1]?.dataset.value) || 0), 0);
     
                 let differenz = Math.abs(sollSumme - habenSumme);
     
@@ -151,17 +151,18 @@
                 // Differenz (SBK) auf der kleineren Seite einfügen
                 let differenzZeile = document.createElement("tr");
                 if (sollSumme > habenSumme) {
-                    differenzZeile.innerHTML = `<td>SBK</td><td>${differenz.toFixed(2)}</td>`;
+                    differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                     habenTabelle.appendChild(differenzZeile);
                 } else {
-                    differenzZeile.innerHTML = `<td>SBK</td><td>${differenz.toFixed(2)}</td>`;
+                    differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                     sollTabelle.appendChild(differenzZeile);
                 }
+
     
                 // Summenzeile einfügen
                 let summenZeile = document.createElement("tr");
                 summenZeile.style.fontWeight = "bold";
-                summenZeile.innerHTML = `<td>Summe</td><td>${Math.max(sollSumme, habenSumme).toFixed(2)}</td>`;
+                summenZeile.innerHTML = `<td>Summe</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                 sollTabelle.appendChild(summenZeile.cloneNode(true));
                 habenTabelle.appendChild(summenZeile);
     
@@ -171,150 +172,143 @@
         });    
     });
     
-document.addEventListener("DOMContentLoaded", function () {
-    let guvBody = document.getElementById("guv-body");
-
-    document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let kontoDiv = this.closest(".konto");
-            let kontoName = kontoDiv.getAttribute('data-konto');
-            let kontoKategorie = kontoDiv.getAttribute('data-kategorie');
-
-            if (!kontoName || kontoKategorie !== "Erfolgskonto") return;
-
-            let sollTabelle = kontoDiv.querySelector(".soll-werte table");
-            let habenTabelle = kontoDiv.querySelector(".haben-werte table");
-
-            let sbkBetrag = 0;
-            let sbkSeite = "";
-
-            // SBK in Soll suchen
-            let sbkZeileSoll = Array.from(sollTabelle.querySelectorAll("tr"))
-                .find(row => row.cells[0]?.innerText.trim() === "SBK");
-            if (sbkZeileSoll) {
-                sbkBetrag = parseFloat(sbkZeileSoll.cells[1]?.innerText) || 0;
-                sbkSeite = "Soll";
-            }
-
-            // SBK in Haben suchen, wenn nicht im Soll gefunden
-            if (sbkBetrag === 0) {
-                let sbkZeileHaben = Array.from(habenTabelle.querySelectorAll("tr"))
+    document.addEventListener("DOMContentLoaded", function () {
+        let guvBody = document.getElementById("guv-body");
+    
+        document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let kontoDiv = this.closest(".konto");
+                let kontoName = kontoDiv.getAttribute('data-konto');
+                let kontoKategorie = kontoDiv.getAttribute('data-kategorie');
+    
+                if (!kontoName || kontoKategorie !== "Erfolgskonto") return;
+    
+                let sollTabelle = kontoDiv.querySelector(".soll-werte table");
+                let habenTabelle = kontoDiv.querySelector(".haben-werte table");
+    
+                let sbkBetrag = 0;
+                let sbkSeite = "";
+    
+                // SBK in Soll suchen
+                let sbkZeileSoll = Array.from(sollTabelle.querySelectorAll("tr"))
                     .find(row => row.cells[0]?.innerText.trim() === "SBK");
-                if (sbkZeileHaben) {
-                    sbkBetrag = parseFloat(sbkZeileHaben.cells[1]?.innerText) || 0;
-                    sbkSeite = "Haben";
+                if (sbkZeileSoll) {
+                    sbkBetrag = parseFloat(sbkZeileSoll.cells[1]?.dataset.value) || 0;
+                    sbkSeite = "Soll";
                 }
-            }
-
-            // Fallback: Berechnung der Differenz
-            if (sbkBetrag === 0) {
-                let sollSumme = Array.from(sollTabelle.querySelectorAll("tr"))
-                    .reduce((sum, row) => sum + (parseFloat(row.cells[1]?.innerText) || 0), 0);
-                let habenSumme = Array.from(habenTabelle.querySelectorAll("tr"))
-                    .reduce((sum, row) => sum + (parseFloat(row.cells[1]?.innerText) || 0), 0);
-
-                sbkBetrag = Math.abs(sollSumme - habenSumme);
-                sbkSeite = sollSumme > habenSumme ? "Soll" : "Haben";
-            }
-
-            // Finde freie Zelle oder erstelle neue Zeile (nur einmal befüllen)
-            let zeileGefunden = false;
-            for (let row of guvBody.querySelectorAll("tr")) {
-                if (sbkSeite === "Soll" && !row.cells[0].innerText.trim()) {
-                    row.cells[0].innerText = kontoName;
-                    row.cells[1].innerText = sbkBetrag.toFixed(2);
-                    zeileGefunden = true;
-                    break;
-                } else if (sbkSeite === "Haben" && !row.cells[2].innerText.trim()) {
-                    row.cells[2].innerText = kontoName;
-                    row.cells[3].innerText = sbkBetrag.toFixed(2);
-                    zeileGefunden = true;
-                    break;
+    
+                // SBK in Haben suchen, wenn nicht im Soll gefunden
+                if (sbkBetrag === 0) {
+                    let sbkZeileHaben = Array.from(habenTabelle.querySelectorAll("tr"))
+                        .find(row => row.cells[0]?.innerText.trim() === "SBK");
+                    if (sbkZeileHaben) {
+                        sbkBetrag = parseFloat(sbkZeileHaben.cells[1]?.dataset.value) || 0;
+                        sbkSeite = "Haben";
+                    }
                 }
-            }
-
-            if (!zeileGefunden) {
-                let neueZeile = document.createElement("tr");
-                if (sbkSeite === "Soll") {
-                    neueZeile.innerHTML = `<td>${kontoName}</td><td>${sbkBetrag.toFixed(2)}</td><td></td><td></td>`;
-                } else if (sbkSeite === "Haben") {
-                    neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td>${sbkBetrag.toFixed(2)}</td>`;
+    
+                // Fallback: Berechnung der Differenz
+                if (sbkBetrag === 0) {
+                    let sollSumme = Array.from(sollTabelle.querySelectorAll("tr"))
+                        .reduce((sum, row) => sum + (parseFloat(row.cells[1]?.dataset.value) || 0), 0);
+                    let habenSumme = Array.from(habenTabelle.querySelectorAll("tr"))
+                        .reduce((sum, row) => sum + (parseFloat(row.cells[1]?.dataset.value) || 0), 0);
+    
+                    sbkBetrag = Math.abs(sollSumme - habenSumme);
+                    sbkSeite = sollSumme > habenSumme ? "Soll" : "Haben";
                 }
-                guvBody.appendChild(neueZeile);
-            }
-
-            aktualisiereGuVSumme();
+    
+                // Finde freie Zelle oder erstelle neue Zeile
+                let zeileGefunden = false;
+                for (let row of guvBody.querySelectorAll("tr")) {
+                    if (sbkSeite === "Soll" && !row.cells[0].innerText.trim()) {
+                        row.cells[0].innerText = kontoName;
+                        row.cells[1].innerText = sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        zeileGefunden = true;
+                        break;
+                    } else if (sbkSeite === "Haben" && !row.cells[2].innerText.trim()) {
+                        row.cells[2].innerText = kontoName;
+                        row.cells[3].innerText = sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        zeileGefunden = true;
+                        break;
+                    }
+                }
+    
+                if (!zeileGefunden) {
+                    let neueZeile = document.createElement("tr");
+                    if (sbkSeite === "Soll") {
+                        neueZeile.innerHTML = `<td>${kontoName}</td><td>${sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
+                    } else if (sbkSeite === "Haben") {
+                        neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td>${sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                    }
+                    guvBody.appendChild(neueZeile);
+                }
+    
+                aktualisiereGuVSumme();
+            });
         });
-    });
 
-    function insertSBKRow() {
-        let sollGesamt = 0, habenGesamt = 0;
-        guvBody.querySelectorAll("tr").forEach(row => {
-            sollGesamt += parseFloat(row.cells[1]?.innerText) || 0;
-            habenGesamt += parseFloat(row.cells[3]?.innerText) || 0;
-        });
-    
-        let differenz = Math.abs(sollGesamt - habenGesamt);
-    
-        // Definiere sbkBetrag mit Vorzeichen
-        let sbkBetrag = (sollGesamt < habenGesamt) ? differenz : -differenz;
-    
-        // Neue Zeile für SBK erstellen
-        let neueSBKZeile = document.createElement("tr");
-    
-        // Schreibe den SBK-Wert auf die kleinere Seite
-        if (sollGesamt < habenGesamt) {
-            neueSBKZeile.innerHTML = `<td>SBK</td><td>${differenz.toFixed(2)}</td><td></td><td></td>`;
-        } else {
-            neueSBKZeile.innerHTML = `<td></td><td></td><td>SBK</td><td>${differenz.toFixed(2)}</td>`;
-        }
-    
-        guvBody.appendChild(neueSBKZeile);
-    
-        // ✅ AJAX-Request zum Speichern des SBK-Betrags
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-        fetch("/posts/speichere_guv_ergebnis/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRFToken": csrfToken
-            },
-            body: `guv_result=${sbkBetrag}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log("SBK-Betrag erfolgreich gespeichert");
+        function insertSBKRow() {
+            let sollGesamt = 0, habenGesamt = 0;
+            guvBody.querySelectorAll("tr").forEach(row => {
+                sollGesamt += parseFloat(row.cells[1]?.dataset?.value || row.cells[1]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
+                habenGesamt += parseFloat(row.cells[3]?.dataset?.value || row.cells[3]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
+            });
+        
+            let differenz = Math.abs(sollGesamt - habenGesamt);
+        
+            // Neue Zeile für SBK erstellen
+            let neueSBKZeile = document.createElement("tr");
+        
+            // Schreibe den SBK-Wert auf die kleinere Seite
+            if (sollGesamt < habenGesamt) {
+                neueSBKZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
             } else {
-                console.error("Fehler beim Speichern:", data.error);
+                neueSBKZeile.innerHTML = `<td></td><td></td><td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
             }
-        })
-        .catch(error => console.error("Netzwerkfehler:", error));
-    
-        aktualisiereGuVSumme();
-    }
+        
+            guvBody.appendChild(neueSBKZeile);
+        
+            // ✅ AJAX-Request zum Speichern des SBK-Betrags
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+            fetch("/posts/speichere_guv_ergebnis/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrfToken
+                },
+                body: `guv_result=${differenz}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("SBK-Betrag erfolgreich gespeichert");
+                } else {
+                    console.error("Fehler beim Speichern:", data.error);
+                }
+            })
+            .catch(error => console.error("Netzwerkfehler:", error));
+        
+            aktualisiereGuVSumme();
+        }
+        
     
     function aktualisiereGuVSumme() {
         let sollGesamt = 0, habenGesamt = 0;
         guvBody.querySelectorAll("tr").forEach(row => {
-            sollGesamt += parseFloat(row.cells[1]?.innerText) || 0;
-            habenGesamt += parseFloat(row.cells[3]?.innerText) || 0;
+            sollGesamt += parseFloat(row.cells[1]?.dataset?.value || row.cells[1]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
+            habenGesamt += parseFloat(row.cells[3]?.dataset?.value || row.cells[3]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
         });
-    
-        // Überprüfe, ob die Elemente existieren, bevor du darauf zugreifst
+
         const summeSollElement = document.getElementById("summe-soll");
         const summeHabenElement = document.getElementById("summe-haben");
-    
+
         if (summeSollElement) {
-            summeSollElement.innerText = sollGesamt.toFixed(2);
-        } else {
-            console.warn("Element mit ID 'summe-soll' nicht gefunden.");
+            summeSollElement.innerText = sollGesamt.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
-    
+
         if (summeHabenElement) {
-            summeHabenElement.innerText = habenGesamt.toFixed(2);
-        } else {
-            console.warn("Element mit ID 'summe-haben' nicht gefunden.");
+            summeHabenElement.innerText = habenGesamt.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
     }
     
