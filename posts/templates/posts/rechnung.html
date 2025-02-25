@@ -337,5 +337,44 @@
         sollContainer.appendChild(korrekturSollContainer);
         habenContainer.appendChild(korrekturHabenContainer);
     }
+// Summenprüfung und Bestätigung vor dem Absenden
+document.querySelector('.btn-submit_rechnung').addEventListener('click', function(event) {
+    event.preventDefault();  // Verhindert sofortiges Absenden
+
+    // Sammle alle Soll-Beträge
+    let sollBetraege = Array.from(document.querySelectorAll('input[name="soll_betrag[]"]'))
+        .map(input => parseFloat(input.value) || 0);
+
+    // Sammle alle Haben-Beträge
+    let habenBetraege = Array.from(document.querySelectorAll('input[name="haben_betrag[]"]'))
+        .map(input => parseFloat(input.value) || 0);
+
+    // Berechne die Summen
+    let summeSoll = sollBetraege.reduce((acc, val) => acc + val, 0);
+    let summeHaben = habenBetraege.reduce((acc, val) => acc + val, 0);
+
+    // Überprüfe, ob die Summen übereinstimmen
+    if (summeSoll !== summeHaben) {
+        // Warnung bei Ungleichheit
+        if (!document.getElementById('summenwarnung')) {
+            let warnung = document.createElement('p');
+            warnung.id = 'summenwarnung';
+            warnung.style.color = 'red';
+            warnung.textContent = '⚠️ Die Summe der Soll-Beträge muss der Summe der Haben-Beträge entsprechen!';
+            document.querySelector('.btn-submit_rechnung').after(warnung);
+        }
+    } else {
+        // Entferne alte Warnung (falls vorhanden)
+        let alteWarnung = document.getElementById('summenwarnung');
+        if (alteWarnung) alteWarnung.remove();
+
+        // Bestätigungspopup anzeigen
+        if (confirm("⚠️ Diese Buchung wird dauerhaft im Hauptbuch gespeichert. Fehler können nur über Korrekturbuchungen korrigiert werden.\n\nMöchten Sie fortfahren?")) {
+            // Formular absenden, wenn bestätigt
+            document.querySelector('form').submit();
+        }
+    }
+});
+
 </script>
 {% endblock %}
