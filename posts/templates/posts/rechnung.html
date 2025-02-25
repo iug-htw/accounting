@@ -6,7 +6,6 @@
 <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 {% block content %}
-<p>Next Aufgabe ID: {{ next_aufgabe.id }}</p>
 <div class="container_rechnung">
     <h1 class="headline_rechnung">Rechnung Nr.{{ aufgabe.id }} - {{ aufgabe.fragentyp_text }}</h1>
     {% if user.is_authenticated and nutzer_aufgabe %}
@@ -174,14 +173,6 @@
     <br><br>
     <p>Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung erfolgen</p> 
 </form>
-
-
-
-            {% if next_aufgabe %}
-                <a href="{% url 'posts:rechnung_detail' next_aufgabe.id %}" class="btn-next_rechnung">Nächste Aufgabe ➡️</a>
-            {% else %}
-                <p>Keine weiteren Aufgaben verfügbar.</p>
-            {% endif %}
         </div>
     </div>
 </div>

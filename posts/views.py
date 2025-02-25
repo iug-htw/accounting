@@ -282,63 +282,85 @@ def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
     messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
     return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
-def generiere_zufaellige_werte(aufgabe):
-    # Alle Soll-Konten abrufen
-    soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
-    haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
+def generiere_zufaellige_werte(aufgabe, tiefe=0):
+    if tiefe < 50:
+        print(f"Aufruf {tiefe}: Generiere Werte für Aufgabe ID {aufgabe.id}")
 
-    # Initialisieren der Daten
-    soll_konten = []
-    haben_konten = []
-    soll_betraege = []
-    haben_betraege = []
+        # Alle Soll- und Haben-Konten abrufen
+        soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
+        haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
 
-    # Berechnung der Min-/Max-Werte für Soll-Konten
-    for konto in soll_konten_queryset:
-        referenz_betrag = konto.betrag
-        min_betrag = referenz_betrag * 0.25
-        max_betrag = referenz_betrag * 1.75
+        # Initialisieren der Daten
+        soll_konten = []
+        haben_konten = []
+        soll_betraege = []
+        haben_betraege = []
+        referenz_betraege = []  # Speichern der ursprünglichen Referenzwerte
 
-        zufallswert = random.randint(int(min_betrag), int(max_betrag))
-        soll_konten.append(konto.kontoname)
-        soll_betraege.append(round(zufallswert, 0))
+        # Berechnung der Min-/Max-Werte für Soll-Konten
+        for konto in soll_konten_queryset:
+            referenz_betrag = konto.betrag
+            referenz_betraege.append(referenz_betrag)
+            min_betrag = referenz_betrag * 0.25
+            max_betrag = referenz_betrag * 1.75
 
-    # Berechnung der Min-/Max-Werte für Haben-Konten
-    for konto in haben_konten_queryset:
-        referenz_betrag = konto.betrag
-        min_betrag = referenz_betrag * 0.25
-        max_betrag = referenz_betrag * 1.75
+            zufallswert = random.randint(int(min_betrag), int(max_betrag))
+            soll_konten.append(konto.kontoname)
+            soll_betraege.append(round(zufallswert, 0))
 
-        zufallswert = random.randint(int(min_betrag), int(max_betrag))
-        haben_konten.append(konto.kontoname)
-        haben_betraege.append(round(zufallswert, 0))
+        # Berechnung der Min-/Max-Werte für Haben-Konten
+        for konto in haben_konten_queryset:
+            referenz_betrag = konto.betrag
+            referenz_betraege.append(referenz_betrag)
+            min_betrag = referenz_betrag * 0.25
+            max_betrag = referenz_betrag * 1.75
 
-    # Überprüfung der Gesamtsumme
-    summe_soll = sum(soll_betraege)
-    summe_haben = sum(haben_betraege)
+            zufallswert = random.randint(int(min_betrag), int(max_betrag))
+            haben_konten.append(konto.kontoname)
+            haben_betraege.append(round(zufallswert, 0))
 
-    # Sicherstellen, dass Soll = Haben
-    differenz = summe_soll - summe_haben
-    if abs(differenz) > 0:
-        # Passe den letzten Haben-Betrag an, um die Differenz auszugleichen
-        if haben_betraege[-1] + differenz >= 0:
-            haben_betraege[-1] += differenz
-        else:
-            # Falls negativ, generiere die Werte neu
-            return generiere_zufaellige_werte(aufgabe)
+        # Überprüfung der Gesamtsumme
+        summe_soll = sum(soll_betraege)
+        summe_haben = sum(haben_betraege)
+        differenz = summe_soll - summe_haben
 
-    # Überprüfung der min/max-Werte auf Aufgabe-Ebene
-    if not (aufgabe.min_wert <= summe_soll <= aufgabe.max_wert):
-        # Wiederhole die Generierung, wenn die Summe nicht passt
-        return generiere_zufaellige_werte(aufgabe)
+        print(f"Summe Soll: {summe_soll}, Summe Haben: {summe_haben}, Differenz: {differenz}")
 
-    return {
-        'soll_konten': soll_konten,
-        'haben_konten': haben_konten,
-        'soll_betraege': soll_betraege,
-        'haben_betraege': haben_betraege
-    }
+        # Anpassung bei Differenz
+        if differenz != 0:
+            # Höchsten Wert aus beiden Listen finden
+            max_soll_index = soll_betraege.index(max(soll_betraege))
+            max_haben_index = haben_betraege.index(max(haben_betraege))
 
+            # Vergleich der höchsten Werte
+            if soll_betraege[max_soll_index] >= haben_betraege[max_haben_index]:
+                # Anpassen des höchsten Soll-Betrags
+                soll_betraege[max_soll_index] -= differenz
+                print(f"Soll-Betrag angepasst: {soll_betraege[max_soll_index]}")
+            else:
+                # Anpassen des höchsten Haben-Betrags
+                haben_betraege[max_haben_index] += differenz
+                print(f"Haben-Betrag angepasst: {haben_betraege[max_haben_index]}")
+
+            # Erneute Überprüfung nach der Anpassung
+            summe_soll = sum(soll_betraege)
+            summe_haben = sum(haben_betraege)
+            print(f"Neue Summe Soll: {summe_soll}, Neue Summe Haben: {summe_haben}")
+
+            # Überprüfung der angepassten Werte mit Referenzwerten
+            for i, betrag in enumerate(soll_betraege + haben_betraege):
+                referenzwert = referenz_betraege[i % len(referenz_betraege)]
+                if not (referenzwert * 0.5 <= betrag <= referenzwert * 1.75):
+                    print(f"Angepasster Betrag {betrag} außerhalb des zulässigen Bereichs ({referenzwert * 0.5} - {referenzwert * 1.75})")
+                    return generiere_zufaellige_werte(aufgabe, tiefe + 1)
+
+        print(f"Erfolgreich generiert nach {tiefe} Versuchen")
+        return {
+            'soll_konten': soll_konten,
+            'haben_konten': haben_konten,
+            'soll_betraege': soll_betraege,
+            'haben_betraege': haben_betraege
+        }
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
     nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(

@@ -2,14 +2,30 @@
 {% block content %}
 <h1>Aufgaben zuweisen</h1>
 
+<!-- Aufgabenübersicht -->
+<h2>Übersicht der zugewiesenen Aufgaben</h2>
+{% for semester, studiengaenge in aufgaben_uebersicht.items %}
+    <h3>{{ semester }}</h3>
+    {% for studiengang, aufgaben in studiengaenge.items %}
+        <p><strong>{{ studiengang }}:</strong> 
+            {% for aufgabe in aufgaben %}
+                {{ aufgabe }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+    {% empty %}
+        <p>Keine Aufgaben zugewiesen.</p>
+    {% endfor %}
+{% endfor %}
+
+<!-- Formular zum Zuweisen der Aufgaben -->
 <form method="post">
     {% csrf_token %}
-    
+
     <h2>Aufgaben auswählen</h2>
     {% for aufgabe in aufgaben %}
         <div>
             <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}">
-            <label>{{ aufgabe.fragentyp_text }} - {{ aufgabe.frage }}</label>
+            <label>Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }} - {{ aufgabe.frage|default:"Fehler bei Fragenabruf" }}</label>
         </div>
     {% endfor %}
 

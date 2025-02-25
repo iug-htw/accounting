@@ -171,18 +171,33 @@ def aufgaben_zuweisen_view(request):
     if not request.user.role == 'teacher':
         return HttpResponse(f'Fehlende Berechtigung <br><a href="/">Zurück zur Startseite</a>')
 
-    aufgaben = Aufgabe_neu.objects.all()
-    semester = Semester.objects.all()
-    studiengaenge = Studiengang.objects.all()
+    # Eigene Studierenden filtern
+    eigene_studierende = CustomUser.objects.filter(professor=request.user, role='student')
 
+    # Eigene Semester und Studiengänge
+    eigene_semester = Semester.objects.filter(id__in=eigene_studierende.values_list('semester_id', flat=True).distinct())
+    eigene_studiengaenge = Studiengang.objects.filter(id__in=eigene_studierende.values_list('studiengang_id', flat=True).distinct())
+
+    aufgaben = Aufgabe_neu.objects.all()
+
+    # Übersicht: Aufgaben pro Semester und Studiengang
+    aufgaben_uebersicht = {}
+    for sem in eigene_semester:
+        aufgaben_uebersicht[sem.name] = {}
+        for studiengang in eigene_studiengaenge:
+            studis_in_gruppe = eigene_studierende.filter(semester=sem, studiengang=studiengang)
+            # Aufgaben nach ID sortieren
+            zugewiesene_aufgaben = Aufgabe_neu.objects.filter(nutzeraufgabe__nutzer__in=studis_in_gruppe).order_by('id').distinct()
+            if zugewiesene_aufgaben.exists():
+                aufgaben_uebersicht[sem.name][studiengang.name] = [f"Aufgabe {aufgabe.id}" for aufgabe in zugewiesene_aufgaben]
+
+    # Aufgaben zuweisen
     if request.method == 'POST':
         ausgewählte_aufgaben = request.POST.getlist('aufgaben')
         ausgewählte_semester = request.POST.getlist('semester')
         ausgewählte_studiengaenge = request.POST.getlist('studiengaenge')
 
-        # Studierende filtern, die den Kriterien entsprechen
-        studierende = CustomUser.objects.filter(
-            role='student',
+        studierende = eigene_studierende.filter(
             semester__id__in=ausgewählte_semester,
             studiengang__id__in=ausgewählte_studiengaenge
         )
@@ -195,13 +210,14 @@ def aufgaben_zuweisen_view(request):
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
                 erstelle_aufgaben_mail(student, aufgabe, naechster_versuch)
 
-        messages.success(request, "Aufgaben erfolgreich zugewiesen und Mails verschickt.")
+        messages.success(request, "Aufgaben erfolgreich zugewiesen.")
         return redirect('users:aufgaben_zuweisen')
 
     return render(request, 'users/aufgaben_zuweisen.html', {
         'aufgaben': aufgaben,
-        'semester': semester,
-        'studiengaenge': studiengaenge
+        'semester': eigene_semester,
+        'studiengaenge': eigene_studiengaenge,
+        'aufgaben_uebersicht': aufgaben_uebersicht
     })
 
 
