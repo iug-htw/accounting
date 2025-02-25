@@ -842,3 +842,30 @@ def bilanz_uebersicht(request):
         "passive_konten": passive_konten,
         "bestandskonten": bestandskonten
     })
+
+@login_required
+def rechnungsuebersicht(request):
+    user = request.user
+
+    # Alle NutzerAufgaben für den aktuellen Nutzer abrufen
+    nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer=user)
+
+    rechnungsdaten = []
+
+    for nutzer_aufgabe in nutzer_aufgaben:
+        aufgabe = nutzer_aufgabe.aufgabe
+        buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=user)
+        
+        # Anzahl Buchungen und Korrekturbuchungen zählen
+        anzahl_buchungen = buchungen.count()
+        anzahl_korrekturbuchungen = buchungen.filter(korrekturbuchung=True).count()
+
+        rechnungsdaten.append({
+            'rechnungsnr': aufgabe.id,
+            'fragentyp_text': aufgabe.fragentyp_text,
+            'anzahl_buchungen': anzahl_buchungen,
+            'anzahl_korrekturbuchungen': anzahl_korrekturbuchungen,
+            'aufgabenstatus': nutzer_aufgabe.bearbeitungsstand
+        })
+
+    return render(request, 'posts/rechnungsuebersicht.html', {'rechnungsdaten': rechnungsdaten})

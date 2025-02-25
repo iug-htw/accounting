@@ -38,6 +38,38 @@
     <button type="submit" class="btn btn-primary">Studierende anlegen</button>
 </form>
 
+{% if neue_studierende %}
+<h2>Erstellte Studierende</h2>
+<table border="1">
+    <tr>
+        <th>Benutzername</th>
+        <th>Passwort</th>
+    </tr>
+    {% for student in neue_studierende %}
+    <tr>
+        <td>{{ student.username }}</td>
+        <td>{{ student.username }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<p><strong>Hinweis:</strong> Die Passwörter entsprechen den Benutzernamen. Die Studierenden sollten diese bei der ersten Anmeldung ändern.</p>
+{% endif %}
+
+{% if fehlgeschlagene_namen %}
+<h2>Bereits existierende Studierende</h2>
+<table border="1">
+    <tr>
+        <th>Benutzername</th>
+    </tr>
+    {% for student_name in fehlgeschlagene_namen %}
+    <tr>
+        <td>{{ student_name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<p><strong>Hinweis:</strong> Diese Studierenden existierten bereits und wurden nicht erneut angelegt.</p>
+{% endif %}
+
 <script>
     function toggleNameInput() {
         let nameMode = document.getElementById("name_mode");

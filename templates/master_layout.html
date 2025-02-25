@@ -27,7 +27,7 @@
                     <a href="{% url 'posts:posteingang' %}" class="nav-element">Posteingang</a>
                     <a href="{% url 'frontpage' %}" class="nav-element">Home</a>
                     <a href="#" class="nav-element">Finanzverwaltung</a>
-                    <a href="{% url 'posts:rechnung' %}" class="nav-element">Rechnungen</a>
+                    <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">Rechnungen</a>
                     <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
                     {% if user.is_authenticated %}
                     <form class="logout" action="{%url 'users:logout' %}" method = "post">

@@ -1,0 +1,39 @@
+{% extends 'master_layout.html' %}
+{% load static %}
+{% block content %}
+<h1>Rechnungsübersicht</h1>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Rechnungsnr.</th>
+            <th>Fragentyp</th>
+            <th>Anzahl Buchungen</th>
+            <th>Anzahl Korrekturbuchungen</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rechnung in rechnungsdaten %}
+            <tr>
+                <td>{{ rechnung.rechnungsnr }}</td>
+                <td>{{ rechnung.fragentyp_text }}</td>
+                <td>{{ rechnung.anzahl_buchungen }}</td>
+                <td>{{ rechnung.anzahl_korrekturbuchungen }}</td>
+                <td>{{ rechnung.aufgabenstatus|title }}</td>
+                <td>
+                    <a href="{% url 'posts:rechnung_detail' rechnung.rechnungsnr %}">
+                    <p>Zur Rechnung</p>
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">Keine Rechnungen gefunden.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'posts:hauptbuch' %}">Zurück zum Hauptbuch</a>
+{% endblock %}

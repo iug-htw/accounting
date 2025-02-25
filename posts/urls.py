@@ -29,4 +29,6 @@ urlpatterns = [
     path('guv/', views.guv_uebersicht, name='guv_uebersicht'),
     path('speichere_guv_ergebnis/', views.speichere_guv_ergebnis, name='speichere_guv_ergebnis'),
     path('bilanz/', views.bilanz_uebersicht, name='bilanz'),
+    path('rechnungsuebersicht/', views.rechnungsuebersicht, name='rechnungsuebersicht'),
+
 ]

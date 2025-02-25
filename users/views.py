@@ -117,8 +117,8 @@ def bulk_student_creation(request):
 
         existing_users = CustomUser.objects.values_list('username', flat=True)
         fehlgeschlagene_namen = []
-
         neue_studierende = []
+
         for i in range(1, anzahl_studierende + 1):
             if name_mode == "on" and custom_name:
                 student_name = f"{custom_name}{i}"
@@ -128,7 +128,7 @@ def bulk_student_creation(request):
             if student_name in existing_users:
                 fehlgeschlagene_namen.append(student_name)
                 continue  # Überspringe Erstellung dieses Nutzers
-
+            
             student = CustomUser(
                 username=student_name,
                 email=f"{student_name}@example.com",
@@ -151,7 +151,12 @@ def bulk_student_creation(request):
         else:
             messages.success(request, f'{len(neue_studierende)} Studierende erfolgreich erstellt.')
 
-        return redirect('users:bulk_student_creation')
+        return render(request, 'users/bulk_student_creation.html', {
+            'studiengaenge': Studiengang.objects.all(),
+            'semester': Semester.objects.all(),
+            'neue_studierende': neue_studierende,
+            'fehlgeschlagene_namen': fehlgeschlagene_namen
+        })
 
     studiengaenge = Studiengang.objects.all()
     semester = Semester.objects.all()
