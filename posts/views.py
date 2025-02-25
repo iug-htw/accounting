@@ -130,10 +130,24 @@ def rechnung_detail_view(request, aufgabe_id):
             send_korrektur_mail(request.user, aufgabe, aufgabe.fragentyp)
         return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
-    buchung_status = [
-        {'buchung': buchung, 'korrekt': is_buchung_korrekt(buchung, nutzer_aufgabe)}
-        for buchung in buchungen
-    ]
+    letzte_buchung = buchungen.last()
+
+    block_buchung = False
+    if letzte_buchung:
+        ist_falsch = letzte_buchung.status != 'korrekt'
+        ist_korrekturbuchung = letzte_buchung.korrekturbuchung
+
+        # Blockieren NUR wenn falsch UND KEINE Korrekturbuchung
+        block_buchung = ist_falsch and not ist_korrekturbuchung
+
+    # Status für jede Buchung vorbereiten
+    buchung_status = []
+    for buchung in buchungen:
+        buchung_status.append({
+            'buchung': buchung,
+            'korrekt': is_buchung_korrekt(buchung, nutzer_aufgabe),
+            'is_letzte_falsche': buchung == letzte_buchung and block_buchung
+        })
 
     # Template für den Rechnungstyp auswählen
     template_map = {
@@ -162,7 +176,8 @@ def rechnung_detail_view(request, aufgabe_id):
         'next_aufgabe': next_aufgabe,
         'buchungen': buchungen,
         'buchung_status': buchung_status,
-        'konten': konten
+        'konten': konten,
+        'block_buchung': block_buchung
     }
 
     return render(request, 'posts/rechnung.html', context)
