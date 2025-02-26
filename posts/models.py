@@ -49,17 +49,42 @@ class Aufgabe_neu(models.Model):
     def __str__(self):
         return f"{self.frage} ({self.fragentyp})"
 
-
 class AufgabeDetail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, related_name="details")
     kontoname = models.CharField(max_length=255)
     soll_haben = models.CharField(max_length=50, choices=[("Soll", "Soll"), ("Haben", "Haben")])
-    betrag = models.FloatField()
+    betrag = models.FloatField(null=True, blank=True)  # Kann leer sein, wenn es berechnet wird
     monatsangabe = models.BooleanField(default=False)
     monat = models.IntegerField(null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.kontoname} - {self.soll_haben} - {self.betrag}"
+    festbetrag = models.FloatField(null=True, blank=True, help_text="Fester Betrag, falls kein Bezugskonto genutzt wird")
+    bezugs_konto = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='faktor_quellen')  # Referenz auf das Bezugs-Konto
+    faktor = models.FloatField(null=True, blank=True, help_text="Multiplikationsfaktor, falls abhängig von einem anderen Konto")
+    formel_typ = models.CharField(
+        max_length=50,
+        choices=[("faktor", "Multiplikation mit Faktor"), ("fix", "Fester Betrag"), ("summe", "Summe aus mehreren Konten")],
+        default="fix"
+    )
+
+    def berechne_betrag(self):
+        """ Berechnet den Betrag anhand der gespeicherten Formel. """
+        if self.formel_typ == "fix" and self.festbetrag is not None:
+            return self.festbetrag  # Fester Betrag bleibt unverändert
+        
+        elif self.formel_typ == "faktor" and self.bezugs_konten.exists():
+            # Falls das Konto von einem anderen Konto abhängig ist, berechne Betrag mit Faktor
+            referenz_konto = self.bezugs_konten.first()  # Erstes Bezugs-Konto nehmen (falls es mehrere gibt)
+            if referenz_konto:
+                return referenz_konto.berechne_betrag() * self.faktor  # Berechnung mit Faktor
+
+        elif self.formel_typ == "summe" and self.bezugs_konten.exists():
+            # Falls es eine Summe aus mehreren Konten ist, berechne die Summe
+            gesamt_betrag = sum(konto.berechne_betrag() for konto in self.bezugs_konten.all())
+            return gesamt_betrag  # Summe bleibt unverändert
+
+        return self.betrag if self.betrag else 0  # Falls keine Logik zutrifft, nutze originalen Betrag
+
+
 
 class Buchung(models.Model):
     STATUS_CHOICES = [

@@ -68,21 +68,45 @@ def aufgabe_neu_erstellen(request):
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
 
 def speichere_aufgabe_details(request, aufgabe):
+    """Speichert die Details der erstellten Aufgabe und verarbeitet Abhängigkeiten korrekt"""
     kontonamen = request.POST.getlist('kontoname[]')
     soll_haben = request.POST.getlist('soll_haben[]')
     betraege = request.POST.getlist('betrag[]')
     monatsangaben = request.POST.getlist('monatsangabe[]')
     monate = request.POST.getlist('monat[]')
 
+    # Neue Felder für Abhängigkeiten
+    formel_typen = request.POST.getlist('formel_typ[]')
+    festbetraege = request.POST.getlist('festbetrag[]')
+    faktoren = request.POST.getlist('faktor[]')
+    bezugs_konto_ids = request.POST.getlist('bezugs_konto[]')  # Nur gültige Zahlen übernehmen
+    print("Gefilterte Bezugs-Konten-IDs:", bezugs_konto_ids)  # Debug-Print    print(f"{bezugs_konto_ids}")
+
+    aufgabe_details = []  # Zwischenspeicher für bulk_create()
+
+    # **Erster Schritt: Speichere alle Details ohne Bezugskonto**
     for i in range(len(kontonamen)):
-        AufgabeDetail.objects.create(
+        aufgabe_detail = AufgabeDetail.objects.create(
             aufgabe=aufgabe,
             kontoname=kontonamen[i],
             soll_haben=soll_haben[i],
-            betrag=float(betraege[i]),
+            betrag=float(betraege[i]) if betraege[i] else None,
             monatsangabe=(monatsangaben[i].lower() == 'true'),
-            monat=(int(monate[i]) if monate[i] else None)
+            monat=(int(monate[i]) if monate[i] else None),
+            formel_typ=formel_typen[i],
+            festbetrag=float(festbetraege[i]) if festbetraege[i] else None,
+            faktor=float(faktoren[i]) if faktoren[i] else None
         )
+        aufgabe_details.append(aufgabe_detail)
+
+    for i, aufgabe_detail in enumerate(AufgabeDetail.objects.filter(aufgabe=aufgabe)):
+        if i < len(bezugs_konto_ids) and bezugs_konto_ids[i]:  # Stelle sicher, dass der Index existiert und kein leerer Wert vorliegt
+            aufgabe_detail.bezugs_konto_id = int(bezugs_konto_ids[i])  # ✅ ID direkt in das Feld speichern
+            aufgabe_detail.save()
+            print(f"AufgabeDetail ID {aufgabe_detail.id}: Bezugskonto-ID gesetzt auf {bezugs_konto_ids[i]}")
+
+
+
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     # JSON-Daten der Buchung laden
@@ -290,58 +314,17 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
         soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
         haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
 
-        # Initialisieren der Daten
-        soll_konten = []
-        haben_konten = []
-        soll_betraege = []
-        haben_betraege = []
-        referenz_betraege = []  # Speichern der ursprünglichen Referenzwerte
+        soll_konten, soll_betraege, referenz_betraege_soll = berechne_zufaellige_betraege(soll_konten_queryset)
+        haben_konten, haben_betraege, referenz_betraege_haben = berechne_zufaellige_betraege(haben_konten_queryset)
+        referenz_betraege = referenz_betraege_soll + referenz_betraege_haben
 
-        # Berechnung der Min-/Max-Werte für Soll-Konten
-        for konto in soll_konten_queryset:
-            referenz_betrag = konto.betrag
-            referenz_betraege.append(referenz_betrag)
-            min_betrag = referenz_betrag * 0.25
-            max_betrag = referenz_betrag * 1.75
-
-            zufallswert = random.randint(int(min_betrag), int(max_betrag))
-            soll_konten.append(konto.kontoname)
-            soll_betraege.append(round(zufallswert, 0))
-
-        # Berechnung der Min-/Max-Werte für Haben-Konten
-        for konto in haben_konten_queryset:
-            referenz_betrag = konto.betrag
-            referenz_betraege.append(referenz_betrag)
-            min_betrag = referenz_betrag * 0.25
-            max_betrag = referenz_betrag * 1.75
-
-            zufallswert = random.randint(int(min_betrag), int(max_betrag))
-            haben_konten.append(konto.kontoname)
-            haben_betraege.append(round(zufallswert, 0))
-
-        # Überprüfung der Gesamtsumme
         summe_soll = sum(soll_betraege)
         summe_haben = sum(haben_betraege)
         differenz = summe_soll - summe_haben
 
-        print(f"Summe Soll: {summe_soll}, Summe Haben: {summe_haben}, Differenz: {differenz}")
-
         # Anpassung bei Differenz
         if differenz != 0:
-            # Höchsten Wert aus beiden Listen finden
-            max_soll_index = soll_betraege.index(max(soll_betraege))
-            max_haben_index = haben_betraege.index(max(haben_betraege))
-
-            # Vergleich der höchsten Werte
-            if soll_betraege[max_soll_index] >= haben_betraege[max_haben_index]:
-                # Anpassen des höchsten Soll-Betrags
-                soll_betraege[max_soll_index] -= differenz
-                print(f"Soll-Betrag angepasst: {soll_betraege[max_soll_index]}")
-            else:
-                # Anpassen des höchsten Haben-Betrags
-                haben_betraege[max_haben_index] += differenz
-                print(f"Haben-Betrag angepasst: {haben_betraege[max_haben_index]}")
-
+            soll_betraege, haben_betraege = differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz)
             # Erneute Überprüfung nach der Anpassung
             summe_soll = sum(soll_betraege)
             summe_haben = sum(haben_betraege)
@@ -361,6 +344,74 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
             'soll_betraege': soll_betraege,
             'haben_betraege': haben_betraege
         }
+
+def differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz):
+    nicht_referenzierte_soll_konten = [
+        konto for konto in soll_konten 
+        if konto not in [k.bezugs_konto_id for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto_id]
+    ]
+    nicht_referenzierte_haben_konten = [
+        konto for konto in haben_konten 
+        if konto not in [k.bezugs_konto_id for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto_id]
+    ]
+
+    # Höchste Beträge und deren Indizes
+    max_soll_index = soll_betraege.index(max(soll_betraege))
+    max_haben_index = haben_betraege.index(max(haben_betraege))
+
+    max_soll_konto = soll_konten[max_soll_index]
+    max_haben_konto = haben_konten[max_haben_index]
+
+    # Prüfen, ob die höchsten Werte referenziert sind
+    max_soll_referenziert = max_soll_konto in nicht_referenzierte_soll_konten
+    max_haben_referenziert = max_haben_konto in nicht_referenzierte_haben_konten
+
+    # Entscheidung, welchen Betrag anzupassen
+    if soll_betraege[max_soll_index] >= haben_betraege[max_haben_index]:
+        if max_soll_referenziert:  # Falls max. Soll-Konto referenziert ist, Haben nehmen
+            haben_betraege[max_haben_index] += differenz
+        else:
+            soll_betraege[max_soll_index] -= differenz
+    else:
+        if max_haben_referenziert:  # Falls max. Haben-Konto referenziert ist, Soll nehmen
+            soll_betraege[max_soll_index] -= differenz
+        else:
+            haben_betraege[max_haben_index] += differenz
+
+    return soll_betraege, haben_betraege
+
+def berechne_zufaellige_betraege(konten_queryset):
+    konten = []
+    betraege = []
+    referenz_betraege = []
+    
+    normale_konten = konten_queryset.exclude(formel_typ="faktor")
+    faktor_konten = konten_queryset.filter(formel_typ="faktor")
+    
+    berechnete_werte = {}  # Speichert bereits berechnete Werte für Bezugskonten
+    
+    for konto in normale_konten:
+        referenz_betrag = konto.betrag
+        min_betrag = referenz_betrag * 0.25
+        max_betrag = referenz_betrag * 1.75
+        zufallswert = random.randint(int(min_betrag), int(max_betrag))
+        konten.append(konto.kontoname)
+        betraege.append(round(zufallswert, 0))
+        referenz_betraege.append(zufallswert)
+        berechnete_werte[int(konto.kontoname)] = zufallswert  # Speichert den berechneten Wert
+    
+    for konto in faktor_konten:
+        if konto.bezugs_konto_id in berechnete_werte:
+            faktor_wert = round(berechnete_werte[konto.bezugs_konto_id] * konto.faktor,2)
+
+        konten.append(konto.kontoname)
+        betraege.append(faktor_wert)
+        referenz_betraege.append(faktor_wert)
+        berechnete_werte[konto.id] = faktor_wert  # Speichert den berechneten Wert auch für faktor-Konten
+    
+    return konten, betraege, referenz_betraege
+
+
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
     nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
