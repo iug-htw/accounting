@@ -79,8 +79,7 @@ def speichere_aufgabe_details(request, aufgabe):
     formel_typen = request.POST.getlist('formel_typ[]')
     festbetraege = request.POST.getlist('festbetrag[]')
     faktoren = request.POST.getlist('faktor[]')
-    bezugs_konto_ids = request.POST.getlist('bezugs_konto[]')  # Nur gültige Zahlen übernehmen
-    print("Gefilterte Bezugs-Konten-IDs:", bezugs_konto_ids)  # Debug-Print    print(f"{bezugs_konto_ids}")
+    bezugs_konto_namen = request.POST.getlist('bezugs_konto[]')
 
     aufgabe_details = []  # Zwischenspeicher für bulk_create()
 
@@ -100,10 +99,9 @@ def speichere_aufgabe_details(request, aufgabe):
         aufgabe_details.append(aufgabe_detail)
 
     for i, aufgabe_detail in enumerate(AufgabeDetail.objects.filter(aufgabe=aufgabe)):
-        if i < len(bezugs_konto_ids) and bezugs_konto_ids[i]:  # Stelle sicher, dass der Index existiert und kein leerer Wert vorliegt
-            aufgabe_detail.bezugs_konto_id = int(bezugs_konto_ids[i])  # ✅ ID direkt in das Feld speichern
+        if i < len(bezugs_konto_namen) and bezugs_konto_namen[i]:  
+            aufgabe_detail.bezugs_konto = bezugs_konto_namen[i]  # ✅ Speichert den Kontonamen direkt
             aufgabe_detail.save()
-            print(f"AufgabeDetail ID {aufgabe_detail.id}: Bezugskonto-ID gesetzt auf {bezugs_konto_ids[i]}")
 
 
 
@@ -325,6 +323,10 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
         # Anpassung bei Differenz
         if differenz != 0:
             soll_betraege, haben_betraege = differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz)
+            for betrag in soll_betraege:
+                betrag = round(betrag,2)
+            for betrag in haben_betraege:
+                betrag = round(betrag,2)
             # Erneute Überprüfung nach der Anpassung
             summe_soll = sum(soll_betraege)
             summe_haben = sum(haben_betraege)
@@ -348,11 +350,11 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
 def differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz):
     nicht_referenzierte_soll_konten = [
         konto for konto in soll_konten 
-        if konto not in [k.bezugs_konto_id for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto_id]
+        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
     ]
     nicht_referenzierte_haben_konten = [
         konto for konto in haben_konten 
-        if konto not in [k.bezugs_konto_id for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto_id]
+        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
     ]
 
     # Höchste Beträge und deren Indizes
@@ -398,11 +400,12 @@ def berechne_zufaellige_betraege(konten_queryset):
         konten.append(konto.kontoname)
         betraege.append(round(zufallswert, 0))
         referenz_betraege.append(zufallswert)
-        berechnete_werte[int(konto.kontoname)] = zufallswert  # Speichert den berechneten Wert
-    
+        berechnete_werte[str(konto.kontoname)] = zufallswert  # Speichert den berechneten Wert
+
     for konto in faktor_konten:
-        if konto.bezugs_konto_id in berechnete_werte:
-            faktor_wert = round(berechnete_werte[konto.bezugs_konto_id] * konto.faktor,2)
+        print(f"{konto.kontoname}")
+        if konto.bezugs_konto in berechnete_werte:
+            faktor_wert = round(berechnete_werte[konto.bezugs_konto] * konto.faktor,2)
 
         konten.append(konto.kontoname)
         betraege.append(faktor_wert)

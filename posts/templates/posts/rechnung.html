@@ -145,7 +145,7 @@
                         <option value="{{ konto.name }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
-                <input type="number" placeholder="Betrag eingeben" name="soll_betrag[]" required>
+                <input type="number" step="0.01" placeholder="Betrag eingeben" name="soll_betrag[]" required>
             </div>
             <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">Neues Soll-Feld hinzufügen</button>
         </div>
@@ -159,7 +159,7 @@
                         <option value="{{ konto.name }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
-                <input type="number" placeholder="Betrag eingeben" name="haben_betrag[]" required>
+                <input type="number" step="0.01" placeholder="Betrag eingeben" name="haben_betrag[]" required>
             </div>
             <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">Neues Haben-Feld hinzufügen</button>
         </div>
@@ -203,7 +203,7 @@ function addField(containerId) {
         <select name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" required>
             ${kontenOptions}
         </select>
-        <input type="number" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
+        <input type="number" step="0.01" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
         <button type="button" class="btn-remove_rechnung" onclick="removeField(this)"></button>
     `;
 
@@ -246,7 +246,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
          newSollField.classList.add('input-group_rechnung');
          newSollField.innerHTML = `
              <input type="text" name="soll_konto[]" value="${habenKonten[i]}" required>
-             <input type="number" name="soll_betrag[]" value="${betraegeHaben[i]}" required>
+             <input type="number" step="0.01" name="soll_betrag[]" value="${betraegeHaben[i]}" required>
          `;
          sollContainer.appendChild(newSollField);
      }
@@ -255,7 +255,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
          newHabenField.classList.add('input-group_rechnung');
          newHabenField.innerHTML = `
              <input type="text" name="haben_konto[]" value="${sollKonten[i]}" required>
-             <input type="number" name="haben_betrag[]" value="${betraegeSoll[i]}" required>
+             <input type="number" step="0.01" name="haben_betrag[]" value="${betraegeSoll[i]}" required>
          `;
          habenContainer.appendChild(newHabenField);
      }
@@ -319,7 +319,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
                     <label>Soll-Konto:</label>
                     <input type="text" value="${habenKonten[i]}" readonly>
                     <label>Betrag:</label>
-                    <input type="number" value="${betraegeHaben[i]}" readonly>
+                    <input type="number" step="0.01" value="${betraegeHaben[i]}" readonly>
                 </div>
             `;
         }
@@ -330,7 +330,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
                     <label>Haben-Konto:</label>
                     <input type="text" value="${sollKonten[i]}" readonly>
                     <label>Betrag:</label>
-                    <input type="number" value="${betraegeSoll[i]}" readonly>
+                    <input type="number"  step="0.01" value="${betraegeSoll[i]}" readonly>
                 </div>
             `;
         }

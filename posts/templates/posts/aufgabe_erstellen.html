@@ -17,7 +17,7 @@
                 <label>Konto:</label>
                 <select name="kontoname[]" required>
                     {% for konto in konten %}
-                    <option value="{{ konto.id }}">{{ konto.name }}</option>
+                    <option value="{{ konto.name }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
 
@@ -50,7 +50,7 @@
                 <select name="bezugs_konto[]" class="bezugs-konto" style="display: none;">
                     <option value="">Kein Bezugs-Konto</option>
                     {% for konto in konten %}
-                        <option value="{{ konto.id }}">{{ konto.name }}</option>
+                        <option value="{{ konto.name }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
 
@@ -58,7 +58,7 @@
                 <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
                 <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
                     {% for konto in konten %}
-                    <option value="{{ konto.id }}">{{ konto.name }}</option>
+                    <option value="{{ konto.name }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
 
@@ -87,7 +87,7 @@
 
             let kontenOptions = `
                 {% for konto in konten %}
-                    <option value="{{ konto.id }}">{{ konto.name }}</option>
+                    <option value="{{ konto.name }}">{{ konto.name }}</option>
                 {% endfor %}
             `;
 

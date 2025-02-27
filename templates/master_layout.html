@@ -31,14 +31,14 @@
                     <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">Rechnungen</a>
                     <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
                     {% if user.is_authenticated %}
-                    <form class="logout" action="{%url 'users:logout' %}" method = "post">
-                        {% csrf_token %}
-                        <button class="logout-button" title="User Logout">Logout</button>
-                        <a class = "nav-element" href="{% url 'users:register' %}">Nutzer anlegen</a>
-                    </form>
+                        <a href="{% url 'users:update_profile' %}" class="nav-element">Profil</a>
                         {% if request.user.role == 'teacher' %}
                             <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">Aufgaben zuweisen</a>
                         {% endif %}
+                    <form class="logout-form" action="{% url 'users:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button class="logout-button">Logout</button>
+                    </form>
                     {% else %}
                         <a class = "nav-element" href="{% url 'users:login' %}">Login</a>
                     {% endif %}

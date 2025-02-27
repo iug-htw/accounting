@@ -121,3 +121,18 @@ body {
         padding: 0.5rem 0.8rem; /* Adjust padding */
     }
 }
+
+.logout-form {
+    display: inline; /* Setzt das Form auf eine Linie mit den Links */
+    margin: 0;
+    padding: 0;
+}
+
+.logout-button {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.logout-button:hover {
+    text-decoration: underline;
+}

@@ -58,7 +58,7 @@ class AufgabeDetail(models.Model):
     monat = models.IntegerField(null=True, blank=True)
 
     festbetrag = models.FloatField(null=True, blank=True, help_text="Fester Betrag, falls kein Bezugskonto genutzt wird")
-    bezugs_konto = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='faktor_quellen')  # Referenz auf das Bezugs-Konto
+    bezugs_konto = models.CharField(max_length=255, null=True, blank=True)
     faktor = models.FloatField(null=True, blank=True, help_text="Multiplikationsfaktor, falls abhängig von einem anderen Konto")
     formel_typ = models.CharField(
         max_length=50,
