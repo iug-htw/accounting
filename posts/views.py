@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
+from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
 from django.contrib import messages
 import json, random, hashlib
@@ -56,6 +56,8 @@ def aufgabe_neu_erstellen(request):
         form = Aufgabe_neu_Form(request.POST)
         if form.is_valid():
             aufgabe = form.save()
+            aufgabe.absender = generate_random_absender()
+            aufgabe.save()
             speichere_aufgabe_details(request, aufgabe)
             messages.success(request, 'Aufgabe und Details erfolgreich erstellt.')
             return redirect('frontpage')
@@ -199,7 +201,8 @@ def rechnung_detail_view(request, aufgabe_id):
         'buchungen': buchungen,
         'buchung_status': buchung_status,
         'konten': konten,
-        'block_buchung': block_buchung
+        'block_buchung': block_buchung,
+        'absender': nutzer_aufgabe.absender
     }
 
     return render(request, 'posts/rechnung.html', context)
@@ -291,18 +294,19 @@ def handle_nutzer_buchung(request, aufgabe):
 def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
     
-    # Generiere zufällige Werte und speichere oder aktualisiere Nutzeraufgabe
+    # Generiere zufällige Werte und speichere oder aktualisiere NutzerAufgabe
     zufaellige_werte = generiere_zufaellige_werte(aufgabe)
     nutzer_aufgabe = speichere_nutzer_aufgabe(request.user, aufgabe, zufaellige_werte)
     
     # Berechne den nächsten Versuchswert
     naechster_versuch = berechne_naechsten_versuch(request.user, aufgabe)
-    
-    # Erstelle eine Mail für den neuen Versuch
-    erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch)
-    
+    absender = nutzer_aufgabe.absender
+    # ✅ Jetzt mit dem Absender aus NutzerAufgabe
+    #erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch, absender)
+
     messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
     return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
+
 
 def generiere_zufaellige_werte(aufgabe, tiefe=0):
     if tiefe < 50:
@@ -417,6 +421,7 @@ def berechne_zufaellige_betraege(konten_queryset):
 
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
+    absender = generate_random_absender()
     nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
         aufgabe=aufgabe,
         nutzer=nutzer,
@@ -425,7 +430,8 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
             'haben_konten': zufaellige_werte['haben_konten'],
             'soll_betraege': zufaellige_werte['soll_betraege'],
             'haben_betraege': zufaellige_werte['haben_betraege'],
-            'bearbeitungsstand': 'offen'
+            'bearbeitungsstand': 'offen',
+            'absender': absender
         }
     )
 
@@ -435,6 +441,7 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
         nutzer_aufgabe.soll_betraege = zufaellige_werte['soll_betraege']
         nutzer_aufgabe.haben_betraege = zufaellige_werte['haben_betraege']
         nutzer_aufgabe.bearbeitungsstand = 'offen'
+        nutzer_aufgabe.absender = absender
         nutzer_aufgabe.save()
 
     return nutzer_aufgabe
@@ -450,8 +457,7 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
     )
     return hoechster_versuch + 1
 
-def erstelle_aufgaben_mail(nutzer, aufgabe, versuch):
-    absender = random.choice(ZUFÄLLIGE_ABSENDER)
+def erstelle_aufgaben_mail(nutzer, aufgabe, versuch,absender):
     betreff = f"Neue Aufgabe Versuch {versuch}"
     mailtext = f"Bitte bearbeiten Sie die Aufgabe: {aufgabe.fragentyp_text}"
 
@@ -461,9 +467,7 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch):
         betreff=betreff,
         mailtext=mailtext,
         versuch=versuch,
-        von=absender["email"],  # Setze zufällige Email
-        absender_name=absender["name"],  # Setze zufälligen Namen
-        absender_adresse=absender["adresse"],  # Setze zufällige Adresse
+        absender=absender,
         status='nicht bearbeitet'
     )
 
@@ -960,3 +964,20 @@ def rechnungsuebersicht(request):
         })
 
     return render(request, 'posts/rechnungsuebersicht.html', {'rechnungsdaten': rechnungsdaten})
+
+def generate_random_absender():
+    namen = ["Max Mustermann", "Erika Beispiel", "Hans Wurst", "Lisa Müller", "Tom Schmitt"]
+    straßen = ["Musterstraße", "Beispielweg", "Wurststraße", "Müllerweg", "Schmittplatz"]
+    städte = ["Musterstadt", "Beispielstadt", "Wursthausen", "Musterhausen", "Teststadt"]
+    plz = ["12345", "98765", "54321", "76543", "87654"]
+
+    # Zufällige Kombination erstellen
+    absender, created = Absender.objects.get_or_create(
+        name=random.choice(namen),
+        email=f"{random.randint(1000, 9999)}@example.com",
+        straße=f"{random.choice(straßen)} {random.randint(1, 100)}",
+        stadt=random.choice(städte),
+        plz=random.choice(plz)
+    )
+    
+    return absender

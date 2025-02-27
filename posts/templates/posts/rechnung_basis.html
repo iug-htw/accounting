@@ -30,7 +30,10 @@
 <body>
     <div class="invoice-box">
         <div class="company-address">
-            <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
+            <p><strong>{{ nutzer_aufgabe.absender.name }}</strong></p>
+            <p>{{ nutzer_aufgabe.absender.straße }}</p>
+            <p>{{ nutzer_aufgabe.absender.plz }} {{ nutzer_aufgabe.absender.stadt }}</p>
+            <p>{{ nutzer_aufgabe.absender.email }}</p>
         </div>
     
         <div class="client-address" style="text-align: right;">

@@ -10,8 +10,8 @@
 
         <div class="mail-detail-box">
             <div class="mail-header">
-                <p><strong>Von:</strong> {{ mail.absender_name }} ({{ mail.von }})</p>
-                <p><strong>Adresse:</strong> {{ mail.absender_adresse }}</p>
+                <p><strong>Von:</strong> {{ mail.absender.name }} ({{ mail.absender.email }})</p>
+                <p><strong>Adresse:</strong> {{ mail.absender.straße }}, {{ mail.absender.plz }} {{ mail.absender.stadt }}</p>
                 <p><strong>Betreff:</strong> {{ mail.betreff }}</p>
                 <p><strong>Empfangen am:</strong> {{ mail.datum|date:"d.m.Y H:i" }}</p>
             </div>

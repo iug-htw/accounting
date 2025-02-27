@@ -16,6 +16,18 @@ class Aufgabenkategorie(models.Model):
     def __str__(self):
         return self.name
 
+class Absender(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    straße = models.CharField(max_length=255)
+    stadt = models.CharField(max_length=100)
+    plz = models.CharField(max_length=10)
+    telnr = models.IntegerField(null=True)
+
+    def __str__(self):
+        return f"{self.name}, {self.straße}, {self.plz} {self.stadt}"
+
+
 class Aufgabe_neu(models.Model):
     RECHNUNGSTYPEN = [
         ('eingehend', 'Eingehende Rechnung'),
@@ -84,8 +96,6 @@ class AufgabeDetail(models.Model):
 
         return self.betrag if self.betrag else 0  # Falls keine Logik zutrifft, nutze originalen Betrag
 
-
-
 class Buchung(models.Model):
     STATUS_CHOICES = [
         ('offen', 'Offen'),
@@ -135,6 +145,7 @@ class NutzerAufgabe(models.Model):
     ]
 
     aufgabe = models.ForeignKey('Aufgabe_neu', on_delete=models.CASCADE)
+    absender = models.ForeignKey(Absender, on_delete=models.CASCADE, null=True, blank=True)  # Neu
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     soll_konten = models.JSONField(default=list)  # Liste der Soll-Konten
     haben_konten = models.JSONField(default=list)  # Liste der Haben-Konten
@@ -150,6 +161,7 @@ class NutzerAufgabe(models.Model):
 class Mail(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, null=True, blank=True)
+    absender = models.ForeignKey(Absender, on_delete=models.CASCADE, null=True, blank=True)  # Neu
     betreff = models.CharField(max_length=255)
     mailtext = models.TextField()
     versuch = models.PositiveIntegerField(default=1)
