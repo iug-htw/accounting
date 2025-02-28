@@ -8,7 +8,6 @@ urlpatterns = [
     path('aufgabe_erstellen/', views.aufgabe_neu_erstellen, name='aufgabe_erstellen'),
     path('rechnung/', views.rechnung_detail_view, name='rechnung'),
     path('rechnung/<int:aufgabe_id>/', views.rechnung_detail_view, name='rechnung_detail'),
-    path('zufaellige_aufgabe_zuweisen/<int:aufgabe_id>/', views.zufaellige_aufgabe_zuweisen, name='zufaellige_aufgabe_zuweisen'),
     path('unternehmen_verwalten/', views.unternehmen_verwalten, name='unternehmen_verwalten'),
     path('unternehmen_loeschen/<int:unternehmen_id>/', views.unternehmen_loeschen, name='unternehmen_loeschen'),
     path('aufgabenkategorie_verwalten/', views.aufgabenkategorie_verwalten, name='aufgabenkategorie_verwalten'),

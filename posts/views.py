@@ -56,7 +56,6 @@ def aufgabe_neu_erstellen(request):
         form = Aufgabe_neu_Form(request.POST)
         if form.is_valid():
             aufgabe = form.save()
-            aufgabe.absender = generate_random_absender()
             aufgabe.save()
             speichere_aufgabe_details(request, aufgabe)
             messages.success(request, 'Aufgabe und Details erfolgreich erstellt.')
@@ -290,23 +289,6 @@ def handle_nutzer_buchung(request, aufgabe):
 
     return buchung
 
-@login_required
-def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
-    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
-    
-    # Generiere zufällige Werte und speichere oder aktualisiere NutzerAufgabe
-    zufaellige_werte = generiere_zufaellige_werte(aufgabe)
-    nutzer_aufgabe = speichere_nutzer_aufgabe(request.user, aufgabe, zufaellige_werte)
-    
-    # Berechne den nächsten Versuchswert
-    naechster_versuch = berechne_naechsten_versuch(request.user, aufgabe)
-    absender = nutzer_aufgabe.absender
-    # ✅ Jetzt mit dem Absender aus NutzerAufgabe
-    #erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch, absender)
-
-    messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
-    return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
-
 
 def generiere_zufaellige_werte(aufgabe, tiefe=0):
     if tiefe < 50:
@@ -369,9 +351,8 @@ def differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll
     max_haben_konto = haben_konten[max_haben_index]
 
     # Prüfen, ob die höchsten Werte referenziert sind
-    max_soll_referenziert = max_soll_konto in nicht_referenzierte_soll_konten
-    max_haben_referenziert = max_haben_konto in nicht_referenzierte_haben_konten
-
+    max_soll_referenziert = max_soll_konto not in nicht_referenzierte_soll_konten
+    max_haben_referenziert = max_haben_konto not in nicht_referenzierte_haben_konten
     # Entscheidung, welchen Betrag anzupassen
     if soll_betraege[max_soll_index] >= haben_betraege[max_haben_index]:
         if max_soll_referenziert:  # Falls max. Soll-Konto referenziert ist, Haben nehmen
@@ -415,7 +396,6 @@ def berechne_zufaellige_betraege(konten_queryset):
         betraege.append(faktor_wert)
         referenz_betraege.append(faktor_wert)
         berechnete_werte[konto.id] = faktor_wert  # Speichert den berechneten Wert auch für faktor-Konten
-    
     return konten, betraege, referenz_betraege
 
 

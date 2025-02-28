@@ -206,9 +206,9 @@ def aufgaben_zuweisen_view(request):
             aufgabe = Aufgabe_neu.objects.get(id=aufgabe_id)
             for student in studierende:
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
-                speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
+                nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
-                erstelle_aufgaben_mail(student, aufgabe, naechster_versuch)
+                erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
 
         messages.success(request, "Aufgaben erfolgreich zugewiesen.")
         return redirect('users:aufgaben_zuweisen')
