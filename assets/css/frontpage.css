@@ -1,0 +1,115 @@
+/* Logo and Description */
+.logo-and-description {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 2rem;
+}
+
+.securenet-logo_front {
+    width: 40vh;  /* Größe anpassen (z.B. 80px, 100px, etc.) */
+    height: auto;  /* Höhe automatisch skalieren */
+    display: block;  /* Falls nötig, um Abstände korrekt darzustellen */
+}
+
+
+.description {
+    max-width: 60%;
+}
+
+h1 {
+    font-size: 2.2rem; /* Increased slightly for visual balance */
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+p {
+    font-size: 1.1rem; /* Slightly larger text for better readability */
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 3rem; /* Increased spacing between buttons */
+    margin: 3rem 0;
+}
+
+.widget-button {
+    background: linear-gradient(135deg, #74b729, #117335); /* Farbverlauf */
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    padding: 4rem 8rem; /* Größere Buttons */
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    margin: 1rem 2rem; /* Mehr Abstand zwischen den Buttons */
+    justify-content: center;
+    gap: 3rem; /* Erhöht den Abstand zwischen den Buttons */
+    flex-wrap: wrap; /* Falls nötig, auf kleineren Bildschirmen */
+}
+
+.button span.emoji {
+    font-size: 32px; /* Nur das Emoji vergrößern */
+}
+.widget-button:hover {
+    background: linear-gradient(135deg, #117335, #74b729); /* Umgekehrter Gradient beim Hover */
+    transform: scale(1.08); /* Leichtes Vergrößern für besseren Effekt */
+}
+.button {
+    font-size: 1.4rem; /* Enhanced readability */
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Progress Section */
+.progress-container {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.progress-circle {
+    width: 6rem; /* Reduced size for balance */
+    height: 6rem; /* Reduced size for balance */
+    margin: 0 auto 1rem;
+    position: relative;
+}
+
+.circular-chart {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #e6e6e6;
+    stroke-width: 3.8;
+}
+
+.circle {
+    fill: none;
+    stroke: #28a745;
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.3s ease;
+}
+
+.percentage {
+    font-size: 1rem; /* Adjusted for better readability */
+    fill: #333;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    font-weight: bold;
+}

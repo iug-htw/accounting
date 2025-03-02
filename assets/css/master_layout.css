@@ -1,0 +1,138 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+.page-container {
+    width: 100%;
+    /*max-height: 100vh; /* Stellt sicher, dass die Seite mindestens den Viewport einnimmt, aber wächst, wenn Inhalt hinzugefügt wird */
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.content-container {
+    flex-grow: 1; /* Der Inhalt wächst dynamisch und füllt den verbleibenden Platz */
+    margin-top: 6rem; /* Abstand durch Margin, nicht Padding */
+    padding: 2rem; /* Normales Padding beibehalten */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: fixed;
+    background: #FFFFFF;
+    z-index: 1000;
+    border-bottom: 0.1rem solid #E0E0E0;
+    box-shadow: 0rem 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+    padding: 1rem 2rem;
+    justify-content: space-between;
+}
+
+/* SecureNet Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    background: #000000; /* Black background for the logo block */
+    color: #FFFFFF; /* Text color updated to white */
+    padding: 0.8rem 1rem; /* Adjusted padding for a slightly smaller block */
+    border-radius: 0.5rem; /* Rounded corners */
+    gap: 1rem; /* Space between logo and text */
+    width: 12rem; /* Slightly smaller width */
+}
+
+/* SecureNet Logo */
+.securenet-logo {
+    width: 3rem; /* Slightly smaller logo size */
+    height: auto; /* Maintain aspect ratio */
+}
+
+/* SecureNet Text */
+.logo-text {
+    font-size: 1.2rem; /* Adjusted font size */
+    font-weight: bold;
+    color: #57a42d;
+}
+
+
+
+.navigation-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 1rem;
+    flex-grow: 1;
+    flex-wrap: wrap;
+}
+
+.nav-element {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #262626;
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    background: #FFFFFF;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-element:hover {
+    background-color: #F0F0F0;
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.nav-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+/* Responsive Adjustments for Laptop Screens */
+@media (max-width: 1024px) {
+    .logo-container {
+        width: 10rem; /* Reduce the width of the black box */
+        padding: 0.5rem 0.8rem;
+    }
+
+    .securenet-logo {
+        width: 2.5rem; /* Adjust logo size */
+    }
+
+    .logo-text {
+        font-size: 1rem; /* Reduce font size of SecureNet text */
+    }
+
+    .navigation-bar {
+        gap: 0.5rem; /* Reduce spacing between nav items */
+    }
+
+    .nav-element {
+        font-size: 0.8rem; /* Decrease font size of nav items */
+        padding: 0.5rem 0.8rem; /* Adjust padding */
+    }
+}
+
+.logout-form {
+    display: inline; /* Setzt das Form auf eine Linie mit den Links */
+    margin: 0;
+    padding: 0;
+}
+
+.logout-button {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.logout-button:hover {
+    text-decoration: underline;
+}

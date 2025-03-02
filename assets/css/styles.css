@@ -296,3 +296,196 @@ input[type="text"] {
     width: 100%;
     max-width: 800px;
 }
+.berechnung_felder {
+    display: flex;
+    justify-content: space-between;
+}
+.loesung_soll, .loesung_haben {
+    width: 48%;
+}
+
+.container_rechnung {
+    width: 90%;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.headline_rechnung {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.content-wrapper_rechnung {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.left-section_rechnung {
+    width: 40%;
+    background-color: #dde3d9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-placeholder_rechnung {
+    width: 100%;
+    height: 500px;
+    background-color: #f0f0f0;
+    border: 2px dashed #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #777;
+}
+
+.right-section_rechnung {
+    width: 50%;
+    background-color: #d0d5c7;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.business-case_rechnung {
+    font-size: 20px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.input-group_rechnung {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.input-group_rechnung input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.btn-add_rechnung, .btn-submit_rechnung, .btn-remove_rechnung {
+    background-color: #232323;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.btn-add_rechnung:hover, .btn-submit_rechnung:hover {
+    background-color: #444;
+}
+
+.btn-remove_rechnung {
+    background-color: #b22222;
+    font-size: 20px;
+    padding: 5px 10px;
+}
+
+.btn-remove_rechnung:hover {
+    background-color: #8b0000;
+}
+
+.btn-submit_rechnung {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 18px;
+}
+.navigation-container_vorlage2 {
+    display: flex;
+    justify-content: center;
+    width: 80%;
+    margin-top: 150px;
+}
+.navigation_vorlage2 {
+    display: flex;
+    gap: 20px;
+    font-size: 28px;
+}
+.navigation-item_vorlage2 {
+    color: #232323;
+    text-decoration: none;
+    padding: 10px 20px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    text-align: center;
+    min-width: 150px;
+}
+.navigation-item_vorlage2:hover {
+    background-color: #d0d0d0;
+}
+.field-group_aufgabe_erstellen {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.field-group_aufgabe_erstellen input, .field-group_aufgabe_erstellen select {
+    flex: 1;
+}
+.hidden {
+    display: none;
+}
+.buchungen-ansicht {
+    padding: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn-toggle_rechnung {
+    background-color: #006400;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.buchung-detail {
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #e0f7fa;
+    border: 1px solid #009688;
+    border-radius: 4px;
+}
+
+.korrekturbuchung-maske {
+    position: fixed;
+    top: 20%;
+    left: 30%;
+    width: 40%;
+    background-color: white;
+    padding: 20px;
+    border: 2px solid #006400;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.korrekturbuchung-maske h3 {
+    color: #006400;
+}
+
+.korrekturbuchung-maske button {
+    background-color: #006400;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.korrekturbuchung-maske input[readonly] {
+    background-color: #e9ecef;
+    border: none;
+    padding: 5px;
+}
