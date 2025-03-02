@@ -401,7 +401,7 @@ def berechne_zufaellige_betraege(konten_queryset):
 
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
-    absender = generate_random_absender()
+    # Prüfe, ob bereits eine NutzerAufgabe mit einem Absender existiert
     nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
         aufgabe=aufgabe,
         nutzer=nutzer,
@@ -411,20 +411,22 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
             'soll_betraege': zufaellige_werte['soll_betraege'],
             'haben_betraege': zufaellige_werte['haben_betraege'],
             'bearbeitungsstand': 'offen',
-            'absender': absender
         }
     )
 
-    if not created:
-        nutzer_aufgabe.soll_konten = zufaellige_werte['soll_konten']
-        nutzer_aufgabe.haben_konten = zufaellige_werte['haben_konten']
-        nutzer_aufgabe.soll_betraege = zufaellige_werte['soll_betraege']
-        nutzer_aufgabe.haben_betraege = zufaellige_werte['haben_betraege']
-        nutzer_aufgabe.bearbeitungsstand = 'offen'
+    if created:
+        # Falls es eine neue Aufgabe ist, erstelle einen Absender
+        absender = generate_random_absender()
         nutzer_aufgabe.absender = absender
         nutzer_aufgabe.save()
+    else:
+        # Falls die Aufgabe bereits existiert, verwende den vorhandenen Absender
+        absender = nutzer_aufgabe.absender
+
+    print(f"✅ Absender für {nutzer.username} - Aufgabe {aufgabe.id}: {absender}")
 
     return nutzer_aufgabe
+
 
 
 def berechne_naechsten_versuch(nutzer, aufgabe):
@@ -437,7 +439,9 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
     )
     return hoechster_versuch + 1
 
-def erstelle_aufgaben_mail(nutzer, aufgabe, versuch,absender):
+def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
+    print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
+    
     betreff = f"Neue Aufgabe Versuch {versuch}"
     mailtext = f"Bitte bearbeiten Sie die Aufgabe: {aufgabe.fragentyp_text}"
 
@@ -447,9 +451,10 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch,absender):
         betreff=betreff,
         mailtext=mailtext,
         versuch=versuch,
-        absender=absender,
+        absender=absender,  # Speichert die Absender-Referenz
         status='nicht bearbeitet'
     )
+
 
 def get_fallback_konten(aufgabe):
     soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
@@ -604,7 +609,10 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
 
 @login_required
 def posteingang(request):
-    mails = Mail.objects.filter(nutzer=request.user).order_by('-datum')
+    mails = Mail.objects.filter(nutzer_id=request.user.id).order_by('-datum')
+    #print(f"📨 nutzer_id {nutzer_id}")  # Debugging
+
+    print(f"Request user id{request.user.id}")  # Debugging
 
     for mail in mails:
         # Prüfen, ob eine Buchung für den aktuellen Versuch existiert

@@ -207,6 +207,7 @@ def aufgaben_zuweisen_view(request):
             for student in studierende:
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
+                print(f"Hier steht der Absender in User{nutzer_aufgabe.absender.id}")
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
                 erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
 
