@@ -465,7 +465,16 @@ def get_fallback_konten(aufgabe):
 
 @lehrkraft_required
 def unternehmen_verwalten(request):
-    return handle_post_request(request, UnternehmenForm, 'posts:unternehmen_verwalten', 'posts/neues_unternehmen.html')
+    if request.method == 'POST':
+        result = handle_form_submission(request, UnternehmenForm, "Unternehmen erfolgreich gespeichert.", 'posts:unternehmen_verwalten')
+        if result:
+            return result
+    
+    form = UnternehmenForm()
+    unternehmen_liste = Unternehmen.objects.all()  # ✅ Alle Unternehmen abrufen
+
+    return render(request, 'posts/neues_unternehmen.html', {'form': form, 'unternehmen': unternehmen_liste})
+
 
 
 def handle_post_request(request, form_class, redirect_url, template_name):

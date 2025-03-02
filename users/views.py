@@ -197,13 +197,13 @@ def aufgaben_zuweisen_view(request):
         ausgewählte_semester = request.POST.getlist('semester')
         ausgewählte_studiengaenge = request.POST.getlist('studiengaenge')
 
-        studierende = eigene_studierende.filter(
-            semester__id__in=ausgewählte_semester,
-            studiengang__id__in=ausgewählte_studiengaenge
-        )
-
         for aufgabe_id in ausgewählte_aufgaben:
             aufgabe = Aufgabe_neu.objects.get(id=aufgabe_id)
+            studierende = eigene_studierende.filter(
+                semester__id__in=ausgewählte_semester,
+                studiengang__id__in=ausgewählte_studiengaenge,
+                unternehmen=aufgabe.unternehmen_kategorie
+            )
             for student in studierende:
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
