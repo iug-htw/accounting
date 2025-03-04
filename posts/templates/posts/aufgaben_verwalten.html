@@ -1,0 +1,39 @@
+{% extends 'master_layout.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Aufgabenverwaltung</h1>
+
+{% if aufgaben %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fragentyp</th>
+                <th>Beschreibung</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for aufgabe in aufgaben %}
+                <tr>
+                    <td>{{ aufgabe.id }}</td>
+                    <td>{{ aufgabe.fragentyp_text }}</td>
+                    <td>{{ aufgabe.beschreibung|default:"Keine Beschreibung" }}</td>
+                    <td>
+                        <a href="{% url 'posts:aufgabe_loeschen' aufgabe.id %}" 
+                           class="btn btn-danger" 
+                           onclick="return confirm('Soll diese Aufgabe wirklich gelöscht werden?');">
+                           Löschen
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Keine Aufgaben vorhanden.</p>
+{% endif %}
+
+<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">Neue Aufgabe erstellen</a>
+{% endblock %}

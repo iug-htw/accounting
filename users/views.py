@@ -190,7 +190,7 @@ def aufgaben_zuweisen_view(request):
             zugewiesene_aufgaben = Aufgabe_neu.objects.filter(nutzeraufgabe__nutzer__in=studis_in_gruppe).order_by('id').distinct()
             if zugewiesene_aufgaben.exists():
                 aufgaben_uebersicht[sem.name][studiengang.name] = [f"Aufgabe {aufgabe.id}" for aufgabe in zugewiesene_aufgaben]
-
+    
     # Aufgaben zuweisen
     if request.method == 'POST':
         ausgewählte_aufgaben = request.POST.getlist('aufgaben')

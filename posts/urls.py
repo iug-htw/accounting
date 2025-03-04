@@ -14,7 +14,6 @@ urlpatterns = [
     path('aufgabenkategorie_loeschen/<int:kategorie_id>/', views.aufgabenkategorie_loeschen, name='aufgabenkategorie_loeschen'),
     path('hauptbuch/', views.hauptbuch_view, name='hauptbuch'),
     path('aufgabe_bearbeiten/<int:aufgabe_id>/', views.aufgabe_bearbeiten, name='aufgabe_bearbeiten'),
-    path('aufgabe_loeschen/<int:aufgabe_id>/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
     path('korrekturbuchung_durchfuehren/<int:buchung_id>/', views.korrekturbuchung_durchfuehren, name='korrekturbuchung_durchfuehren'),
     path('posteingang/', views.posteingang, name='posteingang'),
     path('mail/<int:mail_id>/', views.mail_detail, name='mail_detail'),
@@ -29,5 +28,7 @@ urlpatterns = [
     path('speichere_guv_ergebnis/', views.speichere_guv_ergebnis, name='speichere_guv_ergebnis'),
     path('bilanz/', views.bilanz_uebersicht, name='bilanz'),
     path('rechnungsuebersicht/', views.rechnungsuebersicht, name='rechnungsuebersicht'),
+    path('aufgaben/', views.aufgaben_verwalten, name='aufgaben_verwalten'),
+    path('aufgabe/loeschen/<int:aufgabe_id>/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
 
 ]

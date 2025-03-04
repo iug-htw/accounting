@@ -605,18 +605,6 @@ def aufgabe_bearbeiten(request, aufgabe_id):
     return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
 
 @login_required
-def aufgabe_loeschen(request, aufgabe_id):
-    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
-
-    if request.method == "POST":
-        aufgabe.delete()
-        messages.success(request, "Aufgabe erfolgreich gelöscht.")
-        return redirect('posts:hauptbuch')
-
-    return render(request, 'posts/aufgabe_loeschen.html', {'aufgabe': aufgabe})
-
-
-@login_required
 def korrekturbuchung_durchfuehren(request, buchung_id):
     buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
 
@@ -1000,3 +988,17 @@ def generate_random_absender():
     )
     
     return absender
+
+@login_required
+def aufgaben_verwalten(request):
+    """ Zeigt eine Liste aller Aufgaben und ermöglicht das Löschen. """
+    aufgaben = Aufgabe_neu.objects.all()
+    return render(request, 'posts/aufgaben_verwalten.html', {'aufgaben': aufgaben})
+
+@login_required
+def aufgabe_loeschen(request, aufgabe_id):
+    """ Löscht eine Aufgabe und gibt eine Bestätigung aus. """
+    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+    aufgabe.delete()
+    messages.success(request, f"Die Aufgabe '{aufgabe.fragentyp_text}' wurde gelöscht.")
+    return redirect('posts:aufgaben_verwalten')
