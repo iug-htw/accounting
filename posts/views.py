@@ -186,7 +186,7 @@ def rechnung_detail_view(request, aufgabe_id):
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
         'rechnungsnummer': aufgabe.rechnungsnummer,
         'datum': aufgabe.datum,
-        'anschrift_kunde': aufgabe.anschrift_kunde,
+        #'anschrift_kunde': aufgabe.anschrift_kunde,
         'eigene_ansicht': aufgabe.eigene_ansicht,
         'beschreibung': aufgabe.beschreibung,
         'rechnungsbetrag': aufgabe.rechnungsbetrag,
@@ -443,7 +443,7 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
     
     betreff = f"Neue Aufgabe Versuch {versuch}"
-    mailtext = f"Bitte bearbeiten Sie die Aufgabe: {aufgabe.fragentyp_text}"
+    mailtext = f"{aufgabe.mailtext}"
 
     Mail.objects.create(
         nutzer=nutzer,
@@ -465,16 +465,20 @@ def get_fallback_konten(aufgabe):
 
 @lehrkraft_required
 def unternehmen_verwalten(request):
+    """ Zeigt eine Liste der Unternehmen an und ermöglicht das Hinzufügen. """
     if request.method == 'POST':
-        result = handle_form_submission(request, UnternehmenForm, "Unternehmen erfolgreich gespeichert.", 'posts:unternehmen_verwalten')
-        if result:
-            return result
-    
-    form = UnternehmenForm()
-    unternehmen_liste = Unternehmen.objects.all()  # ✅ Alle Unternehmen abrufen
+        form = UnternehmenForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Unternehmen erfolgreich hinzugefügt.")
+            return redirect('posts:unternehmen_verwalten')
+        else:
+            messages.error(request, "Fehler beim Speichern des Unternehmens.")
+    else:
+        form = UnternehmenForm()
 
-    return render(request, 'posts/neues_unternehmen.html', {'form': form, 'unternehmen': unternehmen_liste})
-
+    unternehmen = Unternehmen.objects.all()
+    return render(request, 'posts/neues_unternehmen.html', {'form': form, 'unternehmen': unternehmen})
 
 
 def handle_post_request(request, form_class, redirect_url, template_name):
@@ -487,20 +491,38 @@ def handle_post_request(request, form_class, redirect_url, template_name):
 
 @lehrkraft_required
 def unternehmen_loeschen(request, unternehmen_id):
+    """ Löscht ein Unternehmen und gibt eine Bestätigung aus. """
     unternehmen = get_object_or_404(Unternehmen, id=unternehmen_id)
     unternehmen.delete()
+    messages.success(request, f"Das Unternehmen '{unternehmen.name}' wurde gelöscht.")
     return redirect('posts:unternehmen_verwalten')
 
 @lehrkraft_required
 def aufgabenkategorie_verwalten(request):
-    return handle_post_request(request, AufgabenkategorieForm, 'posts:aufgabenkategorie_verwalten', 'posts/neue_kategorie.html')
+    """ Zeigt eine Liste der Kategorien an und ermöglicht das Hinzufügen. """
+    if request.method == 'POST':
+        form = AufgabenkategorieForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Kategorie erfolgreich hinzugefügt.")
+            return redirect('posts:aufgabenkategorie_verwalten')
+        else:
+            messages.error(request, "Fehler beim Speichern der Kategorie.")
+    else:
+        form = AufgabenkategorieForm()
+
+    aufgabenkategorien = Aufgabenkategorie.objects.all()
+    return render(request, 'posts/neue_kategorie.html', {'form': form, 'aufgabenkategorien': aufgabenkategorien})
 
 
 @lehrkraft_required
 def aufgabenkategorie_loeschen(request, kategorie_id):
+    """ Löscht eine Kategorie und gibt eine Bestätigung aus. """
     kategorie = get_object_or_404(Aufgabenkategorie, id=kategorie_id)
     kategorie.delete()
+    messages.success(request, f"Die Kategorie '{kategorie.name}' wurde gelöscht.")
     return redirect('posts:aufgabenkategorie_verwalten')
+
 
 @login_required
 def hauptbuch_view(request):

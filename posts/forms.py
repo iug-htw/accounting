@@ -12,7 +12,6 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'fragentyp_text',
             'mailtext',
             'frage',
-            'bezugswert',
             'feedback_konto_falsch',
             'feedback_betrag_falsch',
             'min_wert',
