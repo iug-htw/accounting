@@ -1,5 +1,6 @@
 {% extends 'master_layout.html' %}
 {% load static%}
+
 {% block content %}
 <h1>Unternehmen verwalten</h1>
 
@@ -14,7 +15,11 @@
     {% for unternehmen in unternehmen %}
         <li>
             {{ unternehmen.name }}
-            <a href="{% url 'posts:unternehmen_loeschen' unternehmen.id %}" class="btn btn-danger">Löschen</a>
+            <a href="{% url 'posts:unternehmen_loeschen' unternehmen.id %}" 
+               class="btn btn-danger" 
+               onclick="return confirm('Soll das Unternehmen wirklich gelöscht werden?');">
+               Löschen
+            </a>
         </li>
     {% empty %}
         <li>Keine Unternehmen vorhanden.</li>
