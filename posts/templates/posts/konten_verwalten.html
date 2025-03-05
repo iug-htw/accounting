@@ -34,6 +34,10 @@
         <td>{{ konto.unterkategorie }}</td>
         <td>
             <a href="{% url 'posts:konto_bearbeiten' konto.id %}">Bearbeiten</a>
+            <form action="{% url 'posts:konto_loeschen' konto.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Möchtest du dieses Konto wirklich löschen?');">Löschen</button>
+            </form>
         </td>
     </tr>
     {% endfor %}

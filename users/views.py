@@ -40,16 +40,18 @@ def register_view(request):
 def login_view(request):
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
-        if form.is_valid(): 
+        if form.is_valid():
             login(request, form.get_user())
-            if "next" in request.POST:
-                return redirect(request.POST.get('next'))
-            else: 
-                return redirect("frontpage")
-        return redirect("frontpage")
+            if "next" in request.POST and request.POST.get("next"):
+                return redirect(request.POST.get("next"))
+            return redirect("frontpage")
+        else:
+            messages.error(request, "Benutzername oder Passwort ist nicht korrekt.")
+    
     else:
         form = AuthenticationForm()
-    return render(request, "users/login.html", { "form": form })
+    
+    return render(request, "users/login.html", {"form": form})
 
 def logout_view(request):
     if request.method == "POST":
@@ -136,14 +138,13 @@ def bulk_student_creation(request):
                 professor=request.user,
                 semester=Semester.objects.get(name=semester),
                 studiengang=Studiengang.objects.get(name=studiengang),
-                display_name=student_name
+                display_name=student_name,
+                unternehmen_id=1
             )
             student.set_password(student_name)  # Passwort richtig hashen
             student.save()
-
-            # Erstelle interne Nachricht statt E-Mail zu senden
+            send_willkommen_mail(student)
             send_profile_update_mail(student)
-
             neue_studierende.append(student)
 
         if fehlgeschlagene_namen:
@@ -207,7 +208,7 @@ def aufgaben_zuweisen_view(request):
             for student in studierende:
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
-                print(f"Hier steht der Absender in User{nutzer_aufgabe.absender.id}")
+                print(f"Hier steht der Absender in User{nutzer_aufgabe.absender_id}")
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
                 erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
 
@@ -220,6 +221,21 @@ def aufgaben_zuweisen_view(request):
         'studiengaenge': eigene_studiengaenge,
         'aufgaben_uebersicht': aufgaben_uebersicht
     })
+
+@lehrkraft_required
+def aufgaben_selbst_zuweisen(request):
+    """Weist dem Lehrer alle Aufgaben selbst zu."""
+    lehrer = request.user
+    aufgaben = Aufgabe_neu.objects.all()  # Alle Aufgaben abrufen
+
+    for aufgabe in aufgaben:
+        zufaellige_werte = generiere_zufaellige_werte(aufgabe)
+        nutzer_aufgabe = speichere_nutzer_aufgabe(lehrer, aufgabe, zufaellige_werte)
+        naechster_versuch = berechne_naechsten_versuch(lehrer, aufgabe)
+        erstelle_aufgaben_mail(lehrer, aufgabe, naechster_versuch, nutzer_aufgabe.absender)
+
+    messages.success(request, "Alle Aufgaben wurden dir erfolgreich zugewiesen.")
+    return redirect('users:aufgaben_zuweisen')
 
 
 @login_required
@@ -282,4 +298,27 @@ def send_profile_update_mail(user):
         """,
         versuch=1,  # Standardversuch
         status="nicht bearbeitet"
+    )
+
+def send_willkommen_mail(user):
+    Mail.objects.create(
+        nutzer=user,
+        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
+        betreff="Willkommen bei SecureNet",
+        mailtext=f"""
+        Hallo,
+
+        willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen.
+
+        Im Posteingang findest du alle wichtigen Rechnungen und Aufgaben, die du bearbeiten musst. Dein Hauptbuch bietet dir eine transparente Übersicht über alle T-Konten, damit du jederzeit nachvollziehen kannst, welche Buchungen vorgenommen wurden. Die Rechnungsübersicht hilft dir, offene und bereits bearbeitete Rechnungen im Blick zu behalten.
+
+        Damit dein Unternehmen langfristig erfolgreich bleibt, solltest du regelmäßig die Bilanz prüfen. Sie zeigt dir, ob dein Unternehmen solide finanziert ist und wie sich Vermögenswerte und Verbindlichkeiten ausgleichen.
+
+        Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung.
+
+        Viel Erfolg bei SecureNet!
+        Dein SecureNet-Team
+        """,
+        versuch=0,  # Standardversuch
+        status="bearbeitet"
     )

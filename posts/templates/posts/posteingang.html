@@ -31,7 +31,7 @@
                                 <span class="status status-nicht-bearbeitet">Nicht bearbeitet</span>
                             {% endif %}
                         </td>
-                        <td>{{ mail.absender.name }}</td>
+                        <td>{{ mail.absender.email }}</td>
                         <td>{{ mail.datum|date:"d.m.Y H:i" }}</td>
                     </tr>
                     {% empty %}

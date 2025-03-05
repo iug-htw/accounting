@@ -40,10 +40,10 @@
                 </select>
 
                 <!-- Fester Betrag -->
-                <input type="number" step="0.01" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
+                <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
 
                 <!-- Faktor für Prozentrechnung -->
-                <input type="number" step="0.01" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
+                <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
 
                 <!-- Bezugs-Konto Auswahl (für Faktor-Berechnung) -->
                 <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
@@ -101,7 +101,7 @@
                     <option value="Haben">Haben</option>
                 </select>
 
-                <input type="number" step="0.01" placeholder="Betrag" name="betrag[]" class="betrag">
+                <input type="number" step="0.0000001" placeholder="Betrag" name="betrag[]" class="betrag">
 
                 <label>Berechnungsart:</label>
                 <select name="formel_typ[]" class="formel-typ" required onchange="toggleFields(this)">
@@ -110,9 +110,9 @@
                     <option value="summe">Summe aus mehreren Konten</option>
                 </select>
 
-                <input type="number" step="0.01" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
+                <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
 
-                <input type="number" step="0.01" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
+                <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
 
                 <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
                 <select name="bezugs_konto[]" class="bezugs-konto" style="display: none;">

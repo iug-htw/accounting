@@ -49,7 +49,7 @@ class AufgabenkategorieForm(forms.ModelForm):
 class AufgabeBearbeitenForm(forms.ModelForm):
     class Meta:
         model = Aufgabe_neu
-        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'mailtext', 'frage', 'nutzungsdauer', 'feedback_konto_falsch', 'feedback_betrag_falsch']
+        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'mailtext', 'frage', 'nutzungsdauer', 'feedback_konto_falsch', 'feedback_betrag_falsch','zahlweise']
 
 class AufgabeDetailBearbeitenForm(forms.ModelForm):
     class Meta:

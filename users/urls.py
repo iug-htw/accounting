@@ -15,4 +15,5 @@ urlpatterns = [
     path('delete_semester/<int:semester_id>/', views.delete_semester_view, name='delete_semester'),
     path('aufgaben_zuweisen/', views.aufgaben_zuweisen_view, name='aufgaben_zuweisen'),
     path('update-profile/', views.update_profile, name='update_profile'),
+    path('aufgaben-selbst-zuweisen/', views.aufgaben_selbst_zuweisen, name='aufgaben_selbst_zuweisen'),
     ]

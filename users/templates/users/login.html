@@ -6,6 +6,13 @@
 
 {% block content %}
     <h1>Login as a User</h1>
+    {% if messages %}
+    <div style="color: red; margin-bottom: 10px;">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
     <form class="form-with-validation" action="{%url 'users:login'%}" method="post">
         {% csrf_token %}
         {{ form }}

@@ -136,3 +136,37 @@ body {
 .logout-button:hover {
     text-decoration: underline;
 }
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+    padding: 10px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 150px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: black;
+}
+
+.dropdown-content a:hover {
+    background-color: #f0f0f0;
+}
+
+/* Zeigt das Dropdown an, wenn die Maus darüber ist */
+.nav-dropdown:hover .dropdown-content {
+    display: block;
+}

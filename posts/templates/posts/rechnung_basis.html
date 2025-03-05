@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+{% load my_filters %}
 <head>
     <meta charset="UTF-8">
     <title>Rechnung {{ rechnungsnummer }}</title>
@@ -30,10 +31,11 @@
 <body>
     <div class="invoice-box">
         <div class="company-address">
-            <p><strong>{{ nutzer_aufgabe.absender.name }}</strong></p>
-            <p>{{ nutzer_aufgabe.absender.straße }}</p>
-            <p>{{ nutzer_aufgabe.absender.plz }} {{ nutzer_aufgabe.absender.stadt }}</p>
-            <p>{{ nutzer_aufgabe.absender.email }}</p>
+            <strong>{{ nutzer_aufgabe.absender.name }}</strong>
+            {{ nutzer_aufgabe.absender.straße|linebreaks }}
+            {{ nutzer_aufgabe.absender.stadt }}
+            {{ nutzer_aufgabe.absender.plz }} 
+            {{ nutzer_aufgabe.absender.email|linebreaks }}
         </div>
     
         <div class="client-address" style="text-align: right;">
@@ -48,15 +50,20 @@
         <div class="invoice-description" style="margin-top: 20px;">
             <h3>Rechnung</h3>
             <p>
-                Sehr geehrtes SecureNet Team,<br><br>
-                vielen Dank für Ihren Auftrag. Wir freuen uns, Ihnen folgende Dienstleistung(en) anbieten zu dürfen:<br><br>
+                Sehr geehrtes SecureNet Team,<br><br><br><br>
+                Folgender Auftrag ist eigegangen:<br><br>
                 {{ beschreibung|linebreaks }}<br><br>
-                Als unser geschätzter Kunde profitieren Sie von erstklassigem Service und einem 24/7-Support.
             </p>
         </div>
     
         <div class="invoice-amount" style="margin-top: 20px;">
+            {% if aufgabe.fragentyp_id == 10 %}
+                <p><strong>Rechnungsbetrag (Brutto):</strong> {{ rechnungsbetrag|mul:1.05|floatformat:2 }}</p>
+            {% elif aufgabe.fragentyp_id == 13%}
+                <p><strong>Anschaffungskosten (Netto):</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
+            {% else %}
             <p><strong>Rechnungsbetrag (Brutto):</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+            {% endif %}
         </div>
     
         <div class="payment-info" style="margin-top: 20px;">
@@ -65,7 +72,6 @@
         </div>
     
         <div class="invoice-footer" style="margin-top: 40px;">
-            <p>Mit freundlichen Grüßen,</p>
             <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
             <p><strong>Kontakt:</strong><br>{{ kontakt|linebreaks }}</p>
         </div>

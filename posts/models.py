@@ -18,7 +18,7 @@ class Aufgabenkategorie(models.Model):
 
 class Absender(models.Model):
     name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(max_length=100)
     straße = models.CharField(max_length=255)
     stadt = models.CharField(max_length=100)
     plz = models.CharField(max_length=10)
@@ -45,7 +45,7 @@ class Aufgabe_neu(models.Model):
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn der Betrag falsch ist.")
 
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
-    eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\Treskowallee 8\n10318 Berlin')
+    eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\nTreskowallee 8\n10318 Berlin')
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001')
     datum = models.DateField(blank=True, null=True, auto_now_add=True)
     rechnungsbetrag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00)

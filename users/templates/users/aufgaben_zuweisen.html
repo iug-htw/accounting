@@ -1,7 +1,11 @@
 {% extends 'master_layout.html' %}
 {% block content %}
 <h1>Aufgaben zuweisen</h1>
-
+<h2>Alle Aufgaben selbst zuweisen</h2>
+<form method="post" action="{% url 'users:aufgaben_selbst_zuweisen' %}">
+    {% csrf_token %}
+    <button type="submit">Alle Aufgaben mir zuweisen</button>
+</form>
 <!-- Aufgabenübersicht -->
 <h2>Übersicht der zugewiesenen Aufgaben</h2>
 {% for semester, studiengaenge in aufgaben_uebersicht.items %}
