@@ -466,13 +466,13 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
 def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     #print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
     
-    #betreff = f"{aufgabe.mailtext}"
+    betreff = f"{aufgabe.fragentyp_text} Versuch {versuch}"
     mailtext = f"{aufgabe.mailtext}"
 
     Mail.objects.create(
         nutzer=nutzer,
         aufgabe=aufgabe,
-       # betreff=betreff,
+        betreff=betreff,
         mailtext=mailtext,
         versuch=versuch,
         absender=absender,  # Speichert die Absender-Referenz
@@ -631,6 +631,9 @@ def aufgabe_bearbeiten(request, aufgabe_id):
 @login_required
 def korrekturbuchung_durchfuehren(request, buchung_id):
     buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
+    aufgabe = get_object_or_404(Aufgabe_neu, id=buchung.aufgabe_id)
+    nutzeraufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
+    absender = get_object_or_404(Absender, id=nutzeraufgabe.absender_id)
 
     letzte_buchung = Buchung.objects.filter(aufgabe=buchung.aufgabe, nutzer=request.user).order_by('-versuch').first()
     naechster_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
@@ -647,6 +650,7 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
         versuch=naechster_versuch
     )
 
+    erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch+1, absender)
     messages.success(request, f'Korrekturbuchung im Versuch {naechster_versuch} erfolgreich durchgeführt.')
     return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
 
