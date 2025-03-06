@@ -65,7 +65,7 @@ Der initiale Prototyp in Version C wurde in Mockup-Form entwickelt. Eine Impleme
   - Bei weten dummy werte
   - warnungsfenster z.B 
   - Logik für hauptbuch 
-  - aufgaben erstellen anpassen
+  - aufgaben erstellen anpassen.
   - 
 
 ---
