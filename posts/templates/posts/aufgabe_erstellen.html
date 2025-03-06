@@ -1,74 +1,164 @@
 {% extends 'master_layout.html' %}
 {% load static %}
-{% block css %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-{% endblock %}
+
 {% block content %}
     <h1>Neue Aufgabe erstellen</h1>
     <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">Unternehmen verwalten</a>
     <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">Fragentyp verwalten</a>
     <a href="{% url 'posts:konten_verwalten' %}" class="btn btn-secondary">Konten verwalten</a>
-
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
 
-        <h2>Felder hinzufügen</h2>
-        <div id="fields-container_aufgabe_erstellen">
-            <div class="field-group_aufgabe_erstellen">
+        <h2>Buchungssätze hinzufügen</h2>
+        <div id="fields-container">
+            <div class="field-group">
+                <!-- Konto Auswahl -->
+                <label>Konto:</label>
                 <select name="kontoname[]" required>
                     {% for konto in konten %}
-                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    <option value="{{ konto.name }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
+
+                <!-- Soll/Haben Auswahl -->
+                <label>Soll/Haben:</label>
                 <select name="soll_haben[]" required>
                     <option value="Soll">Soll</option>
                     <option value="Haben">Haben</option>
                 </select>
-                <input type="number" placeholder="Betrag" name="betrag[]" required>
-                <select name="monatsangabe[]" required>
-                    <option value="true">Ja</option>
-                    <option value="false">Nein</option>
+
+                <!-- Betrag (falls kein Bezug besteht) -->
+                <input type="number" step="0.01" placeholder="Betrag" name="betrag[]" class="betrag">
+
+                <!-- Berechnungsart -->
+                <label>Berechnungsart:</label>
+                <select name="formel_typ[]" class="formel-typ" required onchange="toggleFields(this)">
+                    <option value="fix">Fester Betrag</option>
+                    <option value="faktor">Multiplikation mit Faktor</option>
+                    <option value="summe">Summe aus mehreren Konten</option>
                 </select>
-                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12">
+
+                <!-- Fester Betrag -->
+                <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
+
+                <!-- Faktor für Prozentrechnung -->
+                <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
+
+                <!-- Bezugs-Konto Auswahl (für Faktor-Berechnung) -->
+                <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
+                <select name="bezugs_konto[]" class="bezugs-konto" style="display: none;">
+                    <option value="">Kein Bezugs-Konto</option>
+                    {% for konto in konten %}
+                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Mehrfachauswahl für Summe -->
+                <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
+                <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
+                    {% for konto in konten %}
+                    <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Monatsangabe -->
+                <label>Monatsangabe:</label>
+                <select name="monatsangabe[]" class="monatsangabe" onchange="toggleMonatField(this)">
+                    <option value="false">Nein</option>
+                    <option value="true">Ja</option>
+                </select>
+
+                <!-- Monatseingabe -->
+                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12" class="monat" style="display: none;">
             </div>
         </div>
 
-
-        <button type="button" onclick="addFieldGroup()">Weitere Felder hinzufügen</button>
+        <button type="button" onclick="addFieldGroup()">Weitere Buchung hinzufügen</button>
         <br><br>
         <button type="submit">Speichern</button>
     </form>
 
     <script>
-        // Funktion zum Hinzufügen neuer Felder
         function addFieldGroup() {
-            let container = document.getElementById('fields-container_aufgabe_erstellen');
+            let container = document.getElementById('fields-container');
             let newFieldGroup = document.createElement('div');
-            newFieldGroup.classList.add('field-group_aufgabe_erstellen');
-        
+            newFieldGroup.classList.add('field-group');
+
             let kontenOptions = `
                 {% for konto in konten %}
                     <option value="{{ konto.name }}">{{ konto.name }}</option>
                 {% endfor %}
             `;
-        
+
             newFieldGroup.innerHTML = `
+                <label>Konto:</label>
                 <select name="kontoname[]" required>${kontenOptions}</select>
+
+                <label>Soll/Haben:</label>
                 <select name="soll_haben[]" required>
                     <option value="Soll">Soll</option>
                     <option value="Haben">Haben</option>
                 </select>
-                <input type="number" placeholder="Betrag" name="betrag[]" required>
-                <select name="monatsangabe[]" required>
-                    <option value="true">Ja</option>
-                    <option value="false">Nein</option>
+
+                <input type="number" step="0.0000001" placeholder="Betrag" name="betrag[]" class="betrag">
+
+                <label>Berechnungsart:</label>
+                <select name="formel_typ[]" class="formel-typ" required onchange="toggleFields(this)">
+                    <option value="fix">Fester Betrag</option>
+                    <option value="faktor">Multiplikation mit Faktor</option>
+                    <option value="summe">Summe aus mehreren Konten</option>
                 </select>
-                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12">
-                <br>
+
+                <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
+
+                <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
+
+                <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
+                <select name="bezugs_konto[]" class="bezugs-konto" style="display: none;">
+                    <option value="">Kein Bezugs-Konto</option>
+                    ${kontenOptions}
+                </select>
+
+                <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
+                <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
+                    ${kontenOptions}
+                </select>
+
+                <label>Monatsangabe:</label>
+                <select name="monatsangabe[]" class="monatsangabe" onchange="toggleMonatField(this)">
+                    <option value="false">Nein</option>
+                    <option value="true">Ja</option>
+                </select>
+
+                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12" class="monat" style="display: none;">
             `;
-        
+
             container.appendChild(newFieldGroup);
         }
+
+        function toggleFields(selectElement) {
+            let parent = selectElement.parentElement;
+            let festbetrag = parent.querySelector('.festbetrag');
+            let faktor = parent.querySelector('.faktor');
+            let bezugsKonto = parent.querySelector('.bezugs-konto');
+            let bezugsKonten = parent.querySelector('.bezugs-konten');
+            let bezugsKontoLabel = parent.querySelector('.bezugs-konto-label');
+            let bezugsKontenLabel = parent.querySelector('.bezugs-konten-label');
+
+            festbetrag.style.display = selectElement.value === "fix" ? "inline-block" : "none";
+            faktor.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
+            bezugsKonto.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
+            bezugsKonten.style.display = selectElement.value === "summe" ? "inline-block" : "none";
+            bezugsKontoLabel.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
+            bezugsKontenLabel.style.display = selectElement.value === "summe" ? "inline-block" : "none";
+        }
+
+        function toggleMonatField(selectElement) {
+            let parent = selectElement.parentElement;
+            let monatField = parent.querySelector('.monat');
+            monatField.style.display = selectElement.value === "true" ? "inline-block" : "none";
+        }
     </script>
+
 {% endblock %}

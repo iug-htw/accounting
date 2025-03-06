@@ -15,7 +15,11 @@
     {% for aufgabenkategorie in aufgabenkategorien %}
         <li>
             {{ aufgabenkategorie.name }}
-            <a href="{% url 'posts:aufgabenkategorie_loeschen' aufgabenkategorie.id %}" class="btn btn-danger">Löschen</a>
+            <a href="{% url 'posts:aufgabenkategorie_loeschen' aufgabenkategorie.id %}" 
+               class="btn btn-danger" 
+               onclick="return confirm('Soll die Kategorie wirklich gelöscht werden?');">
+               Löschen
+            </a>
         </li>
     {% empty %}
         <li>Keine Aufgabenkategorien vorhanden.</li>

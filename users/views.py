@@ -40,16 +40,18 @@ def register_view(request):
 def login_view(request):
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
-        if form.is_valid(): 
+        if form.is_valid():
             login(request, form.get_user())
-            if "next" in request.POST:
-                return redirect(request.POST.get('next'))
-            else: 
-                return redirect("frontpage")
-        return redirect("frontpage")
+            if "next" in request.POST and request.POST.get("next"):
+                return redirect(request.POST.get("next"))
+            return redirect("frontpage")
+        else:
+            messages.error(request, "Benutzername oder Passwort ist nicht korrekt.")
+    
     else:
         form = AuthenticationForm()
-    return render(request, "users/login.html", { "form": form })
+    
+    return render(request, "users/login.html", {"form": form})
 
 def logout_view(request):
     if request.method == "POST":
@@ -117,8 +119,8 @@ def bulk_student_creation(request):
 
         existing_users = CustomUser.objects.values_list('username', flat=True)
         fehlgeschlagene_namen = []
-
         neue_studierende = []
+
         for i in range(1, anzahl_studierende + 1):
             if name_mode == "on" and custom_name:
                 student_name = f"{custom_name}{i}"
@@ -128,7 +130,7 @@ def bulk_student_creation(request):
             if student_name in existing_users:
                 fehlgeschlagene_namen.append(student_name)
                 continue  # Überspringe Erstellung dieses Nutzers
-
+            
             student = CustomUser(
                 username=student_name,
                 email=f"{student_name}@example.com",
@@ -136,14 +138,13 @@ def bulk_student_creation(request):
                 professor=request.user,
                 semester=Semester.objects.get(name=semester),
                 studiengang=Studiengang.objects.get(name=studiengang),
-                display_name=student_name
+                display_name=student_name,
+                unternehmen_id=1
             )
             student.set_password(student_name)  # Passwort richtig hashen
             student.save()
-
-            # Erstelle interne Nachricht statt E-Mail zu senden
+            send_willkommen_mail(student)
             send_profile_update_mail(student)
-
             neue_studierende.append(student)
 
         if fehlgeschlagene_namen:
@@ -151,7 +152,12 @@ def bulk_student_creation(request):
         else:
             messages.success(request, f'{len(neue_studierende)} Studierende erfolgreich erstellt.')
 
-        return redirect('users:bulk_student_creation')
+        return render(request, 'users/bulk_student_creation.html', {
+            'studiengaenge': Studiengang.objects.all(),
+            'semester': Semester.objects.all(),
+            'neue_studierende': neue_studierende,
+            'fehlgeschlagene_namen': fehlgeschlagene_namen
+        })
 
     studiengaenge = Studiengang.objects.all()
     semester = Semester.objects.all()
@@ -166,38 +172,70 @@ def aufgaben_zuweisen_view(request):
     if not request.user.role == 'teacher':
         return HttpResponse(f'Fehlende Berechtigung <br><a href="/">Zurück zur Startseite</a>')
 
-    aufgaben = Aufgabe_neu.objects.all()
-    semester = Semester.objects.all()
-    studiengaenge = Studiengang.objects.all()
+    # Eigene Studierenden filtern
+    eigene_studierende = CustomUser.objects.filter(professor=request.user, role='student')
 
+    # Eigene Semester und Studiengänge
+    eigene_semester = Semester.objects.filter(id__in=eigene_studierende.values_list('semester_id', flat=True).distinct())
+    eigene_studiengaenge = Studiengang.objects.filter(id__in=eigene_studierende.values_list('studiengang_id', flat=True).distinct())
+
+    aufgaben = Aufgabe_neu.objects.all()
+
+    # Übersicht: Aufgaben pro Semester und Studiengang
+    aufgaben_uebersicht = {}
+    for sem in eigene_semester:
+        aufgaben_uebersicht[sem.name] = {}
+        for studiengang in eigene_studiengaenge:
+            studis_in_gruppe = eigene_studierende.filter(semester=sem, studiengang=studiengang)
+            # Aufgaben nach ID sortieren
+            zugewiesene_aufgaben = Aufgabe_neu.objects.filter(nutzeraufgabe__nutzer__in=studis_in_gruppe).order_by('id').distinct()
+            if zugewiesene_aufgaben.exists():
+                aufgaben_uebersicht[sem.name][studiengang.name] = [f"Aufgabe {aufgabe.id}" for aufgabe in zugewiesene_aufgaben]
+    
+    # Aufgaben zuweisen
     if request.method == 'POST':
         ausgewählte_aufgaben = request.POST.getlist('aufgaben')
         ausgewählte_semester = request.POST.getlist('semester')
         ausgewählte_studiengaenge = request.POST.getlist('studiengaenge')
 
-        # Studierende filtern, die den Kriterien entsprechen
-        studierende = CustomUser.objects.filter(
-            role='student',
-            semester__id__in=ausgewählte_semester,
-            studiengang__id__in=ausgewählte_studiengaenge
-        )
-
         for aufgabe_id in ausgewählte_aufgaben:
             aufgabe = Aufgabe_neu.objects.get(id=aufgabe_id)
+            studierende = eigene_studierende.filter(
+                semester__id__in=ausgewählte_semester,
+                studiengang__id__in=ausgewählte_studiengaenge,
+                unternehmen=aufgabe.unternehmen_kategorie
+            )
             for student in studierende:
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
-                speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
+                nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
+                print(f"Hier steht der Absender in User{nutzer_aufgabe.absender_id}")
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
-                erstelle_aufgaben_mail(student, aufgabe, naechster_versuch)
+                erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
 
-        messages.success(request, "Aufgaben erfolgreich zugewiesen und Mails verschickt.")
+        messages.success(request, "Aufgaben erfolgreich zugewiesen.")
         return redirect('users:aufgaben_zuweisen')
 
     return render(request, 'users/aufgaben_zuweisen.html', {
         'aufgaben': aufgaben,
-        'semester': semester,
-        'studiengaenge': studiengaenge
+        'semester': eigene_semester,
+        'studiengaenge': eigene_studiengaenge,
+        'aufgaben_uebersicht': aufgaben_uebersicht
     })
+
+@lehrkraft_required
+def aufgaben_selbst_zuweisen(request):
+    """Weist dem Lehrer alle Aufgaben selbst zu."""
+    lehrer = request.user
+    aufgaben = Aufgabe_neu.objects.all()  # Alle Aufgaben abrufen
+
+    for aufgabe in aufgaben:
+        zufaellige_werte = generiere_zufaellige_werte(aufgabe)
+        nutzer_aufgabe = speichere_nutzer_aufgabe(lehrer, aufgabe, zufaellige_werte)
+        naechster_versuch = berechne_naechsten_versuch(lehrer, aufgabe)
+        erstelle_aufgaben_mail(lehrer, aufgabe, naechster_versuch, nutzer_aufgabe.absender)
+
+    messages.success(request, "Alle Aufgaben wurden dir erfolgreich zugewiesen.")
+    return redirect('users:aufgaben_zuweisen')
 
 
 @login_required
@@ -260,4 +298,27 @@ def send_profile_update_mail(user):
         """,
         versuch=1,  # Standardversuch
         status="nicht bearbeitet"
+    )
+
+def send_willkommen_mail(user):
+    Mail.objects.create(
+        nutzer=user,
+        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
+        betreff="Willkommen bei SecureNet",
+        mailtext=f"""
+        Hallo,
+
+        willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen.
+
+        Im Posteingang findest du alle wichtigen Rechnungen und Aufgaben, die du bearbeiten musst. Dein Hauptbuch bietet dir eine transparente Übersicht über alle T-Konten, damit du jederzeit nachvollziehen kannst, welche Buchungen vorgenommen wurden. Die Rechnungsübersicht hilft dir, offene und bereits bearbeitete Rechnungen im Blick zu behalten.
+
+        Damit dein Unternehmen langfristig erfolgreich bleibt, solltest du regelmäßig die Bilanz prüfen. Sie zeigt dir, ob dein Unternehmen solide finanziert ist und wie sich Vermögenswerte und Verbindlichkeiten ausgleichen.
+
+        Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung.
+
+        Viel Erfolg bei SecureNet!
+        Dein SecureNet-Team
+        """,
+        versuch=0,  # Standardversuch
+        status="bearbeitet"
     )

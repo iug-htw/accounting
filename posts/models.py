@@ -16,6 +16,18 @@ class Aufgabenkategorie(models.Model):
     def __str__(self):
         return self.name
 
+class Absender(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100)
+    straße = models.CharField(max_length=255)
+    stadt = models.CharField(max_length=100)
+    plz = models.CharField(max_length=10)
+    telnr = models.IntegerField(null=True)
+
+    def __str__(self):
+        return f"{self.name}, {self.straße}, {self.plz} {self.stadt}"
+
+
 class Aufgabe_neu(models.Model):
     RECHNUNGSTYPEN = [
         ('eingehend', 'Eingehende Rechnung'),
@@ -24,18 +36,16 @@ class Aufgabe_neu(models.Model):
     ]
     unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE)
     fragentyp = models.ForeignKey(Aufgabenkategorie, on_delete=models.CASCADE)
+    unterkategorie = models.IntegerField(null = True, blank=True, default = 1)
     fragentyp_text = models.CharField(max_length=255)
     mailtext = models.TextField()
-    frage = models.TextField()
-    bezugswert = models.FloatField()
-    min_wert = models.FloatField(null=True, blank=True)
-    max_wert = models.FloatField(null=True, blank=True)
+    frage = models.TextField(default="Dieses Feld kann gelöscht werden")
     nutzungsdauer = models.IntegerField(null=True, blank=True)
     feedback_konto_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn der Betrag falsch ist.")
 
-    anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
-    eigene_ansicht = models.TextField(blank=True, null=True, default='Mein Unternehmen GmbH\nHauptstraße 10\n54321 Stadt')
+    #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
+    eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\nTreskowallee 8\n10318 Berlin')
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001')
     datum = models.DateField(blank=True, null=True, auto_now_add=True)
     rechnungsbetrag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00)
@@ -49,17 +59,40 @@ class Aufgabe_neu(models.Model):
     def __str__(self):
         return f"{self.frage} ({self.fragentyp})"
 
-
 class AufgabeDetail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, related_name="details")
     kontoname = models.CharField(max_length=255)
     soll_haben = models.CharField(max_length=50, choices=[("Soll", "Soll"), ("Haben", "Haben")])
-    betrag = models.FloatField()
+    betrag = models.FloatField(null=True, blank=True)  # Kann leer sein, wenn es berechnet wird
     monatsangabe = models.BooleanField(default=False)
     monat = models.IntegerField(null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.kontoname} - {self.soll_haben} - {self.betrag}"
+    festbetrag = models.FloatField(null=True, blank=True, help_text="Fester Betrag, falls kein Bezugskonto genutzt wird")
+    bezugs_konto = models.CharField(max_length=255, null=True, blank=True)
+    faktor = models.FloatField(null=True, blank=True, help_text="Multiplikationsfaktor, falls abhängig von einem anderen Konto")
+    formel_typ = models.CharField(
+        max_length=50,
+        choices=[("faktor", "Multiplikation mit Faktor"), ("fix", "Fester Betrag"), ("summe", "Summe aus mehreren Konten")],
+        default="fix"
+    )
+
+    def berechne_betrag(self):
+        """ Berechnet den Betrag anhand der gespeicherten Formel. """
+        if self.formel_typ == "fix" and self.festbetrag is not None:
+            return self.festbetrag  # Fester Betrag bleibt unverändert
+        
+        elif self.formel_typ == "faktor" and self.bezugs_konten.exists():
+            # Falls das Konto von einem anderen Konto abhängig ist, berechne Betrag mit Faktor
+            referenz_konto = self.bezugs_konten.first()  # Erstes Bezugs-Konto nehmen (falls es mehrere gibt)
+            if referenz_konto:
+                return referenz_konto.berechne_betrag() * self.faktor  # Berechnung mit Faktor
+
+        elif self.formel_typ == "summe" and self.bezugs_konten.exists():
+            # Falls es eine Summe aus mehreren Konten ist, berechne die Summe
+            gesamt_betrag = sum(konto.berechne_betrag() for konto in self.bezugs_konten.all())
+            return gesamt_betrag  # Summe bleibt unverändert
+
+        return self.betrag if self.betrag else 0  # Falls keine Logik zutrifft, nutze originalen Betrag
 
 class Buchung(models.Model):
     STATUS_CHOICES = [
@@ -110,6 +143,7 @@ class NutzerAufgabe(models.Model):
     ]
 
     aufgabe = models.ForeignKey('Aufgabe_neu', on_delete=models.CASCADE)
+    absender = models.ForeignKey(Absender, on_delete=models.CASCADE, null=True, blank=True)  # Neu
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     soll_konten = models.JSONField(default=list)  # Liste der Soll-Konten
     haben_konten = models.JSONField(default=list)  # Liste der Haben-Konten
@@ -125,6 +159,7 @@ class NutzerAufgabe(models.Model):
 class Mail(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, null=True, blank=True)
+    absender = models.ForeignKey(Absender, on_delete=models.CASCADE, null=True, blank=True)  # Neu
     betreff = models.CharField(max_length=255)
     mailtext = models.TextField()
     versuch = models.PositiveIntegerField(default=1)

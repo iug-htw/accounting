@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
+from posts.models import Unternehmen
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -65,6 +66,12 @@ class CustomUser(AbstractUser):
         on_delete=models.CASCADE,
         null=True, blank=True,  # Allow empty reference initially
         related_name='students'  # Optional but recommended for clarity
+    )
+    unternehmen = models.ForeignKey(
+        Unternehmen,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="studierende"
     )
     display_name = models.CharField(max_length=150, blank=True, null=True)
     def __str__(self):

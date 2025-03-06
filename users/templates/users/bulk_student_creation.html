@@ -1,21 +1,9 @@
-
 {% extends 'master_layout.html' %}
-{% load my_filters %}
-{% load static %}
-{% block css %}
-<link rel="stylesheet" href="{% static 'css/bulk_student_creation.css' %}">
-<meta name="csrf-token" content="{{ csrf_token }}">
-{% endblock %}
 
 {% block content %}
-<h1 class="h1">Mehrere Studierende gleichzeitig anlegen</h1>
-          <nav class="navigation-bar">
-             <a href="{% url 'users:add_studiengang' %}" class="nav-elements">Studiengang/Gruppe hinzufügen</a><br><br>
-            <a href="{% url 'users:add_semester' %}" class="nav-elements">Semester hinzufügen</a><br><br>
-
-            </nav>
-
-     <br><br><br>
+<h1>Mehrere Studierende gleichzeitig anlegen</h1>
+<a href="{% url 'users:add_studiengang' %}" class="nav-element">Studiengang bearbeiten</a>
+<a href="{% url 'users:add_semester' %}" class="nav-element">Semester bearbeiten</a>
 <form method="post">
     {% csrf_token %}
 
@@ -23,25 +11,23 @@
     <input type="range" id="anzahl" name="anzahl_studierende" min="1" max="50" value="1" oninput="anzahlOutput.value = anzahl.value">
     <output id="anzahlOutput">1</output>
 
-    <br><br><br>
     <label for="studiengang">Studiengang:</label>
     <select name="studiengang" required>
         {% for sg in studiengaenge %}
             <option value="{{ sg.name }}">{{ sg.name }}</option>
         {% endfor %}
     </select>
- <br><br><br>
+
     <label for="semester">Semester:</label>
     <select name="semester" required>
         {% for sem in semester %}
             <option value="{{ sem.name }}">{{ sem.name }}</option>
         {% endfor %}
     </select>
- <br><br><br>
+
     <!-- Umschalter für Namensvergabe -->
     <label for="name_mode">Namensmodus:</label>
     <input type="checkbox" id="name_mode" name="name_mode" onchange="toggleNameInput()">
- <br><br><br>
     <span id="name_mode_label">Automatischer Name</span>
 
     <!-- Eingabefeld für individuellen Namen (Standardmäßig versteckt) -->
@@ -52,9 +38,38 @@
 
     <button type="submit" class="btn btn-primary">Studierende anlegen</button>
 </form>
-    <br><br><br>
-    <a href="{% url 'users:add_studiengang' %}">Studiengang/Gruppe hinzufügen</a><br><br>
-    <a href="{% url 'users:add_semester' %}">Semester hinzufügen</a><br><br>
+
+{% if neue_studierende %}
+<h2>Erstellte Studierende</h2>
+<table border="1">
+    <tr>
+        <th>Benutzername</th>
+        <th>Passwort</th>
+    </tr>
+    {% for student in neue_studierende %}
+    <tr>
+        <td>{{ student.username }}</td>
+        <td>{{ student.username }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<p><strong>Hinweis:</strong> Die Passwörter entsprechen den Benutzernamen. Die Studierenden sollten diese bei der ersten Anmeldung ändern.</p>
+{% endif %}
+
+{% if fehlgeschlagene_namen %}
+<h2>Bereits existierende Studierende</h2>
+<table border="1">
+    <tr>
+        <th>Benutzername</th>
+    </tr>
+    {% for student_name in fehlgeschlagene_namen %}
+    <tr>
+        <td>{{ student_name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<p><strong>Hinweis:</strong> Diese Studierenden existierten bereits und wurden nicht erneut angelegt.</p>
+{% endif %}
 
 <script>
     function toggleNameInput() {

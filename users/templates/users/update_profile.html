@@ -2,16 +2,16 @@
 
 {% block content %}
 <h2>Profil aktualisieren</h2>
-
+<div id="confirmation-message" style="display: none; color: green; margin-bottom: 10px;"></div>
 <form method="post">
     {% csrf_token %}
     
     <div>
         <label for="display_name">Neuer Anzeigename (optional):</label>
         <input type="text" name="display_name" value="{{ user.display_name }}">
-        <button type="submit" name="save_display_name">Anzeigename speichern</button>
+        <button type="submit" name="save_display_name" onclick="showConfirmation('Nutzername erfolgreich geändert')">Anzeigename speichern</button>
     </div>
-
+    <br><br>
     <div>
         <label for="password">Neues Passwort (optional):</label>
         <input type="password" name="password">
@@ -20,9 +20,22 @@
     <div>
         <label for="password_confirm">Passwort bestätigen:</label>
         <input type="password" name="password_confirm">
-        <button type="submit" name="save_password">Passwort speichern</button>
+        <button type="submit" name="save_password" onclick="showConfirmation('Passwort erfolgreich geändert')">Passwort speichern</button>
     </div>
 </form>
 
+<script>
+    function showConfirmation(message) {
+        localStorage.setItem('confirmationMessage', message);
+    }
 
+    window.onload = function() {
+        const message = localStorage.getItem('confirmationMessage');
+        if (message) {
+            document.getElementById('confirmation-message').innerText = message;
+            document.getElementById('confirmation-message').style.display = 'block';
+            localStorage.removeItem('confirmationMessage'); // Nachricht nach dem Anzeigen löschen
+        }
+    };
+</script>
 {% endblock %}

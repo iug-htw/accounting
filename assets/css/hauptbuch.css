@@ -1,0 +1,183 @@
+.hauptbuch {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px;
+    align-items: flex-start;
+    border-collapse: collapse;
+    width: 100%;
+
+}
+
+.h1, .p {
+    text-align: center;
+}
+
+.konto {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #4CAF50;
+    text-align: center;
+    align-items: flex-start;
+}
+
+.konto h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.konto table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.konto-abschluss-btn {
+    background: linear-gradient(135deg, #120639, #3d1b82); /* Farbverlauf */
+    color: white; /* Weiße Schrift für besseren Kontrast */
+    border: none; /* Kein störender Rand */
+    border-radius: 6px; /* Leicht abgerundete Ecken */
+    padding: 6px 12px; /* Kleinere Größe */
+    font-size: 14px; /* Kleinere Schriftgröße */
+    font-weight: bold; /* Kräftige Schrift für bessere Lesbarkeit */
+    cursor: pointer; /* Zeigt an, dass es ein klickbarer Button ist */
+    transition: background 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Hover-Effekt für eine elegante Animation */
+.konto-abschluss-btn:hover {
+    background: linear-gradient(135deg, #1d0a4c, #52289a); /* Etwas heller beim Hover */
+    transform: scale(1.03); /* Leicht vergrößern für eine interaktive Wirkung */
+    opacity: 0.9;
+}
+
+/* Klick-Effekt für ein echtes Button-Feeling */
+.konto-abschluss-btn:active {
+    background: linear-gradient(135deg, #0d0328, #2e145d); /* Dunklere Farben beim Drücken */
+    transform: scale(0.97); /* Leicht verkleinern für Feedback */
+    opacity: 0.8;
+}
+
+
+
+.konto td {
+    padding: 8px;
+    border: 1px solid transparent; /* Standardmäßig unsichtbare Ränder */
+    vertical-align: top;
+}
+
+/* Entfernt die Trennlinien innerhalb der Soll- und Haben-Tabellen */
+.soll-haben-tabelle td {
+    border: none !important; /* Keine internen Linien */
+    padding: 8px 12px; /* Fügt etwas Abstand hinzu */
+}
+
+/* Konto-Name linksbündig */
+.konto-name {
+    text-align: left;
+    padding-left: 10px;
+}
+
+/* Betrag rechtsbündig */
+.betrag {
+    text-align: right;
+    padding-right: 10px;
+
+
+}
+
+/* Soll & Haben richtig über der Tabelle platzieren */
+.soll, .haben {
+    position: absolute;
+    top: -34px; /* Platziert sie leicht über der Tabelle */
+    font-weight: bold;
+    padding: 5px 10px;
+}
+
+.soll {
+    text-align: left;
+    padding-left: 3rem;
+
+
+}
+
+.haben {
+    text-align: right;
+    padding-right: 3rem;
+
+}
+
+
+/* Konto-Name linksbündig */
+.soll-haben-tabelle td:first-child {
+    text-align: left;
+    padding-left: 10px;
+
+}
+
+/* Betrag rechtsbündig */
+.soll-haben-tabelle td:last-child {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.konto .highlight {
+    background-color: #e3f7d0;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .hauptbuch {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hauptbuch tr {
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/*  Perfekte obere schwarze Linie */
+.hauptbuch thead th {
+    border-top: 2px solid black !important;
+    position: relative;
+    z-index: 2; /* Stellt sicher, dass die obere Linie über allem liegt */
+}
+
+/* Mittlere Linie zwischen Soll & Haben schwarz klein */
+.hauptbuch th:nth-child(2) {
+    border-left: 2px solid black !important; /* Mittellinie schwarz */
+}
+
+/* Mittlere Linie, die NUR in der äußeren Tabelle existiert */
+.hauptbuch > .konto > table > tbody > tr > td:nth-child(2) {
+    border-left: 2px solid black !important; /* Mittellinie in der äußeren Tabelle */
+    position: relative;
+}
+
+/* Korrigiert die Lücke zur oberen Linie */
+.hauptbuch > .konto > table thead th:nth-child(2) {
+    position: relative;
+}
+
+
+
+
+.legende span {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.highlight-task-0 { background-color: #fff7c2; } /* Gelb */
+.highlight-task-1 { background-color: #c2f0c2; } /* Grün */
+.highlight-task-2 { background-color: #c2d6f0; } /* Blau */
+.highlight-task-3 { background-color: #f0c2c2; } /* Rot */
+.highlight-task-4 { background-color: #e0c2f0; } /* Lila */
+
+.hauptbuch table td {
+    height: 20px; /* Alle Zeilen bekommen die gleiche Höhe */
+}

@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SecureNet Homepage</title> 
-    <link rel="stylesheet" href="{% static 'css/master_layout.css' %}?v={{ timestamp}}">
+    <link rel="stylesheet" href="{% static 'css/master_layout.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     {% block css %}
     {% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}">
-
+<body>
     <!-- Page Container -->
     <div class="page-container">
         <!-- Header Section -->
@@ -27,24 +27,29 @@
                 
                     <a href="{% url 'posts:posteingang' %}" class="nav-element">Posteingang</a>
                     <a href="{% url 'frontpage' %}" class="nav-element">Home</a>
-                    <a href="#" class="nav-element">Finanzverwaltung</a>
-                    <a href="{% url 'posts:rechnung' %}" class="nav-element">Rechnungen</a>
-                    <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
+                    <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">Rechnungen</a>
                     {% if user.is_authenticated %}
-                    <form class="logout" action="{%url 'users:logout' %}" method = "post">
-                        {% csrf_token %}
-                        <a class = "nav-element" href="{% url "users:bulk_student_creation" %}">Nutzer anlegen</a>
-                    </form>
+                        <a href="{% url 'users:update_profile' %}" class="nav-element">Profil</a>
                         {% if request.user.role == 'teacher' %}
+                            <a class = "nav-element" href="{% url 'posts:aufgaben_verwalten'%}">Aufgabenliste</a>
                             <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">Aufgaben zuweisen</a>
+                            <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">Nutzer anlegen</a>
+                            <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
                         {% endif %}
-                         <form class="logout" action="{% url 'users:logout' %}" method="post">
-                {% csrf_token %}
-                <button class="logout-button" title="Logout">
-                    <img src="/media/logout.png" alt="Logout" class="logout-icon">
-                    Logout
-                </button>
-            </form>
+                        {% if request.user.role == 'student' %}
+                            <div class="nav-dropdown">
+                                <a href="#" class="nav-element dropdown-toggle">Finanzverwaltung ▾</a>
+                                <div class="dropdown-content">
+                                    <a href="{% url 'posts:hauptbuch' %}">Hauptbuch</a>
+                                    <a href="{% url 'posts:guv_uebersicht' %}">GuV</a>
+                                    <a href="{% url 'posts:bilanz' %}">Bilanz</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    <form class="logout-form" action="{% url 'users:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button class="logout-button">Logout</button>
+                    </form>
                     {% else %}
                         <a class = "nav-element" href="{% url 'users:login' %}">Login</a>
                     {% endif %}

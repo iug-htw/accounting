@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Unternehmen, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
+from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
 from django.contrib import messages
 import json, random, hashlib
@@ -9,8 +9,9 @@ from django.http import HttpResponse, JsonResponse
 from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
-from .absender import ZUFÄLLIGE_ABSENDER
+from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
 import io
+from decimal import Decimal
 #passt
 
 # Für Lehrkräfte
@@ -56,6 +57,7 @@ def aufgabe_neu_erstellen(request):
         form = Aufgabe_neu_Form(request.POST)
         if form.is_valid():
             aufgabe = form.save()
+            aufgabe.save()
             speichere_aufgabe_details(request, aufgabe)
             messages.success(request, 'Aufgabe und Details erfolgreich erstellt.')
             return redirect('frontpage')
@@ -68,21 +70,40 @@ def aufgabe_neu_erstellen(request):
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
 
 def speichere_aufgabe_details(request, aufgabe):
+    """Speichert die Details der erstellten Aufgabe und verarbeitet Abhängigkeiten korrekt"""
     kontonamen = request.POST.getlist('kontoname[]')
     soll_haben = request.POST.getlist('soll_haben[]')
     betraege = request.POST.getlist('betrag[]')
     monatsangaben = request.POST.getlist('monatsangabe[]')
     monate = request.POST.getlist('monat[]')
 
+    # Neue Felder für Abhängigkeiten
+    formel_typen = request.POST.getlist('formel_typ[]')
+    festbetraege = request.POST.getlist('festbetrag[]')
+    faktoren = request.POST.getlist('faktor[]')
+    bezugs_konto_namen = request.POST.getlist('bezugs_konto[]')
+
+    aufgabe_details = []  # Zwischenspeicher für bulk_create()
+
+    # **Erster Schritt: Speichere alle Details ohne Bezugskonto**
     for i in range(len(kontonamen)):
-        AufgabeDetail.objects.create(
+        aufgabe_detail = AufgabeDetail.objects.create(
             aufgabe=aufgabe,
             kontoname=kontonamen[i],
             soll_haben=soll_haben[i],
-            betrag=float(betraege[i]),
+            betrag=float(betraege[i]) if betraege[i] else None,
             monatsangabe=(monatsangaben[i].lower() == 'true'),
-            monat=(int(monate[i]) if monate[i] else None)
+            monat=(int(monate[i]) if monate[i] else None),
+            formel_typ=formel_typen[i],
+            festbetrag=float(festbetraege[i]) if festbetraege[i] else None,
+            faktor=float(faktoren[i]) if faktoren[i] else None
         )
+        aufgabe_details.append(aufgabe_detail)
+
+    for i, aufgabe_detail in enumerate(AufgabeDetail.objects.filter(aufgabe=aufgabe)):
+        if i < len(bezugs_konto_namen) and bezugs_konto_namen[i]:  
+            aufgabe_detail.bezugs_konto = bezugs_konto_namen[i]  # ✅ Speichert den Kontonamen direkt
+            aufgabe_detail.save()
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     # JSON-Daten der Buchung laden
@@ -119,7 +140,9 @@ def rechnung_detail_view(request, aufgabe_id):
         aufgabe=aufgabe, nutzer=request.user,
         defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'bearbeitungsstand': 'offen'}
     )
-
+    #print(f"nutzeraufgabe:{nutzer_aufgabe}")
+    #print(f"nutzeraufgabe:{type(aufgabe.rechnungsbetrag)}")
+    #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
     konten = Konto.objects.all()
@@ -130,10 +153,24 @@ def rechnung_detail_view(request, aufgabe_id):
             send_korrektur_mail(request.user, aufgabe, aufgabe.fragentyp)
         return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
-    buchung_status = [
-        {'buchung': buchung, 'korrekt': is_buchung_korrekt(buchung, nutzer_aufgabe)}
-        for buchung in buchungen
-    ]
+    letzte_buchung = buchungen.last()
+
+    block_buchung = False
+    if letzte_buchung:
+        ist_falsch = letzte_buchung.status != 'korrekt'
+        ist_korrekturbuchung = letzte_buchung.korrekturbuchung
+
+        # Blockieren NUR wenn falsch UND KEINE Korrekturbuchung
+        block_buchung = ist_falsch and not ist_korrekturbuchung
+
+    # Status für jede Buchung vorbereiten
+    buchung_status = []
+    for buchung in buchungen:
+        buchung_status.append({
+            'buchung': buchung,
+            'korrekt': is_buchung_korrekt(buchung, nutzer_aufgabe),
+            'is_letzte_falsche': buchung == letzte_buchung and block_buchung
+        })
 
     # Template für den Rechnungstyp auswählen
     template_map = {
@@ -149,10 +186,10 @@ def rechnung_detail_view(request, aufgabe_id):
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
         'rechnungsnummer': aufgabe.rechnungsnummer,
         'datum': aufgabe.datum,
-        'anschrift_kunde': aufgabe.anschrift_kunde,
+        #'anschrift_kunde': aufgabe.anschrift_kunde,
         'eigene_ansicht': aufgabe.eigene_ansicht,
         'beschreibung': aufgabe.beschreibung,
-        'rechnungsbetrag': aufgabe.rechnungsbetrag,
+        'rechnungsbetrag': Decimal(sum(nutzer_aufgabe.haben_betraege)),
         'zahlweise': aufgabe.zahlweise,
         'verabschiedung': aufgabe.verabschiedung,
         'kontakt': aufgabe.kontakt,
@@ -162,7 +199,9 @@ def rechnung_detail_view(request, aufgabe_id):
         'next_aufgabe': next_aufgabe,
         'buchungen': buchungen,
         'buchung_status': buchung_status,
-        'konten': konten
+        'konten': konten,
+        'block_buchung': block_buchung,
+        'absender': nutzer_aufgabe.absender
     }
 
     return render(request, 'posts/rechnung.html', context)
@@ -250,82 +289,144 @@ def handle_nutzer_buchung(request, aufgabe):
 
     return buchung
 
-@login_required
-def zufaellige_aufgabe_zuweisen(request, aufgabe_id):
-    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
-    
-    # Generiere zufällige Werte und speichere oder aktualisiere Nutzeraufgabe
-    zufaellige_werte = generiere_zufaellige_werte(aufgabe)
-    nutzer_aufgabe = speichere_nutzer_aufgabe(request.user, aufgabe, zufaellige_werte)
-    
-    # Berechne den nächsten Versuchswert
-    naechster_versuch = berechne_naechsten_versuch(request.user, aufgabe)
-    
-    # Erstelle eine Mail für den neuen Versuch
-    erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch)
-    
-    messages.success(request, "Die Aufgabe wurde erfolgreich zugewiesen!")
-    return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
-def generiere_zufaellige_werte(aufgabe):
-    # Alle Soll-Konten abrufen
-    soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
-    haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
+def generiere_zufaellige_werte(aufgabe, tiefe=0):
+    if tiefe < 50:
+        #print(f"Aufruf {tiefe}: Generiere Werte für Aufgabe ID {aufgabe.id}")
 
-    # Initialisieren der Daten
-    soll_konten = []
-    haben_konten = []
-    soll_betraege = []
-    haben_betraege = []
+        # Alle Soll- und Haben-Konten abrufen
+        soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
+        haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
 
-    # Berechnung der Min-/Max-Werte für Soll-Konten
-    for konto in soll_konten_queryset:
-        referenz_betrag = konto.betrag
-        min_betrag = referenz_betrag * 0.25
-        max_betrag = referenz_betrag * 1.75
+        soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben  = berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset)
+        referenz_betraege = referenz_betraege_soll + referenz_betraege_haben
 
-        zufallswert = random.randint(int(min_betrag), int(max_betrag))
-        soll_konten.append(konto.kontoname)
-        soll_betraege.append(round(zufallswert, 0))
+        summe_soll = sum(soll_betraege)
+        summe_haben = sum(haben_betraege)
+        differenz = summe_soll - summe_haben
 
-    # Berechnung der Min-/Max-Werte für Haben-Konten
-    for konto in haben_konten_queryset:
-        referenz_betrag = konto.betrag
-        min_betrag = referenz_betrag * 0.25
-        max_betrag = referenz_betrag * 1.75
+        # Anpassung bei Differenz
+        if differenz != 0:
+            soll_betraege, haben_betraege = differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz)
+            for betrag in soll_betraege:
+                betrag = round(betrag,2)
+            for betrag in haben_betraege:
+                betrag = round(betrag,2)
+            # Erneute Überprüfung nach der Anpassung
+            summe_soll = sum(soll_betraege)
+            summe_haben = sum(haben_betraege)
+           # print(f"Neue Summe Soll: {summe_soll}, Neue Summe Haben: {summe_haben}")
 
-        zufallswert = random.randint(int(min_betrag), int(max_betrag))
-        haben_konten.append(konto.kontoname)
-        haben_betraege.append(round(zufallswert, 0))
+            # Überprüfung der angepassten Werte mit Referenzwerten
+            for i, betrag in enumerate(soll_betraege + haben_betraege):
+                referenzwert = referenz_betraege[i % len(referenz_betraege)]
+                if not (referenzwert * 0.5 <= betrag <= referenzwert * 1.75):
+                    print(f"Angepasster Betrag {betrag} außerhalb des zulässigen Bereichs ({referenzwert * 0.5} - {referenzwert * 1.75})")
+                    return generiere_zufaellige_werte(aufgabe, tiefe + 1)
 
-    # Überprüfung der Gesamtsumme
-    summe_soll = sum(soll_betraege)
-    summe_haben = sum(haben_betraege)
+       # print(f"Erfolgreich generiert nach {tiefe} Versuchen")
+        return {
+            'soll_konten': soll_konten,
+            'haben_konten': haben_konten,
+            'soll_betraege': soll_betraege,
+            'haben_betraege': haben_betraege
+        }
 
-    # Sicherstellen, dass Soll = Haben
-    differenz = summe_soll - summe_haben
-    if abs(differenz) > 0:
-        # Passe den letzten Haben-Betrag an, um die Differenz auszugleichen
-        if haben_betraege[-1] + differenz >= 0:
-            haben_betraege[-1] += differenz
+def differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz):
+    nicht_referenzierte_soll_konten = [
+        konto for konto in soll_konten 
+        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
+    ]
+    nicht_referenzierte_haben_konten = [
+        konto for konto in haben_konten 
+        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
+    ]
+
+    # Höchste Beträge und deren Indizes
+    max_soll_index = soll_betraege.index(max(soll_betraege))
+    max_haben_index = haben_betraege.index(max(haben_betraege))
+
+    max_soll_konto = soll_konten[max_soll_index]
+    max_haben_konto = haben_konten[max_haben_index]
+
+    # Prüfen, ob die höchsten Werte referenziert sind
+    max_soll_referenziert = max_soll_konto not in nicht_referenzierte_soll_konten
+    max_haben_referenziert = max_haben_konto not in nicht_referenzierte_haben_konten
+    # Entscheidung, welchen Betrag anzupassen
+    if soll_betraege[max_soll_index] >= haben_betraege[max_haben_index]:
+        if max_soll_referenziert:  # Falls max. Soll-Konto referenziert ist, Haben nehmen
+            haben_betraege[max_haben_index] += differenz
         else:
-            # Falls negativ, generiere die Werte neu
-            return generiere_zufaellige_werte(aufgabe)
+            soll_betraege[max_soll_index] -= differenz
+    else:
+        if max_haben_referenziert:  # Falls max. Haben-Konto referenziert ist, Soll nehmen
+            soll_betraege[max_soll_index] -= differenz
+        else:
+            haben_betraege[max_haben_index] += differenz
 
-    # Überprüfung der min/max-Werte auf Aufgabe-Ebene
-    if not (aufgabe.min_wert <= summe_soll <= aufgabe.max_wert):
-        # Wiederhole die Generierung, wenn die Summe nicht passt
-        return generiere_zufaellige_werte(aufgabe)
+    return soll_betraege, haben_betraege
 
-    return {
-        'soll_konten': soll_konten,
-        'haben_konten': haben_konten,
-        'soll_betraege': soll_betraege,
-        'haben_betraege': haben_betraege
-    }
+def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
+    #print("🔍 Starte Berechnung zufälliger Beträge...")
+    soll_konten, haben_konten = [], []
+    soll_betraege, haben_betraege = [], []
+    referenz_betraege_soll,referenz_betraege_haben = [], []
+    berechnete_werte = {}  # Speichert bereits berechnete Werte für Bezugskonten
+    
+    # Normale und Faktor-Konten trennen
+    normale_soll_konten = soll_konten_queryset.exclude(formel_typ="faktor")
+    faktor_soll_konten = soll_konten_queryset.filter(formel_typ="faktor")
+    normale_haben_konten = haben_konten_queryset.exclude(formel_typ="faktor")
+    faktor_haben_konten = haben_konten_queryset.filter(formel_typ="faktor")
+    
+    #print(f"Normale Soll-Konten: {list(normale_soll_konten)}")
+    #print(f"Normale Haben-Konten: {list(normale_haben_konten)}")
+    #print(f"Faktor Soll-Konten: {list(faktor_soll_konten)}")
+    #print(f"Faktor Haben-Konten: {list(faktor_haben_konten)}")
+    
+    # Zuerst die normalen Konten berechnen
+    for konto in normale_soll_konten.union(normale_haben_konten):
+        referenz_betrag = konto.betrag
+        min_betrag = referenz_betrag * 0.25
+        max_betrag = referenz_betrag * 1.75
+        zufallswert = random.randint(int(min_betrag), int(max_betrag))
+        if konto in normale_haben_konten:
+            haben_konten.append(konto.kontoname)
+            haben_betraege.append(round(zufallswert,0))
+            referenz_betraege_haben.append(zufallswert)
+        else:
+            soll_konten.append(konto.kontoname)
+            soll_betraege.append(round(zufallswert,0))
+            referenz_betraege_soll.append(zufallswert)
+        berechnete_werte[konto.kontoname] = zufallswert  # Speichert den berechneten Wert
+        #print(f"📌 Konto {konto.kontoname} erhält {zufallswert} (Referenzbetrag: {referenz_betrag})")
+    
+    # Faktor-Konten basierend auf berechneten Werten der Referenzkonten berechnen
+    for konto in faktor_soll_konten.union(faktor_haben_konten):
+        if konto.bezugs_konto in berechnete_werte:
+            faktor_wert = round(berechnete_werte[konto.bezugs_konto] * konto.faktor, 2)
+        else:
+            # Falls das Bezugskonto nicht vorhanden ist, Standardwert setzen
+            faktor_wert = round(random.randint(100, 1000) * konto.faktor, 2)
+        if konto in faktor_haben_konten:
+            haben_konten.append(konto.kontoname)
+            haben_betraege.append(faktor_wert)
+            referenz_betraege_haben.append(faktor_wert)
+        else:
+            soll_konten.append(konto.kontoname)
+            soll_betraege.append(faktor_wert)
+            referenz_betraege_soll.append(faktor_wert)
+
+        berechnete_werte[konto.kontoname] = faktor_wert  # Speichert den berechneten Wert für zukünftige Berechnungen
+        #print(f"🔗 Faktor-Konto {konto.kontoname} basiert auf {konto.bezugs_konto}, Wert: {faktor_wert}")
+    
+    #print("✅ Berechnung abgeschlossen!")
+    return soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben
+# soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben
 
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
+    # Prüfe, ob bereits eine NutzerAufgabe existiert
     nutzer_aufgabe, created = NutzerAufgabe.objects.get_or_create(
         aufgabe=aufgabe,
         nutzer=nutzer,
@@ -334,19 +435,22 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
             'haben_konten': zufaellige_werte['haben_konten'],
             'soll_betraege': zufaellige_werte['soll_betraege'],
             'haben_betraege': zufaellige_werte['haben_betraege'],
-            'bearbeitungsstand': 'offen'
+            'bearbeitungsstand': 'offen',
         }
     )
 
-    if not created:
-        nutzer_aufgabe.soll_konten = zufaellige_werte['soll_konten']
-        nutzer_aufgabe.haben_konten = zufaellige_werte['haben_konten']
-        nutzer_aufgabe.soll_betraege = zufaellige_werte['soll_betraege']
-        nutzer_aufgabe.haben_betraege = zufaellige_werte['haben_betraege']
-        nutzer_aufgabe.bearbeitungsstand = 'offen'
-        nutzer_aufgabe.save()
+    if not nutzer_aufgabe.absender:
+        absender = generate_random_absender()
+        nutzer_aufgabe.absender = absender
+        nutzer_aufgabe.save(update_fields=["absender"])
+        print(f"✅ Neuer Absender gesetzt für Nutzer {nutzer.username}, Aufgabe {aufgabe.id}: {absender.id}")
+    else:
+        print(f"⚠️ Nutzer {nutzer.username}, Aufgabe {aufgabe.id} hat bereits einen Absender: {nutzer_aufgabe.absender_id}")
 
+    print(f"✅ Absender für {nutzer.username} - Aufgabe {aufgabe.id}: {nutzer_aufgabe.absender}")
     return nutzer_aufgabe
+
+
 
 
 def berechne_naechsten_versuch(nutzer, aufgabe):
@@ -359,22 +463,22 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
     )
     return hoechster_versuch + 1
 
-def erstelle_aufgaben_mail(nutzer, aufgabe, versuch):
-    absender = random.choice(ZUFÄLLIGE_ABSENDER)
-    betreff = f"Neue Aufgabe Versuch {versuch}"
-    mailtext = f"Bitte bearbeiten Sie die Aufgabe: {aufgabe.fragentyp_text}"
+def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
+    #print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
+    
+    #betreff = f"{aufgabe.mailtext}"
+    mailtext = f"{aufgabe.mailtext}"
 
     Mail.objects.create(
         nutzer=nutzer,
         aufgabe=aufgabe,
-        betreff=betreff,
+       # betreff=betreff,
         mailtext=mailtext,
         versuch=versuch,
-        von=absender["email"],  # Setze zufällige Email
-        absender_name=absender["name"],  # Setze zufälligen Namen
-        absender_adresse=absender["adresse"],  # Setze zufällige Adresse
+        absender=absender,  # Speichert die Absender-Referenz
         status='nicht bearbeitet'
     )
+
 
 def get_fallback_konten(aufgabe):
     soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
@@ -385,7 +489,20 @@ def get_fallback_konten(aufgabe):
 
 @lehrkraft_required
 def unternehmen_verwalten(request):
-    return handle_post_request(request, UnternehmenForm, 'posts:unternehmen_verwalten', 'posts/neues_unternehmen.html')
+    """ Zeigt eine Liste der Unternehmen an und ermöglicht das Hinzufügen. """
+    if request.method == 'POST':
+        form = UnternehmenForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Unternehmen erfolgreich hinzugefügt.")
+            return redirect('posts:unternehmen_verwalten')
+        else:
+            messages.error(request, "Fehler beim Speichern des Unternehmens.")
+    else:
+        form = UnternehmenForm()
+
+    unternehmen = Unternehmen.objects.all()
+    return render(request, 'posts/neues_unternehmen.html', {'form': form, 'unternehmen': unternehmen})
 
 
 def handle_post_request(request, form_class, redirect_url, template_name):
@@ -398,20 +515,38 @@ def handle_post_request(request, form_class, redirect_url, template_name):
 
 @lehrkraft_required
 def unternehmen_loeschen(request, unternehmen_id):
+    """ Löscht ein Unternehmen und gibt eine Bestätigung aus. """
     unternehmen = get_object_or_404(Unternehmen, id=unternehmen_id)
     unternehmen.delete()
+    messages.success(request, f"Das Unternehmen '{unternehmen.name}' wurde gelöscht.")
     return redirect('posts:unternehmen_verwalten')
 
 @lehrkraft_required
 def aufgabenkategorie_verwalten(request):
-    return handle_post_request(request, AufgabenkategorieForm, 'posts:aufgabenkategorie_verwalten', 'posts/neue_kategorie.html')
+    """ Zeigt eine Liste der Kategorien an und ermöglicht das Hinzufügen. """
+    if request.method == 'POST':
+        form = AufgabenkategorieForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Kategorie erfolgreich hinzugefügt.")
+            return redirect('posts:aufgabenkategorie_verwalten')
+        else:
+            messages.error(request, "Fehler beim Speichern der Kategorie.")
+    else:
+        form = AufgabenkategorieForm()
+
+    aufgabenkategorien = Aufgabenkategorie.objects.all()
+    return render(request, 'posts/neue_kategorie.html', {'form': form, 'aufgabenkategorien': aufgabenkategorien})
 
 
 @lehrkraft_required
 def aufgabenkategorie_loeschen(request, kategorie_id):
+    """ Löscht eine Kategorie und gibt eine Bestätigung aus. """
     kategorie = get_object_or_404(Aufgabenkategorie, id=kategorie_id)
     kategorie.delete()
+    messages.success(request, f"Die Kategorie '{kategorie.name}' wurde gelöscht.")
     return redirect('posts:aufgabenkategorie_verwalten')
+
 
 @login_required
 def hauptbuch_view(request):
@@ -453,10 +588,12 @@ def build_t_konten(buchungen, anfangsbestände):
 
     # Bestehende Buchungen hinzufügen (Originalfunktion bleibt erhalten)
     for buchung in buchungen:
-        aufgabe_id = buchung.aufgabe.id
+        aufgabe_id_mit_versuch = f"{buchung.aufgabe.id} {buchung.versuch})"
 
-        if aufgabe_id not in aufgabe_farben:
-            aufgabe_farben[aufgabe_id] = generate_color(aufgabe_id)
+        if buchung.aufgabe.id not in aufgabe_farben:
+            aufgabe_farben[buchung.aufgabe.id] = generate_color(buchung.aufgabe.id)
+
+        farbe = aufgabe_farben[buchung.aufgabe.id]
 
         soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
         haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
@@ -464,12 +601,10 @@ def build_t_konten(buchungen, anfangsbestände):
         haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
 
         for konto, betrag in zip(soll_konten, soll_betraege):
-            farbe = aufgabe_farben[aufgabe_id]
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((aufgabe_id, betrag, farbe))
+            t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((aufgabe_id_mit_versuch, betrag, farbe))
 
         for konto, betrag in zip(haben_konten, haben_betraege):
-            farbe = aufgabe_farben[aufgabe_id]
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id, betrag, farbe))
+            t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
 
     return t_konten
 
@@ -492,18 +627,6 @@ def aufgabe_bearbeiten(request, aufgabe_id):
     form = AufgabeBearbeitenForm(instance=aufgabe)
     detail_forms = [AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail) for detail in details]
     return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
-
-@login_required
-def aufgabe_loeschen(request, aufgabe_id):
-    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
-
-    if request.method == "POST":
-        aufgabe.delete()
-        messages.success(request, "Aufgabe erfolgreich gelöscht.")
-        return redirect('posts:hauptbuch')
-
-    return render(request, 'posts/aufgabe_loeschen.html', {'aufgabe': aufgabe})
-
 
 @login_required
 def korrekturbuchung_durchfuehren(request, buchung_id):
@@ -529,7 +652,10 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
 
 @login_required
 def posteingang(request):
-    mails = Mail.objects.filter(nutzer=request.user).order_by('-datum')
+    mails = Mail.objects.filter(nutzer_id=request.user.id).order_by('-datum')
+    #print(f"📨 nutzer_id {nutzer_id}")  # Debugging
+
+    #print(f"Request user id{request.user.id}")  # Debugging
 
     for mail in mails:
         # Prüfen, ob eine Buchung für den aktuellen Versuch existiert
@@ -782,16 +908,42 @@ def guv_uebersicht(request):
 
 
 def generate_user_anfangsbestaende(user):
-    """
-    Erstellt anfangsbestaende für einen Nutzer, falls diese noch nicht existieren.
-    """
-    bestandskonten = Konto.objects.filter(kategorie="Bestandskonto")
+    # Definiere relevante Konten
+    relevante_konten_namen = [
+        "Kasse", "Bank", "Forderungen", "Warenbestand", "Gebäude",
+        "Technische Anlagen und Maschinen", "Büromaterialien", "Verbindlichkeiten",
+        "Rückstellungen"
+    ]
 
-    for konto in bestandskonten:
-        # Prüfen, ob bereits ein Anfangsbestand existiert
-        if not Anfangsbestand.objects.filter(nutzer=user, konto=konto).exists():
-            betrag = random.choice(range(5000, 10001, 100))  # Zufälliger Wert (durch 100 teilbar)
-            Anfangsbestand.objects.create(nutzer=user, konto=konto, betrag=betrag)
+    aktiva_summe = 0
+    passiva_summe = 0
+
+    # 🔎 Prüfe, ob Konten existieren
+    for konto_name in relevante_konten_namen:
+        konto = Konto.objects.filter(name=konto_name).first()
+        if not konto:
+            continue  # Überspringe dieses Konto
+        if Anfangsbestand.objects.filter(nutzer=user, konto=konto).exists():
+            continue  # Überspringe, falls bereits ein Anfangsbestand existiert
+        betrag = random.randint(5000, 20000)  # Zufallsbetrag
+        Anfangsbestand.objects.create(nutzer=user, konto=konto, betrag=betrag)
+
+        # Aktiva oder Passiva Summe berechnen
+        if konto.unterkategorie == "Aktiva":
+            aktiva_summe += betrag
+        else:
+            passiva_summe += betrag
+
+    # 🔎 Eigenkapital berechnen
+    eigenkapital_konto = Konto.objects.filter(name="Eigenkapital").first()
+    if not eigenkapital_konto:
+        return  # Abbrechen, wenn Eigenkapital-Konto fehlt
+
+    eigenkapital_betrag = aktiva_summe - passiva_summe
+    if not Anfangsbestand.objects.filter(nutzer=user, konto=eigenkapital_konto).exists():
+        Anfangsbestand.objects.create(nutzer=user, konto=eigenkapital_konto, betrag=eigenkapital_betrag)
+
+
 
 @login_required
 def speichere_guv_ergebnis(request):
@@ -842,3 +994,64 @@ def bilanz_uebersicht(request):
         "passive_konten": passive_konten,
         "bestandskonten": bestandskonten
     })
+
+@login_required
+def rechnungsuebersicht(request):
+    user = request.user
+
+    # Alle NutzerAufgaben für den aktuellen Nutzer abrufen
+    nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer=user)
+
+    rechnungsdaten = []
+
+    for nutzer_aufgabe in nutzer_aufgaben:
+        aufgabe = nutzer_aufgabe.aufgabe
+        buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=user)
+        
+        # Anzahl Buchungen und Korrekturbuchungen zählen
+        anzahl_buchungen = buchungen.count()
+        anzahl_korrekturbuchungen = buchungen.filter(korrekturbuchung=True).count()
+
+        rechnungsdaten.append({
+            'rechnungsnr': aufgabe.id,
+            'fragentyp_text': aufgabe.fragentyp_text,
+            'anzahl_buchungen': anzahl_buchungen,
+            'anzahl_korrekturbuchungen': anzahl_korrekturbuchungen,
+            'aufgabenstatus': nutzer_aufgabe.bearbeitungsstand
+        })
+
+    return render(request, 'posts/rechnungsuebersicht.html', {'rechnungsdaten': rechnungsdaten})
+
+def generate_random_absender():
+    vorname = random.choice(vornamen)
+    nachname = random.choice(nachnamen)
+    email = f"{nachname.lower()}@{random.choice(emailsuffix)}"
+    print(f"email:{email}")
+    straße = f"{random.choice(straßen)} {random.randint(1, 100)}"
+    stadt = f"{random.choice(staedte)}"
+    voller_name = f"{vorname} {nachname}"
+
+    # Zufällige Kombination erstellen
+    absender, created = Absender.objects.get_or_create(
+        name=voller_name,
+        email=email,
+        straße=straße,
+        stadt=stadt,
+        plz=random.choice(plz)
+    )
+    print(f"📌 Generierter Absender: {absender.name}, ID: {absender.id}, Neu erstellt: {created}")    
+    return absender
+
+@login_required
+def aufgaben_verwalten(request):
+    """ Zeigt eine Liste aller Aufgaben und ermöglicht das Löschen. """
+    aufgaben = Aufgabe_neu.objects.all()
+    return render(request, 'posts/aufgaben_verwalten.html', {'aufgaben': aufgaben})
+
+@login_required
+def aufgabe_loeschen(request, aufgabe_id):
+    """ Löscht eine Aufgabe und gibt eine Bestätigung aus. """
+    aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+    aufgabe.delete()
+    messages.success(request, f"Die Aufgabe '{aufgabe.fragentyp_text}' wurde gelöscht.")
+    return redirect('posts:aufgaben_verwalten')
