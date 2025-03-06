@@ -1,0 +1,76 @@
+/* Zentrierung & Styling des Wrappers */
+.content-wrapper {
+    background-color: #edeef6;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    margin: 20px auto;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabellen-Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f5f5f5;
+}
+
+/* Status-Styles */
+.status {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: white;
+    display: inline-block;
+}
+
+.status.offen {
+    background-color: #ff7f27;
+}
+
+.status.bearbeitet {
+    background-color: #63c363;
+}
+
+/* Button-Styling */
+.btn {
+    display: inline-block;
+    padding: 8px 12px;
+    background: #444;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.btn:hover {
+    background: #222;
+}
+
+/* Zurück-Button */
+.back-btn {
+    display: block;
+    text-align: center;
+    margin: 20px auto;
+    font-size: 16px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+}

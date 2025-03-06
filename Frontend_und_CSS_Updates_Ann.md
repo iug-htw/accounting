@@ -79,6 +79,16 @@ Der initiale Prototyp in Version C wurde in Mockup-Form entwickelt. Eine Impleme
 - _Bilanz und GUV leichte Anpassungen aber noch änderungen und Feedback nötig
 - hauptbuch angepasst
 
+
+## TODO 06.03
+- frontpage balken
+- Bulk users nach mockup : 
+- <img src="media/Bulk_student_creation.png" alt="Bulk Student Creation" width="700">
+- rechnungsansicht
+- aufgabe zuweisen
+
+- 
+
 ## **Start des Projekts: Virtuelle Umgebung und App**
 Um die App zu starten, sind die folgenden Schritte erforderlich:
 
