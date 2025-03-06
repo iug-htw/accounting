@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SecureNet Homepage</title> 
-    <link rel="stylesheet" href="{% static 'css/master_layout.css' %}">
+    <link rel="stylesheet" href="{% static 'css/master_layout.css' %}?v={{ timestamp}}">
     {% block css %}
     {% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+
     <!-- Page Container -->
     <div class="page-container">
         <!-- Header Section -->
@@ -32,12 +33,18 @@
                     {% if user.is_authenticated %}
                     <form class="logout" action="{%url 'users:logout' %}" method = "post">
                         {% csrf_token %}
-                        <button class="logout-button" title="User Logout">Logout</button>
-                        <a class = "nav-element" href="{% url 'users:register' %}">Nutzer anlegen</a>
+                        <a class = "nav-element" href="{% url "users:bulk_student_creation" %}">Nutzer anlegen</a>
                     </form>
                         {% if request.user.role == 'teacher' %}
                             <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">Aufgaben zuweisen</a>
                         {% endif %}
+                         <form class="logout" action="{% url 'users:logout' %}" method="post">
+                {% csrf_token %}
+                <button class="logout-button" title="Logout">
+                    <img src="/media/logout.png" alt="Logout" class="logout-icon">
+                    Logout
+                </button>
+            </form>
                     {% else %}
                         <a class = "nav-element" href="{% url 'users:login' %}">Login</a>
                     {% endif %}

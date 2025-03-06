@@ -2,36 +2,36 @@
 {% load my_filters %}
 {% load static %}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/rechnung.css' %}?v={{ timestamp }}">
+{% block body_class %}rechnung-seite{% endblock %}
+<link rel="stylesheet" href="{% static 'css/rechnung.css' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 {% block content %}
-<p>Next Aufgabe ID: {{ next_aufgabe.id }}</p>
+<p class="aufgaben_id">Next Aufgabe ID: {{ next_aufgabe.id }}</p>
 <div class="container_rechnung">
     <h1 class="headline_rechnung">Rechnung Nr.{{ aufgabe.id }} - {{ aufgabe.fragentyp_text }}</h1>
     {% if user.is_authenticated and nutzer_aufgabe %}
-    <p><strong>Zufällig generierte Werte:</strong></p>
-    <ul>
-        <li><strong>Soll-Konten:</strong>
-            <ul>
-                {% for i in nutzer_aufgabe.soll_konten %}
-                    <li>
-                        {{ i }}: {{ nutzer_aufgabe.soll_betraege|index:forloop.counter0 }} €
-                    </li>
-                {% endfor %}
-            </ul>
-        </li>
-
-        <li><strong>Haben-Konten:</strong>
-            <ul>
-                {% for i in nutzer_aufgabe.haben_konten %}
-                    <li>
-                        {{ i }}: {{ nutzer_aufgabe.haben_betraege|index:forloop.counter0 }} €
-                    </li>
-                {% endfor %}
-            </ul>
-        </li>
-    </ul>
+{#    <ul>#}
+{#        <li><strong>Soll-Konten:</strong>#}
+{#            <ul>#}
+{#                {% for i in nutzer_aufgabe.soll_konten %}#}
+{#                    <li>#}
+{#                        {{ i }}: {{ nutzer_aufgabe.soll_betraege|index:forloop.counter0 }} €#}
+{#                    </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        </li>#}
+{##}
+{#        <li><strong>Haben-Konten:</strong>#}
+{#            <ul>#}
+{#                {% for i in nutzer_aufgabe.haben_konten %}#}
+{#                    <li>#}
+{#                        {{ i }}: {{ nutzer_aufgabe.haben_betraege|index:forloop.counter0 }} €#}
+{#                    </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        </li>#}
+{#    </ul>#}
 {% endif %}
 
 
