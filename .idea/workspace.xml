@@ -5,56 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6fcc3484-d69e-4a1e-9652-dcf098c7cd31" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/assets/css/frontpage.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/css/hauptbuch.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/css/master_layout.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/css/posteingang.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/css/rechnung.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0027_aufgabedetail_bezugs_konten_aufgabedetail_faktor_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0028_remove_aufgabedetail_bezugs_konten_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0029_alter_aufgabedetail_bezugs_konto.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0030_absender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0031_aufgabe_neu_absender_mail_absender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0032_alter_absender_telnr.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0033_remove_aufgabe_neu_absender_nutzeraufgabe_absender.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0034_remove_aufgabe_neu_anschrift_kunde_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0035_aufgabe_neu_unterkategorie.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0036_remove_aufgabe_neu_bezugswert.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0037_remove_aufgabe_neu_max_wert_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0038_alter_aufgabe_neu_frage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/migrations/0039_alter_absender_email_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/templates/posts/aufgaben_verwalten.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/templates/posts/rechnungsuebersicht.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/users/migrations/0004_customuser_unternehmen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/styles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/absender.py" beforeDir="false" afterPath="$PROJECT_DIR$/posts/absender.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/posts/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/posts/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/aufgabe_erstellen.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/aufgabe_erstellen.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/aufgabe_loeschen.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/bilanz.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/bilanz.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/guv.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/guv.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/hauptbuch.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/hauptbuch.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/konten_verwalten.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/konten_verwalten.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/mail_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/mail_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/neue_kategorie.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/neue_kategorie.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/neues_unternehmen.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/neues_unternehmen.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/posteingang.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/posteingang.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/posts/templates/posts/rechnung.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/rechnung.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/rechnung_basis.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/rechnung_basis.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templatetags/my_filters.py" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templatetags/my_filters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/posts/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/posts/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/master_layout.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/master_layout.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/master_layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/master_layout.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/users/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/templates/users/aufgaben_zuweisen.html" beforeDir="false" afterPath="$PROJECT_DIR$/users/templates/users/aufgaben_zuweisen.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/rechnung.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/rechnung.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/users/templates/users/bulk_student_creation.html" beforeDir="false" afterPath="$PROJECT_DIR$/users/templates/users/bulk_student_creation.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/templates/users/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/users/templates/users/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/templates/users/update_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/users/templates/users/update_profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/users/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/users/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/young_wolf/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/young_wolf/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +60,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "Merging branch1",
+    "git-widget-placeholder": "branch1",
     "last_opened_file_path": "C:/Users/Ann-Ja/PycharmProjects/IUG_Projects/individuelles-tempo/static/css",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
@@ -173,7 +128,7 @@
       <updated>1739960479871</updated>
       <workItem from="1739960481088" duration="39570000" />
       <workItem from="1741253496769" duration="1074000" />
-      <workItem from="1741254591634" duration="305000" />
+      <workItem from="1741254591634" duration="2741000" />
     </task>
     <servers />
   </component>

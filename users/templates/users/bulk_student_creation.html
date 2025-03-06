@@ -1,4 +1,9 @@
 {% extends 'master_layout.html' %}
+{% load static %}  {# Muss am Anfang stehen, um static-Funktion nutzen zu können #}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/bulk_student_creation.css' %}">
+{% endblock %}
 
 {% block content %}
 <h1>Mehrere Studierende gleichzeitig anlegen</h1>
@@ -6,6 +11,7 @@
 <a href="{% url 'users:add_semester' %}" class="nav-element">Semester bearbeiten</a>
 <form method="post">
     {% csrf_token %}
+
 
     <label for="anzahl">Anzahl der Studierenden:</label>
     <input type="range" id="anzahl" name="anzahl_studierende" min="1" max="50" value="1" oninput="anzahlOutput.value = anzahl.value">

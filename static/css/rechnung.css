@@ -78,6 +78,7 @@ html, body {
     background-color: #c3cebe; /*  Fiktive Rechnung Farbe !!!*/
     padding: 2rem;
     border-radius: 10px;
+    min-height: 100%;
 
 }
 /* Styling für die gesamte Buchungsansicht */
@@ -209,15 +210,7 @@ html, body {
     width: 100%;
 }
 
-/* Style für Inputs und Select-Felder */
-.input-group_rechnung input,
-.input-group_rechnung select {
-    width: 100%; /* Maximale Breite */
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-}
+
 
 /* Buttons direkt unter den Eingabefeldern */
 .btn-container {
