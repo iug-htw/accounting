@@ -85,7 +85,7 @@ Der initiale Prototyp in Version C wurde in Mockup-Form entwickelt. Eine Impleme
 - Bulk users nach mockup : 
 - <img src="media/Bulk_student_creation.png" alt="Bulk Student Creation" width="700">
 - rechnungsansicht
-- aufgabe zuweisen
+- aufgabe zuweisen .
 
 - 
 
