@@ -17,11 +17,11 @@ class Aufgabenkategorie(models.Model):
         return self.name
 
 class Absender(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
-    straße = models.CharField(max_length=255)
-    stadt = models.CharField(max_length=100)
-    plz = models.CharField(max_length=10)
+    name = models.CharField(max_length=100,null=True)
+    email = models.EmailField(max_length=100,null=True)
+    straße = models.CharField(max_length=255,null=True)
+    stadt = models.CharField(max_length=100,null=True)
+    plz = models.CharField(max_length=10,null=True)
     telnr = models.IntegerField(null=True)
 
     def __str__(self):
@@ -50,7 +50,7 @@ class Aufgabe_neu(models.Model):
     datum = models.DateField(blank=True, null=True, auto_now_add=True)
     rechnungsbetrag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00)
     zahlweise = models.CharField(max_length=255, blank=True, null=True, default='Überweisung innerhalb von 14 Tagen')
-    verabschiedung = models.TextField(blank=True, null=True, default='Mit freundlichen Grüßen,\nIhr Unternehmen')
+    verabschiedung = models.TextField(blank=True, null=True, default='Mit freundlichen Grüßen\nIhr Unternehmen')
     kontakt = models.TextField(blank=True, null=True, default='Tel: 01234 567890\nE-Mail: info@unternehmen.de')
     beschreibung = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.')
     rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern')

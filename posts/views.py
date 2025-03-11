@@ -66,7 +66,7 @@ def aufgabe_neu_erstellen(request):
     else:
         form = Aufgabe_neu_Form()
     
-    konten = Konto.objects.all()  # Konten abrufen
+    konten = Konto.objects.all().order_by("name")  # Konten abrufen
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
 
 def speichere_aufgabe_details(request, aufgabe):
@@ -145,7 +145,7 @@ def rechnung_detail_view(request, aufgabe_id):
     #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
-    konten = Konto.objects.all()
+    konten = Konto.objects.exclude(name="GuV").order_by('name')
 
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe)
@@ -300,11 +300,11 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
 
         soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben  = berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset)
         referenz_betraege = referenz_betraege_soll + referenz_betraege_haben
-
+        
         summe_soll = sum(soll_betraege)
         summe_haben = sum(haben_betraege)
         differenz = summe_soll - summe_haben
-
+        
         # Anpassung bei Differenz
         if differenz != 0:
             soll_betraege, haben_betraege = differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz)
@@ -312,10 +312,18 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
                 betrag = round(betrag,2)
             for betrag in haben_betraege:
                 betrag = round(betrag,2)
+                
+            soll_betraege = [float(Decimal(str(betrag)).quantize(Decimal("0.01"))) for betrag in soll_betraege]
+            haben_betraege = [float(Decimal(str(betrag)).quantize(Decimal("0.01"))) for betrag in haben_betraege]
             # Erneute Überprüfung nach der Anpassung
-            summe_soll = sum(soll_betraege)
-            summe_haben = sum(haben_betraege)
-           # print(f"Neue Summe Soll: {summe_soll}, Neue Summe Haben: {summe_haben}")
+            summe_soll = round(sum(soll_betraege),2)
+            summe_haben = round(sum(haben_betraege),2)
+            print(f"Hier Ok")
+            print(f"haben_konten {haben_konten}")
+            print(f"haben_betraege {haben_betraege}")
+            print(f"soll_konten {soll_konten}")
+            print(f"soll_betraege {soll_betraege}")
+            print(f"Neue Summe Soll: {summe_soll}, Neue Summe Haben: {summe_haben}")
 
             # Überprüfung der angepassten Werte mit Referenzwerten
             for i, betrag in enumerate(soll_betraege + haben_betraege):
@@ -465,8 +473,11 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
 
 def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     #print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
-    
-    betreff = f"{aufgabe.fragentyp_text} Versuch {versuch}"
+    if versuch == 1:
+        betreff = f"{aufgabe.fragentyp_text}"
+    else:
+        v = round((versuch/2) + 1,0)
+        betreff = f"{aufgabe.fragentyp_text} Versuch {v}"
     mailtext = f"{aufgabe.mailtext}"
 
     Mail.objects.create(
@@ -614,7 +625,7 @@ def aufgabe_bearbeiten(request, aufgabe_id):
     details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
 
     if request.method == 'POST':
-        result = handle_form_submission(request, AufgabeBearbeitenForm, "Aufgabe erfolgreich bearbeitet.", 'posts:hauptbuch', instance=aufgabe)
+        result = handle_form_submission(request, AufgabeBearbeitenForm, "Aufgabe erfolgreich bearbeitet.", 'posts:aufgaben_verwalten', instance=aufgabe)
         if result:
             for detail in details:
                 detail_form = AufgabeDetailBearbeitenForm(request.POST, prefix=str(detail.id), instance=detail)
@@ -681,8 +692,8 @@ def mail_detail(request, mail_id):
     mail = get_object_or_404(Mail, id=mail_id, nutzer=request.user)
 
     # Mail-Status auf "bearbeitet" setzen
-    mail.status = 'bearbeitet'
-    mail.save()
+    #mail.status = 'bearbeitet'
+    #mail.save()
 
     # Standardlink zur Aufgabe setzen, falls vorhanden
     aufgabe_link = None
@@ -711,7 +722,7 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
 
     naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
 
-    mail_betreff = f"Korrekturbuchung Versuch {naechster_versuch} - {aufgabenkategorie.name}"
+    mail_betreff = f"Korrekturbuchung - {aufgabenkategorie.name}"
     mail_text = (
         f"Sehr geehrte/r {nutzer.username},\n\n"
         f"Ihre Buchung zur Aufgabe '{aufgabe.fragentyp_text}' enthält einen Fehler. "
@@ -720,11 +731,19 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
         "Vielen Dank.\nIhr Buchhaltungsteam"
     )
 
+    absender, _ = Absender.objects.get_or_create(
+        name="SecureNet",
+        email="SecureNet@gmail.com",
+        straße="Treskowallee 8",
+        stadt="Berlin",
+        plz="10318"
+    )
     # Neue Mail mit dem korrekten Versuchswert erstellen
     Mail.objects.create(
         nutzer=nutzer,
         aufgabe=aufgabe,
         betreff=mail_betreff,
+        absender=absender,
         mailtext=mail_text,
         versuch=naechster_versuch,  # Dynamischer Versuchswert
         status='nicht bearbeitet'
@@ -749,7 +768,7 @@ def konten_verwalten(request):
 
 @lehrkraft_required
 def konto_bearbeiten(request, konto_id):
-    konto = get_object_or_404(Konto, id=konto_id)
+    konto = get_object_or_404(Konto, id=konto_id).order_by("name")
 
     if request.method == 'POST':
         form = KontoForm(request.POST, instance=konto)
@@ -914,8 +933,8 @@ def guv_uebersicht(request):
 def generate_user_anfangsbestaende(user):
     # Definiere relevante Konten
     relevante_konten_namen = [
-        "Kasse", "Bank", "Forderungen", "Warenbestand", "Gebäude",
-        "Technische Anlagen und Maschinen", "Büromaterialien", "Verbindlichkeiten",
+        "Kasse", "Bank", "Forderungen aLuL", "Warenbestand", "Gebäude",
+        "Technische Anlagen und Maschinen", "Büromaterialien", "Verbindlichkeiten aLuL",
         "Rückstellungen"
     ]
 

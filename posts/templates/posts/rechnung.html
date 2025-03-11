@@ -8,7 +8,7 @@
 {% block content %}
 <div class="container_rechnung">
     <h1 class="headline_rechnung">Rechnung Nr. {{ aufgabe.rechnungsnummer }} </h1>
-    <!--
+    
     {% if user.is_authenticated and nutzer_aufgabe %}
     <p><strong>Zufällig generierte Werte:</strong></p>
     <ul>
@@ -33,7 +33,7 @@
         </li>
     </ul>
     {% endif %}
-    -->
+    
     <div class="content-wrapper_rechnung">
         <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->
         <div class="left-section_rechnung">
@@ -347,15 +347,15 @@ function summenCheck(event) {
 
     // Sammle alle Soll-Beträge
     let sollBetraege = Array.from(document.querySelectorAll('input[name="soll_betrag[]"]'))
-        .map(input => parseFloat(input.value) || 0);
+        .map(input => parseFloat(input.value.replace(',', '.')) || 0);
 
     // Sammle Haben-Beträge
     let habenBetraege = Array.from(document.querySelectorAll('input[name="haben_betrag[]"]'))
-        .map(input => parseFloat(input.value) || 0);
+        .map(input => parseFloat(input.value.replace(',', '.')) || 0);
 
     // Summen berechnen
-    let summeSoll = sollBetraege.reduce((acc, val) => acc + val, 0);
-    let summeHaben = habenBetraege.reduce((acc, val) => acc + val, 0);
+    let summeSoll = sollBetraege.reduce((acc, val) => acc + val, 0).toFixed(2);
+    let summeHaben = habenBetraege.reduce((acc, val) => acc + val, 0).toFixed(2);
 
     // Alte Warnung entfernen
     let alteWarnung = document.getElementById('summenwarnung');

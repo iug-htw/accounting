@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required
-from posts.models import Mail
+from posts.models import Mail, NutzerAufgabe
 from django.contrib import messages
 from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail
 from posts.views import Aufgabe_neu
@@ -226,10 +226,12 @@ def aufgaben_zuweisen_view(request):
 def aufgaben_selbst_zuweisen(request):
     """Weist dem Lehrer alle Aufgaben selbst zu."""
     lehrer = request.user
+    NutzerAufgabe.objects.filter(nutzer=lehrer).delete()
     aufgaben = Aufgabe_neu.objects.all()  # Alle Aufgaben abrufen
 
     for aufgabe in aufgaben:
         zufaellige_werte = generiere_zufaellige_werte(aufgabe)
+        print(f"zufaellige_werte: {zufaellige_werte}")
         nutzer_aufgabe = speichere_nutzer_aufgabe(lehrer, aufgabe, zufaellige_werte)
         naechster_versuch = berechne_naechsten_versuch(lehrer, aufgabe)
         erstelle_aufgaben_mail(lehrer, aufgabe, naechster_versuch, nutzer_aufgabe.absender)
