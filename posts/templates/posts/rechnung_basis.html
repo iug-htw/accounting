@@ -68,7 +68,7 @@
             {% elif aufgabe.fragentyp_id == 13%}
                 <p><strong>Anschaffungskosten (Netto):</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
             {% else %}
-            <p><strong>Rechnungsbetrag (Brutto):</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+            <p><strong>Rechnungsbetrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
             {% endif %}
         </div>
     

@@ -104,9 +104,15 @@
                                         <p>⚠️ Beide Beträge sind falsch.</p>
                                     {% endif %}
                                     
-                                    <h4>Zusätzliches Feedback:</h4>
-                                    <p>{{ aufgabe.feedback_konto_falsch }}</p>
-                                    <p>{{ aufgabe.feedback_betrag_falsch }}</p>
+                                    {% if item.buchung.konto_korrekt != 0 or item.buchung.betrag_korrekt != 0 %}
+                                        <h4>Zusätzliches Feedback:</h4>
+                                    {% if item.buchung.konto_korrekt != 0 %}
+                                        <p>{{ aufgabe.feedback_konto_falsch }}</p>
+                                    {% endif %}
+                                    {% if item.buchung.betrag_korrekt != 0 %}
+                                        <p>{{ aufgabe.feedback_betrag_falsch }}</p>
+                                    {% endif %}
+                                    {% endif %}
 
                 </div>
             {% endfor %}
@@ -122,14 +128,12 @@
         <div id="korrekturbuchung-details" class = "input-group_rechnung">
             <!-- Hier werden die Buchungsdetails dynamisch eingefügt -->
         </div>
-        <button class="btn-korrektur-durchfuehren" onclick="durchfuehrenKorrekturbuchung()">Korrekturbuchung durchführen</button>
+        <button class="btn-korrektur-durchfuehren" onclick="durchfuehrenKorrekturbuchung()">Korrekturbuchung bestätigen</button>
     </div>
 </div>
 
-            <h2 id="h2">Versuch 1</h2>
-            <p class="business-case_rechnung">
-                <strong>Fragentext:</strong> {{ aufgabe.frage }}
-            </p>
+            <h2 id="h2">Buchungssatz</h2>
+
 <form id = "absenden" method="post" action="{% url 'posts:rechnung_detail' aufgabe.id %}">
     {% csrf_token %}
     <div class="inputs-container_rechnung">
@@ -188,6 +192,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
             submitButton.parentElement.insertBefore(warnung, submitButton);
         }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Zustand der Buchungsansicht wiederherstellen
+    const buchungenAnsicht = document.getElementById("buchungen-ansicht");
+    if (localStorage.getItem("buchungenOffen") === "true") {
+        buchungenAnsicht.style.display = "block";
+    }
+
+    // Event-Listener für den Toggle-Button
+    document.getElementById("toggle-buchung-ansicht").addEventListener("click", function () {
+        let istSichtbar = buchungenAnsicht.style.display === "block";
+        localStorage.setItem("buchungenOffen", istSichtbar ? "false" : "true");
+    });
+
+    // **Speichert den Zustand der Buchungsansicht vor dem Absenden**
+    document.getElementById("absenden").addEventListener("submit", function () {
+        localStorage.setItem("scrollPosition", window.scrollY);
+        localStorage.setItem("buchungenOffen", buchungenAnsicht.style.display === "block" ? "true" : "false");
+    });
+    if (localStorage.getItem("scrollPosition")) {
+        window.scrollTo(0, localStorage.getItem("scrollPosition"));
+    }
+});
+
 function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
@@ -226,37 +254,6 @@ document.getElementById('toggle-buchung-ansicht').addEventListener('click', func
 function showBuchungDetail(buchungId) {
     const buchungDetail = document.getElementById(`buchung-detail-${buchungId}`);
     buchungDetail.style.display = buchungDetail.style.display === 'none' ? 'block' : 'none';
-}
-
-function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHaben) {
-     sollKonten = JSON.parse(sollKonten);
-     habenKonten = JSON.parse(habenKonten);
-     betraegeSoll = JSON.parse(betraegeSoll);
-     betraegeHaben = JSON.parse(betraegeHaben);
-     const sollContainer = document.getElementById('soll-container_rechnung');
-     const habenContainer = document.getElementById('haben-container_rechnung');
-     // Bestehende Eingabefelder leeren
-     sollContainer.innerHTML = '';
-     habenContainer.innerHTML = '';
-     // Korrekturbuchung: Soll und Haben vertauschen
-     for (let i = 0; i < habenKonten.length; i++) {
-         let newSollField = document.createElement('div');
-         newSollField.classList.add('input-group_rechnung');
-         newSollField.innerHTML = `
-             <input type="text" name="soll_konto[]" value="${habenKonten[i]}" required>
-             <input type="number" step="0.01" name="soll_betrag[]" value="${betraegeHaben[i]}" required>
-         `;
-         sollContainer.appendChild(newSollField);
-     }
-     for (let i = 0; i < sollKonten.length; i++) {
-         let newHabenField = document.createElement('div');
-         newHabenField.classList.add('input-group_rechnung');
-         newHabenField.innerHTML = `
-             <input type="text" name="haben_konto[]" value="${sollKonten[i]}" required>
-             <input type="number" step="0.01" name="haben_betrag[]" value="${betraegeSoll[i]}" required>
-         `;
-         habenContainer.appendChild(newHabenField);
-     }
 }
 
 let aktuelleBuchungId = null;
@@ -304,9 +301,6 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
         // Korrekturbuchung: Soll und Haben vertauschen (nicht bearbeitbar)
         const korrekturSollContainer = document.createElement('div');
         const korrekturHabenContainer = document.createElement('div');
-        const heading_neu = document.createElement('div')
-
-        heading_neu.innerHTML = '<h5>Korrekturbuchung (nicht bearbeitbar)</h5>';
     
         korrekturSollContainer.innerHTML = '';
         korrekturHabenContainer.innerHTML = '';
@@ -335,7 +329,12 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
     
         sollContainer.appendChild(korrekturSollContainer);
         habenContainer.appendChild(korrekturHabenContainer);
-        heading.appendChild(heading_neu);
+        if (!document.getElementById('korrektur-hinweis')) {
+            const headingNeu = document.createElement('div');
+            headingNeu.id = 'korrektur-hinweis';
+            headingNeu.innerHTML = '<h5>Konten und Werte werden vertauscht, um die letzte Buchung zu korrigieren</h5>';
+            heading.appendChild(headingNeu);
+        }
     }
 //passt
 // Summenprüfung und Bestätigung vor dem Absenden
@@ -361,6 +360,16 @@ function summenCheck(event) {
     let alteWarnung = document.getElementById('summenwarnung');
     if (alteWarnung) alteWarnung.remove();
 
+    // Überprüfung auf null-Werte
+    if (sollBetraege.includes(0) || habenBetraege.includes(0)) {
+        let warnung = document.createElement('p');
+        warnung.id = 'summenwarnung';
+        warnung.style.color = 'red';
+        warnung.textContent = '⚠️ Beträge dürfen nicht 0 sein!';
+        submitButton.after(warnung);
+        return;
+    }
+
     // Überprüfung der Summen
     if (summeSoll !== summeHaben) {
         let warnung = document.createElement('p');
@@ -373,7 +382,6 @@ function summenCheck(event) {
         form.requestSubmit(); // Verwendet den CSRF-Token korrekt
     }
 }
-
 
 </script>
 {% endblock %}

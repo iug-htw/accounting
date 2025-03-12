@@ -24,9 +24,8 @@
             </div>
             <!-- Navigation Bar -->
             <nav class="navigation-bar">
-                
-                    <a href="{% url 'posts:posteingang' %}" class="nav-element">Posteingang</a>
                     <a href="{% url 'frontpage' %}" class="nav-element">Home</a>
+                    <a href="{% url 'posts:posteingang' %}" class="nav-element">Posteingang</a>
                     <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">Rechnungen</a>
                     {% if user.is_authenticated %}
                         <a href="{% url 'users:update_profile' %}" class="nav-element">Profil</a>
