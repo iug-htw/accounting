@@ -72,44 +72,131 @@ p {
     font-weight: bold;
 }
 
-/* Progress Section */
+
+/* Allgemeines Layout */
 .progress-container {
-    text-align: center;
-    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Linksbündig wie vorher */
+    gap: 1.5rem;
+    margin: 2rem auto;
+    max-width: 900px;
 }
 
-.progress-circle {
-    width: 6rem; /* Reduced size for balance */
-    height: 6rem; /* Reduced size for balance */
-    margin: 0 auto 1rem;
-    position: relative;
-}
-
-.circular-chart {
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-    max-height: 100%;
-}
-
-.circle-bg {
-    fill: none;
-    stroke: #e6e6e6;
-    stroke-width: 3.8;
-}
-
-.circle {
-    fill: none;
-    stroke: #28a745;
-    stroke-width: 2.8;
-    stroke-linecap: round;
-    transition: stroke-dasharray 0.3s ease;
-}
-
-.percentage {
-    font-size: 1rem; /* Adjusted for better readability */
-    fill: #333;
-    text-anchor: middle;
-    dominant-baseline: middle;
+/* Titel */
+.section-title {
+    text-align: left;
     font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* Fortschrittsbalken Container */
+.progress-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    max-width: 600px;
+    width: 100%;
+}
+
+/* Fortschrittsgruppen */
+.progress-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Fortschrittsbalken */
+.progress-bar {
+    width: 100%;
+    height: 25px;
+    background-color: #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Fortschrittsbalken-Füllung */
+.progress-fill {
+    height: 100%;
+    text-align: center;
+    line-height: 25px;
+    font-weight: bold;
+    color: white;
+    background-color: #f39c12; /* Orange für Bearbeitet */
+    width: 0%;
+    transition: width 0.7s ease-in-out;
+    border-radius: 12px;
+    min-width: 25px; /* Minimale Breite für bessere Lesbarkeit */
+}
+
+/* Fortschrittsbalken für Korrekt */
+.progress-fill.correct {
+    background-color: #28a745;
+}
+.leistung-btn{
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to right, #1b7a34, #69b02a);
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    color: #FFFFFF;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-left: -10px; /* Bewegt den Button etwas nach links */
+    margin-right: 80px;
+
+}
+.leistung-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Fortschrittslabel */
+.progress-label {
+    min-width: 100px;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Filter Container */
+.filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* Studierenden-Fortschritt */
+.progress-student-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Label-Positionierung beibehalten */
+.progress-bar-container span {
+    font-weight: bold;
+}
+
+/* Anpassung für bessere Abstände */
+.filter-container select,
+.filter-container button {
+    height: 35px;
+    padding: 0 10px;
+    font-size: 1rem;
+}
+
+/* Spezielle Anpassung: Fortschrittsbalken der Lehrerübersicht direkt unter den Dropdowns */
+.progress-container.teacher-progress {
+    margin-top: 1.5rem; /* Mehr Abstand zum Filterbereich */
 }

@@ -5,11 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6fcc3484-d69e-4a1e-9652-dcf098c7cd31" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/media/Bulk_student_creation.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/rechnungsübersicht.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend_und_CSS_Updates_Ann.md" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend_und_CSS_Updates_Ann.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/rechnungsuebersicht.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/rechnungsuebersicht.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/frontpage.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/frontpage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/frontpage.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/frontpage.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +61,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
     &quot;git-widget-placeholder&quot;: &quot;branch1&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Ann-Ja/PycharmProjects/IUG_Projects/individuelles-tempo/static/css&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Ann-Ja/PycharmProjects/project-assignment-werwolfiq-gen-ai&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -113,8 +113,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-PY-243.24978.54" />
-        <option value="bundled-python-sdk-91e3b7efe1d4-466328ff949b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.24978.54" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PY-243.25659.43" />
+        <option value="bundled-python-sdk-181015f7ab06-4df51de95216-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.25659.43" />
       </set>
     </attachedChunks>
   </component>
@@ -129,6 +129,8 @@
       <workItem from="1739960481088" duration="39570000" />
       <workItem from="1741253496769" duration="1074000" />
       <workItem from="1741254591634" duration="5925000" />
+      <workItem from="1741610962013" duration="35000" />
+      <workItem from="1741820790297" duration="11005000" />
     </task>
     <servers />
   </component>
