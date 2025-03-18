@@ -1,8 +1,7 @@
-
 {% extends 'master_layout.html' %}
 {% load static %}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/frontpage.css' %}?v={{ timestamp }}">
+<link rel="stylesheet" href="{% static 'css/frontpage.css' %}">
 {% endblock %}
 {% block content %}
 <div class="logo-and-description">
@@ -37,33 +36,30 @@
         <a href="{% url 'posts:hauptbuch' %}" class="button">Mein Hauptbuch<span class="emoji">📚</span></a></a>
     </div>
 </div>
+    <!-- Fortschrittsanzeige für Studierende -->
 {% if user.role == 'student' %}
 <!-- Progress Section -->
 <section class="progress-container">
     <h2>Dein Fortschritt</h2>
-    <div class="progress-circle">
-        <svg viewBox="0 0 36 36" class="circular-chart green">
-            <path class="circle-bg"
-                  d="M18 2.0845
-                     a 15.9155 15.9155 0 0 1 0 31.831
-                     a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-            <path class="circle"
-                  id="progress-circle"
-                  stroke-dasharray="0, 100"
-                  d="M18 2.0845
-                     a 15.9155 15.9155 0 0 1 0 31.831
-                     a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-            <text x="18" y="20.35" id="progress-percentage" class="percentage">0%</text>
-        </svg>
+   <div class="progress-bar-container">
+        <span>Bearbeitet</span>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-bearbeitet" style="width: 1%;">0%</div>
+        </div>
+        <span>Korrekt</span>
+        <div class="progress-bar">
+            <div class="progress-fill correct" id="progress-korrekt" style="width: 1%;">0%</div>
+        </div>
     </div>
-    <p id="progress-text">Erledigt: 0% | Noch zu erledigen: 100%</p>
 </section>
 {% endif %}
+<!-- Fortschrittsanzeige für Lehrer -->
 {% if user.role == 'teacher' %}
-<h2>Leistungsübersicht Studierende</h2>
+<h2 class="section-title">Leistungsübersicht Studierende</h2>
 
-<label>Semester:
-    <select id="filter-semester">
+<div class="filter-container">
+    <label>Semester:
+        <select id="filter-semester">
         <option value="">Alle</option>
     </select>
 </label>
@@ -80,214 +76,178 @@
     </select>
 </label>
 
-<button onclick="ladeLehrerFortschritt()">Filtern</button>
-<!-- Kreisdiagramm für "Korrekt" -->
-<div class="progress-circle">
-    <h3>Korrekt</h3>
-    <svg viewBox="0 0 36 36" class="circular-chart green">
-        <path class="circle-bg"
-              d="M18 2.0845
-                 a 15.9155 15.9155 0 0 1 0 31.831
-                 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <path class="circle"
-              id="progress-circle-korrekt"
-              stroke-dasharray="0, 100"
-              d="M18 2.0845
-                 a 15.9155 15.9155 0 0 1 0 31.831
-                 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <text x="18" y="20.35" id="progress-circle-korrekt-percentage" class="percentage">0%</text>
-
-    </svg>
+<button onclick="ladeLehrerFortschritt()" class="leistung-btn">Filtern</button>
 </div>
 
-<!-- Kreisdiagramm für "Bearbeitet" -->
-<div class="progress-circle">
-    <h3>Bearbeitet</h3>
-    <svg viewBox="0 0 36 36" class="circular-chart red">
-        <path class="circle-bg"
-              d="M18 2.0845
-                 a 15.9155 15.9155 0 0 1 0 31.831
-                 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <path class="circle"
-              id="progress-circle-bearbeitet"
-              stroke-dasharray="0, 100"
-              d="M18 2.0845
-                 a 15.9155 15.9155 0 0 1 0 31.831
-                 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <text x="18" y="20.35" id="progress-circle-bearbeitet-percentage" class="percentage">0%</text>
-
-    </svg>
+<!-- Fortschrittsbalken der Lehrerübersicht DIREKT unter den Filtern -->
+<div class="progress-bar-container teacher-progress">
+    <span>Bearbeitet</span>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-lehrer-bearbeitet" style="width: 0.2%;">0%</div>
+    </div>
+    <span>Korrekt</span>
+    <div class="progress-bar">
+        <div class="progress-fill correct" id="progress-lehrer-korrekt" style="width: 0.2%;">0%</div>
+    </div>
 </div>
-{% endif %}
-{% if user.role == 'teacher' %}
-<h2>Studierenden-Fortschritt</h2>
 
-<label>Studierende:
-    <select id="filter-student">
+<h2 class="section-title">Studierenden-Fortschritt</h2>
+
+<div class="filter-container">
+    <label for="filter-student">Studierende:</label>
+    <select id="filter-student" class="dropdown">
         <option value="">Bitte wählen</option>
     </select>
-</label>
-
-<button onclick="ladeStudiFortschritt()">Fortschritt ansehen</button>
-
-<!-- Kreisdiagramme für den Studierenden -->
-<div class="progress-circle">
-    <h3>Korrekt</h3>
-    <svg viewBox="0 0 36 36" class="circular-chart green">
-        <path class="circle-bg"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <path class="circle"
-              id="progress-circle-studi-korrekt"
-              stroke-dasharray="0, 100"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <text x="18" y="20.35" id="progress-circle-studi-korrekt-percentage" class="percentage">0%</text>
-    </svg>
+    <button onclick="ladeStudiFortschritt()" class="leistung-btn">Fortschritt ansehen</button>
 </div>
 
-<div class="progress-circle">
-    <h3>Bearbeitet</h3>
-    <svg viewBox="0 0 36 36" class="circular-chart red">
-        <path class="circle-bg"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <path class="circle"
-              id="progress-circle-studi-bearbeitet"
-              stroke-dasharray="0, 100"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-        <text x="18" y="20.35" id="progress-circle-studi-bearbeitet-percentage" class="percentage">0%</text>
-    </svg>
+<div class="progress-bar-container">
+    <span>Bearbeitet</span>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-studi-bearbeitet" style="width: 1%;">0%</div>
+    </div>
+    <span>Korrekt</span>
+    <div class="progress-bar">
+        <div class="progress-fill correct" id="progress-studi-korrekt" style="width: 1%;">0%</div>
+    </div>
 </div>
 {% endif %}
+
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        ladeDaten("{% url 'posts:lehrer_filter_daten' %}", function(data) {
-            verarbeiteLehrerFilter(data);
-            verarbeiteStudiListe(data);
+// 📌 Funktion zum Befüllen eines Dropdowns mit API-Daten
+function befuellenDropdown(elementId, daten, wertKey, textKey) {
+    let dropdown = document.getElementById(elementId);
+    if (!dropdown) return;
+    dropdown.innerHTML = '<option value="">Bitte wählen</option>';
+
+    if (daten) {
+        daten.forEach(item => {
+            let option = document.createElement('option');
+            option.value = item[wertKey];
+            option.textContent = item[textKey];
+            dropdown.appendChild(option);
         });
+    }
+}
+
+// 📌 Funktion zum Verarbeiten der Lehrer-Filter-Daten für die Dropdowns
+function verarbeiteLehrerFilter(data) {
+    befuellenDropdown('filter-semester', data.semesters, 'semester_id', 'semester__name');
+    befuellenDropdown('filter-studiengang', data.studiengaenge, 'studiengang_id', 'studiengang__name');
+    befuellenDropdown('filter-aufgabe', data.aufgaben, 'id', 'fragentyp_text');
+}
+
+// 📌 Funktion zum Verarbeiten der Studierendenliste für die Lehrer-Ansicht
+function verarbeiteStudiListe(data) {
+    befuellenDropdown('filter-student', data.studierende, 'id', 'name');
+}
+
+// 📌 Funktion zum Laden von API-Daten
+function ladeDaten(url, callback) {
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Fehler beim Abruf von ${url}: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => callback(data))
+        .catch(error => console.error(`Fehler beim Laden von ${url}:`, error));
+}
+
+// 📌 DOMContentLoaded: Lädt die Filterdaten für Lehrer
+document.addEventListener("DOMContentLoaded", function() {
+    ladeDaten("/posts/lehrer_filter_daten/", function(data) {
+        verarbeiteLehrerFilter(data);
+        verarbeiteStudiListe(data);
     });
-    
-    document.addEventListener("DOMContentLoaded", function() {
-        if ("{{ user.role }}" === "student") {
-            ladeStudentenFortschritt();
-        }
-    });
 
-    function ladeStudentenFortschritt() {
-        fetch("/posts/nutzer_fortschritt/")
-            .then(response => response.json())
-            .then(data => {
-                console.log("Fortschritt geladen:", data);
-    
-                let gesamt = data.gesamt;
-                if (gesamt === 0) {
-                    console.log("Keine Aufgaben für den Nutzer.");
-                    return;
-                }
-    
-                let korrektProzent = Math.round((data.korrekt / gesamt) * 100);
-                aktualisiereSVG("progress-circle", korrektProzent);
-                document.getElementById("progress-percentage").textContent = `${korrektProzent}%`;
-                document.getElementById("progress-text").textContent = `Erledigt: ${korrektProzent}% | Noch zu erledigen: ${100 - korrektProzent}%`;
-            })
-            .catch(error => console.error("Fehler beim Laden des Fortschritts:", error));
+    if ("{{ user.role }}" === "student") {
+        ladeStudentenFortschritt();
+    }
+});
+
+// 📌 **Fix: Fortschritt für Studierende abrufen und Balken updaten**
+function ladeStudentenFortschritt() {
+    fetch("/posts/nutzer_fortschritt/")
+        .then(response => {
+            if (!response.ok) throw new Error("Fehler beim Abruf der Daten.");
+            return response.json();
+        })
+        .then(data => {
+            console.log("Studenten-Fortschritt geladen:", data);
+
+            let gesamt = data.gesamt || 1; // Falls keine Daten vorhanden, setze 1, um Division durch 0 zu vermeiden
+            let korrektProzent = berechneProzent(data.korrekt, gesamt);
+            let bearbeitetProzent = berechneProzent(data.bearbeitet, gesamt);
+
+            // 🚀 **Hier werden jetzt die Balken aktualisiert, nicht mehr SVGs!**
+            aktualisiereBalken("progress-bearbeitet", bearbeitetProzent);
+            aktualisiereBalken("progress-korrekt", korrektProzent);
+        })
+        .catch(error => console.error("Fehler beim Laden des Studentenfortschritts:", error));
+}
+
+// 📌 **Fix: Fortschritt für Lehrer abrufen und Balken updaten**
+function ladeLehrerFortschritt() {
+    let semester = document.getElementById('filter-semester').value;
+    let studiengang = document.getElementById('filter-studiengang').value;
+    let aufgabe = document.getElementById('filter-aufgabe').value;
+
+    let url = `/posts/lehrer_fortschritt/?semester=${semester}&studiengang=${studiengang}&aufgabe=${aufgabe}`;
+    ladeFortschritt(url, "progress-lehrer-korrekt", "progress-lehrer-bearbeitet");
+}
+
+// 📌 **Fix: Fortschritt für einen bestimmten Studierenden abrufen**
+function ladeStudiFortschritt() {
+    let studentId = document.getElementById('filter-student').value;
+    if (!studentId) {
+        console.warn("Kein Studierender ausgewählt.");
+        return;
     }
 
-    // Funktion zum Laden von Daten von einer API
-    function ladeDaten(url, callback) {
-        fetch(url)
-            .then(response => response.json())
-            .then(data => callback(data))
-            .catch(error => console.error(`Fehler beim Laden von ${url}:`, error));
-    }
-    
-    // Verarbeitet die Lehrer-Filter-Daten für die Dropdowns
-    function verarbeiteLehrerFilter(data) {
-        befuellenDropdown('filter-semester', data.semesters, 'semester_id', 'semester__name');
-        befuellenDropdown('filter-studiengang', data.studiengaenge, 'studiengang_id', 'studiengang__name');
-        befuellenDropdown('filter-aufgabe', data.aufgaben, 'id', 'fragentyp_text');
-    }
-    
-    // Verarbeitet die Studierendenliste für die Lehrer-Ansicht
-    function verarbeiteStudiListe(data) {
-        befuellenDropdown('filter-student', data.studierende, 'id', 'name');
-    }
-    
-    // Befüllt ein Dropdown-Element mit Daten
-    function befuellenDropdown(elementId, daten, wertKey, textKey) {
-        let dropdown = document.getElementById(elementId);
-        if (!dropdown) return;
-        dropdown.innerHTML = '<option value="">Bitte wählen</option>';
-        if (daten) {
-            daten.forEach(item => {
-                let option = document.createElement('option');
-                option.value = item[wertKey];
-                option.textContent = item[textKey];
-                dropdown.appendChild(option);
-            });
-        }
-    }
-    
-    // Lädt den Fortschritt für Lehrer oder Studierende
-    function ladeFortschritt(url, korrektId, bearbeitetId) {
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Fortschritts-Daten:", data);
-    
-                let gesamt = data.gesamt_aufgaben;
-                if (gesamt === 0) {
-                    console.log("Keine Aufgaben vorhanden.");
-                    return;
-                }
-    
-                let korrektProzent = berechneProzent(data.korrekt, gesamt);
-                let bearbeitetProzent = berechneProzent(data.bearbeitet, gesamt);
-    
-                aktualisiereSVG(korrektId, korrektProzent);
-                aktualisiereSVG(bearbeitetId, bearbeitetProzent);
-    
-                document.getElementById(`${korrektId}-percentage`).textContent = `${korrektProzent}%`;
-                document.getElementById(`${bearbeitetId}-percentage`).textContent = `${bearbeitetProzent}%`;
+    let url = `/posts/lehrer_studi_fortschritt/${studentId}/`;
+    console.log("Rufe API auf:", url);
 
-            })
-            .catch(error => console.error(`Fehler beim Laden des Fortschritts (${url}):`, error));
+    ladeFortschritt(url, "progress-studi-korrekt", "progress-studi-bearbeitet");
+}
+
+// 📌 **Fix: Fortschritt für Lehrer oder Studierende (NUR Balken, keine SVGs mehr!)**
+function ladeFortschritt(url, korrektId, bearbeitetId) {
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`Fehler beim Abruf: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log("Fortschritts-Daten geladen:", data);
+
+            let gesamt = data.gesamt_aufgaben || 1;
+            let korrektProzent = berechneProzent(data.korrekt, gesamt);
+            let bearbeitetProzent = berechneProzent(data.bearbeitet, gesamt);
+
+            // 🚀 **Jetzt werden die Balken aktualisiert, keine SVG-Kreise mehr!**
+            aktualisiereBalken(korrektId, korrektProzent);
+            aktualisiereBalken(bearbeitetId, bearbeitetProzent);
+        })
+        .catch(error => console.error(`Fehler beim Laden des Fortschritts:`, error));
+}
+
+// **🚀 Neue Methode zum Aktualisieren der Fortschrittsbalken**
+function aktualisiereBalken(elementId, prozent) {
+    let balken = document.getElementById(elementId);
+    if (balken) {
+        let sichtbareBreite = prozent > 0 ? prozent + "%" : "15px"; // Falls 0%, dann min. 15px
+        balken.style.width = sichtbareBreite;
+        balken.textContent = prozent + "%";
     }
-    
-    // Funktion für Lehrer-Fortschritt
-    function ladeLehrerFortschritt() {
-        let semester = document.getElementById('filter-semester').value;
-        let studiengang = document.getElementById('filter-studiengang').value;
-        let aufgabe = document.getElementById('filter-aufgabe').value;
-    
-        let url = `/posts/lehrer_fortschritt/?semester=${semester}&studiengang=${studiengang}&aufgabe=${aufgabe}`;
-        ladeFortschritt(url, "progress-circle-korrekt", "progress-circle-bearbeitet");
-    }
-    
-    // Funktion für Studierenden-Fortschritt
-    function ladeStudiFortschritt() {
-        let studentId = document.getElementById('filter-student').value;
-        if (!studentId) {
-            console.log("Kein Studierender ausgewählt.");
-            return;
-        }
-    
-        let url = `/posts/lehrer_studi_fortschritt/${studentId}/`;
-        console.log("Rufe API auf:", url);  // Debugging-Ausgabe
-    
-        ladeFortschritt(url, "progress-circle-studi-korrekt", "progress-circle-studi-bearbeitet");
-    }
-    
-    // Hilfsfunktion zur Berechnung des Prozentsatzes
-    function berechneProzent(teil, gesamt) {
-        return gesamt > 0 ? Math.round((teil / gesamt) * 100) : 0;
-    }
-    
-    // Aktualisiert das SVG-Kreisdiagramm
-    function aktualisiereSVG(elementId, prozent) {
-        let kreis = document.getElementById(elementId);
-        if (kreis) {
-            kreis.setAttribute("stroke-dasharray", `${prozent}, 100`);
-        }
-    }
-    </script>
-    
+}
+
+// Berechnet den Prozentwert für die Fortschrittsbalken
+function berechneProzent(teil, gesamt) {
+    return gesamt > 0 ? Math.round((teil / gesamt) * 100) : 0;
+}
+</script>
 {% endblock %}
+
