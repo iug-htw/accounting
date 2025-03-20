@@ -31,6 +31,14 @@ def student_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view_func
 
+def admin_required(view_func):
+    def _wrapped_view_func(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        else:
+            return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
+    return _wrapped_view_func
+
 def handle_form_submission(request, form_class, success_message, redirect_url, instance=None):
     form = form_class(request.POST, instance=instance)
     if form.is_valid():
@@ -41,17 +49,7 @@ def handle_form_submission(request, form_class, success_message, redirect_url, i
         messages.error(request, "Das Formular ist nicht gültig.")
         return None
 
-def create_buchung(aufgabe, nutzer, soll_konten, haben_konten, betraege_soll, betraege_haben, korrekturbuchung=False):
-    Buchung.objects.create(
-        aufgabe=aufgabe,
-        nutzer=nutzer,
-        antwort_konten_soll=json.dumps(soll_konten),
-        antwort_konten_haben=json.dumps(haben_konten),
-        antwort_betrag_soll=json.dumps([float(b) for b in betraege_soll]),
-        antwort_betrag_haben=json.dumps([float(b) for b in betraege_haben]),
-        korrekturbuchung=korrekturbuchung
-    )
-
+@admin_required
 def aufgabe_neu_erstellen(request):
     if request.method == 'POST':
         form = Aufgabe_neu_Form(request.POST)
@@ -104,34 +102,6 @@ def speichere_aufgabe_details(request, aufgabe):
         if i < len(bezugs_konto_namen) and bezugs_konto_namen[i]:  
             aufgabe_detail.bezugs_konto = bezugs_konto_namen[i]  # ✅ Speichert den Kontonamen direkt
             aufgabe_detail.save()
-
-def is_buchung_korrekt(buchung, nutzer_aufgabe):
-    # JSON-Daten der Buchung laden
-    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
-    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
-    soll_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_soll)]
-    haben_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_haben)]
-
-    # Erwartete Werte aus der Nutzeraufgabe
-    soll_konten_aufgabe = nutzer_aufgabe.soll_konten
-    haben_konten_aufgabe = nutzer_aufgabe.haben_konten
-    soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
-    haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
-
-    # Prüfen, ob die Konten und Beträge übereinstimmen
-    konten_soll_korrekt = set(soll_konten_nutzer) == set(soll_konten_aufgabe)
-    konten_haben_korrekt = set(haben_konten_nutzer) == set(haben_konten_aufgabe)
-    betraege_soll_korrekt = sum(soll_betraege_nutzer) == sum(soll_betraege_aufgabe)
-    betraege_haben_korrekt = sum(haben_betraege_nutzer) == sum(haben_betraege_aufgabe)
-
-    # Prüfen, ob Summe Soll = Summe Haben
-    summe_soll_nutzer = sum(soll_betraege_nutzer)
-    summe_haben_nutzer = sum(haben_betraege_nutzer)
-    summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
-
-    # Ergebnis zurückgeben
-    return konten_soll_korrekt and konten_haben_korrekt and betraege_soll_korrekt and betraege_haben_korrekt and summe_korrekt
-
 
 @login_required
 def rechnung_detail_view(request, aufgabe_id):
@@ -206,14 +176,32 @@ def rechnung_detail_view(request, aufgabe_id):
 
     return render(request, 'posts/rechnung.html', context)
 
+def is_buchung_korrekt(buchung, nutzer_aufgabe):
+    # JSON-Daten der Buchung laden
+    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
+    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
+    soll_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_soll)]
+    haben_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_haben)]
 
+    # Erwartete Werte aus der Nutzeraufgabe
+    soll_konten_aufgabe = nutzer_aufgabe.soll_konten
+    haben_konten_aufgabe = nutzer_aufgabe.haben_konten
+    soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
+    haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
 
-def update_buchung_status(buchung, ist_korrekt):
-    if ist_korrekt:
-        buchung.status = 'korrekt'
-    else:
-        buchung.status = 'bearbeitet'
-    buchung.save()
+    # Prüfen, ob die Konten und Beträge übereinstimmen
+    konten_soll_korrekt = set(soll_konten_nutzer) == set(soll_konten_aufgabe)
+    konten_haben_korrekt = set(haben_konten_nutzer) == set(haben_konten_aufgabe)
+    betraege_soll_korrekt = sum(soll_betraege_nutzer) == sum(soll_betraege_aufgabe)
+    betraege_haben_korrekt = sum(haben_betraege_nutzer) == sum(haben_betraege_aufgabe)
+
+    # Prüfen, ob Summe Soll = Summe Haben
+    summe_soll_nutzer = sum(soll_betraege_nutzer)
+    summe_haben_nutzer = sum(haben_betraege_nutzer)
+    summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
+
+    # Ergebnis zurückgeben
+    return konten_soll_korrekt and konten_haben_korrekt and betraege_soll_korrekt and betraege_haben_korrekt and summe_korrekt
 
 def handle_nutzer_buchung(request, aufgabe):
     letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
@@ -289,12 +277,9 @@ def handle_nutzer_buchung(request, aufgabe):
 
     return buchung
 
-
 def generiere_zufaellige_werte(aufgabe, tiefe=0):
     if tiefe < 50:
-        #print(f"Aufruf {tiefe}: Generiere Werte für Aufgabe ID {aufgabe.id}")
 
-        # Alle Soll- und Haben-Konten abrufen
         soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
         haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
 
@@ -318,12 +303,6 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
             # Erneute Überprüfung nach der Anpassung
             summe_soll = round(sum(soll_betraege),2)
             summe_haben = round(sum(haben_betraege),2)
-            print(f"Hier Ok")
-            print(f"haben_konten {haben_konten}")
-            print(f"haben_betraege {haben_betraege}")
-            print(f"soll_konten {soll_konten}")
-            print(f"soll_betraege {soll_betraege}")
-            print(f"Neue Summe Soll: {summe_soll}, Neue Summe Haben: {summe_haben}")
 
             # Überprüfung der angepassten Werte mit Referenzwerten
             for i, betrag in enumerate(soll_betraege + haben_betraege):
@@ -430,8 +409,6 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
     
     #print("✅ Berechnung abgeschlossen!")
     return soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben
-# soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben
-
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
     # Prüfe, ob bereits eine NutzerAufgabe existiert
@@ -457,9 +434,6 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
 
     print(f"✅ Absender für {nutzer.username} - Aufgabe {aufgabe.id}: {nutzer_aufgabe.absender}")
     return nutzer_aufgabe
-
-
-
 
 def berechne_naechsten_versuch(nutzer, aufgabe):
     letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
@@ -490,15 +464,13 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
         status='nicht bearbeitet'
     )
 
-
 def get_fallback_konten(aufgabe):
     soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
     haben_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").order_by('?').first()
     return (soll_konto.kontoname if soll_konto else "Soll-Konto-Standard",
             haben_konto.kontoname if haben_konto else "Haben-Konto-Standard")
 
-
-@lehrkraft_required
+@admin_required
 def unternehmen_verwalten(request):
     """ Zeigt eine Liste der Unternehmen an und ermöglicht das Hinzufügen. """
     if request.method == 'POST':
@@ -524,7 +496,7 @@ def handle_post_request(request, form_class, redirect_url, template_name):
     form = form_class()
     return render(request, template_name, {'form': form})
 
-@lehrkraft_required
+@admin_required
 def unternehmen_loeschen(request, unternehmen_id):
     """ Löscht ein Unternehmen und gibt eine Bestätigung aus. """
     unternehmen = get_object_or_404(Unternehmen, id=unternehmen_id)
@@ -532,7 +504,7 @@ def unternehmen_loeschen(request, unternehmen_id):
     messages.success(request, f"Das Unternehmen '{unternehmen.name}' wurde gelöscht.")
     return redirect('posts:unternehmen_verwalten')
 
-@lehrkraft_required
+@admin_required
 def aufgabenkategorie_verwalten(request):
     """ Zeigt eine Liste der Kategorien an und ermöglicht das Hinzufügen. """
     if request.method == 'POST':
@@ -549,8 +521,7 @@ def aufgabenkategorie_verwalten(request):
     aufgabenkategorien = Aufgabenkategorie.objects.all()
     return render(request, 'posts/neue_kategorie.html', {'form': form, 'aufgabenkategorien': aufgabenkategorien})
 
-
-@lehrkraft_required
+@admin_required
 def aufgabenkategorie_loeschen(request, kategorie_id):
     """ Löscht eine Kategorie und gibt eine Bestätigung aus. """
     kategorie = get_object_or_404(Aufgabenkategorie, id=kategorie_id)
@@ -558,25 +529,18 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
     messages.success(request, f"Die Kategorie '{kategorie.name}' wurde gelöscht.")
     return redirect('posts:aufgabenkategorie_verwalten')
 
-
 @login_required
 def hauptbuch_view(request):
     user = request.user
-
     # Falls noch keine anfangsbestaende existieren, generiere sie
     generate_user_anfangsbestaende(user)
-
     # anfangsbestaende des Nutzers abrufen
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=user)
-
     # Alle Buchungen des Nutzers abrufen
     buchungen = Buchung.objects.filter(nutzer=user)
-
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
     t_konten = build_t_konten(buchungen, anfangsbestaende)
-
     return render(request, "posts/hauptbuch.html", {"t_konten": t_konten})
-
 
 def generate_color(aufgabe_id):
     hash_value = int(hashlib.md5(str(aufgabe_id).encode()).hexdigest(), 16)
@@ -619,7 +583,7 @@ def build_t_konten(buchungen, anfangsbestände):
 
     return t_konten
 
-@login_required
+@admin_required
 def aufgabe_bearbeiten(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
     details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
@@ -690,12 +654,6 @@ def posteingang(request):
 @login_required
 def mail_detail(request, mail_id):
     mail = get_object_or_404(Mail, id=mail_id, nutzer=request.user)
-
-    # Mail-Status auf "bearbeitet" setzen
-    #mail.status = 'bearbeitet'
-    #mail.save()
-
-    # Standardlink zur Aufgabe setzen, falls vorhanden
     aufgabe_link = None
     if mail.aufgabe:
         aufgabe_link = reverse('posts:rechnung_detail', args=[mail.aufgabe.id])
@@ -749,7 +707,7 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
         status='nicht bearbeitet'
     )
 
-@lehrkraft_required
+@admin_required
 def konten_verwalten(request):
     if request.method == 'POST':
         form = KontoForm(request.POST)
@@ -766,7 +724,7 @@ def konten_verwalten(request):
 
     return render(request, 'posts/konten_verwalten.html', {'form': form, 'konten': konten})
 
-@lehrkraft_required
+@admin_required
 def konto_bearbeiten(request, konto_id):
     konto = get_object_or_404(Konto, id=konto_id).order_by("name")
 
@@ -784,7 +742,7 @@ def konto_bearbeiten(request, konto_id):
     return render(request, 'posts/konto_bearbeiten.html', {'form': form, 'konto': konto})
 
 
-@lehrkraft_required
+@admin_required
 def konto_loeschen(request, konto_id):
     konto = get_object_or_404(Konto, id=konto_id)
     konto.delete()
@@ -804,7 +762,6 @@ def nutzer_fortschritt(request):
     return JsonResponse({
         'gesamt': gesamt_aufgaben,'offen': offen,'bearbeitet': bearbeitet,'korrekt': korrekt,'prozent': prozent_korrekt
     })
-
 
 User = get_user_model()
 @login_required
@@ -868,8 +825,7 @@ def lehrer_filter_daten(request):
         'studierende': studierende_liste  # Studierendenliste hinzufügen
     })
 
-
-@login_required
+@lehrkraft_required
 def lehrer_studi_fortschritt(request, student_id):
     """Zeigt den Fortschritt eines einzelnen Studierenden für den Lehrer."""
     if request.user.role != 'teacher':
@@ -899,36 +855,28 @@ def get_student(student_id, lehrer):
 def guv_uebersicht(request):
     # GuV-Konto holen (zur späteren Filterung)
     guv_konto = Konto.objects.get(name="GuV")
-    
     # Filtere alle Konten außer GuV
-    konten = Konto.objects.exclude(name="GuV")
-    
+    konten = Konto.objects.exclude(name="GuV")   
     # Filtere Buchungen ohne GuV (SOLL und HABEN)
     buchungen = Buchung.objects.filter(nutzer=request.user).exclude(
         antwort_konten_soll__icontains="GuV"
     ).exclude(
         antwort_konten_haben__icontains="GuV"
     )
-
     # Anfangsbestände ohne GuV
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user).exclude(konto=guv_konto)
-
     # Baue T-Konten-Struktur
     t_konten = build_t_konten(buchungen, anfangsbestaende)
-
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
     if "GuV" in t_konten:
         del t_konten["GuV"]
-
     # Verknüpfe Konten mit Kategorien
     konto_kategorien = {konto.name: konto.kategorie for konto in konten}
-
     return render(request, "posts/guv.html", {
         "t_konten": t_konten,
         "konten": konten,
         "konto_kategorien": konto_kategorien
     })
-
 
 def generate_user_anfangsbestaende(user):
     # Definiere relevante Konten
@@ -966,8 +914,6 @@ def generate_user_anfangsbestaende(user):
     if not Anfangsbestand.objects.filter(nutzer=user, konto=eigenkapital_konto).exists():
         Anfangsbestand.objects.create(nutzer=user, konto=eigenkapital_konto, betrag=eigenkapital_betrag)
 
-
-
 @login_required
 def speichere_guv_ergebnis(request):
     if request.method == "POST":
@@ -991,7 +937,6 @@ def speichere_guv_ergebnis(request):
 
         return JsonResponse({"success": True})
     return JsonResponse({"error": "Nur POST erlaubt"}, status=400)
-
 
 @login_required
 def bilanz_uebersicht(request):
@@ -1021,10 +966,8 @@ def bilanz_uebersicht(request):
 @login_required
 def rechnungsuebersicht(request):
     user = request.user
-
     # Alle NutzerAufgaben für den aktuellen Nutzer abrufen
     nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer=user)
-
     rechnungsdaten = []
 
     for nutzer_aufgabe in nutzer_aufgaben:
@@ -1065,13 +1008,13 @@ def generate_random_absender():
     print(f"📌 Generierter Absender: {absender.name}, ID: {absender.id}, Neu erstellt: {created}")    
     return absender
 
-@login_required
+@lehrkraft_required
 def aufgaben_verwalten(request):
     """ Zeigt eine Liste aller Aufgaben und ermöglicht das Löschen. """
     aufgaben = Aufgabe_neu.objects.all()
     return render(request, 'posts/aufgaben_verwalten.html', {'aufgaben': aufgaben})
 
-@login_required
+@admin_required
 def aufgabe_loeschen(request, aufgabe_id):
     """ Löscht eine Aufgabe und gibt eine Bestätigung aus. """
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)

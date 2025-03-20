@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.urls import reverse
 from django.http import HttpResponse
 from .models import Studiengang, Semester, CustomUser
-from posts.views import lehrkraft_required
+from posts.views import lehrkraft_required, admin_required, student_required
 from posts.models import Mail, NutzerAufgabe
 from django.contrib import messages
 from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail
@@ -16,7 +16,7 @@ from posts.views import Aufgabe_neu
 from django.core.mail import send_mail
 from django.conf import settings
 
-@login_required  # Ensure only logged-in users can access this view
+@lehrkraft_required  # Ensure only logged-in users can access this view
 def register_view(request):
     if not request.user.role == 'teacher':  # Only teachers can create students
         return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
