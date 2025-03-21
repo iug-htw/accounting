@@ -243,7 +243,7 @@ html, body {
 }
 
 .btn-add_rechnung {
-    background-color: #120639;
+    background-color: #5cbad3;
     color: #fff;
     border: none;
     padding: 12px 25px; /* Etwas mehr Padding für bessere Klickfläche */
@@ -267,7 +267,10 @@ html, body {
     margin-bottom: 5rem; /* Abstand zwischen den Buttons */
 }
 
-.btn-add_rechnung:hover, .btn-submit_rechnung:hover {
+.btn-add_rechnung:hover{
+    background-color: #8cd0dd;
+}
+.btn-submit_rechnung:hover {
     background-color: #3c0f79;
 }
     /* Entfernen-Button */
@@ -304,6 +307,11 @@ html, body {
         color: white;
     }
 
-
+    .btn-submit_rechnung:disabled {
+        background-color: #ccc; /* Grauer Hintergrund */
+        color: #666; /* Dunklere Schrift */
+        cursor: not-allowed; /* Zeigt an, dass der Button nicht klickbar ist */
+        opacity: 0.6; /* Reduziert die Sichtbarkeit */
+    }
 
 
