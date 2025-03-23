@@ -74,6 +74,7 @@ class CustomUser(AbstractUser):
         related_name="studierende"
     )
     display_name = models.CharField(max_length=150, blank=True, null=True)
+    nutzergruppe = models.IntegerField(null=True, blank=True)  # Kann für Lehrer None sein
     def __str__(self):
         return f'{self.username} ({self.get_role_display()})'
     def save(self, *args, **kwargs):

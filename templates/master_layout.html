@@ -33,7 +33,7 @@
                             <a class = "nav-element" href="{% url 'posts:aufgaben_verwalten'%}">Aufgabenliste</a>
                             <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">Aufgaben zuweisen</a>
                             <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">Nutzer anlegen</a>
-                            <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
+                            
                         {% endif %}
                         {% if request.user.role == 'student' %}
                             <div class="nav-dropdown">
@@ -44,6 +44,9 @@
                                     <a href="{% url 'posts:bilanz' %}">Bilanz</a>
                                 </div>
                             </div>
+                        {% endif %}
+                        {% if request.user.is_superuser%}
+                            <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
                         {% endif %}
                     <form class="logout-form" action="{% url 'users:logout' %}" method="post">
                         {% csrf_token %}

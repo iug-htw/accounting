@@ -29,7 +29,7 @@
     {% for aufgabe in aufgaben %}
         <div>
             <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}">
-            <label>Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }} - {{ aufgabe.frage|default:"Fehler bei Fragenabruf" }}</label>
+            <label>Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
         </div>
     {% endfor %}
 
