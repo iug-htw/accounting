@@ -1,24 +1,45 @@
 {% extends 'master_layout.html' %}
 {% load static %}
+
 {% block title %}
     Login as a User
 {% endblock %}
 
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
 {% block content %}
-    <h1>Login as a User</h1>
-    {% if messages %}
-    <div style="color: red; margin-bottom: 10px;">
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-    </div>
-    {% endif %}
-    <form class="form-with-validation" action="{%url 'users:login'%}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        {% if request.GET.next %}
-            <input type="hidden" name="next" value="{{request.GET.next }}" />
+<div class="login-wrapper">
+    <div class="login-box">
+    <img src="/media/avatar.png" alt="Avatar" class="login-avatar">
+        <h1>Login</h1>
+
+        {% if messages %}
+            <div class="login-error">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
         {% endif %}
-        <button class="form-submit">Submit</button>
-    </form>
+
+        <form class="form-with-validation" action="{% url 'users:login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
+
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}" />
+            {% endif %}
+
+            <button type="submit" class="form-submit">Einloggen</button>
+        </form>
+    </div>
+</div>
 {% endblock %}
