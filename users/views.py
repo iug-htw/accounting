@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required, admin_required, student_required
-from posts.models import Mail, NutzerAufgabe
+from posts.models import Mail, NutzerAufgabe, Absender
 from django.contrib import messages
 from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail
 from posts.views import Aufgabe_neu
@@ -172,8 +172,6 @@ def bulk_student_creation(request):
 
 @lehrkraft_required
 def aufgaben_zuweisen_view(request):
-    if not request.user.role == 'teacher':
-        return HttpResponse(f'Fehlende Berechtigung <br><a href="/">Zurück zur Startseite</a>')
 
     # Eigene Studierenden filtern
     eigene_studierende = CustomUser.objects.filter(professor=request.user, role='student')
@@ -194,7 +192,7 @@ def aufgaben_zuweisen_view(request):
             zugewiesene_aufgaben = Aufgabe_neu.objects.filter(nutzeraufgabe__nutzer__in=studis_in_gruppe).order_by('id').distinct()
             if zugewiesene_aufgaben.exists():
                 aufgaben_uebersicht[sem.name][studiengang.name] = [f"Aufgabe {aufgabe.id}" for aufgabe in zugewiesene_aufgaben]
-    
+    print(f"aufgaben_uebersicht{aufgaben_uebersicht}")
     # Aufgaben zuweisen
     if request.method == 'POST':
         ausgewählte_aufgaben = request.POST.getlist('aufgaben')
@@ -209,9 +207,16 @@ def aufgaben_zuweisen_view(request):
                 unternehmen=aufgabe.unternehmen_kategorie
             )
             for student in studierende:
+                sem_name = student.semester.name
+                studiengang_name = student.studiengang.name
+                aufgabe_name = f"Aufgabe {aufgabe.id}"
+                if sem_name in aufgaben_uebersicht and studiengang_name in aufgaben_uebersicht[sem_name]:
+                    if aufgabe_name in aufgaben_uebersicht[sem_name][studiengang_name]:
+                        print(f"bereits zugewiesen")
+                        continue  # Aufgabe wurde bereits zugewiesen
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
-                print(f"Hier steht der Absender in User{nutzer_aufgabe.absender_id}")
+                #print(f"Hier steht der Absender in User{nutzer_aufgabe.absender_id}")
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
                 erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
 
@@ -229,7 +234,21 @@ def aufgaben_zuweisen_view(request):
 def aufgaben_selbst_zuweisen(request):
     """Weist dem Lehrer alle Aufgaben selbst zu."""
     lehrer = request.user
-    NutzerAufgabe.objects.filter(nutzer=lehrer).delete()
+    
+    # Alle zugehörigen Daten zu den NutzerAufgaben löschen
+    nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer=lehrer)
+    aufgaben_ids = nutzer_aufgaben.values_list('id', flat=True)
+    print(f"aufgaben_ids: {aufgaben_ids}")
+    # Zugehörige Mails löschen
+    Mail.objects.filter(nutzer=lehrer).exclude(aufgabe__isnull=True).delete()
+    
+    # Zugehörige Absender löschen
+    Absender.objects.filter(id__in=nutzer_aufgaben.values_list('absender_id', flat=True)).delete()
+    
+    # NutzerAufgaben löschen
+    nutzer_aufgaben.delete()
+    
+    
     aufgaben = Aufgabe_neu.objects.all()  # Alle Aufgaben abrufen
 
     for aufgabe in aufgaben:
