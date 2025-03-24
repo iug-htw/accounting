@@ -428,11 +428,11 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
         absender = generate_random_absender()
         nutzer_aufgabe.absender = absender
         nutzer_aufgabe.save(update_fields=["absender"])
-        print(f"✅ Neuer Absender gesetzt für Nutzer {nutzer.username}, Aufgabe {aufgabe.id}: {absender.id}")
-    else:
-        print(f"⚠️ Nutzer {nutzer.username}, Aufgabe {aufgabe.id} hat bereits einen Absender: {nutzer_aufgabe.absender_id}")
+        #print(f"✅ Neuer Absender gesetzt für Nutzer {nutzer.username}, Aufgabe {aufgabe.id}: {absender.id}")
+    #else:
+        #print(f"⚠️ Nutzer {nutzer.username}, Aufgabe {aufgabe.id} hat bereits einen Absender: {nutzer_aufgabe.absender_id}")
 
-    print(f"✅ Absender für {nutzer.username} - Aufgabe {aufgabe.id}: {nutzer_aufgabe.absender}")
+    #print(f"✅ Absender für {nutzer.username} - Aufgabe {aufgabe.id}: {nutzer_aufgabe.absender}")
     return nutzer_aufgabe
 
 def berechne_naechsten_versuch(nutzer, aufgabe):
@@ -994,7 +994,7 @@ def generate_random_absender():
     vorname = random.choice(vornamen)
     nachname = random.choice(nachnamen)
     email = f"{nachname.lower()}@{random.choice(emailsuffix)}"
-    print(f"email:{email}")
+    #print(f"email:{email}")
     straße = f"{random.choice(straßen)} {random.randint(1, 100)}"
     stadt = f"{random.choice(staedte)}"
     voller_name = f"{vorname} {nachname}"
@@ -1007,7 +1007,7 @@ def generate_random_absender():
         stadt=stadt,
         plz=random.choice(plz)
     )
-    print(f"📌 Generierter Absender: {absender.name}, ID: {absender.id}, Neu erstellt: {created}")    
+    #print(f"📌 Generierter Absender: {absender.name}, ID: {absender.id}, Neu erstellt: {created}")    
     return absender
 
 @lehrkraft_required
