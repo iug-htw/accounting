@@ -15,6 +15,7 @@ from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, be
 from posts.views import Aufgabe_neu
 from django.core.mail import send_mail
 from django.conf import settings
+import random
 
 @lehrkraft_required  # Ensure only logged-in users can access this view
 def register_view(request):
@@ -29,6 +30,7 @@ def register_view(request):
             user.professor = request.user  # Automatically assign the logged-in teacher as the professor
             user.studiengang = form.cleaned_data.get('studiengang')
             user.semester = form.cleaned_data.get('semester') or Semester.objects.get(id=1)
+            user.nutzergruppe = random.randint(1, 4)
             user.save()
             #login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect("frontpage")  # Redirect to a suitable page after registration
@@ -76,7 +78,7 @@ def add_studiengang_view(request):
         'studiengaenge': studiengaenge
     })
 
-@lehrkraft_required
+@admin_required
 def delete_studiengang_view(request, studiengang_id):
     studiengang = Studiengang.objects.get(id=studiengang_id)
     studiengang.delete()
@@ -99,7 +101,7 @@ def add_semester_view(request):
         'semester': semester
     })
 
-@lehrkraft_required
+@admin_required
 def delete_semester_view(request, semester_id):
     semester = Semester.objects.get(id=semester_id)
     semester.delete()
@@ -139,12 +141,13 @@ def bulk_student_creation(request):
                 semester=Semester.objects.get(name=semester),
                 studiengang=Studiengang.objects.get(name=studiengang),
                 display_name=student_name,
+                nutzergruppe=random.randint(1,4),
                 unternehmen_id=1
             )
             student.set_password(student_name)  # Passwort richtig hashen
             student.save()
             send_willkommen_mail(student)
-            send_profile_update_mail(student)
+            send_profile_update_mail(student, request)
             neue_studierende.append(student)
 
         if fehlgeschlagene_namen:
@@ -284,8 +287,9 @@ def update_profile(request):
     return render(request, "users/update_profile.html", {"user": user})
 
 
-def send_profile_update_mail(user):
+def send_profile_update_mail(user, request):
     """Erstellt eine interne Mail für den Nutzer zur Aufforderung, Namen & Passwort zu ändern."""
+    update_profile_url = request.build_absolute_uri(reverse("users:update_profile"))
     Mail.objects.create(
         nutzer=user,
         aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
@@ -293,10 +297,11 @@ def send_profile_update_mail(user):
         mailtext=f"""
         Hallo {user.username},
 
-        Bitte setzen Sie Ihren Anzeigenamen und Ihr Passwort über den folgenden Link:
-        <a href='/users/update-profile/'>Profil aktualisieren</a>
+        <p>Bitte setzen Sie Ihren Anzeigenamen und Ihr Passwort über den folgenden Link:</p>
 
-        Vielen Dank!
+        <p><a href="{update_profile_url}">Profil aktualisieren</a></p>
+
+        <p>Vielen Dank!</p>
         """,
         versuch=1,  # Standardversuch
         status="nicht bearbeitet"

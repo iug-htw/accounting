@@ -120,7 +120,7 @@ def rechnung_detail_view(request, aufgabe_id):
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe)
         if not is_buchung_korrekt(buchung, nutzer_aufgabe):
-            send_korrektur_mail(request.user, aufgabe, aufgabe.fragentyp)
+            send_korrektur_mail(request.user, aufgabe, aufgabe.fragentyp, request)
         return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
     letzte_buchung = buchungen.last()
@@ -667,7 +667,7 @@ def mail_detail(request, mail_id):
         'aufgabe_link': aufgabe_link
     })
 
-def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
+def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie, request):
     # Den höchsten bisherigen Versuch aus der Buchungs- oder Mail-Tabelle ermitteln
     letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
     letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
@@ -679,14 +679,16 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie):
     )
 
     naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
-
+    update_url = request.build_absolute_uri(reverse("posts:rechnung_detail", args=[aufgabe.id]))
     mail_betreff = f"Korrekturbuchung - {aufgabenkategorie.name}"
     mail_text = (
-        f"Sehr geehrte/r {nutzer.username},\n\n"
-        f"Ihre Buchung zur Aufgabe '{aufgabe.fragentyp_text}' enthält einen Fehler. "
-        "Bitte korrigieren Sie Ihre Eingaben über den folgenden Link:\n"
-        f"http://localhost:8000{reverse('posts:rechnung_detail', args=[aufgabe.id])}\n\n"
-        "Vielen Dank.\nIhr Buchhaltungsteam"
+        f"""
+        Sehr geehrte/r {nutzer.username},
+        <p>Ihre Buchung zur Aufgabe '{aufgabe.fragentyp_text}' enthält einen Fehler.</p>
+        
+        <p>Bitte korrigieren Sie Ihre Eingaben über den folgenden Link: </p>
+        <p><a href="{update_url}">Profil aktualisieren</a></p>
+        <p>Vielen Dank, <br>Ihr Buchhaltungsteam</p>"""
     )
 
     absender, _ = Absender.objects.get_or_create(

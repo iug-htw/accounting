@@ -17,8 +17,9 @@
             </div>
 
             <div class="mail-content">
-                <h2 class="content-title">Inhalt der Nachricht</h2>
+                {% autoescape off %}
                 <p>{{ mail.mailtext }}</p>
+                {% endautoescape %}
             </div>
 
             <div class="mail-footer">
