@@ -8,6 +8,10 @@
 {% block content %}
 <div class="container_rechnung">
     <h1 class="headline_rechnung">Rechnung Nr. {{ aufgabe.rechnungsnummer }} </h1>
+<br>
+    <button id="toggle-right-section" class="btn-toggle_rechnung">
+    📄 Buchungs-Navigation ausblenden
+</button>
    <!-- 
     {% if user.is_authenticated and nutzer_aufgabe %}
     <p><strong>Zufällig generierte Werte:</strong></p>
@@ -34,19 +38,23 @@
     </ul>
     {% endif %}
     -->
-    <div class="content-wrapper_rechnung">
-        <!-- Linker Bereich: Fiktive Rechnung (kann leer bleiben) -->
-        <div class="left-section_rechnung">
-            {% include rechnungs_template %}
-        </div>
+<div class="content-wrapper_rechnung">
 
-        <!-- Rechter Bereich: Eingabefelder -->
-        <div class="right-section_rechnung">
 
-            <h2>Buchungs-Navigation</h2>
-            <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">Buchungen anzeigen/verstecken 💡</button>
 
-            <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
+    <!-- Linker Bereich: Fiktive Rechnung -->
+    <div class="left-section_rechnung">
+        {% include rechnungs_template %}
+    </div>
+
+    <!-- Rechter Bereich: Eingabefelder -->
+    <div class="right-section_rechnung">
+       <!-- 🔘 Toggle-Button für rechte Seite -->
+        <h2>Buchungs-Navigation</h2>
+        <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">Buchungen anzeigen/verstecken 💡</button>
+
+        <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
+
     <h3>Frühere Versuche:</h3>
     {% if buchung_status %}
         <ul class="buchungen-liste">
@@ -224,19 +232,44 @@ document.addEventListener("DOMContentLoaded", function () {
         buchungenAnsicht.style.display = "block";
     }
 
-    // Event-Listener für den Toggle-Button
     document.getElementById("toggle-buchung-ansicht").addEventListener("click", function () {
         let istSichtbar = buchungenAnsicht.style.display === "block";
+        buchungenAnsicht.style.display = istSichtbar ? "none" : "block";
         localStorage.setItem("buchungenOffen", istSichtbar ? "false" : "true");
     });
 
-    // **Speichert den Zustand der Buchungsansicht vor dem Absenden**
+    // === 3. Rechte Seite ein-/ausblenden ===
+    const toggleRightBtn = document.getElementById("toggle-right-section");
+    const rightSection = document.querySelector(".right-section_rechnung");
+    const contentWrapper = document.querySelector(".content-wrapper_rechnung");
+
+    if (localStorage.getItem("rightSectionHidden") === "true") {
+        rightSection.classList.add("right-section-hidden");
+        contentWrapper.classList.add("hide-right");
+        toggleRightBtn.textContent = "📥 Buchungs-Navigation einblenden";
+    }
+
+    toggleRightBtn.addEventListener("click", () => {
+        rightSection.classList.toggle("right-section-hidden");
+        contentWrapper.classList.toggle("hide-right");
+
+        const isNowHidden = rightSection.classList.contains("right-section-hidden");
+        localStorage.setItem("rightSectionHidden", isNowHidden.toString());
+
+        toggleRightBtn.textContent = isNowHidden
+            ? "📥 Buchungs-Navigation einblenden"
+            : "📄 Buchungs-Navigation ausblenden";
+    });
+
+    // === 4. Scrollposition & Ansicht beim Submit speichern ===
     document.getElementById("absenden").addEventListener("submit", function () {
         localStorage.setItem("scrollPosition", window.scrollY);
         localStorage.setItem("buchungenOffen", buchungenAnsicht.style.display === "block" ? "true" : "false");
     });
+
+    // === 5. Scrollposition wiederherstellen ===
     if (localStorage.getItem("scrollPosition")) {
-        window.scrollTo(0, localStorage.getItem("scrollPosition"));
+        window.scrollTo(0, parseInt(localStorage.getItem("scrollPosition")));
     }
 });
 
