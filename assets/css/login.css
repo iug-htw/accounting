@@ -1,0 +1,112 @@
+/* === LOGIN === */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background: none; /* kein Hintergrund, neutral bleiben */
+}
+
+/* GLASSMORPHIC LOGIN BOX – BRAND COLORS */
+.login-box {
+    background: linear-gradient(135deg, rgba(12, 61, 27, 0.7), rgba(0, 0, 0, 0.7)); /* Tannengrün nach Schwarz */
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    padding: 2.5rem 3rem;
+    max-width: 400px;
+    width: 100%;
+    color: #d4fdd7; /* Helles, weiches Grün */
+    text-shadow: 0 0 2px rgba(87, 164, 36, 0.2); /* weicher Glow */
+}
+
+/* AVATAR */
+.login-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #57a424;
+    margin-bottom: 1rem;
+    object-fit: cover;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 0 12px rgba(87, 164, 36, 0.4);
+}
+
+/* HEADLINE */
+.login-box h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: bold;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+/* FEHLERMELDUNG */
+.login-error {
+    color: #ff7a7a;
+    background-color: rgba(255, 0, 0, 0.1);
+    padding: 0.8rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* FORMULARGRUPPE */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: #aee0c2;
+    font-size: 14px;
+}
+
+/* INPUTS MIT TECH/SECURE-STIL */
+.form-group input {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 15px;
+    color: #dff;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #57a424;
+    box-shadow: 0 0 8px rgba(87, 164, 36, 0.3);
+    outline: none;
+}
+
+/* SUBMIT-BUTTON MIT SECURENET FLARE */
+.form-submit {
+    background: linear-gradient(135deg, #57a424, #0C3D1B);
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    padding: 0.9rem;
+    width: 100%;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px #57a424, 0 0 20px #0C3D1B;
+}
