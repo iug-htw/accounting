@@ -8,7 +8,9 @@
 
 {% block content %}
 <h1>Bilanz</h1>
-<p>Hier kannst du deine Bestandskonten abschließen.</p>
+<p>Hier können alle Konten abgeschlossen werden, um die Bilanz aufzustellen. Wichtig ist, dass vorher das GuV-Konto abgeschlossen wird. 
+    <br>Aktuell wird die Bilanz nicht gespeichert, sie dient lediglich zur Kontrolle, ob die Buchungssätze und Zuweisungen der Konten richtig erfolgt sind.
+</p>
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
@@ -62,7 +64,7 @@
         <div class="konto">
             <h2>Bilanz</h2>
             <div class="bilanz-container">
-                <table class="bilanz-tabelle">
+                <table class="bilanz-tabelle t-konto">
                     <thead>
                         <tr>
                             <th colspan="2">Aktiva</th>

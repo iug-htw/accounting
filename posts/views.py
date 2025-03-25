@@ -728,7 +728,7 @@ def konten_verwalten(request):
 
 @admin_required
 def konto_bearbeiten(request, konto_id):
-    konto = get_object_or_404(Konto, id=konto_id).order_by("name")
+    konto = get_object_or_404(Konto, id=konto_id)
 
     if request.method == 'POST':
         form = KontoForm(request.POST, instance=konto)

@@ -181,3 +181,20 @@
 .hauptbuch table td {
     height: 20px; /* Alle Zeilen bekommen die gleiche Höhe */
 }
+
+
+table.t-konto thead tr:first-child th {
+    border-bottom: 2px solid black; /* Linie unter "Soll / Haben" */
+}
+
+table.t-konto td, 
+table.t-konto th {
+    padding: 8px;
+    text-align: left;
+}
+
+/* Vertikale Trennung in der Mitte */
+table.t-konto td:nth-child(2),
+table.t-konto th:nth-child(2) {
+    border-right: 2px solid black;
+}
