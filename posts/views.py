@@ -1,3 +1,6 @@
+import requests
+import threading
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
@@ -5,7 +8,7 @@ from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, Au
 from django.contrib import messages
 import json, random, hashlib
 from django.urls import reverse
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
@@ -271,6 +274,9 @@ def handle_nutzer_buchung(request, aufgabe):
     else:
         buchung.status = "bearbeitet"
         nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
+
+    if buchung.versuch == 1 and buchung.status != "korrekt":
+        threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
 
     buchung.save()
     nutzer_aufgabe.save()
@@ -1023,3 +1029,69 @@ def aufgabe_loeschen(request, aufgabe_id):
     aufgabe.delete()
     messages.success(request, f"Die Aufgabe '{aufgabe.fragentyp_text}' wurde gelöscht.")
     return redirect('posts:aufgaben_verwalten')
+
+OLLAMA_API_URL = 'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate' 
+
+@csrf_exempt
+def ollama_prompt_view(request):
+    if request.method == 'POST':
+        prompt = request.POST.get('prompt', '')
+        payload = {
+            "model": "llama3.3:latest", 
+            "prompt": prompt,
+            "stream": False
+        }
+
+        try:
+            response = requests.post(
+                OLLAMA_API_URL,
+                json=payload,
+            )
+            text = response.text
+            try:
+                result = json.loads(text)
+                return JsonResponse({'antwort': result.get('response', 'Keine Antwort erhalten')})
+            except json.JSONDecodeError:
+                return JsonResponse({'error': f'Ungültige JSON-Antwort: {text}'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return render(request, 'posts/ollama_prompt.html')
+
+def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
+
+    # Nutzerlösung alphabetisch
+    nutzer_soll = sorted(zip(json.loads(buchung.antwort_konten_soll), json.loads(buchung.antwort_betrag_soll)))
+    nutzer_haben = sorted(zip(json.loads(buchung.antwort_konten_haben), json.loads(buchung.antwort_betrag_haben)))
+
+    # Richtige Lösung alphabetisch
+    korrekt_soll = sorted(zip(nutzeraufgabe.soll_konten, nutzeraufgabe.soll_betraege))
+    korrekt_haben = sorted(zip(nutzeraufgabe.haben_konten, nutzeraufgabe.haben_betraege))
+
+    prompt = (
+        f"Erstelle mir ein 2 Sätze langes Feedback zu folgendem buchhalterischen Sachverhalt:\n{beschreibung}\n"
+        f"und folgender Nutzerlösung:\nSoll: {nutzer_soll}, Haben: {nutzer_haben}\n"
+        f"bezogen auf die richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}"
+    )
+
+    ollama_payload = {
+        "model": "llama3.3:latest",
+        "prompt": prompt,
+        "stream": False
+    }
+
+    try:
+        response = requests.post(
+            'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate',
+            json=ollama_payload,
+            verify=False  # falls nötig
+        )
+        antwort = response.json().get("response", "")
+        return antwort.strip()
+    except Exception as e:
+        return f"Fehler bei Feedback-Generierung: {e}"
+    
+def ollama_threading(buchung, nutzer_aufgabe, beschreibung):
+    feedback = generiere_feedback_von_ollama(buchung, nutzer_aufgabe, beschreibung)
+    buchung.feedback_ollama = feedback
+    buchung.save()

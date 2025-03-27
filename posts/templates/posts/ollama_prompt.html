@@ -1,0 +1,25 @@
+{% extends 'master_layout.html' %}
+{% block content %}
+<div class="container">
+    <h2>Ollama Prompt Test</h2>
+    <form method="post" id="promptForm">
+        {% csrf_token %}
+        <textarea name="prompt" rows="4" cols="60" placeholder="Prompt eingeben..."></textarea><br>
+        <button type="submit">Senden</button>
+    </form>
+    <div id="antwortBox" style="margin-top: 20px; white-space: pre-wrap;"></div>
+</div>
+
+<script>
+document.getElementById('promptForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const response = await fetch("", {
+        method: "POST",
+        body: formData
+    });
+    const data = await response.json();
+    document.getElementById("antwortBox").innerText = data.antwort || data.error;
+});
+</script>
+{% endblock %}

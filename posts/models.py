@@ -121,6 +121,7 @@ class Buchung(models.Model):
     korrekturbuchung = models.BooleanField(default=False)
     konto_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=0)  # 0=Richtig, 1=Soll falsch, 2=Haben falsch, 3=Beide falsch
     betrag_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=True)  # True=Richtig, False=Falsch
+    feedback_ollama = models.TextField(null=True, blank=True)
     def save(self, *args, **kwargs):
         if not self.versuch:
             # Wenn kein Versuch angegeben ist, den nächsten automatisch ermitteln
