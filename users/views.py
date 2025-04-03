@@ -327,6 +327,10 @@ def send_profile_update_mail(user, request):
     )
 
 def send_willkommen_mail(user):
+    if settings.DEBUG:
+        dokumentation_link = "http://localhost:8000/media/nutzerdokumentation.pdf"
+    else:
+        dokumentation_link = "https://securenet-klntama.pythonanywhere.com/media/nutzerdokumentation.pdf"
     Mail.objects.create(
         nutzer=user,
         aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
@@ -334,13 +338,17 @@ def send_willkommen_mail(user):
         mailtext=f"""
         Hallo,
 
-        willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen.
+        willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen. <br><br> \n
 
-        Im Posteingang findest du alle wichtigen Rechnungen und Aufgaben, die du bearbeiten musst. Dein Hauptbuch bietet dir eine transparente Übersicht über alle T-Konten, damit du jederzeit nachvollziehen kannst, welche Buchungen vorgenommen wurden. Die Rechnungsübersicht hilft dir, offene und bereits bearbeitete Rechnungen im Blick zu behalten.
+        Im Posteingang findest du alle wichtigen Rechnungen und Aufgaben, die du bearbeiten musst. Dein Hauptbuch bietet dir eine transparente Übersicht über alle T-Konten, damit du jederzeit nachvollziehen kannst, welche Buchungen vorgenommen wurden. Die Rechnungsübersicht hilft dir, offene und bereits bearbeitete Rechnungen im Blick zu behalten.<br><br>
 
-        Damit dein Unternehmen langfristig erfolgreich bleibt, solltest du regelmäßig die Bilanz prüfen. Sie zeigt dir, ob dein Unternehmen solide finanziert ist und wie sich Vermögenswerte und Verbindlichkeiten ausgleichen.
+        Damit dein Unternehmen langfristig erfolgreich bleibt, solltest du regelmäßig die Bilanz prüfen. Sie zeigt dir, ob dein Unternehmen solide finanziert ist und wie sich Vermögenswerte und Verbindlichkeiten ausgleichen.<br><br>
 
+        Für eine Einführung in dein Unternehmen, kannst du gerne hier die Nutzerdokumentation einsehen: <br>
+        <p><a href="{dokumentation_link}" target="_blank"> Nutzerdokumentation </a></p>
+        <br><br>
         Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung.
+
 
         Viel Erfolg bei SecureNet!
         Dein SecureNet-Team

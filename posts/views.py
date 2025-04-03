@@ -1,4 +1,5 @@
 
+import requests
 import threading
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect, get_object_or_404
@@ -275,8 +276,8 @@ def handle_nutzer_buchung(request, aufgabe):
         buchung.status = "bearbeitet"
         nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
-    #if buchung.versuch == 1 and buchung.status != "korrekt":
-    #    threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
+    if buchung.versuch == 3 and buchung.status != "korrekt":
+        threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
 
     buchung.save()
     nutzer_aufgabe.save()
@@ -1029,8 +1030,8 @@ def aufgabe_loeschen(request, aufgabe_id):
     aufgabe.delete()
     messages.success(request, f"Die Aufgabe '{aufgabe.fragentyp_text}' wurde gelöscht.")
     return redirect('posts:aufgaben_verwalten')
-"""
-+ Zeile 278
+
+#+ Zeile 278
 import requests
 OLLAMA_API_URL = 'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate' 
 
@@ -1097,4 +1098,4 @@ def ollama_threading(buchung, nutzer_aufgabe, beschreibung):
     feedback = generiere_feedback_von_ollama(buchung, nutzer_aufgabe, beschreibung)
     buchung.feedback_ollama = feedback
     buchung.save()
-"""    
+ 
