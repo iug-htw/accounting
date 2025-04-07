@@ -45,16 +45,17 @@
                             <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">Nutzer anlegen</a>
                             
                         {% endif %}
-                        {% if request.user.role == 'student' %}
-                            <div class="nav-dropdown">
-                                <a href="#" class="nav-element dropdown-toggle">Buchhaltung ▾</a>
-                                <div class="dropdown-content">
-                                    <a href="{% url 'posts:hauptbuch' %}">Hauptbuch</a>
-                                    <a href="{% url 'posts:guv_uebersicht' %}">GuV</a>
-                                    <a href="{% url 'posts:bilanz' %}">Bilanz</a>
-                                </div>
+                        
+                        <div class="nav-dropdown">
+                            <a href="#" class="nav-element dropdown-toggle">Buchhaltung ▾</a>
+                            <div class="dropdown-content">
+                                <a href="{% url 'posts:hauptbuch' %}">Hauptbuch</a>
+                                <a href="{% url 'posts:guv_uebersicht' %}">GuV</a>
+                                <a href="{% url 'posts:bilanz' %}">Bilanz</a>
+                                <a href="{% url 'posts:buchungssatz_uebersicht' %}">Buchungssätze</a>
                             </div>
-                        {% endif %}
+                        </div>
+                        
                         {% if request.user.is_superuser%}
                             <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
                         {% endif %}

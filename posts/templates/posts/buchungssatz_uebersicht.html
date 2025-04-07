@@ -1,0 +1,38 @@
+{% extends 'master_layout.html' %}
+{% load my_filters %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/rechnung.css' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+{% block content %}
+<h2>Buchungssatz-Übersicht</h2>
+
+{% for aufgabe, buchungsliste in aufgaben_buchungen.items %}
+    <h3>Aufgabe {{ aufgabe.id }}: {{ aufgabe.fragentyp_text }}</h3>
+    
+        {% for buchung in buchungsliste %}
+            
+                {{ buchung.buchung_nr }}){% if buchung.korrekturbuchung %} <i>Korrekturbuchung</i>{% endif %}
+                <table style="margin-left: 1em;">
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    {% for soll, haben in buchung.zeilen %}
+                        <tr>
+                            <td style="padding-right: 1em;">{{ soll.0 }}</td>
+                            <td style="text-align: right; min-width: 6em;">{{ soll.1 }}</td>
+                            <td>{% if forloop.first %}an{% endif %}</td>
+                            <td style="padding-right: 1em;">{{ haben.0 }}</td>
+                            <td style="text-align: right; min-width: 6em;">{{ haben.1 }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            
+        {% endfor %}
+    
+{% endfor %}
+    
+{% endblock %}

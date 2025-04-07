@@ -31,5 +31,7 @@ urlpatterns = [
     path('aufgaben/', views.aufgaben_verwalten, name='aufgaben_verwalten'),
     path('aufgabe/loeschen/<int:aufgabe_id>/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
     path('ollama_prompt/', views.ollama_prompt_view, name='ollama_prompt'),
+    path("buchungssatz-uebersicht/", views.buchungssatz_uebersicht, name="buchungssatz_uebersicht"),
+
 
 ]

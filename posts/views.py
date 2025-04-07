@@ -16,6 +16,9 @@ from django.contrib.auth import get_user_model
 from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
 import io
 from decimal import Decimal
+from collections import defaultdict
+from django.utils.html import format_html
+from django.db.models import F
 #passt
 
 # Für Lehrkräfte
@@ -179,6 +182,38 @@ def rechnung_detail_view(request, aufgabe_id):
     }
 
     return render(request, 'posts/rechnung.html', context)
+
+@login_required
+def buchungssatz_uebersicht(request):
+    nutzer = request.user
+    buchungen = Buchung.objects.filter(nutzer=nutzer).select_related('aufgabe').order_by('aufgabe__id', 'versuch')
+
+    from collections import defaultdict
+    aufgaben_buchungen = defaultdict(list)
+
+    for buchung in buchungen:
+        soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
+        soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
+        haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
+        haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
+
+        # Wir kombinieren Soll und Haben für tabellarische Darstellung
+        max_len = max(len(soll_konten), len(haben_konten))
+        zeilen = []
+        for i in range(max_len):
+            soll_text = (soll_konten[i], f"{soll_betraege[i]} €") if i < len(soll_konten) else ("", "")
+            haben_text = (haben_konten[i], f"{haben_betraege[i]} €") if i < len(haben_konten) else ("", "")
+            zeilen.append((soll_text, haben_text))
+
+        aufgaben_buchungen[buchung.aufgabe].append({
+            "buchung_nr": buchung.versuch,
+            "korrekturbuchung": buchung.korrekturbuchung,
+            "zeilen": zeilen
+        })
+
+    return render(request, "posts/buchungssatz_uebersicht.html", {
+        "aufgaben_buchungen": dict(aufgaben_buchungen)
+    })
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     # JSON-Daten der Buchung laden
@@ -782,12 +817,22 @@ def lehrer_fortschritt(request):
     if not studenten.exists():
         return JsonResponse({'gesamt_aufgaben': 0, 'bearbeitet': 0, 'korrekt': 0})
     nutzer_aufgaben = get_nutzer_aufgaben(studenten, request.GET.get('aufgabe'))
+    buchungen = Buchung.objects.filter(nutzer__in=studenten)
     gesamt_aufgaben = nutzer_aufgaben.count()
     bearbeitet, korrekt = get_bearbeitungsstand(nutzer_aufgaben)
+    anzahl_fehlerhafte_buchungen = buchungen.filter(
+        Q(konto_korrekt__gt=0) | Q(betrag_korrekt__gt=0),
+        korrekturbuchung=False
+    ).count()
+    print(f"Anzahl Studis: {buchungen.values('nutzer').distinct()}")
+    anzahl_studierende = buchungen.values('nutzer').distinct().count()
+
     return JsonResponse({
         'gesamt_aufgaben': gesamt_aufgaben,
         'bearbeitet': bearbeitet,
-        'korrekt': korrekt
+        'korrekt': korrekt,
+        'anzahl_fehlerhafte_buchungen': anzahl_fehlerhafte_buchungen,
+        'anzahl_studierende': anzahl_studierende
     })
 
 def get_studenten(request):
@@ -817,12 +862,25 @@ def get_bearbeitungsstand(nutzer_aufgaben):
 
 @lehrkraft_required
 def lehrer_filter_daten(request):
-    # Lade alle Studierenden des Lehrers
-    studenten = User.objects.filter(role='student', professor=request.user).values('id', 'first_name', 'last_name', 'username')
+    semester_id = request.GET.get('semester')
+    studiengang_id = request.GET.get('studiengang')
+
+    # Nur Studierende des aktuellen Lehrers
+    studenten = User.objects.filter(role='student', professor=request.user)
+
+    # Filter anwenden, wenn vorhanden
+    if semester_id:
+        studenten = studenten.filter(semester_id=semester_id)
+    if studiengang_id:
+        studenten = studenten.filter(studiengang_id=studiengang_id)
+
+    # Studierendenliste bauen
     studierende_liste = [
-        {"id": s["id"], "name": f"{s['first_name']} {s['last_name']}".strip() or s["username"]}
+        {"id": s.id, "name": f"{s.first_name} {s.last_name}".strip() or s.username}
         for s in studenten
     ]
+
+    # Werte für Dropdowns
     semesters = list(User.objects.filter(role='student').values('semester_id', 'semester__name').distinct())
     studiengaenge = list(User.objects.filter(role='student').values('studiengang_id', 'studiengang__name').distinct())
     aufgaben = list(Aufgabe_neu.objects.values('id', 'fragentyp_text'))
@@ -831,7 +889,7 @@ def lehrer_filter_daten(request):
         'semesters': semesters,
         'studiengaenge': studiengaenge,
         'aufgaben': aufgaben,
-        'studierende': studierende_liste  # Studierendenliste hinzufügen
+        'studierende': studierende_liste
     })
 
 @lehrkraft_required
