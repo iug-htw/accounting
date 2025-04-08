@@ -311,7 +311,7 @@ def handle_nutzer_buchung(request, aufgabe):
         buchung.status = "bearbeitet"
         nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
-    if buchung.versuch == 3 and buchung.status != "korrekt":
+    if (buchung.versuch == 1 or buchung.versuch == 3) and buchung.status != "korrekt":
         threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
 
     buchung.save()
@@ -751,12 +751,17 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie, request):
         status='nicht bearbeitet'
     )
 
-@admin_required
+@lehrkraft_required
 def konten_verwalten(request):
     if request.method == 'POST':
         form = KontoForm(request.POST)
         if form.is_valid():
-            form.save()
+            konto = form.save(commit=False)
+            if request.user.is_superuser:
+                konto.erstellt_von = 0  
+            else:
+                konto.erstellt_von = request.user 
+            konto.save()
             messages.success(request, "Konto erfolgreich hinzugefügt.")
             return redirect('posts:konten_verwalten')
         else:
@@ -765,7 +770,6 @@ def konten_verwalten(request):
         form = KontoForm()
 
     konten = Konto.objects.all().order_by('kategorie', 'unterkategorie')
-
     return render(request, 'posts/konten_verwalten.html', {'form': form, 'konten': konten})
 
 @admin_required
@@ -1090,7 +1094,6 @@ def aufgabe_loeschen(request, aufgabe_id):
     return redirect('posts:aufgaben_verwalten')
 
 #+ Zeile 278
-import requests
 OLLAMA_API_URL = 'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate' 
 
 @csrf_exempt
@@ -1134,7 +1137,6 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
         f"und folgender Nutzerlösung:\nSoll: {nutzer_soll}, Haben: {nutzer_haben}\n"
         f"bezogen auf die richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}"
     )
-
     ollama_payload = {
         "model": "llama3.3:latest",
         "prompt": prompt,
@@ -1145,7 +1147,7 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
         response = requests.post(
             'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate',
             json=ollama_payload,
-            verify=False  # falls nötig
+            
         )
         antwort = response.json().get("response", "")
         return antwort.strip()

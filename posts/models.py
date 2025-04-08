@@ -194,6 +194,10 @@ class Konto(models.Model):
     kategorie = models.CharField(max_length=20, choices=KATEGORIE_CHOICES, blank=True, null=True)
     unterkategorie = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
     eins = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
+    erstellt_von = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, help_text="Nutzer, der das Konto erstellt hat"
+    )
 
     def __str__(self):
         return f"{self.name} ({self.kategorie} - {self.unterkategorie})"
