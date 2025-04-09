@@ -27,9 +27,8 @@
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ konto }}">
-        <h2>{{ konto }}</h2>
-
+    <div class="konto" data-kontoname="{{ daten.name }}">
+        <h2>{{ daten.name }}</h2>
         <table class="hauptbuch-tabelle">
             <!-- Die Überschrift (Soll/Haben) wird jetzt Teil der Haupttabelle -->
             <thead>
@@ -83,7 +82,7 @@
             let hasVisibleRow = false;
             
             rows.forEach(row => {
-                let kontoMatch = (selectedKonto === "" || row.dataset.konto === selectedKonto);
+                let kontoMatch = (selectedKonto === "" || div.dataset.kontoname === selectedKonto);
                 let aufgabeMatch = (selectedAufgabe === "" || row.dataset.aufgabe === selectedAufgabe);
                 
                 if (kontoMatch && aufgabeMatch) {

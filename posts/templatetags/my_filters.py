@@ -39,3 +39,10 @@ def mul(value, arg):
         return Decimal(value) * Decimal(arg)
     except (ValueError, TypeError):
         return value  # Falls es nicht klappt, gib den Originalwert zurück
+    
+@register.filter
+def get_konto(dictionary, key):
+    try:
+        return dictionary.get(int(key), str(key))
+    except (ValueError, TypeError, AttributeError):
+        return str(key)

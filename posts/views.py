@@ -21,6 +21,11 @@ from django.utils.html import format_html
 from django.db.models import F
 #passt
 
+
+def safe_parse(val):
+    if isinstance(val, str):
+        return json.loads(val or "[]")
+    return val or []
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
@@ -148,7 +153,11 @@ def rechnung_detail_view(request, aufgabe_id):
         buchung_status.append({
             'buchung': buchung,
             'korrekt': is_buchung_korrekt(buchung, nutzer_aufgabe),
-            'is_letzte_falsche': buchung == letzte_buchung and block_buchung
+            'is_letzte_falsche': buchung == letzte_buchung and block_buchung,
+            'soll_konten_liste': safe_parse(buchung.antwort_konten_soll),
+            'haben_konten_liste': safe_parse(buchung.antwort_konten_haben),
+            'soll_betraege_liste': safe_parse(buchung.antwort_betrag_soll),
+            'haben_betraege_liste': safe_parse(buchung.antwort_betrag_haben),
         })
 
     # Template für den Rechnungstyp auswählen
@@ -159,7 +168,7 @@ def rechnung_detail_view(request, aufgabe_id):
     }
 
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
-
+    id_to_name = {konto.id: konto.name for konto in Konto.objects.all()}
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
@@ -180,7 +189,8 @@ def rechnung_detail_view(request, aufgabe_id):
         'buchung_status': buchung_status,
         'konten': konten,
         'block_buchung': block_buchung,
-        'absender': nutzer_aufgabe.absender
+        'absender': nutzer_aufgabe.absender,
+        'konten_namen': id_to_name
     }
 
     return render(request, 'posts/rechnung.html', context)
@@ -192,7 +202,7 @@ def buchungssatz_uebersicht(request):
 
     from collections import defaultdict
     aufgaben_buchungen = defaultdict(list)
-
+    id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
     for buchung in buchungen:
         soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
         soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
@@ -203,8 +213,8 @@ def buchungssatz_uebersicht(request):
         max_len = max(len(soll_konten), len(haben_konten))
         zeilen = []
         for i in range(max_len):
-            soll_text = (soll_konten[i], f"{soll_betraege[i]} €") if i < len(soll_konten) else ("", "")
-            haben_text = (haben_konten[i], f"{haben_betraege[i]} €") if i < len(haben_konten) else ("", "")
+            soll_text = (id_to_name.get(soll_konten[i], soll_konten[i]), f"{soll_betraege[i]} €") if i < len(soll_konten) else ("", "")
+            haben_text = (id_to_name.get(haben_konten[i], haben_konten[i]), f"{haben_betraege[i]} €") if i < len(haben_konten) else ("", "")
             zeilen.append((soll_text, haben_text))
 
         aufgaben_buchungen[buchung.aufgabe].append({
@@ -219,10 +229,10 @@ def buchungssatz_uebersicht(request):
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     # JSON-Daten der Buchung laden
-    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
-    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
-    soll_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_soll)]
-    haben_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_haben)]
+    soll_konten_nutzer = safe_parse(buchung.antwort_konten_soll)
+    haben_konten_nutzer = safe_parse(buchung.antwort_konten_haben)
+    soll_betraege_nutzer = [round(float(b), 2) for b in safe_parse(buchung.antwort_betrag_soll)]
+    haben_betraege_nutzer = [round(float(b), 2) for b in safe_parse(buchung.antwort_betrag_haben)]
 
     # Erwartete Werte aus der Nutzeraufgabe
     soll_konten_aufgabe = nutzer_aufgabe.soll_konten
@@ -333,7 +343,7 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
         summe_soll = sum(soll_betraege)
         summe_haben = sum(haben_betraege)
         differenz = summe_soll - summe_haben
-        
+
         # Anpassung bei Differenz
         if differenz != 0:
             soll_betraege, haben_betraege = differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz)
@@ -347,12 +357,10 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
             # Erneute Überprüfung nach der Anpassung
             summe_soll = round(sum(soll_betraege),2)
             summe_haben = round(sum(haben_betraege),2)
-
             # Überprüfung der angepassten Werte mit Referenzwerten
             for i, betrag in enumerate(soll_betraege + haben_betraege):
                 referenzwert = referenz_betraege[i % len(referenz_betraege)]
                 if not (referenzwert * 0.5 <= betrag <= referenzwert * 1.75):
-                    print(f"Angepasster Betrag {betrag} außerhalb des zulässigen Bereichs ({referenzwert * 0.5} - {referenzwert * 1.75})")
                     return generiere_zufaellige_werte(aufgabe, tiefe + 1)
 
        # print(f"Erfolgreich generiert nach {tiefe} Versuchen")
@@ -410,12 +418,7 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
     faktor_soll_konten = soll_konten_queryset.filter(formel_typ="faktor")
     normale_haben_konten = haben_konten_queryset.exclude(formel_typ="faktor")
     faktor_haben_konten = haben_konten_queryset.filter(formel_typ="faktor")
-    
-    #print(f"Normale Soll-Konten: {list(normale_soll_konten)}")
-    #print(f"Normale Haben-Konten: {list(normale_haben_konten)}")
-    #print(f"Faktor Soll-Konten: {list(faktor_soll_konten)}")
-    #print(f"Faktor Haben-Konten: {list(faktor_haben_konten)}")
-    
+
     # Zuerst die normalen Konten berechnen
     for konto in normale_soll_konten.union(normale_haben_konten):
         referenz_betrag = konto.betrag
@@ -423,7 +426,6 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
         max_betrag = referenz_betrag * 1.75
         zufallswert = random.randint(int(min_betrag), int(max_betrag))
         konto_id = konto.konto.id
-        
         if konto in normale_haben_konten:
             haben_konten.append(konto_id)
             haben_betraege.append(round(zufallswert,0))
@@ -432,7 +434,8 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
             soll_konten.append(konto_id)
             soll_betraege.append(round(zufallswert,0))
             referenz_betraege_soll.append(zufallswert)
-        berechnete_werte[konto_id] = zufallswert
+        konto_id = konto.konto.id
+        berechnete_werte[int(konto.konto_id)] = zufallswert
         #print(f"📌 Konto {konto.kontoname} erhält {zufallswert} (Referenzbetrag: {referenz_betrag})")
     
     # Faktor-Konten basierend auf berechneten Werten der Referenzkonten berechnen
@@ -442,18 +445,16 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
             faktor_wert = round(berechnete_werte.get(bezug.id, 1000) * konto.faktor, 2)
         else:
             faktor_wert = round(random.randint(100, 1000) * konto.faktor, 2)
-        berechnete_werte[konto.konto.id] = faktor_wert
+        berechnete_werte[konto.id] = faktor_wert
+        konto_id = konto.konto.id
         if konto in faktor_haben_konten:
-            haben_konten.append(konto.konto.id)
+            haben_konten.append(konto_id)
             haben_betraege.append(faktor_wert)
             referenz_betraege_haben.append(faktor_wert)
         else:
-            soll_konten.append(konto.konto.id)
+            soll_konten.append(konto_id)
             soll_betraege.append(faktor_wert)
             referenz_betraege_soll.append(faktor_wert)
-
-        #print(f"🔗 Faktor-Konto {konto.kontoname} basiert auf {konto.bezugs_konto}, Wert: {faktor_wert}")
-    
     #print("✅ Berechnung abgeschlossen!")
     return soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben
 
@@ -463,8 +464,8 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
         aufgabe=aufgabe,
         nutzer=nutzer,
         defaults={
-            'soll_konten': zufaellige_werte['soll_konten'],
-            'haben_konten': zufaellige_werte['haben_konten'],
+            'soll_konten': [str(k) for k in zufaellige_werte['soll_konten']],
+            'haben_konten': [str(k) for k in zufaellige_werte['haben_konten']],
             'soll_betraege': zufaellige_werte['soll_betraege'],
             'haben_betraege': zufaellige_werte['haben_betraege'],
             'bearbeitungsstand': 'offen',
@@ -590,7 +591,14 @@ def hauptbuch_view(request):
     buchungen = Buchung.objects.filter(nutzer=user)
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
     t_konten = build_t_konten(buchungen, anfangsbestaende)
-    return render(request, "posts/hauptbuch.html", {"t_konten": t_konten})
+    konten = Konto.objects.all().order_by('name')
+    aufgaben_ids = sorted({f"{buchung.aufgabe.id} {buchung.versuch})" for buchung in buchungen})
+
+    return render(request, "posts/hauptbuch.html", {
+        "t_konten": t_konten,
+        "konten": konten,
+        "aufgaben_ids": aufgaben_ids
+    })
 
 def generate_color(aufgabe_id):
     hash_value = int(hashlib.md5(str(aufgabe_id).encode()).hexdigest(), 16)
@@ -600,10 +608,10 @@ def generate_color(aufgabe_id):
 def build_t_konten(buchungen, anfangsbestände):
     t_konten = {}
     aufgabe_farben = {}
-    id_to_name = {konto.id: konto.name for konto in Konto.objects.all()}
+    id_to_name = {str(konto.id): konto.name for konto in Konto.objects.all()}
     # Anfangsbestände in die T-Konten-Struktur aufnehmen
     for bestand in anfangsbestände:
-        konto_id = bestand.konto.id
+        konto_id = str(bestand.konto.id)
         t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
 
         if bestand.konto.unterkategorie == "Aktiva":  # EBK für Aktivkonten auf Soll-Seite
@@ -620,19 +628,18 @@ def build_t_konten(buchungen, anfangsbestände):
 
         farbe = aufgabe_farben[buchung.aufgabe.id]
 
-        soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
-        haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
-        soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
-        haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
+        soll_konten = safe_parse(buchung.antwort_konten_soll or "[]")
+        haben_konten = safe_parse(buchung.antwort_konten_haben or "[]")
+        soll_betraege = safe_parse(buchung.antwort_betrag_soll or "[]")
+        haben_betraege = safe_parse(buchung.antwort_betrag_haben or "[]")
 
-        for konto, betrag in zip(soll_konten, soll_betraege):
+        for konto_id, betrag in zip(soll_konten, soll_betraege):
             t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
             t_konten[konto_id]["soll"].append((aufgabe_id_mit_versuch, betrag, farbe))
 
-        for konto, betrag in zip(haben_konten, haben_betraege):
+        for konto_id, betrag in zip(haben_konten, haben_betraege):
             t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
             t_konten[konto_id]["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
-
     return t_konten
 
 @admin_required
@@ -655,6 +662,11 @@ def aufgabe_bearbeiten(request, aufgabe_id):
     detail_forms = [AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail) for detail in details]
     return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
 
+def name_oder_id_liste_zu_id_liste(eingabe_liste):
+    """Konvertiert ggf. Kontonamen in IDs"""
+    mapping = {k.name: k.id for k in Konto.objects.all()}
+    return [mapping.get(x, x) for x in eingabe_liste]
+
 @login_required
 def korrekturbuchung_durchfuehren(request, buchung_id):
     buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
@@ -665,11 +677,19 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
     letzte_buchung = Buchung.objects.filter(aufgabe=buchung.aufgabe, nutzer=request.user).order_by('-versuch').first()
     naechster_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
 
+    # Eingabewerte laden
+    soll_liste = json.loads(buchung.antwort_konten_haben or "[]")
+    haben_liste = json.loads(buchung.antwort_konten_soll or "[]")
+
+    # Prüfen ob ID oder Name enthalten ist, und ggf. umwandeln
+    soll_ids = [str(k) for k in name_oder_id_liste_zu_id_liste(soll_liste)]
+    haben_ids = [str(k) for k in name_oder_id_liste_zu_id_liste(haben_liste)]
+
     neue_buchung = Buchung.objects.create(
         aufgabe=buchung.aufgabe,
         nutzer=request.user,
-        antwort_konten_soll=buchung.antwort_konten_haben,
-        antwort_konten_haben=buchung.antwort_konten_soll,
+        antwort_konten_soll=json.dumps(soll_ids),
+        antwort_konten_haben=json.dumps(haben_ids),
         antwort_betrag_soll=buchung.antwort_betrag_haben,
         antwort_betrag_haben=buchung.antwort_betrag_soll,
         status='bearbeitet',
@@ -949,10 +969,11 @@ def guv_uebersicht(request):
     # Baue T-Konten-Struktur
     t_konten = build_t_konten(buchungen, anfangsbestaende)
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
-    if "GuV" in t_konten:
-        del t_konten["GuV"]
+    guv_id = str(guv_konto.id)
+    if guv_id in t_konten:
+        del t_konten[guv_id]
     # Verknüpfe Konten mit Kategorien
-    konto_kategorien = {konto.name: konto.kategorie for konto in konten}
+    konto_kategorien = {str(konto.id): konto.kategorie for konto in konten}
     return render(request, "posts/guv.html", {
         "t_konten": t_konten,
         "konten": konten,
@@ -1030,7 +1051,7 @@ def bilanz_uebersicht(request):
 
     # T-Konten nur für Bestandskonten erstellen
     t_konten_all = build_t_konten(buchungen, anfangsbestaende)
-    konto_kategorien = {konto.name: konto.unterkategorie for konto in bestandskonten}
+    konto_kategorien = {str(konto.id): konto.unterkategorie for konto in bestandskonten}
     t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
 
     # Filteroptionen für Aktiv- und Passivkonten

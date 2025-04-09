@@ -14,8 +14,8 @@
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ konto }}" data-kategorie="{{ bestandskonten|get_item:konto }}">
-        <h2>{{ konto }}</h2>
+    <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ bestandskonten|get_item:konto }}">
+        <h2>{{ daten.name }}</h2>
         <label>Kategorie:</label>
         <select class="konto-kategorie">
             <option value="" selected disabled>Bitte wählen...</option>
