@@ -55,7 +55,7 @@ class AufgabeBearbeitenForm(forms.ModelForm):
 class AufgabeDetailBearbeitenForm(forms.ModelForm):
     class Meta:
         model = AufgabeDetail
-        fields = ['kontoname', 'soll_haben', 'betrag', 'monatsangabe', 'monat']
+        fields = ['konto', 'soll_haben', 'betrag', 'monatsangabe', 'monat']
 
 class KontoForm(forms.ModelForm):
     class Meta:

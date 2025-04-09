@@ -76,7 +76,7 @@ def aufgabe_neu_erstellen(request):
 
 def speichere_aufgabe_details(request, aufgabe):
     """Speichert die Details der erstellten Aufgabe und verarbeitet Abhängigkeiten korrekt"""
-    kontonamen = request.POST.getlist('kontoname[]')
+    konto_ids = request.POST.getlist('konto_id[]')
     soll_haben = request.POST.getlist('soll_haben[]')
     betraege = request.POST.getlist('betrag[]')
     monatsangaben = request.POST.getlist('monatsangabe[]')
@@ -91,10 +91,11 @@ def speichere_aufgabe_details(request, aufgabe):
     aufgabe_details = []  # Zwischenspeicher für bulk_create()
 
     # **Erster Schritt: Speichere alle Details ohne Bezugskonto**
-    for i in range(len(kontonamen)):
+    for i in range(len(konto_ids)):
+        konto = Konto.objects.get(id=konto_ids[i])
         aufgabe_detail = AufgabeDetail.objects.create(
             aufgabe=aufgabe,
-            kontoname=kontonamen[i],
+            konto=konto,
             soll_haben=soll_haben[i],
             betrag=float(betraege[i]) if betraege[i] else None,
             monatsangabe=(monatsangaben[i].lower() == 'true'),
@@ -104,10 +105,11 @@ def speichere_aufgabe_details(request, aufgabe):
             faktor=float(faktoren[i]) if faktoren[i] else None
         )
         aufgabe_details.append(aufgabe_detail)
-
+    
+    bezugs_konto_ids = request.POST.getlist('bezugs_konto_id[]')
     for i, aufgabe_detail in enumerate(AufgabeDetail.objects.filter(aufgabe=aufgabe)):
-        if i < len(bezugs_konto_namen) and bezugs_konto_namen[i]:  
-            aufgabe_detail.bezugs_konto = bezugs_konto_namen[i]  # ✅ Speichert den Kontonamen direkt
+        if i < len(bezugs_konto_ids) and bezugs_konto_ids[i]:
+            aufgabe_detail.bezugs_konto = Konto.objects.get(id=bezugs_konto_ids[i])
             aufgabe_detail.save()
 
 @login_required
@@ -362,14 +364,15 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
         }
 
 def differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz):
-    nicht_referenzierte_soll_konten = [
-        konto for konto in soll_konten 
-        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
-    ]
-    nicht_referenzierte_haben_konten = [
-        konto for konto in haben_konten 
-        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
-    ]
+    referenzierte_ids = set(
+        AufgabeDetail.objects.filter(aufgabe=aufgabe)
+        .exclude(bezugs_konto=None)
+        .values_list("bezugs_konto_id", flat=True)
+    )
+
+    # Nicht-referenzierte Soll-/Haben-Konten
+    nicht_referenzierte_soll_konten = [konto_id for konto_id in soll_konten if konto_id not in referenzierte_ids]
+    nicht_referenzierte_haben_konten = [konto_id for konto_id in haben_konten if konto_id not in referenzierte_ids]
 
     # Höchste Beträge und deren Indizes
     max_soll_index = soll_betraege.index(max(soll_betraege))
@@ -419,34 +422,36 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
         min_betrag = referenz_betrag * 0.25
         max_betrag = referenz_betrag * 1.75
         zufallswert = random.randint(int(min_betrag), int(max_betrag))
+        konto_id = konto.konto.id
+        
         if konto in normale_haben_konten:
-            haben_konten.append(konto.kontoname)
+            haben_konten.append(konto_id)
             haben_betraege.append(round(zufallswert,0))
             referenz_betraege_haben.append(zufallswert)
         else:
-            soll_konten.append(konto.kontoname)
+            soll_konten.append(konto_id)
             soll_betraege.append(round(zufallswert,0))
             referenz_betraege_soll.append(zufallswert)
-        berechnete_werte[konto.kontoname] = zufallswert  # Speichert den berechneten Wert
+        berechnete_werte[konto_id] = zufallswert
         #print(f"📌 Konto {konto.kontoname} erhält {zufallswert} (Referenzbetrag: {referenz_betrag})")
     
     # Faktor-Konten basierend auf berechneten Werten der Referenzkonten berechnen
     for konto in faktor_soll_konten.union(faktor_haben_konten):
-        if konto.bezugs_konto in berechnete_werte:
-            faktor_wert = round(berechnete_werte[konto.bezugs_konto] * konto.faktor, 2)
+        bezug = konto.bezugs_konto
+        if bezug:
+            faktor_wert = round(berechnete_werte.get(bezug.id, 1000) * konto.faktor, 2)
         else:
-            # Falls das Bezugskonto nicht vorhanden ist, Standardwert setzen
             faktor_wert = round(random.randint(100, 1000) * konto.faktor, 2)
+        berechnete_werte[konto.konto.id] = faktor_wert
         if konto in faktor_haben_konten:
-            haben_konten.append(konto.kontoname)
+            haben_konten.append(konto.konto.id)
             haben_betraege.append(faktor_wert)
             referenz_betraege_haben.append(faktor_wert)
         else:
-            soll_konten.append(konto.kontoname)
+            soll_konten.append(konto.konto.id)
             soll_betraege.append(faktor_wert)
             referenz_betraege_soll.append(faktor_wert)
 
-        berechnete_werte[konto.kontoname] = faktor_wert  # Speichert den berechneten Wert für zukünftige Berechnungen
         #print(f"🔗 Faktor-Konto {konto.kontoname} basiert auf {konto.bezugs_konto}, Wert: {faktor_wert}")
     
     #print("✅ Berechnung abgeschlossen!")
@@ -507,10 +512,13 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     )
 
 def get_fallback_konten(aufgabe):
-    soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
-    haben_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").order_by('?').first()
-    return (soll_konto.kontoname if soll_konto else "Soll-Konto-Standard",
-            haben_konto.kontoname if haben_konto else "Haben-Konto-Standard")
+    soll_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
+    haben_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").order_by('?').first()
+
+    return (
+        soll_detail.konto.id if soll_detail and soll_detail.konto else None,
+        haben_detail.konto.id if haben_detail and haben_detail.konto else None
+    )
 
 @admin_required
 def unternehmen_verwalten(request):
@@ -592,16 +600,16 @@ def generate_color(aufgabe_id):
 def build_t_konten(buchungen, anfangsbestände):
     t_konten = {}
     aufgabe_farben = {}
-
+    id_to_name = {konto.id: konto.name for konto in Konto.objects.all()}
     # Anfangsbestände in die T-Konten-Struktur aufnehmen
     for bestand in anfangsbestände:
-        konto_name = bestand.konto.name
-        t_konten.setdefault(konto_name, {"soll": [], "haben": []})
+        konto_id = bestand.konto.id
+        t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
 
         if bestand.konto.unterkategorie == "Aktiva":  # EBK für Aktivkonten auf Soll-Seite
-            t_konten[konto_name]["soll"].append(("EBK", bestand.betrag, "#D3D3D3"))
+            t_konten[konto_id]["soll"].append(("EBK", bestand.betrag, "#D3D3D3"))
         elif bestand.konto.unterkategorie == "Passiva":  # EBK für Passivkonten auf Haben-Seite
-            t_konten[konto_name]["haben"].append(("EBK", bestand.betrag, "#D3D3D3"))
+            t_konten[konto_id]["haben"].append(("EBK", bestand.betrag, "#D3D3D3"))
 
     # Bestehende Buchungen hinzufügen (Originalfunktion bleibt erhalten)
     for buchung in buchungen:
@@ -618,10 +626,12 @@ def build_t_konten(buchungen, anfangsbestände):
         haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
 
         for konto, betrag in zip(soll_konten, soll_betraege):
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((aufgabe_id_mit_versuch, betrag, farbe))
+            t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
+            t_konten[konto_id]["soll"].append((aufgabe_id_mit_versuch, betrag, farbe))
 
         for konto, betrag in zip(haben_konten, haben_betraege):
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
+            t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
+            t_konten[konto_id]["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
 
     return t_konten
 
@@ -758,7 +768,7 @@ def konten_verwalten(request):
         if form.is_valid():
             konto = form.save(commit=False)
             if request.user.is_superuser:
-                konto.erstellt_von = 0  
+                konto.erstellt_von = None  
             else:
                 konto.erstellt_von = request.user 
             konto.save()

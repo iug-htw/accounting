@@ -15,9 +15,9 @@
             <div class="field-group">
                 <!-- Konto Auswahl -->
                 <label>Konto:</label>
-                <select name="kontoname[]" required>
+                <select name="konto_id[]" required>
                     {% for konto in konten %}
-                    <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    <option value="{{ konto.id }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
 
@@ -47,10 +47,10 @@
 
                 <!-- Bezugs-Konto Auswahl (für Faktor-Berechnung) -->
                 <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
-                <select name="bezugs_konto[]" class="bezugs-konto" style="display: none;">
+                <select name="bezugs_konto_id[]" class="bezugs-konto" style="display: none;">
                     <option value="">Kein Bezugs-Konto</option>
                     {% for konto in konten %}
-                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                        <option value="{{ konto.id }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
 
@@ -58,7 +58,7 @@
                 <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
                 <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
                     {% for konto in konten %}
-                    <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    <option value="{{ konto.id }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
 
@@ -87,13 +87,17 @@
 
             let kontenOptions = `
                 {% for konto in konten %}
-                    <option value="{{ konto.name }}">{{ konto.name }}</option>
+                    <option value="{{ konto.id }}">{{ konto.name }}</option>
                 {% endfor %}
             `;
 
             newFieldGroup.innerHTML = `
                 <label>Konto:</label>
-                <select name="kontoname[]" required>${kontenOptions}</select>
+                <select name="konto_id[]" required>
+                {% for konto in konten %}
+                    <option value="{{ konto.id }}">{{ konto.name }}</option>
+                {% endfor %}
+                </select>
 
                 <label>Soll/Haben:</label>
                 <select name="soll_haben[]" required>
