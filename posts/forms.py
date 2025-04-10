@@ -1,5 +1,5 @@
 from django import forms
-from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail, Konto
+from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail, Konto, Kontenplan
 import json
 
 class Aufgabe_neu_Form(forms.ModelForm):
@@ -60,20 +60,17 @@ class AufgabeDetailBearbeitenForm(forms.ModelForm):
 class KontoForm(forms.ModelForm):
     class Meta:
         model = Konto
-        fields = ['name', 'kategorie', 'unterkategorie']  # NEUE FELDER HINZUGEFÜGT
+        fields = ['name', 'kategorie', 'unterkategorie', 'kontenplan']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Abhängig von der Hauptkategorie (Bestandskonto/Erfolgskonto) sollen nur passende Unterkategorien angezeigt werden
-        self.fields['unterkategorie'].queryset = Konto.objects.none()
+        self.fields['kontenplan'].queryset = Kontenplan.objects.all()
+        self.fields['kontenplan'].label = "Kontenplan"
 
         if 'kategorie' in self.data:
-            try:
-                kategorie = self.data.get('kategorie')
-                if kategorie == "Bestandskonto":
-                    self.fields['unterkategorie'].choices = [('Aktiva', 'Aktiva'), ('Passiva', 'Passiva')]
-                elif kategorie == "Erfolgskonto":
-                    self.fields['unterkategorie'].choices = [('Aufwand', 'Aufwand'), ('Ertrag', 'Ertrag')]
-            except (ValueError, TypeError):
-                pass  # Falls falsche Werte eingegeben wurden, bleibt die Auswahl leer
+            kategorie = self.data.get('kategorie')
+            if kategorie == "Bestandskonto":
+                self.fields['unterkategorie'].choices = [('Aktiva', 'Aktiva'), ('Passiva', 'Passiva')]
+            elif kategorie == "Erfolgskonto":
+                self.fields['unterkategorie'].choices = [('Aufwand', 'Aufwand'), ('Ertrag', 'Ertrag')]

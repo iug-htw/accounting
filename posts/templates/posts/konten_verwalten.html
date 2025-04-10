@@ -14,8 +14,13 @@
 
     <label for="id_unterkategorie">Unterkategorie:</label>
     {{ form.unterkategorie }}
-
+    <label for="id_kontenplan">Kontenplan:</label>
+    {{ form.kontenplan }}
     <button type="submit">Konto hinzufügen</button>
+</form>
+<form method="post">
+    {% csrf_token %}
+    <button name="neuer_kontenplan" type="submit">Neuen Kontenplan erstellen</button>
 </form>
 
 <!-- Anzeige aller vorhandenen Konten mit Bearbeitungsoption -->
@@ -27,19 +32,24 @@
         <th>Unterkategorie</th>
         <th>Aktionen</th>
     </tr>
-    {% for konto in konten %}
-    <tr>
-        <td>{{ konto.name }}</td>
-        <td>{{ konto.kategorie }}</td>
-        <td>{{ konto.unterkategorie }}</td>
-        <td>
-            <a href="{% url 'posts:konto_bearbeiten' konto.id %}">Bearbeiten</a>
-            <form action="{% url 'posts:konto_loeschen' konto.id %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" onclick="return confirm('Möchtest du dieses Konto wirklich löschen?');">Löschen</button>
-            </form>
-        </td>
-    </tr>
+    {% for plan_nr, konten in konten_nach_plan.items %}
+        <tr>
+            <th colspan="4" style="background:#e0e0e0;">Kontenplan {{ plan_nr }}</th>
+        </tr>
+            {% for konto in konten %}
+            <tr>
+                <td>{{ konto.name }}</td>
+                <td>{{ konto.kategorie }}</td>
+                <td>{{ konto.unterkategorie }}</td>
+                <td>
+                    <a href="{% url 'posts:konto_bearbeiten' konto.id %}">Bearbeiten</a>
+                    <form action="{% url 'posts:konto_loeschen' konto.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Möchtest du dieses Konto wirklich löschen?');">Löschen</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
     {% endfor %}
 </table>
 <script>
