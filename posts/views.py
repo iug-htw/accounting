@@ -1,3 +1,7 @@
+
+import requests
+import threading
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
@@ -5,15 +9,23 @@ from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, Au
 from django.contrib import messages
 import json, random, hashlib
 from django.urls import reverse
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
 import io
 from decimal import Decimal
+from collections import defaultdict
+from django.utils.html import format_html
+from django.db.models import F
 #passt
 
+
+def safe_parse(val):
+    if isinstance(val, str):
+        return json.loads(val or "[]")
+    return val or []
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
@@ -69,7 +81,7 @@ def aufgabe_neu_erstellen(request):
 
 def speichere_aufgabe_details(request, aufgabe):
     """Speichert die Details der erstellten Aufgabe und verarbeitet Abhängigkeiten korrekt"""
-    kontonamen = request.POST.getlist('kontoname[]')
+    konto_ids = request.POST.getlist('konto_id[]')
     soll_haben = request.POST.getlist('soll_haben[]')
     betraege = request.POST.getlist('betrag[]')
     monatsangaben = request.POST.getlist('monatsangabe[]')
@@ -84,10 +96,11 @@ def speichere_aufgabe_details(request, aufgabe):
     aufgabe_details = []  # Zwischenspeicher für bulk_create()
 
     # **Erster Schritt: Speichere alle Details ohne Bezugskonto**
-    for i in range(len(kontonamen)):
+    for i in range(len(konto_ids)):
+        konto = Konto.objects.get(id=konto_ids[i])
         aufgabe_detail = AufgabeDetail.objects.create(
             aufgabe=aufgabe,
-            kontoname=kontonamen[i],
+            konto=konto,
             soll_haben=soll_haben[i],
             betrag=float(betraege[i]) if betraege[i] else None,
             monatsangabe=(monatsangaben[i].lower() == 'true'),
@@ -97,10 +110,11 @@ def speichere_aufgabe_details(request, aufgabe):
             faktor=float(faktoren[i]) if faktoren[i] else None
         )
         aufgabe_details.append(aufgabe_detail)
-
+    
+    bezugs_konto_ids = request.POST.getlist('bezugs_konto_id[]')
     for i, aufgabe_detail in enumerate(AufgabeDetail.objects.filter(aufgabe=aufgabe)):
-        if i < len(bezugs_konto_namen) and bezugs_konto_namen[i]:  
-            aufgabe_detail.bezugs_konto = bezugs_konto_namen[i]  # ✅ Speichert den Kontonamen direkt
+        if i < len(bezugs_konto_ids) and bezugs_konto_ids[i]:
+            aufgabe_detail.bezugs_konto = Konto.objects.get(id=bezugs_konto_ids[i])
             aufgabe_detail.save()
 
 @login_required
@@ -139,7 +153,11 @@ def rechnung_detail_view(request, aufgabe_id):
         buchung_status.append({
             'buchung': buchung,
             'korrekt': is_buchung_korrekt(buchung, nutzer_aufgabe),
-            'is_letzte_falsche': buchung == letzte_buchung and block_buchung
+            'is_letzte_falsche': buchung == letzte_buchung and block_buchung,
+            'soll_konten_liste': safe_parse(buchung.antwort_konten_soll),
+            'haben_konten_liste': safe_parse(buchung.antwort_konten_haben),
+            'soll_betraege_liste': safe_parse(buchung.antwort_betrag_soll),
+            'haben_betraege_liste': safe_parse(buchung.antwort_betrag_haben),
         })
 
     # Template für den Rechnungstyp auswählen
@@ -150,7 +168,7 @@ def rechnung_detail_view(request, aufgabe_id):
     }
 
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
-
+    id_to_name = {konto.id: konto.name for konto in Konto.objects.all()}
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
@@ -171,17 +189,50 @@ def rechnung_detail_view(request, aufgabe_id):
         'buchung_status': buchung_status,
         'konten': konten,
         'block_buchung': block_buchung,
-        'absender': nutzer_aufgabe.absender
+        'absender': nutzer_aufgabe.absender,
+        'konten_namen': id_to_name
     }
 
     return render(request, 'posts/rechnung.html', context)
 
+@login_required
+def buchungssatz_uebersicht(request):
+    nutzer = request.user
+    buchungen = Buchung.objects.filter(nutzer=nutzer).select_related('aufgabe').order_by('aufgabe__id', 'versuch')
+
+    from collections import defaultdict
+    aufgaben_buchungen = defaultdict(list)
+    id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
+    for buchung in buchungen:
+        soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
+        soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
+        haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
+        haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
+
+        # Wir kombinieren Soll und Haben für tabellarische Darstellung
+        max_len = max(len(soll_konten), len(haben_konten))
+        zeilen = []
+        for i in range(max_len):
+            soll_text = (id_to_name.get(soll_konten[i], soll_konten[i]), f"{soll_betraege[i]} €") if i < len(soll_konten) else ("", "")
+            haben_text = (id_to_name.get(haben_konten[i], haben_konten[i]), f"{haben_betraege[i]} €") if i < len(haben_konten) else ("", "")
+            zeilen.append((soll_text, haben_text))
+
+        aufgaben_buchungen[buchung.aufgabe].append({
+            "buchung_nr": buchung.versuch,
+            "korrekturbuchung": buchung.korrekturbuchung,
+            "zeilen": zeilen
+        })
+
+    return render(request, "posts/buchungssatz_uebersicht.html", {
+        "aufgaben_buchungen": dict(aufgaben_buchungen)
+    })
+
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
     # JSON-Daten der Buchung laden
-    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
-    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
-    soll_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_soll)]
-    haben_betraege_nutzer = [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_haben)]
+    soll_konten_nutzer = safe_parse(buchung.antwort_konten_soll)
+    haben_konten_nutzer = safe_parse(buchung.antwort_konten_haben)
+    soll_betraege_nutzer = [round(float(b), 2) for b in safe_parse(buchung.antwort_betrag_soll)]
+    haben_betraege_nutzer = [round(float(b), 2) for b in safe_parse(buchung.antwort_betrag_haben)]
 
     # Erwartete Werte aus der Nutzeraufgabe
     soll_konten_aufgabe = nutzer_aufgabe.soll_konten
@@ -272,6 +323,9 @@ def handle_nutzer_buchung(request, aufgabe):
         buchung.status = "bearbeitet"
         nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
+    if (buchung.versuch == 1 or buchung.versuch == 3) and buchung.status != "korrekt":
+        threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
+
     buchung.save()
     nutzer_aufgabe.save()
 
@@ -289,7 +343,7 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
         summe_soll = sum(soll_betraege)
         summe_haben = sum(haben_betraege)
         differenz = summe_soll - summe_haben
-        
+
         # Anpassung bei Differenz
         if differenz != 0:
             soll_betraege, haben_betraege = differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz)
@@ -303,12 +357,10 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
             # Erneute Überprüfung nach der Anpassung
             summe_soll = round(sum(soll_betraege),2)
             summe_haben = round(sum(haben_betraege),2)
-
             # Überprüfung der angepassten Werte mit Referenzwerten
             for i, betrag in enumerate(soll_betraege + haben_betraege):
                 referenzwert = referenz_betraege[i % len(referenz_betraege)]
                 if not (referenzwert * 0.5 <= betrag <= referenzwert * 1.75):
-                    print(f"Angepasster Betrag {betrag} außerhalb des zulässigen Bereichs ({referenzwert * 0.5} - {referenzwert * 1.75})")
                     return generiere_zufaellige_werte(aufgabe, tiefe + 1)
 
        # print(f"Erfolgreich generiert nach {tiefe} Versuchen")
@@ -320,14 +372,15 @@ def generiere_zufaellige_werte(aufgabe, tiefe=0):
         }
 
 def differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz):
-    nicht_referenzierte_soll_konten = [
-        konto for konto in soll_konten 
-        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
-    ]
-    nicht_referenzierte_haben_konten = [
-        konto for konto in haben_konten 
-        if konto not in [k.bezugs_konto for k in AufgabeDetail.objects.filter(aufgabe=aufgabe) if k.bezugs_konto]
-    ]
+    referenzierte_ids = set(
+        AufgabeDetail.objects.filter(aufgabe=aufgabe)
+        .exclude(bezugs_konto=None)
+        .values_list("bezugs_konto_id", flat=True)
+    )
+
+    # Nicht-referenzierte Soll-/Haben-Konten
+    nicht_referenzierte_soll_konten = [konto_id for konto_id in soll_konten if konto_id not in referenzierte_ids]
+    nicht_referenzierte_haben_konten = [konto_id for konto_id in haben_konten if konto_id not in referenzierte_ids]
 
     # Höchste Beträge und deren Indizes
     max_soll_index = soll_betraege.index(max(soll_betraege))
@@ -365,48 +418,43 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
     faktor_soll_konten = soll_konten_queryset.filter(formel_typ="faktor")
     normale_haben_konten = haben_konten_queryset.exclude(formel_typ="faktor")
     faktor_haben_konten = haben_konten_queryset.filter(formel_typ="faktor")
-    
-    #print(f"Normale Soll-Konten: {list(normale_soll_konten)}")
-    #print(f"Normale Haben-Konten: {list(normale_haben_konten)}")
-    #print(f"Faktor Soll-Konten: {list(faktor_soll_konten)}")
-    #print(f"Faktor Haben-Konten: {list(faktor_haben_konten)}")
-    
+
     # Zuerst die normalen Konten berechnen
     for konto in normale_soll_konten.union(normale_haben_konten):
         referenz_betrag = konto.betrag
         min_betrag = referenz_betrag * 0.25
         max_betrag = referenz_betrag * 1.75
         zufallswert = random.randint(int(min_betrag), int(max_betrag))
+        konto_id = konto.konto.id
         if konto in normale_haben_konten:
-            haben_konten.append(konto.kontoname)
+            haben_konten.append(konto_id)
             haben_betraege.append(round(zufallswert,0))
             referenz_betraege_haben.append(zufallswert)
         else:
-            soll_konten.append(konto.kontoname)
+            soll_konten.append(konto_id)
             soll_betraege.append(round(zufallswert,0))
             referenz_betraege_soll.append(zufallswert)
-        berechnete_werte[konto.kontoname] = zufallswert  # Speichert den berechneten Wert
+        konto_id = konto.konto.id
+        berechnete_werte[int(konto.konto_id)] = zufallswert
         #print(f"📌 Konto {konto.kontoname} erhält {zufallswert} (Referenzbetrag: {referenz_betrag})")
     
     # Faktor-Konten basierend auf berechneten Werten der Referenzkonten berechnen
     for konto in faktor_soll_konten.union(faktor_haben_konten):
-        if konto.bezugs_konto in berechnete_werte:
-            faktor_wert = round(berechnete_werte[konto.bezugs_konto] * konto.faktor, 2)
+        bezug = konto.bezugs_konto
+        if bezug:
+            faktor_wert = round(berechnete_werte.get(bezug.id, 1000) * konto.faktor, 2)
         else:
-            # Falls das Bezugskonto nicht vorhanden ist, Standardwert setzen
             faktor_wert = round(random.randint(100, 1000) * konto.faktor, 2)
+        berechnete_werte[konto.id] = faktor_wert
+        konto_id = konto.konto.id
         if konto in faktor_haben_konten:
-            haben_konten.append(konto.kontoname)
+            haben_konten.append(konto_id)
             haben_betraege.append(faktor_wert)
             referenz_betraege_haben.append(faktor_wert)
         else:
-            soll_konten.append(konto.kontoname)
+            soll_konten.append(konto_id)
             soll_betraege.append(faktor_wert)
             referenz_betraege_soll.append(faktor_wert)
-
-        berechnete_werte[konto.kontoname] = faktor_wert  # Speichert den berechneten Wert für zukünftige Berechnungen
-        #print(f"🔗 Faktor-Konto {konto.kontoname} basiert auf {konto.bezugs_konto}, Wert: {faktor_wert}")
-    
     #print("✅ Berechnung abgeschlossen!")
     return soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben
 
@@ -416,8 +464,8 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
         aufgabe=aufgabe,
         nutzer=nutzer,
         defaults={
-            'soll_konten': zufaellige_werte['soll_konten'],
-            'haben_konten': zufaellige_werte['haben_konten'],
+            'soll_konten': [str(k) for k in zufaellige_werte['soll_konten']],
+            'haben_konten': [str(k) for k in zufaellige_werte['haben_konten']],
             'soll_betraege': zufaellige_werte['soll_betraege'],
             'haben_betraege': zufaellige_werte['haben_betraege'],
             'bearbeitungsstand': 'offen',
@@ -465,10 +513,13 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     )
 
 def get_fallback_konten(aufgabe):
-    soll_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
-    haben_konto = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").order_by('?').first()
-    return (soll_konto.kontoname if soll_konto else "Soll-Konto-Standard",
-            haben_konto.kontoname if haben_konto else "Haben-Konto-Standard")
+    soll_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll").order_by('?').first()
+    haben_detail = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben").order_by('?').first()
+
+    return (
+        soll_detail.konto.id if soll_detail and soll_detail.konto else None,
+        haben_detail.konto.id if haben_detail and haben_detail.konto else None
+    )
 
 @admin_required
 def unternehmen_verwalten(request):
@@ -540,7 +591,14 @@ def hauptbuch_view(request):
     buchungen = Buchung.objects.filter(nutzer=user)
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
     t_konten = build_t_konten(buchungen, anfangsbestaende)
-    return render(request, "posts/hauptbuch.html", {"t_konten": t_konten})
+    konten = Konto.objects.all().order_by('name')
+    aufgaben_ids = sorted({f"{buchung.aufgabe.id} {buchung.versuch})" for buchung in buchungen})
+
+    return render(request, "posts/hauptbuch.html", {
+        "t_konten": t_konten,
+        "konten": konten,
+        "aufgaben_ids": aufgaben_ids
+    })
 
 def generate_color(aufgabe_id):
     hash_value = int(hashlib.md5(str(aufgabe_id).encode()).hexdigest(), 16)
@@ -550,16 +608,16 @@ def generate_color(aufgabe_id):
 def build_t_konten(buchungen, anfangsbestände):
     t_konten = {}
     aufgabe_farben = {}
-
+    id_to_name = {str(konto.id): konto.name for konto in Konto.objects.all()}
     # Anfangsbestände in die T-Konten-Struktur aufnehmen
     for bestand in anfangsbestände:
-        konto_name = bestand.konto.name
-        t_konten.setdefault(konto_name, {"soll": [], "haben": []})
+        konto_id = str(bestand.konto.id)
+        t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
 
         if bestand.konto.unterkategorie == "Aktiva":  # EBK für Aktivkonten auf Soll-Seite
-            t_konten[konto_name]["soll"].append(("EBK", bestand.betrag, "#D3D3D3"))
+            t_konten[konto_id]["soll"].append(("EBK", bestand.betrag, "#D3D3D3"))
         elif bestand.konto.unterkategorie == "Passiva":  # EBK für Passivkonten auf Haben-Seite
-            t_konten[konto_name]["haben"].append(("EBK", bestand.betrag, "#D3D3D3"))
+            t_konten[konto_id]["haben"].append(("EBK", bestand.betrag, "#D3D3D3"))
 
     # Bestehende Buchungen hinzufügen (Originalfunktion bleibt erhalten)
     for buchung in buchungen:
@@ -570,17 +628,18 @@ def build_t_konten(buchungen, anfangsbestände):
 
         farbe = aufgabe_farben[buchung.aufgabe.id]
 
-        soll_konten = json.loads(buchung.antwort_konten_soll or "[]")
-        haben_konten = json.loads(buchung.antwort_konten_haben or "[]")
-        soll_betraege = json.loads(buchung.antwort_betrag_soll or "[]")
-        haben_betraege = json.loads(buchung.antwort_betrag_haben or "[]")
+        soll_konten = safe_parse(buchung.antwort_konten_soll or "[]")
+        haben_konten = safe_parse(buchung.antwort_konten_haben or "[]")
+        soll_betraege = safe_parse(buchung.antwort_betrag_soll or "[]")
+        haben_betraege = safe_parse(buchung.antwort_betrag_haben or "[]")
 
-        for konto, betrag in zip(soll_konten, soll_betraege):
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["soll"].append((aufgabe_id_mit_versuch, betrag, farbe))
+        for konto_id, betrag in zip(soll_konten, soll_betraege):
+            t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
+            t_konten[konto_id]["soll"].append((aufgabe_id_mit_versuch, betrag, farbe))
 
-        for konto, betrag in zip(haben_konten, haben_betraege):
-            t_konten.setdefault(konto, {"soll": [], "haben": []})["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
-
+        for konto_id, betrag in zip(haben_konten, haben_betraege):
+            t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
+            t_konten[konto_id]["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
     return t_konten
 
 @admin_required
@@ -603,6 +662,11 @@ def aufgabe_bearbeiten(request, aufgabe_id):
     detail_forms = [AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail) for detail in details]
     return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
 
+def name_oder_id_liste_zu_id_liste(eingabe_liste):
+    """Konvertiert ggf. Kontonamen in IDs"""
+    mapping = {k.name: k.id for k in Konto.objects.all()}
+    return [mapping.get(x, x) for x in eingabe_liste]
+
 @login_required
 def korrekturbuchung_durchfuehren(request, buchung_id):
     buchung = get_object_or_404(Buchung, buchung_id=buchung_id)
@@ -613,11 +677,19 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
     letzte_buchung = Buchung.objects.filter(aufgabe=buchung.aufgabe, nutzer=request.user).order_by('-versuch').first()
     naechster_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
 
+    # Eingabewerte laden
+    soll_liste = json.loads(buchung.antwort_konten_haben or "[]")
+    haben_liste = json.loads(buchung.antwort_konten_soll or "[]")
+
+    # Prüfen ob ID oder Name enthalten ist, und ggf. umwandeln
+    soll_ids = [str(k) for k in name_oder_id_liste_zu_id_liste(soll_liste)]
+    haben_ids = [str(k) for k in name_oder_id_liste_zu_id_liste(haben_liste)]
+
     neue_buchung = Buchung.objects.create(
         aufgabe=buchung.aufgabe,
         nutzer=request.user,
-        antwort_konten_soll=buchung.antwort_konten_haben,
-        antwort_konten_haben=buchung.antwort_konten_soll,
+        antwort_konten_soll=json.dumps(soll_ids),
+        antwort_konten_haben=json.dumps(haben_ids),
         antwort_betrag_soll=buchung.antwort_betrag_haben,
         antwort_betrag_haben=buchung.antwort_betrag_soll,
         status='bearbeitet',
@@ -709,12 +781,17 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie, request):
         status='nicht bearbeitet'
     )
 
-@admin_required
+@lehrkraft_required
 def konten_verwalten(request):
     if request.method == 'POST':
         form = KontoForm(request.POST)
         if form.is_valid():
-            form.save()
+            konto = form.save(commit=False)
+            if request.user.is_superuser:
+                konto.erstellt_von = None  
+            else:
+                konto.erstellt_von = request.user 
+            konto.save()
             messages.success(request, "Konto erfolgreich hinzugefügt.")
             return redirect('posts:konten_verwalten')
         else:
@@ -723,12 +800,11 @@ def konten_verwalten(request):
         form = KontoForm()
 
     konten = Konto.objects.all().order_by('kategorie', 'unterkategorie')
-
     return render(request, 'posts/konten_verwalten.html', {'form': form, 'konten': konten})
 
 @admin_required
 def konto_bearbeiten(request, konto_id):
-    konto = get_object_or_404(Konto, id=konto_id).order_by("name")
+    konto = get_object_or_404(Konto, id=konto_id)
 
     if request.method == 'POST':
         form = KontoForm(request.POST, instance=konto)
@@ -775,12 +851,22 @@ def lehrer_fortschritt(request):
     if not studenten.exists():
         return JsonResponse({'gesamt_aufgaben': 0, 'bearbeitet': 0, 'korrekt': 0})
     nutzer_aufgaben = get_nutzer_aufgaben(studenten, request.GET.get('aufgabe'))
+    buchungen = Buchung.objects.filter(nutzer__in=studenten)
     gesamt_aufgaben = nutzer_aufgaben.count()
     bearbeitet, korrekt = get_bearbeitungsstand(nutzer_aufgaben)
+    anzahl_fehlerhafte_buchungen = buchungen.filter(
+        Q(konto_korrekt__gt=0) | Q(betrag_korrekt__gt=0),
+        korrekturbuchung=False
+    ).count()
+    print(f"Anzahl Studis: {buchungen.values('nutzer').distinct()}")
+    anzahl_studierende = buchungen.values('nutzer').distinct().count()
+
     return JsonResponse({
         'gesamt_aufgaben': gesamt_aufgaben,
         'bearbeitet': bearbeitet,
-        'korrekt': korrekt
+        'korrekt': korrekt,
+        'anzahl_fehlerhafte_buchungen': anzahl_fehlerhafte_buchungen,
+        'anzahl_studierende': anzahl_studierende
     })
 
 def get_studenten(request):
@@ -810,12 +896,25 @@ def get_bearbeitungsstand(nutzer_aufgaben):
 
 @lehrkraft_required
 def lehrer_filter_daten(request):
-    # Lade alle Studierenden des Lehrers
-    studenten = User.objects.filter(role='student', professor=request.user).values('id', 'first_name', 'last_name', 'username')
+    semester_id = request.GET.get('semester')
+    studiengang_id = request.GET.get('studiengang')
+
+    # Nur Studierende des aktuellen Lehrers
+    studenten = User.objects.filter(role='student', professor=request.user)
+
+    # Filter anwenden, wenn vorhanden
+    if semester_id:
+        studenten = studenten.filter(semester_id=semester_id)
+    if studiengang_id:
+        studenten = studenten.filter(studiengang_id=studiengang_id)
+
+    # Studierendenliste bauen
     studierende_liste = [
-        {"id": s["id"], "name": f"{s['first_name']} {s['last_name']}".strip() or s["username"]}
+        {"id": s.id, "name": f"{s.first_name} {s.last_name}".strip() or s.username}
         for s in studenten
     ]
+
+    # Werte für Dropdowns
     semesters = list(User.objects.filter(role='student').values('semester_id', 'semester__name').distinct())
     studiengaenge = list(User.objects.filter(role='student').values('studiengang_id', 'studiengang__name').distinct())
     aufgaben = list(Aufgabe_neu.objects.values('id', 'fragentyp_text'))
@@ -824,7 +923,7 @@ def lehrer_filter_daten(request):
         'semesters': semesters,
         'studiengaenge': studiengaenge,
         'aufgaben': aufgaben,
-        'studierende': studierende_liste  # Studierendenliste hinzufügen
+        'studierende': studierende_liste
     })
 
 @lehrkraft_required
@@ -870,10 +969,11 @@ def guv_uebersicht(request):
     # Baue T-Konten-Struktur
     t_konten = build_t_konten(buchungen, anfangsbestaende)
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
-    if "GuV" in t_konten:
-        del t_konten["GuV"]
+    guv_id = str(guv_konto.id)
+    if guv_id in t_konten:
+        del t_konten[guv_id]
     # Verknüpfe Konten mit Kategorien
-    konto_kategorien = {konto.name: konto.kategorie for konto in konten}
+    konto_kategorien = {str(konto.id): konto.kategorie for konto in konten}
     return render(request, "posts/guv.html", {
         "t_konten": t_konten,
         "konten": konten,
@@ -951,7 +1051,7 @@ def bilanz_uebersicht(request):
 
     # T-Konten nur für Bestandskonten erstellen
     t_konten_all = build_t_konten(buchungen, anfangsbestaende)
-    konto_kategorien = {konto.name: konto.unterkategorie for konto in bestandskonten}
+    konto_kategorien = {str(konto.id): konto.unterkategorie for konto in bestandskonten}
     t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
 
     # Filteroptionen für Aktiv- und Passivkonten
@@ -1023,3 +1123,70 @@ def aufgabe_loeschen(request, aufgabe_id):
     aufgabe.delete()
     messages.success(request, f"Die Aufgabe '{aufgabe.fragentyp_text}' wurde gelöscht.")
     return redirect('posts:aufgaben_verwalten')
+
+#+ Zeile 278
+OLLAMA_API_URL = 'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate' 
+
+@csrf_exempt
+def ollama_prompt_view(request):
+    if request.method == 'POST':
+        prompt = request.POST.get('prompt', '')
+        payload = {
+            "model": "llama3.3:latest", 
+            "prompt": prompt,
+            "stream": False
+        }
+
+        try:
+            response = requests.post(
+                OLLAMA_API_URL,
+                json=payload,
+            )
+            text = response.text
+            try:
+                result = json.loads(text)
+                return JsonResponse({'antwort': result.get('response', 'Keine Antwort erhalten')})
+            except json.JSONDecodeError:
+                return JsonResponse({'error': f'Ungültige JSON-Antwort: {text}'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return render(request, 'posts/ollama_prompt.html')
+
+def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
+
+    # Nutzerlösung alphabetisch
+    nutzer_soll = sorted(zip(json.loads(buchung.antwort_konten_soll), json.loads(buchung.antwort_betrag_soll)))
+    nutzer_haben = sorted(zip(json.loads(buchung.antwort_konten_haben), json.loads(buchung.antwort_betrag_haben)))
+
+    # Richtige Lösung alphabetisch
+    korrekt_soll = sorted(zip(nutzeraufgabe.soll_konten, nutzeraufgabe.soll_betraege))
+    korrekt_haben = sorted(zip(nutzeraufgabe.haben_konten, nutzeraufgabe.haben_betraege))
+
+    prompt = (
+        f"Erstelle mir ein 2 Sätze langes Feedback zu folgendem buchhalterischen Sachverhalt:\n{beschreibung}\n"
+        f"und folgender Nutzerlösung:\nSoll: {nutzer_soll}, Haben: {nutzer_haben}\n"
+        f"bezogen auf die richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}"
+    )
+    ollama_payload = {
+        "model": "llama3.3:latest",
+        "prompt": prompt,
+        "stream": False
+    }
+
+    try:
+        response = requests.post(
+            'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate',
+            json=ollama_payload,
+            
+        )
+        antwort = response.json().get("response", "")
+        return antwort.strip()
+    except Exception as e:
+        return f"Fehler bei Feedback-Generierung: {e}"
+    
+def ollama_threading(buchung, nutzer_aufgabe, beschreibung):
+    feedback = generiere_feedback_von_ollama(buchung, nutzer_aufgabe, beschreibung)
+    buchung.feedback_ollama = feedback
+    buchung.save()
+ 

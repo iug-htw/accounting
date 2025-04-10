@@ -9,12 +9,16 @@
 
 {% block content %}
 <h1>GuV Übersicht</h1>
-<p>Hier kannst du deine Konten abschließen und die GuV erstellen.</p>
+<p>Hier kannst du deine Konten abschließen und die GuV erstellen.
+<br>Um ein Konto abzuschließen, muss die Art des Kontos ausgewählt werden und über den Button "Konto abschließen" wird das abgeschlossene Konto 
+in das GuV-Konto geschrieben. Das GuV-Konto ist am Seitenende einsehbar und wird dynamisch mit jedem abgeschlossenem Erfolgskonto erweitert. Bestandskonten werden nicht in das GuV-Konto geschrieben.<br>
+Das GuV-Konto wird am Seitenende durch den Button abgeschlossen.
+</p>
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ konto }}" data-kategorie="{{ konto_kategorien|get_item:konto }}">
-        <h2>{{ konto }} ({{ konto_kategorien|get_item:konto }})</h2>
+    <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ konto_kategorien|get_item:konto }}">
+        <h2>{{ daten.name }} </h2>
         <label>Kategorie:</label>
         <select class="konto-kategorie">
             <option value="" selected disabled>Bitte wählen...</option>
@@ -59,7 +63,7 @@
     <div class="konto">
         <h2>GuV</h2>
         <div class="guv-container">
-            <table class="guv-tabelle">
+            <table class="guv-tabelle t-konto">
                 <thead>
                     <tr>
                         <th colspan="2">Soll</th>

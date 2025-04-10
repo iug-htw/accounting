@@ -13,7 +13,7 @@
     {% for studiengang, aufgaben in studiengaenge.items %}
         <p><strong>{{ studiengang }}:</strong> 
             {% for aufgabe in aufgaben %}
-                {{ aufgabe }}{% if not forloop.last %}, {% endif %}
+                {{ aufgabe.fragentyp_text }}{% if not forloop.last %}, {% endif %}
             {% endfor %}
         </p>
     {% empty %}

@@ -61,14 +61,15 @@ class Aufgabe_neu(models.Model):
 
 class AufgabeDetail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, related_name="details")
-    kontoname = models.CharField(max_length=255)
+    konto = models.ForeignKey('Konto', on_delete=models.CASCADE,null=True,)
     soll_haben = models.CharField(max_length=50, choices=[("Soll", "Soll"), ("Haben", "Haben")])
     betrag = models.FloatField(null=True, blank=True)  # Kann leer sein, wenn es berechnet wird
     monatsangabe = models.BooleanField(default=False)
     monat = models.IntegerField(null=True, blank=True)
+    bezugs_konto_alt = models.CharField(max_length=255, null=True, blank=True)
 
     festbetrag = models.FloatField(null=True, blank=True, help_text="Fester Betrag, falls kein Bezugskonto genutzt wird")
-    bezugs_konto = models.CharField(max_length=255, null=True, blank=True)
+    bezugs_konto = models.ForeignKey('Konto',on_delete=models.SET_NULL,null=True,blank=True,related_name='verwendet_als_bezug')
     faktor = models.FloatField(null=True, blank=True, help_text="Multiplikationsfaktor, falls abhängig von einem anderen Konto")
     formel_typ = models.CharField(
         max_length=50,
@@ -121,6 +122,7 @@ class Buchung(models.Model):
     korrekturbuchung = models.BooleanField(default=False)
     konto_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=0)  # 0=Richtig, 1=Soll falsch, 2=Haben falsch, 3=Beide falsch
     betrag_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=True)  # True=Richtig, False=Falsch
+    feedback_ollama = models.TextField(null=True, blank=True)
     def save(self, *args, **kwargs):
         if not self.versuch:
             # Wenn kein Versuch angegeben ist, den nächsten automatisch ermitteln
@@ -193,6 +195,10 @@ class Konto(models.Model):
     kategorie = models.CharField(max_length=20, choices=KATEGORIE_CHOICES, blank=True, null=True)
     unterkategorie = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
     eins = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
+    erstellt_von = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, help_text="Nutzer, der das Konto erstellt hat"
+    )
 
     def __str__(self):
         return f"{self.name} ({self.kategorie} - {self.unterkategorie})"

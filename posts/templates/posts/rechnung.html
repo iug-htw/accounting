@@ -12,7 +12,7 @@
     <button id="toggle-right-section" class="btn-toggle_rechnung">
     📄 Buchungs-Navigation ausblenden
 </button>
-   <!-- 
+   
     {% if user.is_authenticated and nutzer_aufgabe %}
     <p><strong>Zufällig generierte Werte:</strong></p>
     <ul>
@@ -37,7 +37,7 @@
         </li>
     </ul>
     {% endif %}
-    -->
+    
 <div class="content-wrapper_rechnung">
 
 
@@ -87,10 +87,26 @@
 
                 <!-- Buchungsdetails -->
                 <div id="buchung-detail-{{ item.buchung.buchung_id }}" class="buchung-detail" style="display: none;">
-                    <p><strong>Soll-Konten:</strong> {{ item.buchung.antwort_konten_soll }}</p>
-                    <p><strong>Haben-Konten:</strong> {{ item.buchung.antwort_konten_haben }}</p>
-                    <p><strong>Beträge Soll:</strong> {{ item.buchung.antwort_betrag_soll }}</p>
-                    <p><strong>Beträge Haben:</strong> {{ item.buchung.antwort_betrag_haben }}</p>
+                    <p><strong>Soll-Konten:</strong>
+                        {% for id in item.soll_konten_liste %}
+                            {{ konten_namen|get_konto:id }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p><strong>Haben-Konten:</strong>
+                        {% for id in item.haben_konten_liste %}
+                            {{ konten_namen|get_konto:id }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p><strong>Beträge Soll:</strong>
+                        {% for betrag in item.soll_betraege_liste %}
+                            {{ betrag }} €{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p><strong>Beträge Haben:</strong>
+                        {% for betrag in item.haben_betraege_liste %}
+                            {{ betrag }} €{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
                         {% if not item.buchung.versuch|divisibleby:2 %}
                             <h3>Feedback</h3>
                             {% if item.buchung.konto_korrekt == 0 %}
@@ -176,7 +192,7 @@
             <div class="input-group_rechnung">
                 <select name="soll_konto[]">
                     {% for konto in konten %}
-                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                        <option value="{{ konto.id }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
                 <input type="number" step="0.01" placeholder="Betrag eingeben" name="soll_betrag[]" required>
@@ -190,7 +206,7 @@
             <div class="input-group_rechnung">
                 <select name="haben_konto[]">
                     {% for konto in konten %}
-                        <option value="{{ konto.name }}">{{ konto.name }}</option>
+                        <option value="{{ konto.id }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
                 <input type="number" step="0.01" placeholder="Betrag eingeben" name="haben_betrag[]" required>
@@ -229,12 +245,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // Zustand der Buchungsansicht wiederherstellen
     const buchungenAnsicht = document.getElementById("buchungen-ansicht");
     if (localStorage.getItem("buchungenOffen") === "true") {
-        buchungenAnsicht.style.display = "block";
+        buchungenAnsicht.style.display = "none";
+        localStorage.setItem("buchungenOffen", "false");
     }
 
     document.getElementById("toggle-buchung-ansicht").addEventListener("click", function () {
         let istSichtbar = buchungenAnsicht.style.display === "block";
-        buchungenAnsicht.style.display = istSichtbar ? "none" : "block";
+        //buchungenAnsicht.style.display = istSichtbar ? "none" : "block";
         localStorage.setItem("buchungenOffen", istSichtbar ? "false" : "true");
     });
 
@@ -269,7 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // === 5. Scrollposition wiederherstellen ===
     if (localStorage.getItem("scrollPosition")) {
-        window.scrollTo(0, parseInt(localStorage.getItem("scrollPosition")));
+        window.scrollTo(0, 0);
     }
 });
 
@@ -277,7 +294,7 @@ function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
         {% for konto in konten %}
-            <option value="{{ konto.name }}">{{ konto.name }}</option>
+            <option value="{{ konto.id }}">{{ konto.name }}</option>
         {% endfor %}
     `;
     let newFieldGroup = document.createElement('div');
@@ -341,12 +358,19 @@ function durchfuehrenKorrekturbuchung() {
         });
     }
 }
+
 function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHaben) {
         sollKonten = JSON.parse(sollKonten);
         habenKonten = JSON.parse(habenKonten);
         betraegeSoll = JSON.parse(betraegeSoll);
         betraegeHaben = JSON.parse(betraegeHaben);
-    
+
+        const idToName = {
+            {% for id, name in konten_namen.items %}
+                "{{ id }}": "{{ name }}",
+            {% endfor %}
+        };
+
         const sollContainer = document.getElementById('soll-container_rechnung');
         const habenContainer = document.getElementById('haben-container_rechnung');
         const heading = document.getElementById('h2');
@@ -366,7 +390,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
             korrekturSollContainer.innerHTML += `
                 <div class = "input-group_rechnung">
                     <label>Soll-Konto:</label>
-                    <input type="text" value="${habenKonten[i]}" readonly>
+                    <input type="text" value="${idToName[habenKonten[i]] || habenKonten[i]}" readonly>
                     <label>Betrag:</label>
                     <input type="number" step="0.01" value="${betraegeHaben[i]}" readonly>
                 </div>
@@ -377,7 +401,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
             korrekturHabenContainer.innerHTML += `
                 <div class = "input-group_rechnung">
                     <label>Haben-Konto:</label>
-                    <input type="text" value="${sollKonten[i]}" readonly>
+                    <input type="text" value="${idToName[sollKonten[i]] || sollKonten[i]}" readonly>
                     <label>Betrag:</label>
                     <input type="number"  step="0.01" value="${betraegeSoll[i]}" readonly>
                 </div>
