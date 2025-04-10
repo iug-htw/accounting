@@ -4,7 +4,7 @@ import threading
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand
+from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand, Kontenplan
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
 from django.contrib import messages
 import json, random, hashlib
@@ -784,13 +784,15 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie, request):
 @lehrkraft_required
 def konten_verwalten(request):
     if request.method == 'POST':
+        if 'neuer_kontenplan' in request.POST:
+            neuer_plan = Kontenplan.objects.create(nutzer=request.user)
+            messages.success(request, f"Neuer Kontenplan {neuer_plan.id} wurde erstellt.")
+            return redirect('posts:konten_verwalten')
+
         form = KontoForm(request.POST)
         if form.is_valid():
             konto = form.save(commit=False)
-            if request.user.is_superuser:
-                konto.erstellt_von = None  
-            else:
-                konto.erstellt_von = request.user 
+            konto.erstellt_von = request.user
             konto.save()
             messages.success(request, "Konto erfolgreich hinzugefügt.")
             return redirect('posts:konten_verwalten')
@@ -799,8 +801,15 @@ def konten_verwalten(request):
     else:
         form = KontoForm()
 
-    konten = Konto.objects.all().order_by('kategorie', 'unterkategorie')
-    return render(request, 'posts/konten_verwalten.html', {'form': form, 'konten': konten})
+    konten = Konto.objects.all().order_by('kontenplan_id', 'name')
+    konten_nach_plan = defaultdict(list)
+    for konto in konten:
+        konten_nach_plan[konto.kontenplan_id].append(konto)
+
+    return render(request, 'posts/konten_verwalten.html', {
+        'form': form,
+        'konten_nach_plan': dict(konten_nach_plan)
+    })
 
 @admin_required
 def konto_bearbeiten(request, konto_id):

@@ -199,9 +199,15 @@ class Konto(models.Model):
         settings.AUTH_USER_MODEL, null=True, blank=True,
         on_delete=models.SET_NULL, help_text="Nutzer, der das Konto erstellt hat"
     )
-
+    kontenplan = models.ForeignKey('Kontenplan', null=True, blank=True, on_delete=models.SET_NULL)    
     def __str__(self):
         return f"{self.name} ({self.kategorie} - {self.unterkategorie})"
+
+class Kontenplan(models.Model):
+    nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Kontenplan {self.id} von {self.nutzer.username}"
 
 class Anfangsbestand(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="anfangsbestaende")
