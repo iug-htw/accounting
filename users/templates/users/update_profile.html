@@ -1,4 +1,9 @@
 {% extends 'master_layout.html' %}
+{% load static %}  {# MUSS vor static verwendet werden! #}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/update_profile.css' %}">
+{% endblock %}
 
 {% block content %}
 <h2>Profil aktualisieren</h2>

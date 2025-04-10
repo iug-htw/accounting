@@ -1,6 +1,10 @@
 {% extends 'master_layout.html' %}
 {% load static %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/rechnungsübersicht.css' %}">
+{% endblock %}
+
 {% block content %}
 <h1>Aufgabenverwaltung</h1>
 
@@ -22,12 +26,12 @@
                     <td>{{ aufgabe.fragentyp_text }}</td>
                     <td>{{ aufgabe.beschreibung|default:"Keine Beschreibung" }}</td>
                     <td>
-                        <a href="{% url 'posts:aufgabe_bearbeiten' aufgabe.id %}" >
+                        <a href="{% url 'posts:aufgabe_bearbeiten' aufgabe.id %}" class="btn">
                            Aufgabe bearbeiten
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'posts:rechnung_detail' aufgabe.id %}">
+                        <a href="{% url 'posts:rechnung_detail' aufgabe.id %}" class="btn">
                             <p>Link</p>
                         </a>
                     </td>

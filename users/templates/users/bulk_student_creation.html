@@ -7,8 +7,10 @@
 
 {% block content %}
 <h1>Mehrere Studierende gleichzeitig anlegen</h1>
-<a href="{% url 'users:add_studiengang' %}" class="nav-element">Studiengang bearbeiten</a>
-<a href="{% url 'users:add_semester' %}" class="nav-element">Semester bearbeiten</a>
+    <div class="nav-container_1">
+<a href="{% url 'users:add_studiengang' %}" class="nav-element_1">Studiengang bearbeiten</a>
+<a href="{% url 'users:add_semester' %}" class="nav-element_1">Semester bearbeiten</a>
+    </div>
 <form method="post">
     {% csrf_token %}
 
