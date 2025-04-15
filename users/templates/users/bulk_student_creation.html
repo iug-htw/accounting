@@ -32,7 +32,12 @@
             <option value="{{ sem.name }}">{{ sem.name }}</option>
         {% endfor %}
     </select>
-
+    <label for="unternehmen">Fallstudie:</label>
+    <select name="unternehmen" required>
+        {% for u in unternehmen %}
+            <option value="{{ u.id }}">{{ u.name }}</option>
+        {% endfor %}
+    </select>
     <!-- Umschalter für Namensvergabe -->
     <label for="name_mode">Namensmodus:</label>
     <input type="checkbox" id="name_mode" name="name_mode" onchange="toggleNameInput()">

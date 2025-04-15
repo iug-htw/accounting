@@ -11,6 +11,7 @@
     <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">Unternehmen verwalten</a>
     <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">Fragentyp verwalten</a>
     <a href="{% url 'posts:konten_verwalten' %}" class="btn btn-secondary">Konten verwalten</a>
+    <a href="{% url 'posts:aufgabe_import_form' %}" class="btn btn-info">Aufgaben aus Excel importieren</a>
     </div>
     <form method="post">
         {% csrf_token %}
@@ -84,7 +85,6 @@
         <br><br>
         <button type="submit">Speichern</button>
     </form>
-
     <script>
         function addFieldGroup() {
             let container = document.getElementById('fields-container');

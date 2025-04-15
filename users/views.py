@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required, admin_required, student_required
-from posts.models import Mail, NutzerAufgabe, Absender
+from posts.models import Mail, NutzerAufgabe, Absender, Unternehmen
 from django.contrib import messages
 from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail
 from posts.views import Aufgabe_neu
@@ -116,7 +116,7 @@ def bulk_student_creation(request):
         semester = request.POST.get('semester')
         name_mode = request.POST.get('name_mode')
         custom_name = request.POST.get('custom_name', "").strip()
-
+        unternehmen_id = request.POST.get('unternehmen')
         lehrkraft = request.user.username[:2]  # Die ersten 2 Buchstaben des Lehrernamens
 
         existing_users = CustomUser.objects.values_list('username', flat=True)
@@ -142,7 +142,7 @@ def bulk_student_creation(request):
                 studiengang=Studiengang.objects.get(name=studiengang),
                 display_name=student_name,
                 nutzergruppe=random.randint(1,4),
-                unternehmen_id=1
+                unternehmen_id=unternehmen_id
             )
             student.set_password(student_name)  # Passwort richtig hashen
             student.save()
@@ -154,19 +154,23 @@ def bulk_student_creation(request):
             messages.error(request, f"Folgende Namen sind bereits vergeben: {', '.join(fehlgeschlagene_namen)}")
         else:
             messages.success(request, f'{len(neue_studierende)} Studierende erfolgreich erstellt.')
-
+        unternehmen = Unternehmen.objects.all()
         return render(request, 'users/bulk_student_creation.html', {
             'studiengaenge': Studiengang.objects.all(),
             'semester': Semester.objects.all(),
+            'unternehmen': Unternehmen.objects.all(),
             'neue_studierende': neue_studierende,
-            'fehlgeschlagene_namen': fehlgeschlagene_namen
+            'fehlgeschlagene_namen': fehlgeschlagene_namen,
+            'unternehmen': unternehmen,
         })
 
     studiengaenge = Studiengang.objects.all()
     semester = Semester.objects.all()
+    unternehmen = Unternehmen.objects.all()
     return render(request, 'users/bulk_student_creation.html', {
         'studiengaenge': studiengaenge,
-        'semester': semester
+        'semester': semester,
+        'unternehmen': unternehmen,
     })
 
 

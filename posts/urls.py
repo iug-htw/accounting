@@ -32,6 +32,7 @@ urlpatterns = [
     path('aufgabe/loeschen/<int:aufgabe_id>/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
     path('ollama_prompt/', views.ollama_prompt_view, name='ollama_prompt'),
     path("buchungssatz-uebersicht/", views.buchungssatz_uebersicht, name="buchungssatz_uebersicht"),
+    path('aufgabe_import_form/', views.aufgabe_import_form, name='aufgabe_import_form'),
 
 
 ]

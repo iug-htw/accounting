@@ -3,16 +3,17 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand, Kontenplan
-from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
+from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm,AufgabeImportForm
 from django.contrib import messages
 import json, random, hashlib,openpyxl,threading,requests
+from openpyxl import load_workbook
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.core.mail import send_mail
 from django.db.models import Count, Q, F
 from django.contrib.auth import get_user_model
 from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
-from decimal import Decimal
+from decimal import Decimal  
 from collections import defaultdict
 from django.utils.html import format_html
 #passt
@@ -75,6 +76,90 @@ def aufgabe_neu_erstellen(request):
     konten = Konto.objects.all().order_by("name")  # Konten abrufen
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
 
+@admin_required
+def aufgabe_import_form(request):
+    if request.method == "POST":
+        form = AufgabeImportForm(request.POST)
+        excel_datei = request.FILES.get("excel_datei")
+
+        if form.is_valid() and excel_datei:
+            wb = load_workbook(excel_datei)
+            sheet = wb.active
+            count = 0
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                beschreibung = row[0]
+                zahlweise = row[1]
+
+                neue_aufgabe = form.save(commit=False)
+                neue_aufgabe.beschreibung = beschreibung
+                neue_aufgabe.zahlweise = zahlweise
+                neue_aufgabe.rechnungstyp = 'intern'
+                neue_aufgabe.fragentyp_text = ''
+                neue_aufgabe.fragentyp = None
+                neue_aufgabe.unterkategorie = None
+                neue_aufgabe.verabschiedung = ''
+                neue_aufgabe.rechnungsbetrag = 0
+                neue_aufgabe.nutzungsdauer = None
+                neue_aufgabe.frage = None
+                neue_aufgabe.rechnungsnummer = f"RE-{random.randint(10000, 99999)}"
+                neue_aufgabe.save()
+                count += 1
+
+                for i in range(2, len(row), 3):
+                    try:
+                        konto_name = row[i]
+                        soll_haben = row[i+1]
+                        if not konto_name or not soll_haben:
+                            break
+                        betrag = float(row[i+2])
+
+                        # Konto anhand Name und Plan suchen
+                        konto = Konto.objects.filter(
+                            name__iexact=konto_name.strip(),
+                            kontenplan=neue_aufgabe.unternehmen_kategorie.kontenplan
+                        ).first()
+
+                        aufgabe_detail = AufgabeDetail.objects.create(
+                            aufgabe=neue_aufgabe,
+                            konto=konto,
+                            soll_haben=soll_haben.strip(),
+                            betrag=betrag,
+                            formel_typ="fix",
+                            festbetrag=betrag,
+                            monatsangabe=False,
+                            monat=None
+                        )
+
+                        # Optionale Felder übernehmen, falls Konto gefunden wurde
+                        if konto:
+                            aufgabe_detail.bilanzposition = konto.bilanzposition_nummer  # optional
+                            aufgabe_detail.save()
+                    except (IndexError, ValueError) as e:
+                        print(f"⚠️ Fehler beim Verarbeiten von Aufgabendetail: {e}")
+
+            messages.success(request, f"{count} Aufgaben erfolgreich importiert.")
+            return redirect('posts:aufgaben_verwalten')
+        else:
+            messages.error(request, "Fehlerhafte Eingaben oder keine Datei hochgeladen.")
+
+    else:
+        # Initialwerte setzen
+        beispiel_unternehmen = Unternehmen.objects.first()
+        beispiel_kategorie = Aufgabenkategorie.objects.first()
+        initial = {
+            'unternehmen_kategorie': beispiel_unternehmen.id if beispiel_unternehmen else None,
+            'fragentyp': beispiel_kategorie.id if beispiel_kategorie else None,
+            'fragentyp_text': 'Bitte bearbeiten Sie die Aufgabe',
+            'mailtext': 'Sehr geehrte Damen und Herren,\nbitte bearbeiten Sie die folgende Aufgabe.',
+            'feedback_konto_falsch': 'Bitte prüfen Sie das gewählte Konto.',
+            'feedback_betrag_falsch': 'Bitte prüfen Sie den Betrag.',
+            'nutzungsdauer': 0,
+            'verabschiedung': 'Mit freundlichen Grüßen',
+            'kontakt': 'Tel: 01234 567890\nE-Mail: info@unternehmen.de',
+        }
+        form = AufgabeImportForm(initial=initial)
+
+    return render(request, 'posts/aufgabe_import_form.html', {'form': form})
 def speichere_aufgabe_details(request, aufgabe):
     """Speichert die Details der erstellten Aufgabe und verarbeitet Abhängigkeiten korrekt"""
     konto_ids = request.POST.getlist('konto_id[]')
@@ -430,7 +515,6 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
             soll_konten.append(konto_id)
             soll_betraege.append(round(zufallswert,0))
             referenz_betraege_soll.append(zufallswert)
-        konto_id = konto.konto.id
         berechnete_werte[int(konto.konto_id)] = zufallswert
         #print(f"📌 Konto {konto.kontoname} erhält {zufallswert} (Referenzbetrag: {referenz_betrag})")
     

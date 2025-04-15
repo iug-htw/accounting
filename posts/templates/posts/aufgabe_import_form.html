@@ -1,0 +1,18 @@
+{% extends 'master_layout.html' %}
+{% load static %}
+{% block css %}
+   <link rel="stylesheet" href="{% static 'css/aufgabe_erstellen.css' %}">
+{% endblock %}
+{% block content %}
+  <h1>Aufgaben per Excel importieren</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <label for="excel_datei">Excel-Datei (.xlsx) hochladen:</label>
+    <input type="file" name="excel_datei" required><br><br>
+
+    <button type="submit" class="btn btn-primary">Import starten</button>
+  </form>
+{% endblock %}

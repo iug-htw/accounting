@@ -37,11 +37,11 @@ class Aufgabe_neu(models.Model):
         ('intern', 'Interner Vorgang'),
     ]
     unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE)
-    fragentyp = models.ForeignKey(Aufgabenkategorie, on_delete=models.CASCADE)
+    fragentyp = models.ForeignKey(Aufgabenkategorie,null=True, on_delete=models.CASCADE)
     unterkategorie = models.IntegerField(null = True, blank=True, default = 1)
-    fragentyp_text = models.CharField(max_length=255)
+    fragentyp_text = models.CharField(null = True,max_length=255)
     mailtext = models.TextField()
-    frage = models.TextField(default="Dieses Feld kann gelöscht werden")
+    frage = models.TextField(null=True,default="Dieses Feld kann gelöscht werden")
     nutzungsdauer = models.IntegerField(null=True, blank=True)
     feedback_konto_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn der Betrag falsch ist.")
@@ -73,6 +73,7 @@ class AufgabeDetail(models.Model):
     festbetrag = models.FloatField(null=True, blank=True, help_text="Fester Betrag, falls kein Bezugskonto genutzt wird")
     bezugs_konto = models.ForeignKey('Konto',on_delete=models.SET_NULL,null=True,blank=True,related_name='verwendet_als_bezug')
     faktor = models.FloatField(null=True, blank=True, help_text="Multiplikationsfaktor, falls abhängig von einem anderen Konto")
+    bilanzposition = models.IntegerField(null=True,)
     formel_typ = models.CharField(
         max_length=50,
         choices=[("faktor", "Multiplikation mit Faktor"), ("fix", "Fester Betrag"), ("summe", "Summe aus mehreren Konten")],

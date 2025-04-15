@@ -47,6 +47,23 @@ class AufgabenkategorieForm(forms.ModelForm):
         model = Aufgabenkategorie
         fields = ['name']
 
+class AufgabeImportForm(forms.ModelForm):
+    class Meta:
+        model = Aufgabe_neu
+        exclude = [
+            'rechnungstyp',
+            'fragentyp',
+            'unterkategorie',
+            'fragentyp_text',
+            'nutzungsdauer',
+            'zahlweise',
+            'beschreibung',
+            'verabschiedung',
+            'rechnungsbetrag',
+            'frage',
+            'rechnungsnummer',
+        ]
+
 class AufgabeBearbeitenForm(forms.ModelForm):
     class Meta:
         model = Aufgabe_neu
