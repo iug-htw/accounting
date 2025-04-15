@@ -40,7 +40,7 @@ class BuchungForm(forms.ModelForm):
 class UnternehmenForm(forms.ModelForm):
     class Meta:
         model = Unternehmen
-        fields = ['name']
+        fields = ['name','kontenplan','fallstudie']
 
 class AufgabenkategorieForm(forms.ModelForm):
     class Meta:
@@ -60,7 +60,7 @@ class AufgabeDetailBearbeitenForm(forms.ModelForm):
 class KontoForm(forms.ModelForm):
     class Meta:
         model = Konto
-        fields = ['name', 'kategorie', 'unterkategorie', 'kontenplan']
+        fields = ['name', 'kategorie', 'unterkategorie', 'kontenplan','kontonummer', 'bilanzposition_nummer']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

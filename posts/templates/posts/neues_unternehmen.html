@@ -14,7 +14,9 @@
 <ul>
     {% for unternehmen in unternehmen %}
         <li>
-            {{ unternehmen.name }}
+            Name: {{ unternehmen.name }}
+            Kontenplan: {{ unternehmen.kontenplan }}
+            Fallstudie: {{ unternehmen.fallstudie }}
             <a href="{% url 'posts:unternehmen_loeschen' unternehmen.id %}" 
                class="btn btn-danger" 
                onclick="return confirm('Soll das Unternehmen wirklich gelöscht werden?');">

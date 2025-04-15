@@ -5,7 +5,9 @@ from django.utils import timezone
 import json
 
 class Unternehmen(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
+    kontenplan = models.ForeignKey('Kontenplan', on_delete=models.CASCADE)
+    fallstudie = models.BooleanField(default=0)
 
     def __str__(self):
         return self.name
@@ -191,9 +193,11 @@ class Konto(models.Model):
         ('Ertrag', 'Ertrag'),
     ]
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     kategorie = models.CharField(max_length=20, choices=KATEGORIE_CHOICES, blank=True, null=True)
     unterkategorie = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
+    kontonummer = models.IntegerField(null=True, blank=True)
+    bilanzposition_nummer = models.IntegerField(null=True, blank=True)
     eins = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True)
     erstellt_von = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True,

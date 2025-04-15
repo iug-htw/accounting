@@ -22,14 +22,31 @@
     {% csrf_token %}
     <button name="neuer_kontenplan" type="submit">Neuen Kontenplan erstellen</button>
 </form>
+<!-- Excel-Import -->
+<h3>Konten aus Excel importieren</h3>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="excel_datei">Excel-Datei:</label>
+    <input type="file" name="excel_datei" accept=".xlsx" required>
 
+    <label for="kontenplan_id">Kontenplan:</label>
+    <select name="kontenplan_id" required>
+        {% for plan in kontenplaene %}
+            <option value="{{ plan.id }}">Kontenplan {{ plan.id }} ({{ plan.nutzer.username }})</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" name="importiere_excel">Importieren</button>
+</form>
 <!-- Anzeige aller vorhandenen Konten mit Bearbeitungsoption -->
 <h3>Bestehende Konten</h3>
 <table>
     <tr>
         <th>Name</th>
+        <th>Kontonummer</th>
         <th>Kategorie</th>
         <th>Unterkategorie</th>
+        <th>Bilanzposition</th>
         <th>Aktionen</th>
     </tr>
     {% for plan_nr, konten in konten_nach_plan.items %}
@@ -39,8 +56,10 @@
             {% for konto in konten %}
             <tr>
                 <td>{{ konto.name }}</td>
+                <td>{{konto.kontonummer}}</td>
                 <td>{{ konto.kategorie }}</td>
                 <td>{{ konto.unterkategorie }}</td>
+                <td>{{konto.bilanzposition_nummer}}</td>
                 <td>
                     <a href="{% url 'posts:konto_bearbeiten' konto.id %}">Bearbeiten</a>
                     <form action="{% url 'posts:konto_loeschen' konto.id %}" method="post" style="display:inline;">

@@ -1,24 +1,20 @@
 
-import requests
-import threading
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand, Kontenplan
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm
 from django.contrib import messages
-import json, random, hashlib
+import json, random, hashlib,openpyxl,threading,requests
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.core.mail import send_mail
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.contrib.auth import get_user_model
 from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
-import io
 from decimal import Decimal
 from collections import defaultdict
 from django.utils.html import format_html
-from django.db.models import F
 #passt
 
 
@@ -789,6 +785,9 @@ def konten_verwalten(request):
             messages.success(request, f"Neuer Kontenplan {neuer_plan.id} wurde erstellt.")
             return redirect('posts:konten_verwalten')
 
+        if 'importiere_excel' in request.POST:
+            return verarbeite_excel_import(request)
+        
         form = KontoForm(request.POST)
         if form.is_valid():
             konto = form.save(commit=False)
@@ -801,15 +800,63 @@ def konten_verwalten(request):
     else:
         form = KontoForm()
 
-    konten = Konto.objects.all().order_by('kontenplan_id', 'name')
+    konten = Konto.objects.all().order_by('kontonummer', 'name')
     konten_nach_plan = defaultdict(list)
     for konto in konten:
         konten_nach_plan[konto.kontenplan_id].append(konto)
+    kontenplaene = Kontenplan.objects.all()
 
     return render(request, 'posts/konten_verwalten.html', {
         'form': form,
-        'konten_nach_plan': dict(konten_nach_plan)
+        'konten_nach_plan': dict(konten_nach_plan),
+        'kontenplaene': kontenplaene
     })
+
+def importiere_konten_aus_excel(datei, kontenplan, nutzer):
+    print("📊 Importiere Excel-Datei für Plan", kontenplan.id)
+    wb = openpyxl.load_workbook(datei)
+    sheet = wb.active
+    fehlerhafte_zeilen = []
+
+    for index, row in enumerate(sheet.iter_rows(min_row=2, max_col=5, values_only=True), start=2):
+        kontonummer, name, kategorie, unterkategorie, bilanzposition = row
+        print(f"📄 Zeile {index}: {row}")
+        if not name or not kategorie or str(name).strip() == "":
+            fehlerhafte_zeilen.append(index)
+            continue
+        try:
+            Konto.objects.create(
+                name=name,
+                kategorie=kategorie,
+                unterkategorie=unterkategorie,
+                kontonummer=kontonummer,
+                bilanzposition_nummer=bilanzposition,
+                kontenplan=kontenplan,
+                erstellt_von=nutzer
+            )
+        except Exception as e:
+            print(f"❌ Fehler in Zeile {index}: {e}")
+            fehlerhafte_zeilen.append(index)
+
+    return fehlerhafte_zeilen
+
+def verarbeite_excel_import(request):
+    print("📥 Excel-Import wurde aufgerufen")
+    excel_datei = request.FILES.get('excel_datei')
+    kontenplan_id = request.POST.get('kontenplan_id')
+
+    try:
+        kontenplan = Kontenplan.objects.get(id=kontenplan_id)
+        fehler = importiere_konten_aus_excel(excel_datei, kontenplan, request.user)
+
+        if fehler:
+            messages.warning(request, f"Einige Zeilen wurden übersprungen (Reihen: {', '.join(map(str, fehler))})")
+        else:
+            messages.success(request, "Konten erfolgreich importiert.")
+    except Exception as e:
+        messages.error(request, f"Fehler beim Import: {str(e)}")
+
+    return redirect('posts:konten_verwalten')
 
 @admin_required
 def konto_bearbeiten(request, konto_id):
