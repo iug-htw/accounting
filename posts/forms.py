@@ -1,12 +1,19 @@
 from django import forms
 from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail, Konto, Kontenplan
 import json
+from django.db.models import Q
 
 class Aufgabe_neu_Form(forms.ModelForm):
+    kontenplan = forms.ModelChoiceField(
+        queryset=Kontenplan.objects.none(),  # Erst später im __init__ dynamisch setzen
+        label="Kontenplan",
+        required=True
+    )
+
     class Meta:
         model = Aufgabe_neu
         fields = [
-            'unternehmen_kategorie',  # Jetzt automatisch als Dropdown gerendert
+            'unternehmen_kategorie', 
             'rechnungstyp',
             'fragentyp',
             'unterkategorie',
@@ -20,6 +27,14 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'beschreibung',
             'verabschiedung'
         ]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['kontenplan'].queryset = Kontenplan.objects.filter(Q(id=1) | Q(nutzer=user))
+            neue_reihenfolge = ['kontenplan'] + [f for f in self.fields if f != 'kontenplan']
+            self.order_fields(neue_reihenfolge)
 
 class BuchungForm(forms.ModelForm):
     class Meta:
@@ -48,21 +63,28 @@ class AufgabenkategorieForm(forms.ModelForm):
         fields = ['name']
 
 class AufgabeImportForm(forms.ModelForm):
+    kontenplan = forms.ModelChoiceField(
+        queryset=Kontenplan.objects.none(),
+        label="Kontenplan",
+        required=True
+    )
+
     class Meta:
         model = Aufgabe_neu
         exclude = [
-            'rechnungstyp',
-            'fragentyp',
-            'unterkategorie',
-            'fragentyp_text',
-            'nutzungsdauer',
-            'zahlweise',
-            'beschreibung',
-            'verabschiedung',
-            'rechnungsbetrag',
-            'frage',
-            'rechnungsnummer',
+            'rechnungstyp', 'fragentyp', 'unterkategorie', 'fragentyp_text', 
+            'nutzungsdauer', 'zahlweise', 'beschreibung', 'verabschiedung', 
+            'rechnungsbetrag', 'frage', 'rechnungsnummer'
         ]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['kontenplan'].queryset = Kontenplan.objects.filter(Q(id=1) | Q(nutzer=user))
+            neue_reihenfolge = ['kontenplan'] + [f for f in self.fields if f != 'kontenplan']
+            self.order_fields(neue_reihenfolge)
+
 
 class AufgabeBearbeitenForm(forms.ModelForm):
     class Meta:

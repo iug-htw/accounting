@@ -192,7 +192,9 @@
             <div class="input-group_rechnung">
                 <select name="soll_konto[]">
                     {% for konto in konten %}
-                        <option value="{{ konto.id }}">{{ konto.name }}</option>
+                        {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
+                            <option value="{{ konto.id }}">{{ konto.name }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
                 <input type="number" step="0.01" placeholder="Betrag eingeben" name="soll_betrag[]" required>
@@ -206,7 +208,9 @@
             <div class="input-group_rechnung">
                 <select name="haben_konto[]">
                     {% for konto in konten %}
-                        <option value="{{ konto.id }}">{{ konto.name }}</option>
+                        {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
+                            <option value="{{ konto.id }}">{{ konto.name }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
                 <input type="number" step="0.01" placeholder="Betrag eingeben" name="haben_betrag[]" required>
@@ -294,7 +298,9 @@ function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
         {% for konto in konten %}
-            <option value="{{ konto.id }}">{{ konto.name }}</option>
+            {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
+                <option value="{{ konto.id }}">{{ konto.name }}</option>
+            {% endif %}
         {% endfor %}
     `;
     let newFieldGroup = document.createElement('div');

@@ -61,89 +61,129 @@ def handle_form_submission(request, form_class, success_message, redirect_url, i
 @admin_required
 def aufgabe_neu_erstellen(request):
     if request.method == 'POST':
-        form = Aufgabe_neu_Form(request.POST)
+        form = Aufgabe_neu_Form(request.POST, user=request.user)
         if form.is_valid():
-            aufgabe = form.save()
+            aufgabe = form.save(commit=False)
+            kontenplan = form.cleaned_data['kontenplan']
             aufgabe.save()
-            speichere_aufgabe_details(request, aufgabe)
+            speichere_aufgabe_details(request, aufgabe, kontenplan)
             messages.success(request, 'Aufgabe und Details erfolgreich erstellt.')
             return redirect('frontpage')
         else:
             messages.error(request, 'Das Formular ist nicht gültig.')
     else:
-        form = Aufgabe_neu_Form()
-    
-    konten = Konto.objects.all().order_by("name")  # Konten abrufen
+        form = Aufgabe_neu_Form(user=request.user)
+
+    konten = Konto.objects.all().order_by("name")
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
+
 
 @admin_required
 def aufgabe_import_form(request):
     if request.method == "POST":
-        form = AufgabeImportForm(request.POST)
-        excel_datei = request.FILES.get("excel_datei")
-
-        if form.is_valid() and excel_datei:
+        form = AufgabeImportForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            kontenplan = form.cleaned_data['kontenplan']
+            excel_datei = request.FILES['excel_datei']
             wb = load_workbook(excel_datei)
             sheet = wb.active
-            count = 0
-            for row in sheet.iter_rows(min_row=2, values_only=True):
+
+            erfolgreich = []
+            fehlgeschlagen = []
+
+            # WICHTIG: Die Felder aus dem abgeschickten Formular lesen
+            unternehmen = form.cleaned_data['unternehmen_kategorie']
+            fragentyp = form.initial.get('fragentyp')
+            unterkategorie = form.cleaned_data.get('unterkategorie')
+            fragentyp_text = form.cleaned_data.get('fragentyp_text', 'Bitte bearbeiten Sie die Aufgabe')
+            mailtext = form.cleaned_data.get('mailtext', 'Sehr geehrte Damen und Herren, bitte bearbeiten Sie die folgende Aufgabe.')
+            feedback_konto_falsch = form.cleaned_data.get('feedback_konto_falsch', 'Bitte prüfen Sie das gewählte Konto.')
+            feedback_betrag_falsch = form.cleaned_data.get('feedback_betrag_falsch', 'Bitte prüfen Sie den Betrag.')
+            nutzungsdauer = form.cleaned_data.get('nutzungsdauer', 0)
+            verabschiedung = form.cleaned_data.get('verabschiedung', 'Mit freundlichen Grüßen')
+            kontakt = form.cleaned_data.get('kontakt', 'Tel: 01234 567890\nE-Mail: info@unternehmen.de')
+
+            for zeilennr, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
                 beschreibung = row[0]
                 zahlweise = row[1]
 
-                neue_aufgabe = form.save(commit=False)
-                neue_aufgabe.beschreibung = beschreibung
-                neue_aufgabe.zahlweise = zahlweise
-                neue_aufgabe.rechnungstyp = 'intern'
-                neue_aufgabe.fragentyp_text = ''
-                neue_aufgabe.fragentyp = None
-                neue_aufgabe.unterkategorie = None
-                neue_aufgabe.verabschiedung = ''
-                neue_aufgabe.rechnungsbetrag = 0
-                neue_aufgabe.nutzungsdauer = None
-                neue_aufgabe.frage = None
-                neue_aufgabe.rechnungsnummer = f"RE-{random.randint(10000, 99999)}"
-                neue_aufgabe.save()
-                count += 1
+                fehlendes_konto = False
+                konto_infos = []
 
                 for i in range(2, len(row), 3):
-                    try:
-                        konto_name = row[i]
-                        soll_haben = row[i+1]
-                        if not konto_name or not soll_haben:
-                            break
-                        betrag = float(row[i+2])
+                    konto_name = row[i]
+                    soll_haben = row[i+1]
+                    betrag = row[i+2]
 
-                        # Konto anhand Name und Plan suchen
-                        konto = Konto.objects.filter(
-                            name__iexact=konto_name.strip(),
-                            kontenplan=neue_aufgabe.unternehmen_kategorie.kontenplan
-                        ).first()
+                    if not konto_name or not soll_haben or betrag is None:
+                        break
 
-                        aufgabe_detail = AufgabeDetail.objects.create(
-                            aufgabe=neue_aufgabe,
-                            konto=konto,
-                            soll_haben=soll_haben.strip(),
-                            betrag=betrag,
-                            formel_typ="fix",
-                            festbetrag=betrag,
-                            monatsangabe=False,
-                            monat=None
-                        )
+                    konto = Konto.objects.filter(
+                        name__iexact=konto_name.strip(),
+                        kontenplan=kontenplan
+                    ).first()
 
-                        # Optionale Felder übernehmen, falls Konto gefunden wurde
-                        if konto:
-                            aufgabe_detail.bilanzposition = konto.bilanzposition_nummer  # optional
-                            aufgabe_detail.save()
-                    except (IndexError, ValueError) as e:
-                        print(f"⚠️ Fehler beim Verarbeiten von Aufgabendetail: {e}")
+                    if not konto:
+                        fehlendes_konto = True
+                        break
 
-            messages.success(request, f"{count} Aufgaben erfolgreich importiert.")
+                    konto_infos.append((konto, soll_haben.strip(), float(betrag)))
+
+                if fehlendes_konto:
+                    fehlgeschlagen.append((zeilennr, beschreibung))
+                    continue
+
+                # Neue Aufgabe pro Zeile erstellen
+                neue_aufgabe = Aufgabe_neu.objects.create(
+                    unternehmen_kategorie=unternehmen,
+                    rechnungstyp='intern',
+                    fragentyp=fragentyp,
+                    unterkategorie=unterkategorie,
+                    fragentyp_text=fragentyp_text,
+                    mailtext=mailtext,
+                    feedback_konto_falsch=feedback_konto_falsch,
+                    feedback_betrag_falsch=feedback_betrag_falsch,
+                    nutzungsdauer=nutzungsdauer,
+                    verabschiedung=verabschiedung,
+                    kontakt=kontakt,
+                    beschreibung=beschreibung,
+                    zahlweise=zahlweise,
+                    rechnungsbetrag=0,
+                    frage='',
+                    rechnungsnummer=f"RE-{random.randint(10000, 99999)}"
+                )
+
+                # Konten zuordnen
+                for konto, soll_haben, betrag in konto_infos:
+                    aufgabe_detail = AufgabeDetail.objects.create(
+                        aufgabe=neue_aufgabe,
+                        konto=konto,
+                        soll_haben=soll_haben,
+                        kontenplan=kontenplan,
+                        betrag=betrag,
+                        formel_typ="fix",
+                        festbetrag=betrag,
+                        monatsangabe=False,
+                        monat=None
+                    )
+                    if konto.bilanzposition_nummer:
+                        aufgabe_detail.bilanzposition = konto.bilanzposition_nummer
+                        aufgabe_detail.save()
+
+                erfolgreich.append((zeilennr, beschreibung))
+
+            # Feedback
+            if erfolgreich:
+                messages.success(request, f"{len(erfolgreich)} Aufgaben erfolgreich importiert.")
+            if fehlgeschlagen:
+                fehlermeldung = ", ".join(f"Zeile {z} ('{b}')" for z, b in fehlgeschlagen)
+                messages.error(request, f"{len(fehlgeschlagen)} Aufgaben konnten nicht importiert werden: {fehlermeldung}")
+
             return redirect('posts:aufgaben_verwalten')
         else:
             messages.error(request, "Fehlerhafte Eingaben oder keine Datei hochgeladen.")
 
     else:
-        # Initialwerte setzen
         beispiel_unternehmen = Unternehmen.objects.first()
         beispiel_kategorie = Aufgabenkategorie.objects.first()
         initial = {
@@ -157,10 +197,20 @@ def aufgabe_import_form(request):
             'verabschiedung': 'Mit freundlichen Grüßen',
             'kontakt': 'Tel: 01234 567890\nE-Mail: info@unternehmen.de',
         }
-        form = AufgabeImportForm(initial=initial)
+        form = AufgabeImportForm(initial=initial, user=request.user)
 
     return render(request, 'posts/aufgabe_import_form.html', {'form': form})
-def speichere_aufgabe_details(request, aufgabe):
+
+@login_required
+def kontenplan_konten_laden(request):
+    kontenplan_id = request.GET.get('kontenplan_id')
+    konten = Konto.objects.filter(kontenplan_id=kontenplan_id).order_by('name')
+
+    konten_liste = [{'id': konto.id, 'name': konto.name} for konto in konten]
+
+    return JsonResponse({'konten': konten_liste})
+
+def speichere_aufgabe_details(request, aufgabe,kontenplan):
     """Speichert die Details der erstellten Aufgabe und verarbeitet Abhängigkeiten korrekt"""
     konto_ids = request.POST.getlist('konto_id[]')
     soll_haben = request.POST.getlist('soll_haben[]')
@@ -186,6 +236,7 @@ def speichere_aufgabe_details(request, aufgabe):
             betrag=float(betraege[i]) if betraege[i] else None,
             monatsangabe=(monatsangaben[i].lower() == 'true'),
             monat=(int(monate[i]) if monate[i] else None),
+            kontenplan=kontenplan,
             formel_typ=formel_typen[i],
             festbetrag=float(festbetraege[i]) if festbetraege[i] else None,
             faktor=float(faktoren[i]) if faktoren[i] else None
@@ -884,11 +935,20 @@ def konten_verwalten(request):
     else:
         form = KontoForm()
 
-    konten = Konto.objects.all().order_by('kontonummer', 'name')
+    # Nur Konten aus Kontenplan 1 und eigene Pläne laden
+    konten = Konto.objects.filter(
+        Q(kontenplan__id=1) | Q(kontenplan__nutzer=request.user)
+    ).order_by('kontonummer', 'name')
+
+    # Nur Kontenpläne: Plan 1 und eigene
+    kontenplaene = Kontenplan.objects.filter(
+        Q(id=1) | Q(nutzer=request.user)
+    )
+
+    # Gruppieren nach Kontenplan-ID
     konten_nach_plan = defaultdict(list)
     for konto in konten:
         konten_nach_plan[konto.kontenplan_id].append(konto)
-    kontenplaene = Kontenplan.objects.all()
 
     return render(request, 'posts/konten_verwalten.html', {
         'form': form,

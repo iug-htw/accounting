@@ -69,7 +69,7 @@ class AufgabeDetail(models.Model):
     monatsangabe = models.BooleanField(default=False)
     monat = models.IntegerField(null=True, blank=True)
     bezugs_konto_alt = models.CharField(max_length=255, null=True, blank=True)
-
+    kontenplan = models.ForeignKey('Kontenplan', null=True, blank=True, on_delete=models.SET_NULL)
     festbetrag = models.FloatField(null=True, blank=True, help_text="Fester Betrag, falls kein Bezugskonto genutzt wird")
     bezugs_konto = models.ForeignKey('Konto',on_delete=models.SET_NULL,null=True,blank=True,related_name='verwendet_als_bezug')
     faktor = models.FloatField(null=True, blank=True, help_text="Multiplikationsfaktor, falls abhängig von einem anderen Konto")
