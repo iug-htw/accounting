@@ -190,14 +190,15 @@
         <div id="soll-container_rechnung">
             <label><strong>Eingaben Soll:</strong></label>
             <div class="input-group_rechnung">
-                <select name="soll_konto[]">
+                <select name="soll_konto[]" onchange="kontoOderBetragGeaendert(this)">
+                    <option value="">Bitte wählen...</option>
                     {% for konto in konten %}
                         {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
                             <option value="{{ konto.id }}">{{ konto.name }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>
-                <input type="number" step="0.01" placeholder="Betrag eingeben" name="soll_betrag[]" required>
+                <input type="number" step="0.01" placeholder="Betrag eingeben" name="soll_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
             </div>
             <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">Neues Soll-Feld hinzufügen</button>
         </div>
@@ -206,14 +207,15 @@
         <div id="haben-container_rechnung">
             <label><strong>Eingaben Haben:</strong></label>
             <div class="input-group_rechnung">
-                <select name="haben_konto[]">
+                <select name="haben_konto[]" onchange="kontoOderBetragGeaendert(this)">
+                    <option value="">Bitte wählen...</option>
                     {% for konto in konten %}
                         {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
                             <option value="{{ konto.id }}">{{ konto.name }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>
-                <input type="number" step="0.01" placeholder="Betrag eingeben" name="haben_betrag[]" required>
+                <input type="number" step="0.01" placeholder="Betrag eingeben" name="haben_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
             </div>
             <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">Neues Haben-Feld hinzufügen</button>
         </div>
@@ -230,6 +232,7 @@
         </div>
     </div>
 </div>
+<div id="tkonto-vorschau" class="tkonto-grid"></div>
 
 <script>
 window.addEventListener('DOMContentLoaded', (event) => {
@@ -297,6 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
+        <option value="">Bitte wählen...</option>
         {% for konto in konten %}
             {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
                 <option value="{{ konto.id }}">{{ konto.name }}</option>
@@ -306,10 +310,10 @@ function addField(containerId) {
     let newFieldGroup = document.createElement('div');
     newFieldGroup.classList.add('input-group_rechnung');
     newFieldGroup.innerHTML = `
-        <select name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" required>
+        <select name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" onchange="kontoOderBetragGeaendert(this)" required>
             ${kontenOptions}
         </select>
-        <input type="number" step="0.01" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
+        <input type="number" step="0.01" oninput="kontoOderBetragGeaendert(this)" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
         <button type="button" class="btn-remove_rechnung" onclick="removeField(this)"></button>
     `;
 
@@ -469,6 +473,83 @@ function summenCheck(event) {
         form.requestSubmit(); // Verwendet den CSRF-Token korrekt
     }
 }
+
+function kontoOderBetragGeaendert() {
+    const sollKontoSelects = document.querySelectorAll('select[name="soll_konto[]"]');
+    const sollBetragInputs = document.querySelectorAll('input[name="soll_betrag[]"]');
+    const habenKontoSelects = document.querySelectorAll('select[name="haben_konto[]"]');
+    const habenBetragInputs = document.querySelectorAll('input[name="haben_betrag[]"]');
+
+    const sollKonten = [];
+    const sollBetraege = [];
+    const habenKonten = [];
+    const habenBetraege = [];
+
+    sollKontoSelects.forEach((select, index) => {
+        if (select.value && sollBetragInputs[index].value) {
+            sollKonten.push(select.value);
+            sollBetraege.push(sollBetragInputs[index].value);
+        }
+    });
+
+    habenKontoSelects.forEach((select, index) => {
+        if (select.value && habenBetragInputs[index].value) {
+            habenKonten.push(select.value);
+            habenBetraege.push(habenBetragInputs[index].value);
+        }
+    });
+
+    if (sollKonten.length > 0 || habenKonten.length > 0) {
+        fetchLiveTKonto(sollKonten, sollBetraege, habenKonten, habenBetraege);
+    }
+}
+
+
+function fetchLiveTKonto(sollKonten, sollBetraege, habenKonten, habenBetraege) {
+    const aufgabeId = "{{ aufgabe.id }}";
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    const params = new URLSearchParams();
+    params.append('aufgabe_id', aufgabeId);
+    params.append('soll_konten', JSON.stringify(sollKonten));
+    params.append('soll_betraege', JSON.stringify(sollBetraege));
+    params.append('haben_konten', JSON.stringify(habenKonten));
+    params.append('haben_betraege', JSON.stringify(habenBetraege));
+
+    fetch(`/posts/tkonto_vorschau/?${params.toString()}`, {
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        renderTKontoVorschau(data);
+    })
+    .catch(error => {
+        console.error('Fehler beim Laden des T-Kontos:', error);
+    });
+}
+
+
+function renderTKontoVorschau(data) {
+    const container = document.getElementById('tkonto-vorschau');
+    container.innerHTML = '';
+
+    for (const konto of data.konten) {
+        let html = `<div><h3>${konto.name}</h3><table><thead><tr><th>Soll</th><th>Haben</th></tr></thead><tbody>`;
+
+        const maxLen = Math.max(konto.soll.length, konto.haben.length);
+        for (let i = 0; i < maxLen; i++) {
+            html += '<tr>';
+            html += `<td>${konto.soll[i] || ''}</td>`;
+            html += `<td>${konto.haben[i] || ''}</td>`;
+            html += '</tr>';
+        }
+        html += '</tbody></table></div>';
+        container.innerHTML += html;
+    }
+}
+
 
 </script>
 {% endblock %}

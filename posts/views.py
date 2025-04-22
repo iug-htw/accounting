@@ -16,6 +16,7 @@ from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
 from decimal import Decimal  
 from collections import defaultdict
 from django.utils.html import format_html
+from django.views.decorators.http import require_GET
 #passt
 
 
@@ -1390,3 +1391,62 @@ def ollama_threading(buchung, nutzer_aufgabe, beschreibung):
     buchung.feedback_ollama = feedback
     buchung.save()
  
+@login_required
+@require_GET
+def tkonto_vorschau(request):
+    aufgabe_id = request.GET.get('aufgabe_id')
+    soll_konten = json.loads(request.GET.get('soll_konten', '[]'))
+    soll_betraege = json.loads(request.GET.get('soll_betraege', '[]'))
+    haben_konten = json.loads(request.GET.get('haben_konten', '[]'))
+    haben_betraege = json.loads(request.GET.get('haben_betraege', '[]'))
+    relevante_konto_ids = list(set(soll_konten + haben_konten))
+    # Alle bisherigen Buchungen für diese Aufgabe und diesen Nutzer
+    buchungen = Buchung.objects.filter(
+        aufgabe_id=aufgabe_id,
+        nutzer=request.user
+    )
+
+    # Konto-ID zu Kontonamen Mapping
+    id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
+    anfangsbestand_map = {
+        str(a.konto.id): a.betrag
+        for a in Anfangsbestand.objects.filter(
+            nutzer=request.user,
+            konto_id__in=relevante_konto_ids
+        )
+    }
+    # Aufbau der bestehenden Buchungen
+    t_konten = {}
+    for konto_id, betrag in anfangsbestand_map.items():
+        konto = t_konten.setdefault(konto_id, {"name": id_to_name.get(str(konto_id), f"Konto {konto_id}"), "soll": [], "haben": []})
+
+        # Aktiva auf Soll, Passiva auf Haben (je nach Kontokategorie)
+        konto_objekt = Konto.objects.get(id=konto_id)
+        if konto_objekt.unterkategorie == "Aktiva":
+            konto["soll"].insert(0, f"{betrag} € (EBK)")
+        else:
+            konto["haben"].insert(0, f"{betrag} € (EBK)")
+    for buchung in buchungen:
+        soll_ids = json.loads(buchung.antwort_konten_soll or "[]")
+        soll_betrags = json.loads(buchung.antwort_betrag_soll or "[]")
+        haben_ids = json.loads(buchung.antwort_konten_haben or "[]")
+        haben_betrags = json.loads(buchung.antwort_betrag_haben or "[]")
+
+        for konto_id, betrag in zip(soll_ids, soll_betrags):
+            konto = t_konten.setdefault(konto_id, {"name": id_to_name.get(str(konto_id), f"Konto {konto_id}"), "soll": [], "haben": []})
+            konto["soll"].append(f"{betrag} €")
+
+        for konto_id, betrag in zip(haben_ids, haben_betrags):
+            konto = t_konten.setdefault(konto_id, {"name": id_to_name.get(str(konto_id), f"Konto {konto_id}"), "soll": [], "haben": []})
+            konto["haben"].append(f"{betrag} €")
+    
+    # Aktuelle Eingaben ergänzen
+    for konto_id, betrag in zip(soll_konten, soll_betraege):
+        konto = t_konten.setdefault(konto_id, {"name": id_to_name.get(str(konto_id), f"Konto {konto_id}"), "soll": [], "haben": []})
+        konto["soll"].append(f"{betrag} € (aktuell)")
+
+    for konto_id, betrag in zip(haben_konten, haben_betraege):
+        konto = t_konten.setdefault(konto_id, {"name": id_to_name.get(str(konto_id), f"Konto {konto_id}"), "soll": [], "haben": []})
+        konto["haben"].append(f"{betrag} € (aktuell)")
+    
+    return JsonResponse({"konten": list(t_konten.values())})

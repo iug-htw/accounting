@@ -34,6 +34,7 @@ urlpatterns = [
     path("buchungssatz-uebersicht/", views.buchungssatz_uebersicht, name="buchungssatz_uebersicht"),
     path('aufgabe_import_form/', views.aufgabe_import_form, name='aufgabe_import_form'),
     path('kontenplan_konten_laden/', views.kontenplan_konten_laden, name='kontenplan_konten_laden'),
+    path('tkonto_vorschau/', views.tkonto_vorschau, name='tkonto_vorschau'),
 
 
 ]
