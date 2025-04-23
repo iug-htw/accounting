@@ -9,7 +9,11 @@ class Aufgabe_neu_Form(forms.ModelForm):
         label="Kontenplan",
         required=True
     )
-
+    aufgabeninfo = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
+        label="Zusatzinformation zur Aufgabe"
+    )
     class Meta:
         model = Aufgabe_neu
         fields = [
@@ -17,6 +21,7 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'rechnungstyp',
             'fragentyp',
             'unterkategorie',
+            'aufgabeninfo',
             'fragentyp_text',
             'mailtext',
             'feedback_konto_falsch',
@@ -68,7 +73,11 @@ class AufgabeImportForm(forms.ModelForm):
         label="Kontenplan",
         required=True
     )
-
+    aufgabeninfo = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
+        label="Zusatzinformation zur Aufgabe"
+    )
     class Meta:
         model = Aufgabe_neu
         exclude = [

@@ -3,6 +3,7 @@
 
 {% block css %}
    <link rel="stylesheet" href="{% static 'css/aufgabe_erstellen.css' %}">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.css">
 {% endblock %}
 
 {% block content %}
@@ -16,7 +17,11 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-
+        <div class="form-group">
+            <label for="aufgabeninfo_input"><strong>Zusatzinformation zur Aufgabe (optional):</strong></label>
+            <input id="aufgabeninfo_input" type="hidden" name="aufgabeninfo" value="{{ form.aufgabeninfo.value|default_if_none:'' }}">
+            <trix-editor input="aufgabeninfo_input"></trix-editor>
+        </div>
         <h2>Buchungssätze hinzufügen</h2>
         <div id="fields-container">
             <div class="field-group">
@@ -190,5 +195,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
 {% endblock %}

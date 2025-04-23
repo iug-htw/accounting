@@ -11,8 +11,16 @@
 <br>
     <button id="toggle-right-section" class="btn-toggle_rechnung">
     📄 Buchungs-Navigation ausblenden
-</button>
-   
+    </button>
+    {% if aufgabe.aufgabeninfo %}
+        <button id="toggle-info-section" class="btn-toggle_rechnung" onclick="toggleInfoBox()">
+            ℹ️ Weitere Informationen anzeigen
+        </button>
+        <div id="info-box" class="infobox">
+            {{ aufgabe.aufgabeninfo|safe }}
+        </div>
+    {% endif %}
+    
     {% if user.is_authenticated and nutzer_aufgabe %}
     <p><strong>Zufällig generierte Werte:</strong></p>
     <ul>
@@ -88,12 +96,12 @@
                 <!-- Buchungsdetails -->
                 <div id="buchung-detail-{{ item.buchung.buchung_id }}" class="buchung-detail" style="display: none;">
                     <p><strong>Soll-Konten:</strong>
-                        {% for id in item.soll_konten_liste %}
+                        {% for id in item.original_soll_konten %}
                             {{ konten_namen|get_konto:id }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
                     <p><strong>Haben-Konten:</strong>
-                        {% for id in item.haben_konten_liste %}
+                        {% for id in item.original_haben_konten %}
                             {{ konten_namen|get_konto:id }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
@@ -145,7 +153,7 @@
                                     <ul>
                                         {% for i in nutzer_aufgabe.soll_konten %}
                                             <li>
-                                                {{ i }}: {{ nutzer_aufgabe.soll_betraege|index:forloop.counter0 }} €
+                                                {{ konten_namen|get_konto:i }}: {{ nutzer_aufgabe.soll_betraege|index:forloop.counter0 }} €
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -155,7 +163,7 @@
                                     <ul>
                                         {% for i in nutzer_aufgabe.haben_konten %}
                                             <li>
-                                                {{ i }}: {{ nutzer_aufgabe.haben_betraege|index:forloop.counter0 }} €
+                                                {{ konten_namen|get_konto:i }}: {{ nutzer_aufgabe.haben_betraege|index:forloop.counter0 }} €
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -549,7 +557,10 @@ function renderTKontoVorschau(data) {
         container.innerHTML += html;
     }
 }
-
+function toggleInfoBox() {
+    const box = document.getElementById("info-box");
+    box.style.display = (box.style.display === "none") ? "block" : "none";
+}
 
 </script>
 {% endblock %}

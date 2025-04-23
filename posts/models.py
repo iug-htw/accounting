@@ -56,6 +56,7 @@ class Aufgabe_neu(models.Model):
     kontakt = models.TextField(blank=True, null=True, default='Tel: 01234 567890\nE-Mail: info@unternehmen.de')
     beschreibung = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.')
     rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern')
+    aufgabeninfo = models.TextField(null=True, blank=True, help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt).")
     
 
     def __str__(self):
@@ -122,6 +123,8 @@ class Buchung(models.Model):
     antwort_konten_haben = models.JSONField(null=True, blank=True)
     antwort_betrag_soll = models.JSONField(null=True, blank=True)
     antwort_betrag_haben = models.JSONField(null=True, blank=True)
+    original_konten_soll = models.JSONField(null=True, blank=True)
+    original_konten_haben = models.JSONField(null=True, blank=True)
     korrekturbuchung = models.BooleanField(default=False)
     konto_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=0)  # 0=Richtig, 1=Soll falsch, 2=Haben falsch, 3=Beide falsch
     betrag_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=True)  # True=Richtig, False=Falsch

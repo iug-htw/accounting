@@ -110,12 +110,19 @@ html, body {
     gap: 1.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
+.infobox {
+    white-space: pre-wrap;           /* Einrückung und Umbrüche erhalten */
+    font-family: inherit;            /* Schriftart von der Umgebung übernehmen */
+    font-size: 1rem;                 /* Einheitlich zu deinem restlichen Text */
+    line-height: 1.5;                /* Angenehmes Zeilenbild */
+    background-color: #f9f9f9;       /* Optional wie Box-Stil */
+}
 
 
 /* ============================ */
 /* 🌟 Toggle-Button Styling oben rechts */
 /* ============================ */
-#toggle-right-section {
+#toggle-right-section, #toggle-info-section {
     background-color: #120639;
     color: white;
     max-width: 20vw;
@@ -131,7 +138,7 @@ html, body {
 }
 
 
-#toggle-right-section:hover {
+#toggle-right-section:hover, #toggle-info-section:hover {
     background-color: #3c0f79;
     transform: scale(1.03);
 }
@@ -159,7 +166,7 @@ html, body {
 
 
 @media (max-width: 768px) {
-    #toggle-right-section {
+    #toggle-right-section, #toggle-info-section {
         position: relative;
         top: auto;
         right: auto;
@@ -446,7 +453,7 @@ html, body {
         font-size: 13px;
     }
 
-    #toggle-right-section {
+    #toggle-right-section, #toggle-info-section {
         display: block;
         margin: 1rem auto;
         align-self: center;

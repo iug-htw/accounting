@@ -66,6 +66,7 @@ def aufgabe_neu_erstellen(request):
         if form.is_valid():
             aufgabe = form.save(commit=False)
             kontenplan = form.cleaned_data['kontenplan']
+            aufgabe.aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
             aufgabe.save()
             speichere_aufgabe_details(request, aufgabe, kontenplan)
             messages.success(request, 'Aufgabe und Details erfolgreich erstellt.')
@@ -133,7 +134,30 @@ def aufgabe_import_form(request):
                 if fehlendes_konto:
                     fehlgeschlagen.append((zeilennr, beschreibung))
                     continue
+                aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
+                beschreibung_zusatz = ""
+                beschreibung_textkörper = ""
 
+                if any("EBK" in konto.name.upper() or "ERÖFFNUNGSBILANZ" in konto.name.upper() for konto, _, _ in konto_infos):
+                    beschreibung_zusatz = " (Eröffnungsbilanz)"
+                    beschreibung_textkörper = (
+                        "Am Geschäftsjahresbeginn wurde das Anfangsvermögen erfasst, um die Buchhaltung des Unternehmens korrekt zu starten. "
+                        "Erstelle die richtige Eröffnungsbilanz für das folgende Konto."
+                    )
+                elif any("SBK" in konto.name.upper() or "SCHLUSSBILANZ" in konto.name.upper() for konto, _, _ in konto_infos):
+                    beschreibung_zusatz = " (Schlussbilanz)"
+                    beschreibung_textkörper = (
+                        "Zum Geschäftsjahresende wurde die Vermögens- und Schuldenlage erfasst. "
+                        "Diese Transaktion fließt in die Schlussbilanz ein und bildet die Grundlage für die Erfolgsrechnung."
+                    )
+                else:
+                    beschreibung_textkörper = (
+                        "Diese Transaktion wurde im laufenden Geschäftsjahr vorgenommen und betrifft eine übliche Geschäftstätigkeit. "
+                        "Verbuchen Sie diesen Geschäftsvorfall. "
+                    )
+
+                # Neue Beschreibung zusammensetzen
+                beschreibung_final = f"{beschreibung_zusatz}\n\n{beschreibung_textkörper}{beschreibung or 'Buchung'}"
                 # Neue Aufgabe pro Zeile erstellen
                 neue_aufgabe = Aufgabe_neu.objects.create(
                     unternehmen_kategorie=unternehmen,
@@ -147,7 +171,8 @@ def aufgabe_import_form(request):
                     nutzungsdauer=nutzungsdauer,
                     verabschiedung=verabschiedung,
                     kontakt=kontakt,
-                    beschreibung=beschreibung,
+                    aufgabeninfo=aufgabeninfo,
+                    beschreibung=beschreibung_final,
                     zahlweise=zahlweise,
                     rechnungsbetrag=0,
                     frage='',
@@ -190,8 +215,8 @@ def aufgabe_import_form(request):
         initial = {
             'unternehmen_kategorie': beispiel_unternehmen.id if beispiel_unternehmen else None,
             'fragentyp': beispiel_kategorie.id if beispiel_kategorie else None,
-            'fragentyp_text': 'Bitte bearbeiten Sie die Aufgabe',
-            'mailtext': 'Sehr geehrte Damen und Herren,\nbitte bearbeiten Sie die folgende Aufgabe.',
+            'fragentyp_text': 'Bitte bearbeiten Sie die beiliegende Rechnung',
+            'mailtext': 'Sehr geehrte Damen und Herren,\ndie folgende Rechnung ist eingegangen und muss bearbeitet werden.',
             'feedback_konto_falsch': 'Bitte prüfen Sie das gewählte Konto.',
             'feedback_betrag_falsch': 'Bitte prüfen Sie den Betrag.',
             'nutzungsdauer': 0,
@@ -267,7 +292,7 @@ def rechnung_detail_view(request, aufgabe_id):
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe)
         if not is_buchung_korrekt(buchung, nutzer_aufgabe):
-            send_korrektur_mail(request.user, aufgabe, aufgabe.fragentyp, request)
+            send_korrektur_mail(request.user, aufgabe, request)
         return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
 
     letzte_buchung = buchungen.last()
@@ -291,6 +316,8 @@ def rechnung_detail_view(request, aufgabe_id):
             'haben_konten_liste': safe_parse(buchung.antwort_konten_haben),
             'soll_betraege_liste': safe_parse(buchung.antwort_betrag_soll),
             'haben_betraege_liste': safe_parse(buchung.antwort_betrag_haben),
+            'original_soll_konten': safe_parse(buchung.original_konten_soll),
+            'original_haben_konten': safe_parse(buchung.original_konten_haben),
         })
 
     # Template für den Rechnungstyp auswählen
@@ -391,14 +418,46 @@ def handle_nutzer_buchung(request, aufgabe):
     letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
     neuer_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
 
+    soll_konto_ids = request.POST.getlist('soll_konto[]')
+    haben_konto_ids = request.POST.getlist('haben_konto[]')
+    soll_betraege = request.POST.getlist('soll_betrag[]')
+    haben_betraege = request.POST.getlist('haben_betrag[]')
+
+    # Original speichern
+    original_soll_konten = soll_konto_ids
+    original_haben_konten = haben_konto_ids
+
+    def ersetze_konto_durch_bilanzpositionskonto(konto_ids):
+        neue_ids = []
+        for konto_id in konto_ids:
+            try:
+                original_konto = Konto.objects.get(id=konto_id)
+                bilanznummer = original_konto.bilanzposition_nummer
+                # Suche Konto mit gleicher Bilanzposition und gesetzter Kontonummer
+                ersatz_konto = Konto.objects.filter(
+                    bilanzposition_nummer=bilanznummer,
+                    kontonummer__isnull=False
+                ).first()
+                if ersatz_konto:
+                    neue_ids.append(str(ersatz_konto.id))
+                else:
+                    neue_ids.append(konto_id)  # Fallback: ursprüngliches Konto verwenden
+            except Konto.DoesNotExist:
+                neue_ids.append(konto_id)
+        return neue_ids
+
+    ersetzte_soll_konten = ersetze_konto_durch_bilanzpositionskonto(soll_konto_ids)
+    ersetzte_haben_konten = ersetze_konto_durch_bilanzpositionskonto(haben_konto_ids)
     # Buchung erstellen
     buchung = Buchung.objects.create(
         aufgabe=aufgabe,
         nutzer=request.user,
-        antwort_konten_soll=json.dumps(request.POST.getlist('soll_konto[]')),
-        antwort_konten_haben=json.dumps(request.POST.getlist('haben_konto[]')),
-        antwort_betrag_soll=json.dumps(request.POST.getlist('soll_betrag[]')),
-        antwort_betrag_haben=json.dumps(request.POST.getlist('haben_betrag[]')),
+        antwort_konten_soll=json.dumps(ersetzte_soll_konten),
+        antwort_konten_haben=json.dumps(ersetzte_haben_konten),
+        antwort_betrag_soll=json.dumps(soll_betraege),
+        antwort_betrag_haben=json.dumps(haben_betraege),
+        original_konten_soll=json.dumps(original_soll_konten),
+        original_konten_haben=json.dumps(original_haben_konten),
         status='bearbeitet',
         versuch=neuer_versuch
     )
@@ -824,6 +883,8 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
         antwort_konten_haben=json.dumps(haben_ids),
         antwort_betrag_soll=buchung.antwort_betrag_haben,
         antwort_betrag_haben=buchung.antwort_betrag_soll,
+        original_konten_soll=buchung.original_konten_haben,
+        original_konten_haben=buchung.original_konten_soll,
         status='bearbeitet',
         korrekturbuchung=True,
         versuch=naechster_versuch
@@ -871,7 +932,7 @@ def mail_detail(request, mail_id):
         'aufgabe_link': aufgabe_link
     })
 
-def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie, request):
+def send_korrektur_mail(nutzer, aufgabe, request):
     # Den höchsten bisherigen Versuch aus der Buchungs- oder Mail-Tabelle ermitteln
     letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
     letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
@@ -884,7 +945,7 @@ def send_korrektur_mail(nutzer, aufgabe, aufgabenkategorie, request):
 
     naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
     update_url = request.build_absolute_uri(reverse("posts:rechnung_detail", args=[aufgabe.id]))
-    mail_betreff = f"Korrekturbuchung - {aufgabenkategorie.name}"
+    mail_betreff = f"Korrekturbuchung für Rechnung - {aufgabe.rechnungsnummer}"
     mail_text = (
         f"""
         Sehr geehrte/r {nutzer.username},
