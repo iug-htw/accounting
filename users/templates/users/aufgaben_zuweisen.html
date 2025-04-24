@@ -1,54 +1,78 @@
 {% extends 'master_layout.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/aufgaben_zuweisen.css' %}">
+{% endblock %}
 {% block content %}
-<h1>Aufgaben zuweisen</h1>
-<h2>Alle Aufgaben selbst zuweisen</h2>
-<form method="post" action="{% url 'users:aufgaben_selbst_zuweisen' %}">
-    {% csrf_token %}
-    <button type="submit">Alle Aufgaben mir zuweisen</button>
-</form>
-<!-- Aufgabenübersicht -->
-<h2>Übersicht der zugewiesenen Aufgaben</h2>
-{% for semester, studiengaenge in aufgaben_uebersicht.items %}
-    <h3>{{ semester }}</h3>
-    {% for studiengang, aufgaben in studiengaenge.items %}
-        <p><strong>{{ studiengang }}:</strong> 
-            {% for aufgabe in aufgaben %}
-                {{ aufgabe.fragentyp_text }}{% if not forloop.last %}, {% endif %}
-            {% endfor %}
-        </p>
-    {% empty %}
-        <p>Keine Aufgaben zugewiesen.</p>
-    {% endfor %}
-{% endfor %}
 
-<!-- Formular zum Zuweisen der Aufgaben -->
+<h1>Aufgaben zuweisen</h1>
+
+<!-- Aufgabenübersicht -->
+<div class="card-section">
+    <h2>Übersicht der zugewiesenen Aufgaben</h2>
+    {% for semester, studiengaenge in aufgaben_uebersicht.items %}
+        <h3>{{ semester }}</h3>
+        {% for studiengang, aufgaben in studiengaenge.items %}
+            <p><strong>{{ studiengang }}:</strong>
+                {% for aufgabe in aufgaben %}
+                    {{ aufgabe.fragentyp_text }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+        {% empty %}
+            <p>Keine Aufgaben zugewiesen.</p>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<!-- ALLES IN EIN FORMULAR PACKEN -->
 <form method="post">
     {% csrf_token %}
 
-    <h2>Aufgaben auswählen</h2>
-    {% for aufgabe in aufgaben %}
-        <div>
-            <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}">
-            <label>Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
-        </div>
-    {% endfor %}
+    <!-- Aufgaben auswählen -->
+    <div class="card-section">
+        <h2>Aufgaben auswählen</h2>
+        {% for aufgabe in aufgaben %}
+            {% with "aufgabe_"|add:aufgabe.id|stringformat:"s" as input_id %}
+            <div>
+                <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}" id="{{ input_id }}" class="checkbox-aufgabe">
+                <label for="{{ input_id }}">Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
+            </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
 
-    <h2>Semester auswählen</h2>
-    {% for sem in semester %}
-        <div>
-            <input type="checkbox" name="semester" value="{{ sem.id }}">
-            <label>{{ sem.name }}</label>
-        </div>
-    {% endfor %}
+    <!-- Semester auswählen -->
+    <div class="card-section">
+        <h2>Semester auswählen</h2>
+        {% for sem in semester %}
+            {% with "semester_"|add:sem.id|stringformat:"s" as sem_id %}
+            <div>
+                <input type="checkbox" name="semester" value="{{ sem.id }}" id="{{ sem_id }}">
+                <label for="{{ sem_id }}">{{ sem.name }}</label>
+            </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
 
-    <h2>Studiengänge auswählen</h2>
-    {% for studiengang in studiengaenge %}
-        <div>
-            <input type="checkbox" name="studiengaenge" value="{{ studiengang.id }}">
-            <label>{{ studiengang.name }}</label>
-        </div>
-    {% endfor %}
+    <!-- Studiengänge auswählen -->
+    <div class="card-section">
+        <h2>Studiengänge auswählen</h2>
+        {% for studiengang in studiengaenge %}
+            {% with "studiengang_"|add:studiengang.id|stringformat:"s" as stud_id %}
+            <div>
+                <input type="checkbox" name="studiengaenge" value="{{ studiengang.id }}" id="{{ stud_id }}">
+                <label for="{{ stud_id }}">{{ studiengang.name }}</label>
+            </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
 
-    <button type="submit">Aufgabe zuweisen</button>
+    <!-- Buttons -->
+<div class="button-row">
+    <button type="submit" class="btn-primary">Aufgabe zuweisen</button>
+    <button type="submit" class="btn-secondary" id="alle-zuweisen">Alle Aufgaben mir zuweisen</button>
+</div>
 </form>
+
 {% endblock %}
+

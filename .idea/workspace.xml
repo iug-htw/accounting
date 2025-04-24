@@ -7,13 +7,8 @@
     <list default="true" id="6fcc3484-d69e-4a1e-9652-dcf098c7cd31" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/aufgabe_erstellen.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/aufgabe_erstellen.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/aufgaben_verwalten.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/aufgaben_verwalten.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/templates/posts/buchungssatz_uebersicht.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/templates/posts/buchungssatz_uebersicht.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/bulk_student_creation.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/bulk_student_creation.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/rechnungsübersicht.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/rechnungsübersicht.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/templates/users/bulk_student_creation.html" beforeDir="false" afterPath="$PROJECT_DIR$/users/templates/users/bulk_student_creation.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/templates/users/update_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/users/templates/users/update_profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/posteingang.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/posteingang.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users/templates/users/aufgaben_zuweisen.html" beforeDir="false" afterPath="$PROJECT_DIR$/users/templates/users/aufgaben_zuweisen.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -160,7 +155,9 @@
       <workItem from="1742590122540" duration="1010000" />
       <workItem from="1742809437008" duration="20742000" />
       <workItem from="1744278906093" duration="7760000" />
-      <workItem from="1744294065200" duration="2659000" />
+      <workItem from="1744294065200" duration="3069000" />
+      <workItem from="1744721863598" duration="512000" />
+      <workItem from="1745483886018" duration="7517000" />
     </task>
     <servers />
   </component>
