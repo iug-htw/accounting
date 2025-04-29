@@ -16,6 +16,7 @@ from posts.views import Aufgabe_neu
 from django.core.mail import send_mail
 from django.conf import settings
 import random
+from collections import defaultdict
 
 @lehrkraft_required  # Ensure only logged-in users can access this view
 def register_view(request):
@@ -184,7 +185,16 @@ def aufgaben_zuweisen_view(request):
     eigene_semester = Semester.objects.filter(id__in=eigene_studierende.values_list('semester_id', flat=True).distinct())
     eigene_studiengaenge = Studiengang.objects.filter(id__in=eigene_studierende.values_list('studiengang_id', flat=True).distinct())
 
-    aufgaben = Aufgabe_neu.objects.all()
+    alle_aufgaben = Aufgabe_neu.objects.all()
+    # Normale Aufgaben (ohne Fallstudie)
+    normale_aufgaben = alle_aufgaben.filter(unternehmen_kategorie__isnull=True).order_by('id')
+    # Fallstudien Aufgaben: Sicher gruppiert
+    fallstudien_aufgaben = defaultdict(list)
+    for aufgabe in alle_aufgaben.filter(unternehmen_kategorie__isnull=False).select_related('unternehmen_kategorie').order_by('unternehmen_kategorie__name', 'id'):
+        if aufgabe.unternehmen_kategorie:
+            fallstudien_aufgaben[aufgabe.unternehmen_kategorie.name].append(aufgabe)
+
+    fallstudien_aufgaben = dict(fallstudien_aufgaben)  # wichtig fürs Template!
 
     # Übersicht: Aufgaben pro Semester und Studiengang
     aufgaben_uebersicht = {}
@@ -228,7 +238,8 @@ def aufgaben_zuweisen_view(request):
         return redirect('users:aufgaben_zuweisen')
 
     return render(request, 'users/aufgaben_zuweisen.html', {
-        'aufgaben': aufgaben,
+        'normale_aufgaben': normale_aufgaben,
+        'fallstudien_aufgaben': fallstudien_aufgaben,
         'semester': eigene_semester,
         'studiengaenge': eigene_studiengaenge,
         'aufgaben_uebersicht': aufgaben_uebersicht

@@ -388,6 +388,7 @@ def buchungssatz_uebersicht(request):
     })
 
 def is_buchung_korrekt(buchung, nutzer_aufgabe):
+    
     # JSON-Daten der Buchung laden
     soll_konten_nutzer = safe_parse(buchung.antwort_konten_soll)
     haben_konten_nutzer = safe_parse(buchung.antwort_konten_haben)
@@ -400,9 +401,17 @@ def is_buchung_korrekt(buchung, nutzer_aufgabe):
     soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
     haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
 
-    # Prüfen, ob die Konten und Beträge übereinstimmen
-    konten_soll_korrekt = set(soll_konten_nutzer) == set(soll_konten_aufgabe)
-    konten_haben_korrekt = set(haben_konten_nutzer) == set(haben_konten_aufgabe)
+    erlaubte_soll_konten = erlaubte_konten(soll_konten_aufgabe)
+    erlaubte_haben_konten = erlaubte_konten(haben_konten_aufgabe)
+
+    konten_soll_korrekt = (
+        set(soll_konten_nutzer).issubset(erlaubte_soll_konten)
+        and len(soll_konten_nutzer) == len(soll_konten_aufgabe)
+    )
+    konten_haben_korrekt = (
+        set(haben_konten_nutzer).issubset(erlaubte_haben_konten)
+        and len(haben_konten_nutzer) == len(haben_konten_aufgabe)
+    )
     betraege_soll_korrekt = sum(soll_betraege_nutzer) == sum(soll_betraege_aufgabe)
     betraege_haben_korrekt = sum(haben_betraege_nutzer) == sum(haben_betraege_aufgabe)
 
@@ -413,6 +422,22 @@ def is_buchung_korrekt(buchung, nutzer_aufgabe):
 
     # Ergebnis zurückgeben
     return konten_soll_korrekt and konten_haben_korrekt and betraege_soll_korrekt and betraege_haben_korrekt and summe_korrekt
+
+def erlaubte_konten(ids):
+        """Erlaubt genau das Originalkonto und ggf. das Konto mit Bilanzposition als Kontonummer."""
+        erlaubte_ids = set()
+        for id in ids:
+            konto = Konto.objects.filter(id=id).first()
+            if konto:
+                erlaubte_ids.add(konto.id)  # Das Konto selbst immer erlauben
+                if konto.bilanzposition_nummer:
+                    bilanz_konto = Konto.objects.filter(
+                        kontonummer=konto.bilanzposition_nummer,
+                        kontenplan=konto.kontenplan
+                    ).first()
+                    if bilanz_konto:
+                        erlaubte_ids.add(bilanz_konto.id)  # Konto mit Bilanzposition als Kontonummer
+        return set(str(eid) for eid in erlaubte_ids)
 
 def handle_nutzer_buchung(request, aufgabe):
     letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
@@ -477,15 +502,21 @@ def handle_nutzer_buchung(request, aufgabe):
     soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
     haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
 
-    # Fehlerstatus für Konten setzen
-    if set(soll_konten_nutzer) != set(soll_konten_aufgabe) and set(haben_konten_nutzer) != set(haben_konten_aufgabe):
-        konto_status = 3  # Beide falsch
-    elif set(soll_konten_nutzer) != set(soll_konten_aufgabe):
-        konto_status = 1  # Soll falsch
-    elif set(haben_konten_nutzer) != set(haben_konten_aufgabe):
-        konto_status = 2  # Haben falsch
+    erlaubte_soll_konten = erlaubte_konten(soll_konten_aufgabe)
+    erlaubte_haben_konten = erlaubte_konten(haben_konten_aufgabe)
+
+    # Neue Konto-Status-Logik
+    soll_konten_ok = set(soll_konten_nutzer).issubset(erlaubte_soll_konten) and len(soll_konten_nutzer) == len(soll_konten_aufgabe)
+    haben_konten_ok = set(haben_konten_nutzer).issubset(erlaubte_haben_konten) and len(haben_konten_nutzer) == len(haben_konten_aufgabe)
+
+    if not soll_konten_ok and not haben_konten_ok:
+        konto_status = 3
+    elif not soll_konten_ok:
+        konto_status = 1
+    elif not haben_konten_ok:
+        konto_status = 2
     else:
-        konto_status = 0  # Beide korrekt
+        konto_status = 0
 
     # Fehlerstatus für Beträge setzen
     if sum(betraege_soll_nutzer) != sum(soll_betraege_aufgabe) and sum(betraege_haben_nutzer) != sum(haben_betraege_aufgabe):

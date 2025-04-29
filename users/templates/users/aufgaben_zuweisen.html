@@ -27,17 +27,20 @@
 <!-- ALLES IN EIN FORMULAR PACKEN -->
 <form method="post">
     {% csrf_token %}
-
     <!-- Aufgaben auswählen -->
     <div class="card-section">
         <h2>Aufgaben auswählen</h2>
-        {% for aufgabe in aufgaben %}
-            {% with "aufgabe_"|add:aufgabe.id|stringformat:"s" as input_id %}
-            <div>
-                <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}" id="{{ input_id }}" class="checkbox-aufgabe">
-                <label for="{{ input_id }}">Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
-            </div>
-            {% endwith %}
+        <!-- Pro Fallstudie ein eigener Block -->
+        {% for unternehmensname, aufgaben in fallstudien_aufgaben.items %}
+            <h3>{{ unternehmensname }}</h3> <!-- Nur eine kleine Überschrift -->
+            {% for aufgabe in aufgaben %}
+                {% with "aufgabe_"|add:aufgabe.id|stringformat:"s" as input_id %}
+                <div class="aufgaben-eintrag">
+                    <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}" id="{{ input_id }}" class="checkbox-aufgabe">
+                    <label for="{{ input_id }}">Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
+                </div>
+                {% endwith %}
+            {% endfor %}
         {% endfor %}
     </div>
 

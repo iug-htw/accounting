@@ -200,6 +200,10 @@ html, body {
     align-items: stretch;
     width: 100%;
 }
+select {
+    width: 100%;
+    box-sizing: border-box;
+}
 
 .btn-container {
     display: flex;
