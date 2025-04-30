@@ -37,9 +37,14 @@ class Aufgabe_neu_Form(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if user:
-            self.fields['kontenplan'].queryset = Kontenplan.objects.filter(Q(id=1) | Q(nutzer=user))
+            self.fields['kontenplan'].queryset = Kontenplan.objects.filter(
+                Q(nutzer=user) | Q(nutzer__is_superuser=True)
+            )
             neue_reihenfolge = ['kontenplan'] + [f for f in self.fields if f != 'kontenplan']
             self.order_fields(neue_reihenfolge)
+            self.fields['unternehmen_kategorie'].queryset = Unternehmen.objects.filter(
+                Q(ersteller=user.id) | Q(ersteller=1)
+            )
 
 class BuchungForm(forms.ModelForm):
     class Meta:
@@ -83,14 +88,16 @@ class AufgabeImportForm(forms.ModelForm):
         exclude = [
             'rechnungstyp', 'fragentyp', 'unterkategorie', 'fragentyp_text', 
             'nutzungsdauer', 'zahlweise', 'beschreibung', 'verabschiedung', 
-            'rechnungsbetrag', 'frage', 'rechnungsnummer'
+            'rechnungsbetrag', 'frage', 'rechnungsnummer', 'ersteller'
         ]
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if user:
-            self.fields['kontenplan'].queryset = Kontenplan.objects.filter(Q(id=1) | Q(nutzer=user))
+            self.fields['kontenplan'].queryset = Kontenplan.objects.filter(
+                Q(nutzer=user) | Q(nutzer__is_superuser=True)
+            )
             neue_reihenfolge = ['kontenplan'] + [f for f in self.fields if f != 'kontenplan']
             self.order_fields(neue_reihenfolge)
 
@@ -111,10 +118,8 @@ class KontoForm(forms.ModelForm):
         fields = ['name', 'kategorie', 'unterkategorie', 'kontenplan','kontonummer', 'bilanzposition_nummer']
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-
-        self.fields['kontenplan'].queryset = Kontenplan.objects.all()
-        self.fields['kontenplan'].label = "Kontenplan"
 
         if 'kategorie' in self.data:
             kategorie = self.data.get('kategorie')
@@ -122,3 +127,7 @@ class KontoForm(forms.ModelForm):
                 self.fields['unterkategorie'].choices = [('Aktiva', 'Aktiva'), ('Passiva', 'Passiva')]
             elif kategorie == "Erfolgskonto":
                 self.fields['unterkategorie'].choices = [('Aufwand', 'Aufwand'), ('Ertrag', 'Ertrag')]
+        if user:
+            self.fields['kontenplan'].queryset = Kontenplan.objects.filter(
+                Q(nutzer=user) | Q(nutzer__is_superuser=True)
+            )

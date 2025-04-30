@@ -16,6 +16,7 @@ from posts.views import Aufgabe_neu
 from django.core.mail import send_mail
 from django.conf import settings
 import random
+from django.db.models import Q
 from collections import defaultdict
 
 @lehrkraft_required  # Ensure only logged-in users can access this view
@@ -64,8 +65,11 @@ def logout_view(request):
 @lehrkraft_required
 def add_studiengang_view(request):
     if request.method == 'POST':
+        
         form = StudiengangForm(request.POST)
         if form.is_valid():
+            studiengang = form.save(commit=False)
+            studiengang.ersteller = request.user.id
             form.save()
             return redirect('users:add_studiengang')
     else:
@@ -79,9 +83,12 @@ def add_studiengang_view(request):
         'studiengaenge': studiengaenge
     })
 
-@admin_required
+@lehrkraft_required
 def delete_studiengang_view(request, studiengang_id):
     studiengang = Studiengang.objects.get(id=studiengang_id)
+    # Berechtigung prüfen
+    if studiengang.ersteller and studiengang.ersteller != request.user.id and not request.user.is_superuser:
+        return HttpResponse('Keine Berechtigung zum Löschen.')
     studiengang.delete()
     return redirect('users:add_studiengang')
 
@@ -90,6 +97,8 @@ def add_semester_view(request):
     if request.method == 'POST':
         form = SemesterForm(request.POST)
         if form.is_valid():
+            semester = form.save(commit=False)
+            semester.ersteller = request.user.id
             form.save()
             messages.success(request, "Semester erfolgreich hinzugefügt.")
             return redirect('users:add_semester')
@@ -102,9 +111,11 @@ def add_semester_view(request):
         'semester': semester
     })
 
-@admin_required
+@lehrkraft_required
 def delete_semester_view(request, semester_id):
     semester = Semester.objects.get(id=semester_id)
+    if semester.ersteller and semester.ersteller != request.user.id and not request.user.is_superuser:
+        return HttpResponse('Keine Berechtigung zum Löschen.')
     semester.delete()
     messages.success(request, "Semester erfolgreich gelöscht.")
     return redirect('users:add_semester')
@@ -165,9 +176,15 @@ def bulk_student_creation(request):
             'unternehmen': unternehmen,
         })
 
-    studiengaenge = Studiengang.objects.all()
-    semester = Semester.objects.all()
-    unternehmen = Unternehmen.objects.all()
+    studiengaenge = Studiengang.objects.filter(
+    Q(ersteller=request.user.id) | Q(ersteller=1)
+    )
+    semester = Semester.objects.filter(
+        Q(ersteller=request.user.id) | Q(ersteller=1)
+    )
+    unternehmen = Unternehmen.objects.filter(
+        Q(ersteller=request.user.id) | Q(ersteller=1)
+    )
     return render(request, 'users/bulk_student_creation.html', {
         'studiengaenge': studiengaenge,
         'semester': semester,
@@ -185,7 +202,9 @@ def aufgaben_zuweisen_view(request):
     eigene_semester = Semester.objects.filter(id__in=eigene_studierende.values_list('semester_id', flat=True).distinct())
     eigene_studiengaenge = Studiengang.objects.filter(id__in=eigene_studierende.values_list('studiengang_id', flat=True).distinct())
 
-    alle_aufgaben = Aufgabe_neu.objects.all()
+    alle_aufgaben = Aufgabe_neu.objects.filter(
+        Q(ersteller=request.user.id) | Q(ersteller=1)
+    )
     # Normale Aufgaben (ohne Fallstudie)
     normale_aufgaben = alle_aufgaben.filter(unternehmen_kategorie__isnull=True).order_by('id')
     # Fallstudien Aufgaben: Sicher gruppiert
@@ -264,7 +283,9 @@ def aufgaben_selbst_zuweisen(request):
     nutzer_aufgaben.delete()
     
     
-    aufgaben = Aufgabe_neu.objects.all()  # Alle Aufgaben abrufen
+    aufgaben = Aufgabe_neu.objects.filter(
+        Q(ersteller=lehrer.id) | Q(ersteller=1)
+    )
 
     for aufgabe in aufgaben:
         zufaellige_werte = generiere_zufaellige_werte(aufgabe)

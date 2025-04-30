@@ -27,7 +27,7 @@ def safe_parse(val):
 # Für Lehrkräfte
 def lehrkraft_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.role == 'teacher':
+        if request.user.is_authenticated and (request.user.role == 'teacher' or request.user.is_superuser):
             return view_func(request, *args, **kwargs)
         else:
             return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
@@ -59,12 +59,13 @@ def handle_form_submission(request, form_class, success_message, redirect_url, i
         messages.error(request, "Das Formular ist nicht gültig.")
         return None
 
-@admin_required
+@lehrkraft_required
 def aufgabe_neu_erstellen(request):
     if request.method == 'POST':
         form = Aufgabe_neu_Form(request.POST, user=request.user)
         if form.is_valid():
             aufgabe = form.save(commit=False)
+            aufgabe.ersteller = request.user.id
             kontenplan = form.cleaned_data['kontenplan']
             aufgabe.aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
             aufgabe.save()
@@ -76,11 +77,13 @@ def aufgabe_neu_erstellen(request):
     else:
         form = Aufgabe_neu_Form(user=request.user)
 
-    konten = Konto.objects.all().order_by("name")
+    konten = Konto.objects.filter(
+        Q(kontenplan__nutzer=request.user) | Q(kontenplan__nutzer__is_superuser=True)
+    ).order_by("name")
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
 
 
-@admin_required
+@lehrkraft_required
 def aufgabe_import_form(request):
     if request.method == "POST":
         form = AufgabeImportForm(request.POST, request.FILES, user=request.user)
@@ -175,6 +178,7 @@ def aufgabe_import_form(request):
                     beschreibung=beschreibung_final,
                     zahlweise=zahlweise,
                     rechnungsbetrag=0,
+                    ersteller=request.user.id,
                     frage='',
                     rechnungsnummer=f"RE-{random.randint(10000, 99999)}"
                 )
@@ -461,7 +465,8 @@ def handle_nutzer_buchung(request, aufgabe):
                 # Suche Konto mit gleicher Bilanzposition und gesetzter Kontonummer
                 ersatz_konto = Konto.objects.filter(
                     bilanzposition_nummer=bilanznummer,
-                    kontonummer__isnull=False
+                    kontonummer__isnull=False,
+                    kontenplan=original_konto.kontenplan
                 ).first()
                 if ersatz_konto:
                     neue_ids.append(str(ersatz_konto.id))
@@ -644,7 +649,7 @@ def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
 
     # Zuerst die normalen Konten berechnen
     for konto in normale_soll_konten.union(normale_haben_konten):
-        referenz_betrag = konto.betrag
+        referenz_betrag = konto.betrag 
         min_betrag = referenz_betrag * 0.25
         max_betrag = referenz_betrag * 1.75
         zufallswert = random.randint(int(min_betrag), int(max_betrag))
@@ -743,13 +748,15 @@ def get_fallback_konten(aufgabe):
         haben_detail.konto.id if haben_detail and haben_detail.konto else None
     )
 
-@admin_required
+@lehrkraft_required
 def unternehmen_verwalten(request):
     """ Zeigt eine Liste der Unternehmen an und ermöglicht das Hinzufügen. """
     if request.method == 'POST':
         form = UnternehmenForm(request.POST)
         if form.is_valid():
-            form.save()
+            unternehmen = form.save(commit=False)  # ✅ Hier wird das Objekt erzeugt
+            unternehmen.ersteller = request.user.id
+            unternehmen.save()
             messages.success(request, "Unternehmen erfolgreich hinzugefügt.")
             return redirect('posts:unternehmen_verwalten')
         else:
@@ -757,7 +764,10 @@ def unternehmen_verwalten(request):
     else:
         form = UnternehmenForm()
 
-    unternehmen = Unternehmen.objects.all()
+    if request.user.is_superuser:
+        unternehmen = Unternehmen.objects.all()
+    else:
+        unternehmen = Unternehmen.objects.filter(Q(ersteller=request.user.id) | Q(ersteller=1))
     return render(request, 'posts/neues_unternehmen.html', {'form': form, 'unternehmen': unternehmen})
 
 
@@ -769,10 +779,12 @@ def handle_post_request(request, form_class, redirect_url, template_name):
     form = form_class()
     return render(request, template_name, {'form': form})
 
-@admin_required
+@lehrkraft_required
 def unternehmen_loeschen(request, unternehmen_id):
     """ Löscht ein Unternehmen und gibt eine Bestätigung aus. """
     unternehmen = get_object_or_404(Unternehmen, id=unternehmen_id)
+    if unternehmen.ersteller != request.user.id and not request.user.is_superuser:
+        return HttpResponse("Keine Berechtigung zum Löschen.")
     unternehmen.delete()
     messages.success(request, f"Das Unternehmen '{unternehmen.name}' wurde gelöscht.")
     return redirect('posts:unternehmen_verwalten')
@@ -864,9 +876,11 @@ def build_t_konten(buchungen, anfangsbestände):
             t_konten[konto_id]["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
     return t_konten
 
-@admin_required
+@lehrkraft_required
 def aufgabe_bearbeiten(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+    if aufgabe.ersteller != request.user.id and not request.user.is_superuser:
+        return HttpResponse("Keine Berechtigung zum Bearbeiten.")
     details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
 
     if request.method == 'POST':
@@ -1016,7 +1030,7 @@ def konten_verwalten(request):
         if 'importiere_excel' in request.POST:
             return verarbeite_excel_import(request)
         
-        form = KontoForm(request.POST)
+        form = KontoForm(request.POST or None, user=request.user)
         if form.is_valid():
             konto = form.save(commit=False)
             konto.erstellt_von = request.user
@@ -1026,16 +1040,17 @@ def konten_verwalten(request):
         else:
             messages.error(request, "Fehler: Überprüfe deine Eingaben.")
     else:
-        form = KontoForm()
+        form = KontoForm(user=request.user)
 
     # Nur Konten aus Kontenplan 1 und eigene Pläne laden
+    superuser_filter = Q(erstellt_von=request.user) | Q(erstellt_von__isnull=True) | Q(erstellt_von__is_superuser=True)
     konten = Konto.objects.filter(
-        Q(kontenplan__id=1) | Q(kontenplan__nutzer=request.user)
+        Q(kontenplan__nutzer=request.user) | Q(kontenplan__nutzer__is_superuser=True)
+    ).filter(
+        superuser_filter
     ).order_by('kontonummer', 'name')
-
-    # Nur Kontenpläne: Plan 1 und eigene
     kontenplaene = Kontenplan.objects.filter(
-        Q(id=1) | Q(nutzer=request.user)
+        Q(nutzer=request.user) | Q(nutzer__is_superuser=True)
     )
 
     # Gruppieren nach Kontenplan-ID
@@ -1095,10 +1110,11 @@ def verarbeite_excel_import(request):
 
     return redirect('posts:konten_verwalten')
 
-@admin_required
+@lehrkraft_required
 def konto_bearbeiten(request, konto_id):
     konto = get_object_or_404(Konto, id=konto_id)
-
+    if konto.erstellt_von_id != request.user.id and not request.user.is_superuser:
+        return HttpResponse("Keine Berechtigung zum Bearbeiten.")
     if request.method == 'POST':
         form = KontoForm(request.POST, instance=konto)
         if form.is_valid():
@@ -1113,9 +1129,11 @@ def konto_bearbeiten(request, konto_id):
     return render(request, 'posts/konto_bearbeiten.html', {'form': form, 'konto': konto})
 
 
-@admin_required
+@lehrkraft_required
 def konto_loeschen(request, konto_id):
     konto = get_object_or_404(Konto, id=konto_id)
+    if konto.erstellt_von_id != request.user.id and not request.user.is_superuser:
+        return HttpResponse("Keine Berechtigung zum Löschen.")
     konto.delete()
     messages.success(request, f"Konto '{konto.name}' wurde erfolgreich gelöscht.")
     return redirect('posts:konten_verwalten')
@@ -1367,6 +1385,8 @@ def rechnungsuebersicht(request):
 
     for nutzer_aufgabe in nutzer_aufgaben:
         aufgabe = nutzer_aufgabe.aufgabe
+        if not (aufgabe.ersteller == user.id or aufgabe.ersteller == 1):
+            continue  # ⛔ fremde Aufgabe, überspringen
         buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=user)
         
         # Anzahl Buchungen und Korrekturbuchungen zählen
@@ -1406,13 +1426,19 @@ def generate_random_absender():
 @lehrkraft_required
 def aufgaben_verwalten(request):
     """ Zeigt eine Liste aller Aufgaben und ermöglicht das Löschen. """
-    aufgaben = Aufgabe_neu.objects.all()
+    if request.user.is_superuser:
+        aufgaben = Aufgabe_neu.objects.all()
+    else:
+        aufgaben = Aufgabe_neu.objects.filter(Q(ersteller=request.user.id) | Q(ersteller=1))
     return render(request, 'posts/aufgaben_verwalten.html', {'aufgaben': aufgaben})
 
-@admin_required
+@lehrkraft_required
 def aufgabe_loeschen(request, aufgabe_id):
-    """ Löscht eine Aufgabe und gibt eine Bestätigung aus. """
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
+
+    if aufgabe.ersteller != request.user.id and not request.user.is_superuser:
+        return HttpResponse("Keine Berechtigung zum Löschen.")
+
     aufgabe.delete()
     messages.success(request, f"Die Aufgabe '{aufgabe.fragentyp_text}' wurde gelöscht.")
     return redirect('posts:aufgaben_verwalten')

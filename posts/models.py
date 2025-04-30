@@ -8,6 +8,7 @@ class Unternehmen(models.Model):
     name = models.CharField(max_length=100)
     kontenplan = models.ForeignKey('Kontenplan', on_delete=models.CASCADE)
     fallstudie = models.BooleanField(default=0)
+    ersteller = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -38,6 +39,7 @@ class Aufgabe_neu(models.Model):
     ]
     unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE)
     fragentyp = models.ForeignKey(Aufgabenkategorie,null=True, on_delete=models.CASCADE)
+    ersteller = models.IntegerField(null=True, blank=True)
     unterkategorie = models.IntegerField(null = True, blank=True, default = 1)
     fragentyp_text = models.CharField(null = True,max_length=255)
     mailtext = models.TextField()

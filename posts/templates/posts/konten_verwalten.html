@@ -61,11 +61,13 @@
                 <td>{{ konto.unterkategorie }}</td>
                 <td>{{konto.bilanzposition_nummer}}</td>
                 <td>
+                    {% if konto.erstellt_von_id == user.id or user.is_superuser %}
                     <a href="{% url 'posts:konto_bearbeiten' konto.id %}">Bearbeiten</a>
                     <form action="{% url 'posts:konto_loeschen' konto.id %}" method="post" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" onclick="return confirm('Möchtest du dieses Konto wirklich löschen?');">Löschen</button>
                     </form>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
