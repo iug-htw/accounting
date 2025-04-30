@@ -38,7 +38,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
     # Felder, die in der Admin-Listenansicht angezeigt werden
-    list_display = ('username', 'email', 'role', 'professor')
+    list_display = ('username', 'email', 'role', 'professor','last_login')
     
     # Filter, um nach bestimmten Rollen zu filtern
     list_filter = ('role',)

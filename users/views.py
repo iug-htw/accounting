@@ -225,9 +225,10 @@ def aufgaben_zuweisen_view(request):
             zugewiesene_aufgaben = Aufgabe_neu.objects.filter(nutzeraufgabe__nutzer__in=studis_in_gruppe).order_by('id').distinct()
             if zugewiesene_aufgaben.exists():
                 aufgaben_uebersicht[sem.name][studiengang.name] = list(zugewiesene_aufgaben)
-    print(f"aufgaben_uebersicht{aufgaben_uebersicht}")
     # Aufgaben zuweisen
     if request.method == 'POST':
+        if 'alle_zuweisen' in request.POST:
+            return aufgaben_selbst_zuweisen(request)
         ausgewählte_aufgaben = request.POST.getlist('aufgaben')
         ausgewählte_semester = request.POST.getlist('semester')
         ausgewählte_studiengaenge = request.POST.getlist('studiengaenge')
@@ -272,7 +273,6 @@ def aufgaben_selbst_zuweisen(request):
     # Alle zugehörigen Daten zu den NutzerAufgaben löschen
     nutzer_aufgaben = NutzerAufgabe.objects.filter(nutzer=lehrer)
     aufgaben_ids = nutzer_aufgaben.values_list('id', flat=True)
-    print(f"aufgaben_ids: {aufgaben_ids}")
     # Zugehörige Mails löschen
     Mail.objects.filter(nutzer=lehrer).exclude(aufgabe__isnull=True).delete()
     
@@ -286,7 +286,9 @@ def aufgaben_selbst_zuweisen(request):
     aufgaben = Aufgabe_neu.objects.filter(
         Q(ersteller=lehrer.id) | Q(ersteller=1)
     )
-
+    print(f"Es wurden {aufgaben.count()} Aufgaben gefunden.")
+    for aufgabe in aufgaben:
+        print(f"Verarbeite Aufgabe {aufgabe.id}")
     for aufgabe in aufgaben:
         zufaellige_werte = generiere_zufaellige_werte(aufgabe)
         print(f"zufaellige_werte: {zufaellige_werte}")
