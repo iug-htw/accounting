@@ -1,49 +1,10 @@
-Lehrer
-1. Login 
-2. Links in der oberen Leiste
-3. Anzeige auf Index
-    Name
-    Rolle
-    Anzeige Studis
-4. Aufgabe erstellen
-    Kategorie hinzufügen
-    Kategorie auswählen
-    verschiedene Aufgabentypen
-    verschiedene Freischaltungen
-5. Aufgabenliste
-    Alle Aufgaben des Lehrers
-    Checkboxen 
-    Freischalten/Sperren
-6. Nutzererstellung
-    Semester/Studiengang richtig zugeordnet
-    Studiengang hinzufügbar
-7. Lösung in Aufgabe richtig abgeglichen
-Studi
-1. Login 
-2. Links in der oberen Leiste
-3. Anzeigen der Aufgaben nach verschiedenen Filtern
-    next/prev ID funktioniert in Aufgaben selbst
-4. Lösung in Aufgabe richtig abgeglichen
-5. Aufgabenstatus ändert sich entsprechend nach absenden
-
-
-alle                            http://localhost:8000/posts/
-alle (kann weg für Profs)       http://localhost:8000/posts/buchung_uebersicht/
-alle                            http://localhost:8000/posts/buchungsaufgabe/
-Prof                            http://localhost:8000/posts/neue-aufgabe/
-Prof                            http://localhost:8000/posts/aufgaben/
-Prof                            http://localhost:8000/posts/neue-kategorie/
-prof                            http://localhost:8000/posts/kategorie-loeschen/2/
-Alle (kann weg für Profs)       http://localhost:8000/posts/kategorien/
-Studi                           http://localhost:8000/posts/kategorie/3/
-Alle                            http://localhost:8000/posts/aufgabe/7/
-Alle (kann weg für Profs)       http://localhost:8000/posts/alle_aufgaben/
-Studi (nur Formular)            http://localhost:8000/posts/update_aufgabe_status/7/
-Studi                           http://localhost:8000/posts/nicht_abgeschlossene_aufgaben/
-Prof                            http://localhost:8000/posts/update_aufgabe_status_multiple/
-
-Prof                            http://localhost:8000/users/register/
-Alle                            http://localhost:8000/users/login/
-Alle                            http://localhost:8000/users/logout/
-Prof                            http://localhost:8000/users/studiengang_hinzufuegen/
-Prof                            http://localhost:8000/users/delete_studiengang/5
+python manage.py runserver 0.0.0.0:8000
+    http://train.f4.htw-berlin.de:8000
+sudo systemctl restart gunicorn
+sudo systemctl stop gunicorn
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+sudo nano /etc/nginx/sites-available/django_project
+sudo nginx -t
+sudo systemctl restart nginx
+    https://train.f4.htw-berlin.de

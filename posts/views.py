@@ -1449,27 +1449,37 @@ OLLAMA_API_URL = 'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate'
 @csrf_exempt
 def ollama_prompt_view(request):
     if request.method == 'POST':
-        prompt = request.POST.get('prompt', '')
-        payload = {
-            "model": "llama3.3:latest", 
-            "prompt": prompt,
-            "stream": False
-        }
-
         try:
-            response = requests.post(
-                OLLAMA_API_URL,
-                json=payload,
-            )
-            text = response.text
-            try:
-                result = json.loads(text)
-                return JsonResponse({'antwort': result.get('response', 'Keine Antwort erhalten')})
-            except json.JSONDecodeError:
-                return JsonResponse({'error': f'Ungültige JSON-Antwort: {text}'})
+            body = request.body.decode('utf-8')
+            parsed = json.loads(body)
+            prompt = parsed.get("prompt", "")
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-
+            return StreamingHttpResponse(
+                (f"event: error\ndata: Fehler beim Parsen: {str(e)}\n\n",),
+                content_type='text/event-stream'
+            )
+        payload = {
+            "model": "llama3.3:70b",
+            "prompt": prompt,
+            "stream": True
+        }
+        def stream_antwort():
+            try:
+                with requests.post(OLLAMA_API_URL, json=payload, stream=True, timeout=30) as response:
+                    if response.status_code != 200:
+                        yield f"event: error\ndata: Fehler von Ollama (Status {response.status_code})\n\n"
+                        return
+                    for line in response.iter_lines(decode_unicode=True):
+                        if line:
+                            try:
+                                data = json.loads(line)
+                                text = data.get("response", "")
+                                yield f"data: {text}\n\n"
+                            except json.JSONDecodeError as e:
+                                yield f"event: error\ndata: JSON-Fehler: {str(e)}\n\n"
+            except Exception as e:
+                yield f"event: error\ndata: Ausnahme beim Streaming: {str(e)}\n\n"
+        return StreamingHttpResponse(stream_antwort(), content_type='text/event-stream')
     return render(request, 'posts/ollama_prompt.html')
 
 def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):

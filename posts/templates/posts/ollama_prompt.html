@@ -7,19 +7,63 @@
         <textarea name="prompt" rows="4" cols="60" placeholder="Prompt eingeben..."></textarea><br>
         <button type="submit">Senden</button>
     </form>
-    <div id="antwortBox" style="margin-top: 20px; white-space: pre-wrap;"></div>
+    <div id="antwortBox" style="margin-top: 20px;white-space: pre-wrap;padding: 
+        1rem;border: 1px solid #ccc;background: #f9f9f9;max-width: 700px;max-height: 
+        300px;overflow-y: auto;font-family: monospace;">
+    </div>
 </div>
 
 <script>
-document.getElementById('promptForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const response = await fetch("", {
-        method: "POST",
-        body: formData
+    document.getElementById('promptForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const prompt = this.querySelector('[name="prompt"]').value;
+        const csrftoken = this.querySelector('[name="csrfmiddlewaretoken"]').value;
+    
+        const antwortBox = document.getElementById("antwortBox");
+        antwortBox.innerText = "";
+    
+        const response = await fetch("", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({ prompt })
+        });
+    
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let result = "";
+    
+        let fullText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+
+            // Extrahiere nur Text nach "data:"
+            const matches = chunk.match(/data:\s?(.*)/g);
+            if (matches) {
+                matches.forEach(line => {
+                    const clean = line.replace("data:", "").trim();
+                    try {
+                        // Falls es ein JSON-Stream ist (z.B. bei OpenAI), parse es korrekt
+                        const parsed = JSON.parse(clean);
+                        if (parsed.content) {
+                            fullText += parsed.content;
+                        } else {
+                            fullText += clean;
+                        }
+                    } catch {
+                        fullText += clean;
+                    }
+                });
+                antwortBox.innerText = fullText;
+            }
+        }
     });
-    const data = await response.json();
-    document.getElementById("antwortBox").innerText = data.antwort || data.error;
-});
-</script>
+    </script>
+    
+<script src="https://unpkg.com/event-source-polyfill/src/eventsource.min.js"></script>
 {% endblock %}
