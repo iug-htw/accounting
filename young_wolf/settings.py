@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-+=7d&r0cu!2mbm4nb(%azg6-$gpog7%5=%7+m(2c$6w)fm5gsa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1', 'Klntama.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost','127.0.0.1', 'Klntama.pythonanywhere.com','train.f4.htw-berlin.de']
 
 
 # Application definition
@@ -117,14 +117,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/' #/home/Klntama/individuelles-tempo/staticfiles
-MEDIA_URL = 'media/' #/home/Klntama/individuelles-tempo/media
+STATIC_URL = '/static/' #/home/Klntama/individuelles-tempo/staticfiles
+MEDIA_URL = '/media/' #/home/Klntama/individuelles-tempo/media
 
 STATIC_ROOT = BASE_DIR / 'assets'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'
+    BASE_DIR / 'staticfiles'
 ]
 
 # Default primary key field type
