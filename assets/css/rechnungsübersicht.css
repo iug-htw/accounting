@@ -49,7 +49,7 @@ th {
 .btn {
     display: inline-block;
     padding: 8px 12px;
-    background: #444;
+    background: rgb(35, 32, 87);
     color: white;
     text-decoration: none;
     border-radius: 6px;
@@ -57,7 +57,7 @@ th {
 }
 
 .btn:hover {
-    background: #222;
+    background: #1206b5;
 }
 
 /* Zurück-Button */
@@ -67,7 +67,7 @@ th {
     margin: 20px auto;
     font-size: 16px;
     text-decoration: none;
-    color: #333;
+    color: rgba(35, 35, 43, 0.89);
     font-weight: bold;
 }
 

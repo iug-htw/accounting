@@ -50,6 +50,10 @@
     border-radius: 12px;
     font-size: 14px;
     color: #ffffff;
+    display: inline-block;
+    white-space: nowrap; /* Verhindert Zeilenumbruch */
+    min-width: 110px;     /* Gibt genug Platz für lange Wörter */
+    text-align: center;
 }
 
 .status-bearbeitet {
