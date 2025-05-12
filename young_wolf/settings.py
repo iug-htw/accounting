@@ -120,12 +120,14 @@ USE_TZ = True
 STATIC_URL = '/static/' #/home/Klntama/individuelles-tempo/staticfiles
 MEDIA_URL = '/media/' #/home/Klntama/individuelles-tempo/media
 
-STATIC_ROOT = BASE_DIR / 'assets'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'staticfiles'
-]
+if DEBUG:
+    STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
+    STATIC_ROOT = BASE_DIR / 'static_root_dev'  # wird lokal nicht verwendet
+else:
+    STATICFILES_DIRS = []  # Nginx liest aus STATIC_ROOT
+    STATIC_ROOT = BASE_DIR / 'assets'  # dieser Ordner wird von Nginx ausgeliefert
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
