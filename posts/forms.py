@@ -18,7 +18,6 @@ class Aufgabe_neu_Form(forms.ModelForm):
         model = Aufgabe_neu
         fields = [
             'unternehmen_kategorie', 
-            'rechnungstyp',
             'fragentyp',
             'unterkategorie',
             'aufgabeninfo',
@@ -26,7 +25,6 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'mailtext',
             'feedback_konto_falsch',
             'feedback_betrag_falsch',
-            'nutzungsdauer',
             'rechnungsnummer',
             'zahlweise',
             'beschreibung',

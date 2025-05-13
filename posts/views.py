@@ -789,7 +789,7 @@ def unternehmen_loeschen(request, unternehmen_id):
     messages.success(request, f"Das Unternehmen '{unternehmen.name}' wurde gelöscht.")
     return redirect('posts:unternehmen_verwalten')
 
-@admin_required
+@lehrkraft_required
 def aufgabenkategorie_verwalten(request):
     """ Zeigt eine Liste der Kategorien an und ermöglicht das Hinzufügen. """
     if request.method == 'POST':
