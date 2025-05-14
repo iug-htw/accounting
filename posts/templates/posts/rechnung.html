@@ -47,9 +47,6 @@
     {% endif %}
     -->
 <div class="content-wrapper_rechnung">
-
-
-
     <!-- Linker Bereich: Fiktive Rechnung -->
     <div class="left-section_rechnung">
         {% include rechnungs_template %}
@@ -139,11 +136,20 @@
                             {% if item.buchung.versuch > 2%}
                                 {% if item.buchung.konto_korrekt != 0 or item.buchung.betrag_korrekt != 0 %}
                                     <h4>Zusätzliches Feedback:</h4>
-                                    {% if item.buchung.konto_korrekt != 0 %}
-                                        <p>{{ aufgabe.feedback_konto_falsch }}</p>
+                                    {% if nutzergruppe == 0 %} <!--nur die mit geraden Nutzergruppen-->
+                                        {% if item.buchung.konto_korrekt != 0 %}
+                                            <p>{{ aufgabe.feedback_konto_falsch }}</p>
+                                        {% endif %}
+                                        {% if item.buchung.betrag_korrekt != 0 %}
+                                            <p>{{ aufgabe.feedback_betrag_falsch }}</p>
+                                        {% endif %}
                                     {% endif %}
-                                    {% if item.buchung.betrag_korrekt != 0 %}
-                                        <p>{{ aufgabe.feedback_betrag_falsch }}</p>
+                                    {% if item.buchung.konto_korrekt != 0 or item.buchung.betrag_korrekt != 0 %}
+                                        {% if item.buchung.feedback_ollama %}
+                                            <p>{{ item.buchung.feedback_ollama }}</p>
+                                        {% else %}
+                                            <p>Feedback wird geladen. Aktualisiere die Seite in einer Minute nochmal.</p>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
                             {% endif %}

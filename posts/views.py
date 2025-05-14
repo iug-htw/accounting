@@ -354,9 +354,10 @@ def rechnung_detail_view(request, aufgabe_id):
         'konten': konten,
         'block_buchung': block_buchung,
         'absender': nutzer_aufgabe.absender,
-        'konten_namen': id_to_name
+        'konten_namen': id_to_name,
     }
-
+    nutzergruppe = getattr(request.user, "nutzergruppe", 0) or 0
+    context["nutzergruppe"] = nutzergruppe % 2 == 1  # Ungerade Gruppen: 1 oder 3
     return render(request, 'posts/rechnung.html', context)
 
 @login_required
@@ -551,7 +552,7 @@ def handle_nutzer_buchung(request, aufgabe):
         buchung.status = "bearbeitet"
         nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
-    if (buchung.versuch == 1 or buchung.versuch == 3) and buchung.status != "korrekt":
+    if (buchung.versuch == 3) and buchung.status != "korrekt":
         threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
 
     buchung.save()
@@ -1483,22 +1484,40 @@ def ollama_prompt_view(request):
     return render(request, 'posts/ollama_prompt.html')
 
 def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
+    id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
+
+    def id_betrag_zu_namen(paar_liste, betraege):
+        return [(id_to_name.get(str(konto_id), f"Unbekannt-{konto_id}"), betrag) for konto_id, betrag in zip(paar_liste, betraege)]
 
     # Nutzerlösung alphabetisch
-    nutzer_soll = sorted(zip(json.loads(buchung.antwort_konten_soll), json.loads(buchung.antwort_betrag_soll)))
-    nutzer_haben = sorted(zip(json.loads(buchung.antwort_konten_haben), json.loads(buchung.antwort_betrag_haben)))
+    nutzer_soll = id_betrag_zu_namen(
+        json.loads(buchung.antwort_konten_soll or "[]"),
+        [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_soll or "[]")]
+    )
+    nutzer_haben = id_betrag_zu_namen(
+        json.loads(buchung.antwort_konten_haben or "[]"),
+        [round(float(b), 2) for b in json.loads(buchung.antwort_betrag_haben or "[]")]
+    )
 
-    # Richtige Lösung alphabetisch
-    korrekt_soll = sorted(zip(nutzeraufgabe.soll_konten, nutzeraufgabe.soll_betraege))
-    korrekt_haben = sorted(zip(nutzeraufgabe.haben_konten, nutzeraufgabe.haben_betraege))
+    # Korrekte Lösung laden
+    korrekt_soll = id_betrag_zu_namen(
+        nutzeraufgabe.soll_konten,
+        [round(float(b), 2) for b in nutzeraufgabe.soll_betraege]
+    )
+    korrekt_haben = id_betrag_zu_namen(
+        nutzeraufgabe.haben_konten,
+        [round(float(b), 2) for b in nutzeraufgabe.haben_betraege]
+    )
 
     prompt = (
-        f"Erstelle mir ein 2 Sätze langes Feedback zu folgendem buchhalterischen Sachverhalt:\n{beschreibung}\n"
-        f"und folgender Nutzerlösung:\nSoll: {nutzer_soll}, Haben: {nutzer_haben}\n"
-        f"bezogen auf die richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}"
+        f"Du bist ein Tutor für Buchhaltung. Deine Aufgabe ist es, didaktisches Feedback auf fehlerhafte Buchungssätze zu geben. Das Feedback soll maximal drei Sätze lang sein.Verwende keine IDs, sondern nur Kontonamen und Beträge. Vermeide es, die richtige Lösung vollständig zu nennen, vor allem den vollständigen Namen der richtigen Konten.\n\n"
+        f"Sachverhalt: \n{beschreibung}\n"
+        f"Nutzereingabe:\nSoll: {nutzer_soll}, Haben: {nutzer_haben}\n"
+        f"Richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}"
+        f"Falls die gewählten Konten nicht korrekt sind, erläutere kurz, warum sie nicht passend sind, und gib einen Hinweis, welches Konto oder welche Konten stattdessen in diesem Fall sinnvoll wären. Wenn die Anzahl der Konten nicht übereinstimmt, soll ebenfalls ein zusätzlicher Hinweis gegeben werden. Unstimmige Beträge: Falls die Beträge nicht korrekt sind, weise darauf hin, dass die Summe nicht dem Rechnungsbetrag entspricht, und gib einen Tipp, wie sich der korrekte Betrag zusammensetzt. Falls nur eines der beiden fehlerhaft ist, nenne nur den entsprechenden Punkt. Falls beides falsch ist, gehe auf beide Punkte ein. Vermeide es, die richtige Lösung explizit zu nennen, sondern leite den Nutzer mit Hinweisen zur richtigen Lösung. Gib mir nur das Feedback zurück."
     )
     ollama_payload = {
-        "model": "llama3.3:latest",
+        "model": "llama3.3:70b",
         "prompt": prompt,
         "stream": False
     }
