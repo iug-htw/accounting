@@ -17,6 +17,7 @@ from decimal import Decimal
 from collections import defaultdict
 from django.utils.html import format_html
 from django.views.decorators.http import require_GET
+from decouple import config
 #passt
 
 
@@ -836,7 +837,7 @@ def hauptbuch_view(request):
     })
 
 def generate_color(aufgabe_id):
-    hash_value = int(hashlib.md5(str(aufgabe_id).encode()).hexdigest(), 16)
+    hash_value = int(hashlib.md5(str(aufgabe_id).encode(), usedforsecurity=False).hexdigest(), 16)
     hue = hash_value % 360
     return f"hsl({hue}, 70%, 85%)"
 
@@ -1445,7 +1446,7 @@ def aufgabe_loeschen(request, aufgabe_id):
     return redirect('posts:aufgaben_verwalten')
 
 #+ Zeile 278
-OLLAMA_API_URL = 'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate' 
+OLLAMA_API_URL = config('OLLAMA_SERVER')
 
 @csrf_exempt
 def ollama_prompt_view(request):
@@ -1524,9 +1525,9 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
 
     try:
         response = requests.post(
-            'https://f2ki-h100-1.f2.htw-berlin.de:11435/api/generate',
+            OLLAMA_API_URL,
             json=ollama_payload,
-            
+            timeout=(5, 60)
         )
         antwort = response.json().get("response", "")
         return antwort.strip()

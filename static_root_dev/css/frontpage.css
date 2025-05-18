@@ -1,0 +1,202 @@
+/* Logo and Description */
+.logo-and-description {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 2rem;
+}
+
+.securenet-logo_front {
+    width: 40vh;  /* Größe anpassen (z.B. 80px, 100px, etc.) */
+    height: auto;  /* Höhe automatisch skalieren */
+    display: block;  /* Falls nötig, um Abstände korrekt darzustellen */
+}
+
+
+.description {
+    max-width: 60%;
+}
+
+h1 {
+    font-size: 2.2rem; /* Increased slightly for visual balance */
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+p {
+    font-size: 1.1rem; /* Slightly larger text for better readability */
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 3rem; /* Increased spacing between buttons */
+    margin: 3rem 0;
+}
+
+.widget-button {
+    background: linear-gradient(135deg, #74b729, #117335); /* Farbverlauf */
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    padding: 4rem 8rem; /* Größere Buttons */
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    margin: 1rem 2rem; /* Mehr Abstand zwischen den Buttons */
+    justify-content: center;
+    gap: 3rem; /* Erhöht den Abstand zwischen den Buttons */
+    flex-wrap: wrap; /* Falls nötig, auf kleineren Bildschirmen */
+}
+
+.button span.emoji {
+    font-size: 32px; /* Nur das Emoji vergrößern */
+}
+.widget-button:hover {
+    background: linear-gradient(135deg, #117335, #74b729); /* Umgekehrter Gradient beim Hover */
+    transform: scale(1.08); /* Leichtes Vergrößern für besseren Effekt */
+}
+.button {
+    font-size: 1.4rem; /* Enhanced readability */
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+/* Allgemeines Layout */
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Linksbündig wie vorher */
+    gap: 1.5rem;
+    margin: 2rem auto;
+    max-width: 900px;
+}
+
+/* Titel */
+.section-title {
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* Fortschrittsbalken Container */
+.progress-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    max-width: 600px;
+    width: 100%;
+}
+
+/* Fortschrittsgruppen */
+.progress-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Fortschrittsbalken */
+.progress-bar {
+    width: 100%;
+    height: 25px;
+    background-color: #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Fortschrittsbalken-Füllung */
+.progress-fill {
+    height: 100%;
+    text-align: center;
+    line-height: 25px;
+    font-weight: bold;
+    color: white;
+    background-color: #f39c12; /* Orange für Bearbeitet */
+    width: 0%;
+    transition: width 0.7s ease-in-out;
+    border-radius: 12px;
+    min-width: 25px; /* Minimale Breite für bessere Lesbarkeit */
+}
+
+/* Fortschrittsbalken für Korrekt */
+.progress-fill.correct {
+    background-color: #28a745;
+}
+.leistung-btn{
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to right, #1b7a34, #69b02a);
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    color: #FFFFFF;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-left: -10px; /* Bewegt den Button etwas nach links */
+    margin-right: 80px;
+
+}
+.leistung-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Fortschrittslabel */
+.progress-label {
+    min-width: 100px;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Filter Container */
+.filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* Studierenden-Fortschritt */
+.progress-student-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Label-Positionierung beibehalten */
+.progress-bar-container span {
+    font-weight: bold;
+}
+
+/* Anpassung für bessere Abstände */
+.filter-container select,
+.filter-container button {
+    height: 35px;
+    padding: 0 10px;
+    font-size: 1rem;
+}
+
+/* Spezielle Anpassung: Fortschrittsbalken der Lehrerübersicht direkt unter den Dropdowns */
+.progress-container.teacher-progress {
+    margin-top: 1.5rem; /* Mehr Abstand zum Filterbereich */
+}

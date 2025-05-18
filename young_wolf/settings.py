@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+=7d&r0cu!2mbm4nb(%azg6-$gpog7%5=%7+m(2c$6w)fm5gsa'
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -68,7 +69,21 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'young_wolf.wsgi.application'
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 Jahr – erzwingt HTTPS im Browser
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    SECURE_SSL_REDIRECT = True  # leitet HTTP auf HTTPS um
+    SESSION_COOKIE_SECURE = True  # Session-Cookies nur über HTTPS
+    CSRF_COOKIE_SECURE = True     # CSRF-Cookies nur über HTTPS
+
+    SECURE_BROWSER_XSS_FILTER = True  # Schutz gegen XSS
+    SECURE_CONTENT_TYPE_NOSNIFF = True  # MIME-Typ-Sniffing verhindern
+
+    X_FRAME_OPTIONS = 'DENY'  # Clickjacking-Schutz (iframe verbieten)
+
+    WSGI_APPLICATION = 'young_wolf.wsgi.application'
 
 
 # Database

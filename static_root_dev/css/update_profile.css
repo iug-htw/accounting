@@ -1,0 +1,91 @@
+/* === GRUNDLAYOUT === */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 2rem 4vw;
+    color: #222;
+}
+
+/* === HEADLINE === */
+h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 26px;
+    color: #120639;
+}
+
+/* === FORMULAR-STYLING === */
+form {
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+form div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* === LABELS UND INPUTS === */
+label {
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 0.7rem;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #57a424;
+    box-shadow: 0 0 0 2px rgba(87, 164, 36, 0.2);
+}
+
+/* === BUTTONS === */
+button[type="submit"] {
+    margin-top: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    background-color: #120639;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    align-self: flex-start;
+}
+
+button[type="submit"]:hover {
+    background-color: #3c0f79;
+    transform: translateY(-1px);
+}
+
+/* === BESTÄTIGUNGSMELDUNG === */
+#confirmation-message {
+    text-align: center;
+    font-weight: bold;
+    color: #2e7d32;
+    background-color: #eaf4ea;
+    border: 1px solid #c8e6c9;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    max-width: 500px;
+    margin: 0 auto 1.5rem auto;
+}

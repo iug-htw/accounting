@@ -1,0 +1,126 @@
+/* === GRUNDLAYOUT === */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 2rem 4vw;
+    color: #222;
+}
+
+/* === HEADINGS === */
+h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 28px;
+    color: #120639;
+}
+
+h3 {
+    font-size: 20px;
+    color: #120639;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-left: 4px solid #120639;
+    padding-left: 1rem;
+}
+
+/* === AUFGABEN-GRID === */
+.aufgaben-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: space-between; /* damit die Blöcke sich aufspannen */
+    align-items: flex-start;
+}
+
+/* === EINZELNE AUFGABE === */
+.aufgabe-block {
+    flex: 1 1 calc(50% - 1rem); /* statt -2rem, damit es sich besser verteilt */
+    min-width: 420px;
+    max-width: 650px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+}
+
+/* === BUCHUNGSSÄTZE === */
+.buchung {
+    background-color: #f9f9f9;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+    margin-top: 1rem;
+}
+
+.buchung i {
+    color: #c0392b;
+    font-weight: bold;
+    font-style: italic;
+    margin-left: 0.5rem;
+}
+
+/* === BUCHUNGSTABELLE === */
+.buchung table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-left: 1em; /* ersetzt das inline-style aus HTML */
+}
+
+.buchung td {
+    padding: 0.5rem 0.8rem;
+    font-size: 14px;
+    color: #333;
+}
+
+.buchung td:nth-child(2),
+.buchung td:nth-child(5) {
+    text-align: right;
+    white-space: nowrap;
+    min-width: 6em;
+    font-weight: bold;
+}
+
+.buchung td:nth-child(3) {
+    text-align: center;
+    font-style: italic;
+    color: #444;
+    min-width: 2em;
+}
+
+/* === Farbige Hintergründe für Soll & Haben === */
+.buchung td.soll {
+    background-color: #eaf4ea;
+    border-radius: 4px;
+}
+
+.buchung td.haben {
+    background-color: rgba(141, 167, 184, 0.25);
+    border-radius: 4px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+    body {
+        padding: 2rem 2vw;
+    }
+
+    .aufgabe-block {
+        flex: 1 1 100%;
+    }
+
+    .buchung td {
+        font-size: 13px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+}

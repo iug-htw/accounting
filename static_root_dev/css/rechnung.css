@@ -1,0 +1,545 @@
+/* === GLOBAL === */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.headline_rechnung {
+    text-align: center;
+    top: 1vh;
+    font-size: 28px;
+    margin-bottom: 2rem;
+}
+
+.h, h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* === CONTAINER === */
+.container_rechnung {
+    width: 100%;
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 100vw;
+    overflow: hidden;
+}
+
+.aufgaben_id {
+    margin: 0 auto;
+    width: fit-content;
+    position: relative;
+    top: 0;
+    font-size: 1rem;
+    font-weight: bolder;
+}
+
+/* === INHALTSBEREICH === */
+.content-wrapper_rechnung {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2rem;
+
+    padding: 2vw;
+    border-radius: 1vw;
+    justify-content: center;
+    margin: 0 auto;
+    align-items: stretch;
+    overflow-x: auto;
+}
+.left-section_rechnung,
+.right-section_rechnung {
+    display: flex;
+    height: auto;
+    flex-grow: 1;
+     background: linear-gradient(135deg, #f7f8f9, #eef1f3);
+    box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.08),
+        0 0 0 1px rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+.content-wrapper_rechnung.hide-right {
+    justify-content: center;
+}
+
+.content-wrapper_rechnung.hide-right .left-section_rechnung {
+    flex: 0 1 800px; /* oder 100% wenn du willst */
+    max-width: 90vw;
+    transform: scale(1.05); /* dezent größer */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); /* optional für Fokus */
+    transition: transform 0.4s ease;
+}
+
+
+
+/* === LINKE SEITE === */
+.left-section_rechnung {
+    flex: 1 1 50%;
+    max-width: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* === RECHTE SEITE === */
+.right-section_rechnung {
+    flex: 1 1 50%;
+    max-width: 700px;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.infobox {
+    white-space: pre-wrap;           /* Einrückung und Umbrüche erhalten */
+    font-family: inherit;            /* Schriftart von der Umgebung übernehmen */
+    font-size: 1rem;                 /* Einheitlich zu deinem restlichen Text */
+    line-height: 1.5;                /* Angenehmes Zeilenbild */
+    background-color: #f9f9f9;       /* Optional wie Box-Stil */
+}
+
+
+/* ============================ */
+/* 🌟 Toggle-Button Styling oben rechts */
+/* ============================ */
+#toggle-right-section, #toggle-info-section {
+    background-color: #120639;
+    color: white;
+    max-width: 20vw;
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-bottom: 2rem;
+    margin-top: -1rem; /* optional */
+}
+
+
+#toggle-right-section:hover, #toggle-info-section:hover {
+    background-color: #3c0f79;
+    transform: scale(1.03);
+}
+
+
+/* Optional: sanftes Ein-/Ausblenden */
+.right-section_rechnung {
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.left-section_rechnung {
+    transition: all 0.4s ease;
+}
+
+.content-wrapper_rechnung.hide-right .right-section_rechnung {
+    display: none;
+}
+
+.content-wrapper_rechnung.hide-right .left-section_rechnung {
+    flex: 1 1 100%;
+    max-width: 100%;
+}
+
+
+@media (max-width: 768px) {
+    #toggle-right-section, #toggle-info-section {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 1rem auto;
+        display: block;
+    }
+}
+
+
+
+/* === EINGABE-FORMULAR === */
+.inputs-container_rechnung {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+#soll-container_rechnung,
+#haben-container_rechnung {
+    flex: 1 1 48%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-group_rechnung {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+    width: 100%;
+}
+select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* === BUTTONS === */
+.btn-toggle_rechnung,
+.btn-add_rechnung,
+.btn-submit_rechnung {
+    border-radius: 5px;
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-toggle_rechnung {
+    background-color: #120639;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    display: block;
+    margin: 1rem auto;
+}
+
+.btn-toggle_rechnung:hover {
+    background-color: #3c0f79;
+}
+
+.btn-add_rechnung {
+    background-color: #5cbad3;
+    color: #fff;
+    padding: 12px 25px;
+    font-size: 18px;
+    margin-bottom: 3rem;
+}
+
+.btn-add_rechnung:hover {
+    background-color: #8cd0dd;
+}
+
+.btn-submit_rechnung {
+    background-color: #120639;
+    color: #fff;
+    padding: 12px 25px;
+    font-size: 18px;
+    margin-bottom: 5rem;
+}
+
+.btn-submit_rechnung:hover {
+    background-color: #3c0f79;
+}
+
+.btn-submit_rechnung:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Entfernen-Button */
+.btn-remove_rechnung {
+    background-color: #b22222;
+    font-size: 14px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    min-width: 40px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.btn-remove_rechnung:hover {
+    background-color: #8b0000;
+}
+
+.btn-remove_rechnung::after {
+    content: "✖";
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+/* === BUCHUNGS-VERSUCHE === */
+.buchungen-ansicht {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.buchungen-ansicht ul {
+    list-style: none;
+    padding: 0;
+}
+
+.buchungen-ansicht li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #ffffff;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.buchungen-ansicht button {
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 5px;
+}
+
+.btn-attempt {
+    background-color: #120639;
+    color: white;
+}
+
+.btn-attempt:hover {
+    background-color: #3c0f79;
+}
+
+.status-falsch {
+    color: #d32f2f;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.btn-korrektur {
+    background-color: #f57c00;
+    color: white;
+}
+.btn-korrektur:hover {
+    background-color: #e65100;
+}
+.btn-korrektur-durchfuehren {
+    background-color: #388e3c;
+    color: white;
+}
+.btn-korrektur-durchfuehren:hover {
+    background-color: #2e7d32;
+}
+/* ================================= */
+/*  KOMPLETT RESPONSIVES VERHALTEN  */
+/* ================================= */
+
+@media (max-width: 1440px) {
+    .headline_rechnung {
+        font-size: 26px;
+    }
+
+    .right-section_rechnung,
+    .left-section_rechnung {
+        padding: 1.5rem;
+    }
+
+    .input-group_rechnung input,
+    .input-group_rechnung select {
+        font-size: 15px;
+        padding: 0.5rem;
+    }
+
+    .btn-toggle_rechnung,
+    .btn-add_rechnung,
+    .btn-submit_rechnung {
+        font-size: 15px;
+        padding: 10px 18px;
+    }
+
+    .buchungen-ansicht {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .headline_rechnung {
+        font-size: 24px;
+    }
+
+    .right-section_rechnung,
+    .left-section_rechnung {
+        padding: 1rem;
+    }
+
+    .input-group_rechnung input,
+    .input-group_rechnung select {
+        font-size: 14px;
+        padding: 0.45rem;
+    }
+
+    .btn-toggle_rechnung,
+    .btn-add_rechnung,
+    .btn-submit_rechnung {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .buchungen-ansicht {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .headline_rechnung {
+        font-size: 22px;
+    }
+
+    .content-wrapper_rechnung {
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+        width: 100%;
+    }
+
+    .right-section_rechnung,
+    .left-section_rechnung {
+        padding: 0.8rem;
+        max-width: 90vw;
+        width: 100%;
+    }
+
+    .input-group_rechnung input,
+    .input-group_rechnung select {
+        font-size: 13px;
+        padding: 0.4rem;
+    }
+
+    .btn-toggle_rechnung,
+    .btn-add_rechnung,
+    .btn-submit_rechnung {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+    .buchungen-ansicht {
+        font-size: 13px;
+    }
+
+    #toggle-right-section, #toggle-info-section {
+        display: block;
+        margin: 1rem auto;
+        align-self: center;
+    }
+}
+
+
+@media (max-width: 800px) {
+    .headline_rechnung {
+        font-size: 20px;
+    }
+
+    .right-section_rechnung,
+    .left-section_rechnung {
+        padding: 0.5rem;
+    }
+
+    .input-group_rechnung input,
+    .input-group_rechnung select {
+        font-size: 12px;
+        padding: 0.3rem;
+    }
+
+    .btn-toggle_rechnung,
+    .btn-add_rechnung,
+    .btn-submit_rechnung {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
+    .buchungen-ansicht {
+        font-size: 12px;
+    }
+
+}
+@media (max-width: 700px) {
+    .content-wrapper_rechnung {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .left-section_rechnung,
+    .right-section_rechnung {
+        max-width: 100%;
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .headline_rechnung {
+        font-size: 18px;
+    }
+
+    .input-group_rechnung input,
+    .input-group_rechnung select {
+        font-size: 11px;
+        padding: 0.3rem;
+    }
+
+    .btn-toggle_rechnung,
+    .btn-add_rechnung,
+    .btn-submit_rechnung {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+
+    .buchungen-ansicht {
+        font-size: 12px;
+    }
+}
+
+.tkonto-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.tkonto-grid > div {
+    flex: 1 1 300px; /* mindestens 300px, dann wächst es */
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    min-width: 280px;
+}

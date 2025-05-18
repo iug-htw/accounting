@@ -1,0 +1,491 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: rgb(230, 229, 229);
+}
+
+.navigation_bar_top {
+    background-color: rgb(167, 160, 160);
+    height: 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 0px;
+}
+
+.topbar_text {
+    font-size: 24px;
+    display: inline-block;
+    position: absolute;
+    bottom: 0; /* Am unteren Rand von navigation_bar_top ausrichten */
+    right: 20px;
+}
+
+.menulink {
+    color: black;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.menulink:hover {
+    text-decoration: underline;
+}
+
+.menu_button {
+    display:flex;
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 13px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.menu_button:hover {
+    background-color: #575757;
+}
+
+.dropdown_menu {
+    display: none;
+    position: absolute;
+    top: 50px; /* Positioniert das Dropdown unter der Navigation */
+    left: 0px; /* Positioniert das Dropdown relativ zum Button */
+    background-color: #333;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 0px;
+    z-index: 1000;
+}
+
+.dropdown_menu .menu_link {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 8px 0;
+}
+
+.dropdown_menu .menu_link:hover {
+    background-color: #575757;
+}
+
+/* Begrüßungstext für die Landingpage */
+.welcome_section {
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px; /* Abstand zur oberen Menüleiste */
+}
+
+.welcome_section h1 {
+    font-size: 36px;
+    color: #333;
+}
+
+.welcome_section p {
+    font-size: 18px;
+    color: #666;
+}
+
+/* Bild unten rechts */
+.bottom_right_image {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.bottom_right_image img {
+    max-width: 300px; /* Passe die Größe des Bildes nach Bedarf an */
+    height: auto;
+    border-radius: 8px; /* Optionale Abrundung der Ecken */
+}
+.bottom_left_image {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+.bottom_left_image img {
+    max-width: 1000px; /* Passe die Größe des Bildes nach Bedarf an */
+    height: auto;
+    border-radius: 8px; /* Optionale Abrundung der Ecken */
+}
+.buchung_container {
+    display: flex;
+    width: 100%;
+    height: 100vh; /* Ganze Höhe des Bildschirms */
+}
+
+.buchung_links, .buchung_rechts {
+    flex: 1; /* Teilt den Platz gleichmäßig auf */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.buchung_links {
+    overflow: auto; /* Scrollbar aktivieren, wenn das Bild größer ist als der Container */
+    background-color: #f0f0f0; /* Optional: Hintergrundfarbe */
+}
+
+.buchung_rechnungsbeleg {
+    max-width: 100%; /* Bild passt sich der Containerbreite an */
+    max-height: 100%; /* Bild passt sich der Containerhöhe an */
+    transition: transform 0.2s ease; /* Animation beim Zoomen */
+}
+
+.buchung_rechts {
+    padding: 20px;
+    background-color: #eaeaea; /* Optional: Hintergrundfarbe */
+    overflow-y: auto; /* Scrollbar aktivieren, falls der Inhalt höher als der Container ist */
+    justify-content: flex-start;
+    flex-direction: column;
+}
+.buchung_input {
+    margin-bottom: 20px; /* Abstand zwischen den Eingabefeldern */
+}
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.themenkomplex_navigation {
+    padding: 20px;
+}
+
+.themenkomplex_back-link {
+    font-size: 18px;
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.themenkomplex_back-link:hover {
+    text-decoration: underline;
+}
+
+/* Lehrmaterial Download */
+.themenkomplex_download {
+    margin: 20px 0;
+}
+
+.themenkomplex_download_link {
+    display: inline-block;
+    font-size: 18px;
+    color: white;
+    background-color: #007BFF;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.themenkomplex_download_link:hover {
+    background-color: #0056b3;
+}
+
+/* Übungsaufgaben Link */
+.themenkomplex_exercises_section {
+    margin: 20px 0;
+}
+
+.themenkomplex_exercise_link {
+    display: inline-block;
+    font-size: 18px;
+    color: white;
+    background-color: #28a745;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.themenkomplex_exercise_link:hover {
+    background-color: #218838;
+}
+
+/* Beschreibung des Themenkomplexes */
+.themenkomplex_description_section {
+    margin: 20px 0;
+}
+
+.themenkomplex_description_section h2 {
+    margin-bottom: 10px;
+}
+
+.themenkomplex_description_section p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+.themenkomplex_container{
+    font-size: 24px;   
+}
+.pdf-container {
+    width: 80%;
+    height: 90vh;
+    position: relative;
+}
+
+.pdf-viewer {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    position: relative;
+}
+
+.pdf-viewer iframe {
+    width: 100%;
+    height: 100%;
+    transform-origin: top left;
+}
+.login_container {
+    width: 300px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login_container h2 {
+    margin-bottom: 20px;
+}
+
+.login_container input[type="text"],
+.login_container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.login_container button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.login_container button:hover {
+    background-color: #218838;
+}
+#logoutButton {
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#logoutButton:hover {
+    background-color: #c82333;
+}
+#logoutContainer {
+    display: none;
+    text-align: center; 
+    margin-top: 20px;
+}
+.banner{
+    display: block;
+    width: 100%;
+    max-width: 800px;
+}
+.berechnung_felder {
+    display: flex;
+    justify-content: space-between;
+}
+.loesung_soll, .loesung_haben {
+    width: 48%;
+}
+
+.container_rechnung {
+    width: 90%;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.headline_rechnung {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.content-wrapper_rechnung {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.left-section_rechnung {
+    width: 40%;
+    background-color: #dde3d9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-placeholder_rechnung {
+    width: 100%;
+    height: 500px;
+    background-color: #f0f0f0;
+    border: 2px dashed #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #777;
+}
+
+.right-section_rechnung {
+    width: 50%;
+    background-color: #d0d5c7;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.business-case_rechnung {
+    font-size: 20px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.input-group_rechnung {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.input-group_rechnung input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.btn-add_rechnung, .btn-submit_rechnung, .btn-remove_rechnung {
+    background-color: #232323;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.btn-add_rechnung:hover, .btn-submit_rechnung:hover {
+    background-color: #444;
+}
+
+.btn-remove_rechnung {
+    background-color: #b22222;
+    font-size: 20px;
+    padding: 5px 10px;
+}
+
+.btn-remove_rechnung:hover {
+    background-color: #8b0000;
+}
+
+.btn-submit_rechnung {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 18px;
+}
+.navigation-container_vorlage2 {
+    display: flex;
+    justify-content: center;
+    width: 80%;
+    margin-top: 150px;
+}
+.navigation_vorlage2 {
+    display: flex;
+    gap: 20px;
+    font-size: 28px;
+}
+.navigation-item_vorlage2 {
+    color: #232323;
+    text-decoration: none;
+    padding: 10px 20px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    text-align: center;
+    min-width: 150px;
+}
+.navigation-item_vorlage2:hover {
+    background-color: #d0d0d0;
+}
+.field-group_aufgabe_erstellen {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.field-group_aufgabe_erstellen input, .field-group_aufgabe_erstellen select {
+    flex: 1;
+}
+.hidden {
+    display: none;
+}
+.buchungen-ansicht {
+    padding: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn-toggle_rechnung {
+    background-color: #006400;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.buchung-detail {
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #e0f7fa;
+    border: 1px solid #009688;
+    border-radius: 4px;
+}
+
+.korrekturbuchung-maske {
+    position: fixed;
+    top: 20%;
+    left: 30%;
+    width: 40%;
+    background-color: white;
+    padding: 20px;
+    border: 2px solid #006400;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.korrekturbuchung-maske h3 {
+    color: #006400;
+}
+
+.korrekturbuchung-maske button {
+    background-color: #006400;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.korrekturbuchung-maske input[readonly] {
+    background-color: #e9ecef;
+    border: none;
+    padding: 5px;
+}
