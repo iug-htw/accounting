@@ -1,4 +1,5 @@
 ssh wiuser@train.f4.htw-berlin.de
+source env/bin/activate
 python manage.py runserver 0.0.0.0:8000
     http://train.f4.htw-berlin.de:8000
 sudo systemctl stop gunicorn
