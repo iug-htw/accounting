@@ -64,18 +64,18 @@
     
         <div class="invoice-amount" style="margin-top: 20px;">
             {% if aufgabe.fragentyp_id == 10 %}
-                <p><strong>Rechnungsbetrag (Brutto):</strong> {{ rechnungsbetrag|mul:1.05|floatformat:2 }}</p>
+                <p><strong>Betrag (Brutto):</strong> {{ rechnungsbetrag|mul:1.05|floatformat:2 }}</p>
             {% elif aufgabe.fragentyp_id == 13%}
                 <p><strong>Anschaffungskosten (Netto):</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
             {% else %}
-            <p><strong>Rechnungsbetrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+            <p><strong>Betrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
             {% endif %}
         </div>
-    
+        {% if zahlweise%}
         <div class="payment-info" style="margin-top: 20px;">
             <p><strong>Zahlungsweise:</strong> {{ zahlweise|default:"Keine Zahlungsart angegeben" }}</p>
         </div>
-    
+        {%endif%}
         <div class="invoice-footer" style="margin-top: 40px;">
             <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
             {% if aufgabe.rechnungstyp == "ausgehend" %}

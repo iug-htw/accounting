@@ -14,7 +14,9 @@
         {% for studiengang in studiengaenge %}
             <li>
                 {{ studiengang.name }}
-                <a href="{% url 'users:delete_studiengang' studiengang.id %}">Löschen</a>
+                {% if studiengang.ersteller == request.user.id or request.user.is_superuser %}
+                    <a href="{% url 'users:delete_studiengang' studiengang.id %}">Löschen</a>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>

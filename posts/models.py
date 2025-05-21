@@ -53,7 +53,7 @@ class Aufgabe_neu(models.Model):
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001')
     datum = models.DateField(blank=True, null=True, auto_now_add=True)
     rechnungsbetrag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00)
-    zahlweise = models.CharField(max_length=255, blank=True, null=True, default='Überweisung innerhalb von 14 Tagen')
+    zahlweise = models.CharField(max_length=255, blank=True, null=True)
     verabschiedung = models.TextField(blank=True, null=True, default='Mit freundlichen Grüßen\nIhr Unternehmen')
     kontakt = models.TextField(blank=True, null=True, default='Tel: 01234 567890\nE-Mail: info@unternehmen.de')
     beschreibung = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.')

@@ -76,7 +76,9 @@ def add_studiengang_view(request):
         form = StudiengangForm()
     
     # Alle Studiengänge abrufen
-    studiengaenge = Studiengang.objects.all()
+    studiengaenge = Studiengang.objects.filter(
+        Q(ersteller=request.user.id) | Q(ersteller=1)
+    )
 
     return render(request, 'users/add_studiengang.html', {
         'form': form,
@@ -105,7 +107,9 @@ def add_semester_view(request):
     else:
         form = SemesterForm()
 
-    semester = Semester.objects.all()
+    semester = Semester.objects.filter(
+        Q(ersteller=request.user.id) | Q(ersteller=1)
+    )
     return render(request, 'users/add_semester.html', {
         'form': form,
         'semester': semester

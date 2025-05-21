@@ -35,7 +35,8 @@
                             <p>Link</p>
                         </a>
                     </td>
-                    <!--
+                    
+                    {% if aufgabe.ersteller == request.user.id or request.user.is_superuser %}
                     <td>
                         <a href="{% url 'posts:aufgabe_loeschen' aufgabe.id %}" 
                            class="btn btn-danger" 
@@ -43,7 +44,8 @@
                            Löschen
                         </a>
                     </td>
-                -->
+                    {% endif %}
+                
                 </tr>
             {% endfor %}
         </tbody>

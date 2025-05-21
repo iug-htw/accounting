@@ -139,20 +139,23 @@ def aufgabe_import_form(request):
                     fehlgeschlagen.append((zeilennr, beschreibung))
                     continue
                 aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
-                beschreibung_zusatz = ""
                 beschreibung_textkörper = ""
+                ebk_konten = [konto for konto, _, _ in konto_infos if "EBK" in konto.name.upper() or "ERÖFFNUNGSBILANZ" in konto.name.upper()]
+                sbk_konten = [konto for konto, _, _ in konto_infos if "SBK" in konto.name.upper() or "SCHLUSSBILANZ" in konto.name.upper()]
+                nicht_ebk_sbk_konten = [konto for konto, _, _ in konto_infos if konto not in ebk_konten + sbk_konten]
 
-                if any("EBK" in konto.name.upper() or "ERÖFFNUNGSBILANZ" in konto.name.upper() for konto, _, _ in konto_infos):
-                    beschreibung_zusatz = " (Eröffnungsbilanz)"
+                if ebk_konten:
+                    anderes_konto = nicht_ebk_sbk_konten[0].name if nicht_ebk_sbk_konten else "unbekanntes Konto"
                     beschreibung_textkörper = (
                         "Am Geschäftsjahresbeginn wurde das Anfangsvermögen erfasst, um die Buchhaltung des Unternehmens korrekt zu starten. "
-                        "Erstelle die richtige Eröffnungsbilanz für das folgende Konto."
+                        "Erstelle die richtige Eröffnungsbilanz für das folgende Konto: "
                     )
-                elif any("SBK" in konto.name.upper() or "SCHLUSSBILANZ" in konto.name.upper() for konto, _, _ in konto_infos):
-                    beschreibung_zusatz = " (Schlussbilanz)"
+                elif sbk_konten:
+                    anderes_konto = nicht_ebk_sbk_konten[0].name if nicht_ebk_sbk_konten else "unbekanntes Konto"
                     beschreibung_textkörper = (
                         "Zum Geschäftsjahresende wurde die Vermögens- und Schuldenlage erfasst. "
                         "Diese Transaktion fließt in die Schlussbilanz ein und bildet die Grundlage für die Erfolgsrechnung."
+                        "Folgendes Konto wird abgeschlossen: "
                     )
                 else:
                     beschreibung_textkörper = (
@@ -161,7 +164,7 @@ def aufgabe_import_form(request):
                     )
 
                 # Neue Beschreibung zusammensetzen
-                beschreibung_final = f"{beschreibung_zusatz}\n\n{beschreibung_textkörper}{beschreibung or 'Buchung'}"
+                beschreibung_final = f"\n{beschreibung_textkörper}\n{anderes_konto}."
                 # Neue Aufgabe pro Zeile erstellen
                 neue_aufgabe = Aufgabe_neu.objects.create(
                     unternehmen_kategorie=unternehmen,
@@ -287,6 +290,11 @@ def rechnung_detail_view(request, aufgabe_id):
         aufgabe=aufgabe, nutzer=request.user,
         defaults={'soll_konto': '', 'haben_konto': '', 'betrag': 0, 'bearbeitungsstand': 'offen'}
     )
+    kontenplan = (
+    AufgabeDetail.objects.filter(aufgabe=aufgabe)
+    .values_list("kontenplan_id", flat=True)
+    .first()
+    )
     #print(f"nutzeraufgabe:{nutzer_aufgabe}")
     #print(f"nutzeraufgabe:{type(aufgabe.rechnungsbetrag)}")
     #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
@@ -356,6 +364,7 @@ def rechnung_detail_view(request, aufgabe_id):
         'block_buchung': block_buchung,
         'absender': nutzer_aufgabe.absender,
         'konten_namen': id_to_name,
+        'kontenplan_id': kontenplan,
     }
     nutzergruppe = getattr(request.user, "nutzergruppe", 0) or 0
     context["nutzergruppe"] = nutzergruppe % 2 == 1  # Ungerade Gruppen: 1 oder 3
@@ -561,131 +570,40 @@ def handle_nutzer_buchung(request, aufgabe):
 
     return buchung
 
-def generiere_zufaellige_werte(aufgabe, tiefe=0):
-    if tiefe < 50:
+def generiere_zufaellige_werte(aufgabe, versuch=0):
+    faktor = Decimal(str(random.uniform(0.25, 2.0)))
+    faktor = faktor.quantize(Decimal("0.01"))  # max. 2 Nachkommastellen
 
-        soll_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
-        haben_konten_queryset = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
+    soll_konten = []
+    soll_betraege = []
+    haben_konten = []
+    haben_betraege = []
 
-        soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben  = berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset)
-        referenz_betraege = referenz_betraege_soll + referenz_betraege_haben
-        
-        summe_soll = sum(soll_betraege)
-        summe_haben = sum(haben_betraege)
-        differenz = summe_soll - summe_haben
+    soll_details = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")
+    haben_details = AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben")
 
-        # Anpassung bei Differenz
-        if differenz != 0:
-            soll_betraege, haben_betraege = differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz)
-            for betrag in soll_betraege:
-                betrag = round(betrag,2)
-            for betrag in haben_betraege:
-                betrag = round(betrag,2)
-                
-            soll_betraege = [float(Decimal(str(betrag)).quantize(Decimal("0.01"))) for betrag in soll_betraege]
-            haben_betraege = [float(Decimal(str(betrag)).quantize(Decimal("0.01"))) for betrag in haben_betraege]
-            # Erneute Überprüfung nach der Anpassung
-            summe_soll = round(sum(soll_betraege),2)
-            summe_haben = round(sum(haben_betraege),2)
-            # Überprüfung der angepassten Werte mit Referenzwerten
-            for i, betrag in enumerate(soll_betraege + haben_betraege):
-                referenzwert = referenz_betraege[i % len(referenz_betraege)]
-                if not (referenzwert * 0.5 <= betrag <= referenzwert * 1.75):
-                    return generiere_zufaellige_werte(aufgabe, tiefe + 1)
+    for detail in soll_details:
+        soll_konten.append(detail.konto.id)
+        betrag = Decimal(str(detail.betrag or 0)) * faktor
+        betrag = betrag.quantize(Decimal("0.01"))
+        soll_betraege.append(float(betrag))
 
-       # print(f"Erfolgreich generiert nach {tiefe} Versuchen")
+    for detail in haben_details:
+        haben_konten.append(detail.konto.id)
+        betrag = Decimal(str(detail.betrag or 0)) * faktor
+        betrag = betrag.quantize(Decimal("0.01"))
+        haben_betraege.append(float(betrag))
+    summe_soll = sum(soll_betraege)
+    summe_haben = sum(haben_betraege)
+    if round(summe_soll, 2) == round(summe_haben, 2):
         return {
             'soll_konten': soll_konten,
             'haben_konten': haben_konten,
             'soll_betraege': soll_betraege,
             'haben_betraege': haben_betraege
         }
-
-def differenzausgleich_wertegenerierung(aufgabe, soll_konten, haben_konten, soll_betraege, haben_betraege, differenz):
-    referenzierte_ids = set(
-        AufgabeDetail.objects.filter(aufgabe=aufgabe)
-        .exclude(bezugs_konto=None)
-        .values_list("bezugs_konto_id", flat=True)
-    )
-
-    # Nicht-referenzierte Soll-/Haben-Konten
-    nicht_referenzierte_soll_konten = [konto_id for konto_id in soll_konten if konto_id not in referenzierte_ids]
-    nicht_referenzierte_haben_konten = [konto_id for konto_id in haben_konten if konto_id not in referenzierte_ids]
-
-    # Höchste Beträge und deren Indizes
-    max_soll_index = soll_betraege.index(max(soll_betraege))
-    max_haben_index = haben_betraege.index(max(haben_betraege))
-
-    max_soll_konto = soll_konten[max_soll_index]
-    max_haben_konto = haben_konten[max_haben_index]
-
-    # Prüfen, ob die höchsten Werte referenziert sind
-    max_soll_referenziert = max_soll_konto not in nicht_referenzierte_soll_konten
-    max_haben_referenziert = max_haben_konto not in nicht_referenzierte_haben_konten
-    # Entscheidung, welchen Betrag anzupassen
-    if soll_betraege[max_soll_index] >= haben_betraege[max_haben_index]:
-        if max_soll_referenziert:  # Falls max. Soll-Konto referenziert ist, Haben nehmen
-            haben_betraege[max_haben_index] += differenz
-        else:
-            soll_betraege[max_soll_index] -= differenz
     else:
-        if max_haben_referenziert:  # Falls max. Haben-Konto referenziert ist, Soll nehmen
-            soll_betraege[max_soll_index] -= differenz
-        else:
-            haben_betraege[max_haben_index] += differenz
-
-    return soll_betraege, haben_betraege
-
-def berechne_zufaellige_betraege(soll_konten_queryset, haben_konten_queryset):
-    #print("🔍 Starte Berechnung zufälliger Beträge...")
-    soll_konten, haben_konten = [], []
-    soll_betraege, haben_betraege = [], []
-    referenz_betraege_soll,referenz_betraege_haben = [], []
-    berechnete_werte = {}  # Speichert bereits berechnete Werte für Bezugskonten
-    
-    # Normale und Faktor-Konten trennen
-    normale_soll_konten = soll_konten_queryset.exclude(formel_typ="faktor")
-    faktor_soll_konten = soll_konten_queryset.filter(formel_typ="faktor")
-    normale_haben_konten = haben_konten_queryset.exclude(formel_typ="faktor")
-    faktor_haben_konten = haben_konten_queryset.filter(formel_typ="faktor")
-
-    # Zuerst die normalen Konten berechnen
-    for konto in normale_soll_konten.union(normale_haben_konten):
-        referenz_betrag = konto.betrag 
-        min_betrag = referenz_betrag * 0.25
-        max_betrag = referenz_betrag * 1.75
-        zufallswert = random.randint(int(min_betrag), int(max_betrag))
-        konto_id = konto.konto.id
-        if konto in normale_haben_konten:
-            haben_konten.append(konto_id)
-            haben_betraege.append(round(zufallswert,0))
-            referenz_betraege_haben.append(zufallswert)
-        else:
-            soll_konten.append(konto_id)
-            soll_betraege.append(round(zufallswert,0))
-            referenz_betraege_soll.append(zufallswert)
-        berechnete_werte[int(konto.konto_id)] = zufallswert
-        #print(f"📌 Konto {konto.kontoname} erhält {zufallswert} (Referenzbetrag: {referenz_betrag})")
-    
-    # Faktor-Konten basierend auf berechneten Werten der Referenzkonten berechnen
-    for konto in faktor_soll_konten.union(faktor_haben_konten):
-        bezug = konto.bezugs_konto
-        if bezug:
-            faktor_wert = round(berechnete_werte.get(bezug.id, 1000) * konto.faktor, 2)
-        else:
-            faktor_wert = round(random.randint(100, 1000) * konto.faktor, 2)
-        berechnete_werte[konto.id] = faktor_wert
-        konto_id = konto.konto.id
-        if konto in faktor_haben_konten:
-            haben_konten.append(konto_id)
-            haben_betraege.append(faktor_wert)
-            referenz_betraege_haben.append(faktor_wert)
-        else:
-            soll_konten.append(konto_id)
-            soll_betraege.append(faktor_wert)
-            referenz_betraege_soll.append(faktor_wert)
-    #print("✅ Berechnung abgeschlossen!")
-    return soll_konten, soll_betraege, referenz_betraege_soll, haben_konten, haben_betraege, referenz_betraege_haben
+        return generiere_zufaellige_werte(aufgabe)
 
 def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
     # Prüfe, ob bereits eine NutzerAufgabe existiert
@@ -725,7 +643,7 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
 def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     #print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
     if versuch == 1:
-        betreff = f"{aufgabe.fragentyp_text}"
+        betreff = f"Bitte bearbeiten Sie Folgende Rechnung: {aufgabe.rechnungsnummer}"
     else:
         v = round((versuch/2) + 1,0)
         betreff = f"{aufgabe.fragentyp_text} Versuch {v}"
@@ -1387,8 +1305,6 @@ def rechnungsuebersicht(request):
 
     for nutzer_aufgabe in nutzer_aufgaben:
         aufgabe = nutzer_aufgabe.aufgabe
-        if not (aufgabe.ersteller == user.id or aufgabe.ersteller == 1):
-            continue  # ⛔ fremde Aufgabe, überspringen
         buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=user)
         
         # Anzahl Buchungen und Korrekturbuchungen zählen
@@ -1396,7 +1312,8 @@ def rechnungsuebersicht(request):
         anzahl_korrekturbuchungen = buchungen.filter(korrekturbuchung=True).count()
 
         rechnungsdaten.append({
-            'rechnungsnr': aufgabe.id,
+            'id': aufgabe.id,
+            'rechnungsnr': aufgabe.rechnungsnummer,
             'fragentyp_text': aufgabe.fragentyp_text,
             'anzahl_buchungen': anzahl_buchungen,
             'anzahl_korrekturbuchungen': anzahl_korrekturbuchungen,
@@ -1438,11 +1355,12 @@ def aufgaben_verwalten(request):
 def aufgabe_loeschen(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
 
+    # Nur löschen, wenn Ersteller übereinstimmt oder Admin
     if aufgabe.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse("Keine Berechtigung zum Löschen.")
+        return HttpResponse("Keine Berechtigung zum Löschen dieser Aufgabe.")
 
     aufgabe.delete()
-    messages.success(request, f"Die Aufgabe '{aufgabe.fragentyp_text}' wurde gelöscht.")
+    messages.success(request, f"Aufgabe {aufgabe.id} wurde gelöscht.")
     return redirect('posts:aufgaben_verwalten')
 
 #+ Zeile 278

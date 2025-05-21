@@ -144,7 +144,7 @@
                                             <p>{{ aufgabe.feedback_betrag_falsch }}</p>
                                         {% endif %}
                                     {% endif %}
-                                    {% if item.buchung.konto_korrekt != 0 or item.buchung.betrag_korrekt != 0 %}
+                                    {% if nutzergruppe == 1 %}
                                         {% if item.buchung.feedback_ollama %}
                                             <p>{{ item.buchung.feedback_ollama }}</p>
                                         {% else %}
@@ -207,7 +207,7 @@
                 <select name="soll_konto[]" onchange="kontoOderBetragGeaendert(this)">
                     <option value="">Bitte wählen...</option>
                     {% for konto in konten %}
-                        {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
+                        {% if konto.kontenplan_id == kontenplan_id %}
                             <option value="{{ konto.id }}">{{ konto.name }}</option>
                         {% endif %}
                     {% endfor %}
@@ -224,7 +224,7 @@
                 <select name="haben_konto[]" onchange="kontoOderBetragGeaendert(this)">
                     <option value="">Bitte wählen...</option>
                     {% for konto in konten %}
-                        {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
+                        {% if konto.kontenplan_id == kontenplan_id %}
                             <option value="{{ konto.id }}">{{ konto.name }}</option>
                         {% endif %}
                     {% endfor %}
@@ -316,7 +316,7 @@ function addField(containerId) {
     let kontenOptions = `
         <option value="">Bitte wählen...</option>
         {% for konto in konten %}
-            {% if konto.kontenplan_id == aufgabe.unternehmen_kategorie.kontenplan_id %}
+            {% if konto.kontenplan_id == kontenplan_id %}
                 <option value="{{ konto.id }}">{{ konto.name }}</option>
             {% endif %}
         {% endfor %}

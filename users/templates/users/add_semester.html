@@ -14,8 +14,10 @@
     {% for sem in semester %}
         <li>
             {{ sem.name }}
+            {% if sem.ersteller == request.user.id or request.user.is_superuser %}
             <a href="{% url 'users:delete_semester' sem.id %}" 
                onclick="return confirm('Sind Sie sicher, dass Sie dieses Semester löschen möchten?')">Löschen</a>
+            {% endif %}
         </li>
     {% endfor %}
 </ul>
