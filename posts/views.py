@@ -165,10 +165,8 @@ def aufgabe_import_form(request):
                         "Diese Transaktion wurde im laufenden Geschäftsjahr vorgenommen und betrifft eine übliche Geschäftstätigkeit. "
                         "Verbuchen Sie diesen Geschäftsvorfall. "
                     )
-                    beschreibung_final = f"\n{beschreibung}.\n"
+                    beschreibung_final = f"\n{beschreibung_textkörper}\n{beschreibung}.\n"
 
-                # Neue Beschreibung zusammensetzen
-                beschreibung_final = f"\n{beschreibung_textkörper}\n{anderes_konto}."
                 # Neue Aufgabe pro Zeile erstellen
                 neue_aufgabe = Aufgabe_neu.objects.create(
                     unternehmen_kategorie=unternehmen,
