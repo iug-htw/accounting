@@ -140,6 +140,7 @@ def aufgabe_import_form(request):
                     continue
                 aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
                 beschreibung_textkörper = ""
+                beschreibung_final = ""
                 ebk_konten = [konto for konto, _, _ in konto_infos if "EBK" in konto.name.upper() or "ERÖFFNUNGSBILANZ" in konto.name.upper()]
                 sbk_konten = [konto for konto, _, _ in konto_infos if "SBK" in konto.name.upper() or "SCHLUSSBILANZ" in konto.name.upper()]
                 nicht_ebk_sbk_konten = [konto for konto, _, _ in konto_infos if konto not in ebk_konten + sbk_konten]
@@ -150,6 +151,7 @@ def aufgabe_import_form(request):
                         "Am Geschäftsjahresbeginn wurde das Anfangsvermögen erfasst, um die Buchhaltung des Unternehmens korrekt zu starten. "
                         "Erstelle die richtige Eröffnungsbilanz für das folgende Konto: "
                     )
+                    beschreibung_final = f"\n{beschreibung_textkörper}\n{anderes_konto}."
                 elif sbk_konten:
                     anderes_konto = nicht_ebk_sbk_konten[0].name if nicht_ebk_sbk_konten else "unbekanntes Konto"
                     beschreibung_textkörper = (
@@ -157,11 +159,13 @@ def aufgabe_import_form(request):
                         "Diese Transaktion fließt in die Schlussbilanz ein und bildet die Grundlage für die Erfolgsrechnung."
                         "Folgendes Konto wird abgeschlossen: "
                     )
+                    beschreibung_final = f"\n{beschreibung_textkörper}\n{anderes_konto}."
                 else:
                     beschreibung_textkörper = (
                         "Diese Transaktion wurde im laufenden Geschäftsjahr vorgenommen und betrifft eine übliche Geschäftstätigkeit. "
                         "Verbuchen Sie diesen Geschäftsvorfall. "
                     )
+                    beschreibung_final = f"\n{beschreibung}.\n"
 
                 # Neue Beschreibung zusammensetzen
                 beschreibung_final = f"\n{beschreibung_textkörper}\n{anderes_konto}."
@@ -1370,7 +1374,7 @@ def aufgabe_loeschen(request, aufgabe_id):
 
 #+ Zeile 278
 OLLAMA_API_URL = config('OLLAMA_SERVER')
-
+@admin_required
 @csrf_exempt
 def ollama_prompt_view(request):
     if request.method == 'POST':
@@ -1406,7 +1410,7 @@ def ollama_prompt_view(request):
                 yield f"event: error\ndata: Ausnahme beim Streaming: {str(e)}\n\n"
         return StreamingHttpResponse(stream_antwort(), content_type='text/event-stream')
     return render(request, 'posts/ollama_prompt.html')
-
+@login_required
 def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
     id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
 
