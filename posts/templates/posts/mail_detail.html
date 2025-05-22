@@ -12,7 +12,7 @@
             <div class="mail-header">
                 <p><strong>Von:</strong> {{ mail.absender.name }} ({{ mail.absender.email }})</p>
                 <p><strong>Adresse:</strong> {{ mail.absender.straße }}, {{ mail.absender.plz }} {{ mail.absender.stadt }}</p>
-                <p><strong>Betreff:</strong> {{ mail.aufgabe.fragentyp_text }}</p>
+                <p><strong>Betreff:</strong> {% if mail.aufgabe_id == null %} {{ mail.betreff}} {%else%} {{ mail.aufgabe.fragentyp_text }} {%endif%}</p>
                 <p><strong>Empfangen am:</strong> {{ mail.datum|date:"d.m.Y H:i" }}</p>
             </div>
 
@@ -23,7 +23,17 @@
             </div>
 
             <div class="mail-footer">
-                <a href="{{ aufgabe_link }}" class="btn btn-primary">Zur Aufgabe</a>
+                {% if mail.aufgabe %}
+                    <a href="{{ aufgabe_link }}" class="btn btn-primary">Zur Aufgabe</a>
+                {% elif mail.betreff == "Willkommen bei SecureNet"%}
+                {% elif mail.betreff == "Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"%}
+                    <a href="{{ aufgabe_link }}" class="btn btn-primary">Profil aktualisieren</a>
+                {% else %}
+                    <form method="POST" action="{% url 'users:orga_mail_bestätigen' mail.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Aufgabe delegieren</button>
+                    </form>
+                {% endif %}
                 <a href="{% url 'posts:posteingang' %}" class="btn btn-secondary">Zurück zum Posteingang</a>
             </div>
         </div>

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import orga_mail_bestaetigen
 
 
 app_name = 'users'
@@ -16,4 +17,5 @@ urlpatterns = [
     path('aufgaben_zuweisen/', views.aufgaben_zuweisen_view, name='aufgaben_zuweisen'),
     path('update-profile/', views.update_profile, name='update_profile'),
     path('aufgaben-selbst-zuweisen/', views.aufgaben_selbst_zuweisen, name='aufgaben_selbst_zuweisen'),
+    path("orga-mail-bestaetigen/<int:mail_id>/", orga_mail_bestaetigen, name="orga_mail_bestätigen"),
     ]

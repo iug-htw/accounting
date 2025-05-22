@@ -1212,6 +1212,11 @@ def guv_uebersicht(request):
     })
 
 def generate_user_anfangsbestaende(user):
+    if Anfangsbestand.objects.filter(nutzer=user).exists():
+        return  # Bereits vorhanden – nichts tun
+
+    if getattr(user, "unternehmen_id", None) != 1:
+        return  # Nur wenn Unternehmen ID = 1
     # Definiere relevante Konten
     relevante_konten_namen = [
         "Kasse", "Bank", "Forderungen aLuL", "Warenbestand", "Gebäude",

@@ -51,7 +51,7 @@
             <h3>Rechnung</h3>
             <br><br>
                 <p>
-                {% if aufgabe.rechnungstyp == "ausgehend" %}
+                {% if aufgabe.rechnungstyp == "ausgehend" or aufgabe.fragentyp_id == null%}
                 
                     Guten Tag,
                 {% else%}

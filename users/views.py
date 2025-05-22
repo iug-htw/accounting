@@ -18,6 +18,23 @@ from django.conf import settings
 import random
 from django.db.models import Q
 from collections import defaultdict
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
+
+ORGA_MAILS = [
+    {
+        "betreff": "Personalanfrage: Neue Mitarbeitende einstellen",
+        "mailtext": "Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team"
+    },
+    {
+        "betreff": "Neue Werbekampagne geplant – Agenturfreigabe erforderlich",
+        "mailtext": "Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team"
+    },
+    {
+        "betreff": "Geplante IT-Wartung – Zustimmung erforderlich",
+        "mailtext": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung"
+    }
+]
 
 @lehrkraft_required  # Ensure only logged-in users can access this view
 def register_view(request):
@@ -257,6 +274,7 @@ def aufgaben_zuweisen_view(request):
                 #print(f"Hier steht der Absender in User{nutzer_aufgabe.absender_id}")
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
                 erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
+                sende_orga_mail_wenn_noetig(student)
 
         messages.success(request, "Aufgaben erfolgreich zugewiesen.")
         return redirect('users:aufgaben_zuweisen')
@@ -351,6 +369,10 @@ def update_profile(request):
 def send_profile_update_mail(user, request):
     """Erstellt eine interne Mail für den Nutzer zur Aufforderung, Namen & Passwort zu ändern."""
     update_profile_url = request.build_absolute_uri(reverse("users:update_profile"))
+    absender, _ = Absender.objects.get_or_create(
+            name="SecureNet", email="info@securenet.de",
+            straße="Treskowallee 8", stadt="Berlin", plz="10318"
+        )
     Mail.objects.create(
         nutzer=user,
         aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
@@ -365,14 +387,19 @@ def send_profile_update_mail(user, request):
         <p>Vielen Dank!</p>
         """,
         versuch=1,  # Standardversuch
-        status="nicht bearbeitet"
+        status="nicht bearbeitet",
+        absender=absender,
     )
 
 def send_willkommen_mail(user):
     if settings.DEBUG:
         dokumentation_link = "http://localhost:8000/media/nutzerdokumentation.pdf"
     else:
-        dokumentation_link = "https://securenet-klntama.pythonanywhere.com/media/nutzerdokumentation.pdf"
+        dokumentation_link = "hhttps://train.f4.htw-berlin.de/media/nutzerdokumentation.pdf"
+    absender, _ = Absender.objects.get_or_create(
+            name="SecureNet", email="info@securenet.de",
+            straße="Treskowallee 8", stadt="Berlin", plz="10318"
+        )
     Mail.objects.create(
         nutzer=user,
         aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
@@ -396,5 +423,43 @@ def send_willkommen_mail(user):
         Dein SecureNet-Team
         """,
         versuch=0,  # Standardversuch
-        status="bearbeitet"
+        status="bearbeitet",
+        absender=absender
     )
+
+def sende_orga_mail_wenn_noetig(student):
+    if not student.unternehmen or student.unternehmen.id != 1:
+        return  # Nur für Unternehmen mit ID 1
+
+    bereits_geschickt = Mail.objects.filter(
+        nutzer=student,
+        aufgabe__isnull=True,  # Orga-Mails haben keine konkrete Aufgabe
+        betreff__in=[m["betreff"] for m in ORGA_MAILS]
+    ).count()
+
+    aktuelle_anzahl = NutzerAufgabe.objects.filter(nutzer=student).count()
+
+    if bereits_geschickt < len(ORGA_MAILS) and aktuelle_anzahl >= (bereits_geschickt + 1) * 5:
+        absender, _ = Absender.objects.get_or_create(
+            name="SecureNet", email="info@securenet.de",
+            straße="Treskowallee 8", stadt="Berlin", plz="10318"
+        )
+        info = ORGA_MAILS[bereits_geschickt]
+        Mail.objects.create(
+            nutzer=student,
+            absender=absender,
+            betreff=info["betreff"],
+            mailtext=info["mailtext"],
+            versuch=1,
+            status="nicht bearbeitet"
+        )
+
+@require_POST
+@login_required
+def orga_mail_bestaetigen(request, mail_id):
+    mail = get_object_or_404(Mail, id=mail_id, nutzer=request.user)
+    if mail.aufgabe is None:
+        mail.status = "bearbeitet"
+        mail.save(update_fields=["status"])
+        messages.success(request, "Die organisatorische Aufgabe wurde als erledigt markiert.")
+    return redirect("posts:posteingang")
