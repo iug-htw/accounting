@@ -47,6 +47,7 @@ class Aufgabe_neu(models.Model):
     nutzungsdauer = models.IntegerField(null=True, blank=True)
     feedback_konto_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn der Betrag falsch ist.")
+    immer_feedback = models.BooleanField(null=True, blank=True)
 
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
     eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\nTreskowallee 8\n10318 Berlin')

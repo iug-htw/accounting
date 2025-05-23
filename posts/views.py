@@ -111,12 +111,14 @@ def aufgabe_import_form(request):
 
             for zeilennr, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
                 beschreibung = row[0]
-                zahlweise = row[1]
+                rechnung = row[1]
+                immer_feedback = row[2]
+                zahlweise = row[3]
 
                 fehlendes_konto = False
                 konto_infos = []
 
-                for i in range(2, len(row), 3):
+                for i in range(4, len(row), 3):
                     konto_name = row[i]
                     soll_haben = row[i+1]
                     betrag = row[i+2]
@@ -186,6 +188,7 @@ def aufgabe_import_form(request):
                     rechnungsbetrag=0,
                     ersteller=request.user.id,
                     frage='',
+                    immer_feedback=immer_feedback,
                     rechnungsnummer=f"RE-{random.randint(10000, 99999)}"
                 )
 
@@ -302,7 +305,7 @@ def rechnung_detail_view(request, aufgabe_id):
     #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
-    konten = Konto.objects.exclude(name="GuV").order_by('name')
+    konten = Konto.objects.exclude(name="GuV").order_by('kontonummer')
 
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe)
@@ -573,8 +576,11 @@ def handle_nutzer_buchung(request, aufgabe):
     return buchung
 
 def generiere_zufaellige_werte(aufgabe, versuch=0):
+    
     faktor = Decimal(str(random.uniform(0.25, 2.0)))
     faktor = faktor.quantize(Decimal("0.01"))  # max. 2 Nachkommastellen
+    if aufgabe.unternehmen_kategorie.fallstudie:
+        faktor=1
 
     soll_konten = []
     soll_betraege = []

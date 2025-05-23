@@ -543,3 +543,7 @@ select {
     box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     min-width: 280px;
 }
+.select2-results__options {
+    max-height: 400px !important;
+    overflow-y: auto !important;
+}

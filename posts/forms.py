@@ -86,7 +86,7 @@ class AufgabeImportForm(forms.ModelForm):
         exclude = [
             'rechnungstyp', 'fragentyp', 'unterkategorie', 'fragentyp_text', 
             'nutzungsdauer', 'zahlweise', 'beschreibung', 'verabschiedung', 
-            'rechnungsbetrag', 'frage', 'rechnungsnummer', 'ersteller'
+            'rechnungsbetrag', 'frage', 'rechnungsnummer', 'ersteller','immer_feedback'
         ]
 
     def __init__(self, *args, **kwargs):
