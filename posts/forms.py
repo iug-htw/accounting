@@ -86,7 +86,7 @@ class AufgabeImportForm(forms.ModelForm):
         exclude = [
             'rechnungstyp', 'fragentyp', 'unterkategorie', 'fragentyp_text', 
             'nutzungsdauer', 'zahlweise', 'beschreibung', 'verabschiedung', 
-            'rechnungsbetrag', 'frage', 'rechnungsnummer', 'ersteller','immer_feedback'
+            'rechnungsbetrag', 'rechnungsnummer', 'ersteller','immer_feedback'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -108,7 +108,7 @@ class AufgabeBearbeitenForm(forms.ModelForm):
 class AufgabeDetailBearbeitenForm(forms.ModelForm):
     class Meta:
         model = AufgabeDetail
-        fields = ['konto', 'soll_haben', 'betrag', 'monatsangabe', 'monat']
+        fields = ['konto', 'soll_haben', 'betrag']
 
 class KontoForm(forms.ModelForm):
     class Meta:

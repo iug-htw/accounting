@@ -42,47 +42,7 @@
 
                 <!-- Betrag (falls kein Bezug besteht) -->
                 <input type="number" step="0.01" placeholder="Betrag" name="betrag[]" class="betrag">
-
-                <!-- Berechnungsart -->
-                <label>Berechnungsart:</label>
-                <select name="formel_typ[]" class="formel-typ" required onchange="toggleFields(this)">
-                    <option value="fix">Fester Betrag</option>
-                    <option value="faktor">Multiplikation mit Faktor</option>
-                    <option value="summe">Summe aus mehreren Konten</option>
                 </select>
-
-                <!-- Fester Betrag -->
-                <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
-
-                <!-- Faktor für Prozentrechnung -->
-                <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
-
-                <!-- Bezugs-Konto Auswahl (für Faktor-Berechnung) -->
-                <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
-                <select name="bezugs_konto_id[]" class="bezugs-konto" style="display: none;">
-                    <option value="">Kein Bezugs-Konto</option>
-                    {% for konto in konten %}
-                        <option value="{{ konto.id }}">{{ konto.name }}</option>
-                    {% endfor %}
-                </select>
-
-                <!-- Mehrfachauswahl für Summe -->
-                <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
-                <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
-                    {% for konto in konten %}
-                    <option value="{{ konto.id }}">{{ konto.name }}</option>
-                    {% endfor %}
-                </select>
-
-                <!-- Monatsangabe -->
-                <label>Monatsangabe:</label>
-                <select name="monatsangabe[]" class="monatsangabe" onchange="toggleMonatField(this)">
-                    <option value="false">Nein</option>
-                    <option value="true">Ja</option>
-                </select>
-
-                <!-- Monatseingabe -->
-                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12" class="monat" style="display: none;">
             </div>
         </div>
 
@@ -113,29 +73,6 @@
                 <option value="Haben">Haben</option>
             </select>
             <input type="number" step="0.0000001" placeholder="Betrag" name="betrag[]" class="betrag">
-            <label>Berechnungsart:</label>
-            <select name="formel_typ[]" class="formel-typ" required onchange="toggleFields(this)">
-                <option value="fix">Fester Betrag</option>
-                <option value="faktor">Multiplikation mit Faktor</option>
-                <option value="summe">Summe aus mehreren Konten</option>
-            </select>
-            <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
-            <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
-            <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
-            <select name="bezugs_konto[]" class="bezugs-konto" style="display: none;">
-                <option value="">Kein Bezugs-Konto</option>
-                ${kontenOptions}
-            </select>
-            <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
-            <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
-                ${kontenOptions}
-            </select>
-            <label>Monatsangabe:</label>
-            <select name="monatsangabe[]" class="monatsangabe" onchange="toggleMonatField(this)">
-                <option value="false">Nein</option>
-                <option value="true">Ja</option>
-            </select>
-            <input type="number" placeholder="Monat" name="monat[]" min="1" max="12" class="monat" style="display: none;">
         `;
         container.appendChild(newFieldGroup);
     }
@@ -143,22 +80,10 @@
         let parent = selectElement.parentElement;
         let festbetrag = parent.querySelector('.festbetrag');
         let faktor = parent.querySelector('.faktor');
-        let bezugsKonto = parent.querySelector('.bezugs-konto');
-        let bezugsKonten = parent.querySelector('.bezugs-konten');
-        let bezugsKontoLabel = parent.querySelector('.bezugs-konto-label');
-        let bezugsKontenLabel = parent.querySelector('.bezugs-konten-label');
         festbetrag.style.display = selectElement.value === "fix" ? "inline-block" : "none";
         faktor.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
-        bezugsKonto.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
-        bezugsKonten.style.display = selectElement.value === "summe" ? "inline-block" : "none";
-        bezugsKontoLabel.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
-        bezugsKontenLabel.style.display = selectElement.value === "summe" ? "inline-block" : "none";
     }
-    function toggleMonatField(selectElement) {
-        let parent = selectElement.parentElement;
-        let monatField = parent.querySelector('.monat');
-        monatField.style.display = selectElement.value === "true" ? "inline-block" : "none";
-    }
+
 document.addEventListener('DOMContentLoaded', function () {
     const kontenplanSelect = document.getElementById('id_kontenplan');
     kontenplanSelect.addEventListener('change', function() {
@@ -168,31 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => aktualisiereKontenDropdowns(data.konten));
     });
-
-    function aktualisiereKontenDropdowns(konten) {
-        let kontoDropdowns = document.querySelectorAll('select[name="konto_id[]"], select[name="bezugs_konto_id[]"], select[name="bezugs_konten[]"]');
-
-        kontoDropdowns.forEach(dropdown => {
-            // Alle bisherigen Optionen löschen
-            dropdown.innerHTML = '';
-
-            // Leere Option nur für einfache Dropdowns
-            if (dropdown.name !== "bezugs_konten[]") {
-                let leerOption = document.createElement('option');
-                leerOption.value = '';
-                leerOption.textContent = 'Bitte wählen';
-                dropdown.appendChild(leerOption);
-            }
-
-            // Neue Optionen einfügen
-            konten.forEach(konto => {
-                let option = document.createElement('option');
-                option.value = konto.id;
-                option.textContent = konto.name;
-                dropdown.appendChild(option);
-            });
-        });
-    }
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>

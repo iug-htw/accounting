@@ -36,6 +36,7 @@ class Aufgabe_neu(models.Model):
         ('eingehend', 'Eingehende Rechnung'),
         ('ausgehend', 'Ausgehende Rechnung'),
         ('intern', 'Interner Vorgang'),
+        ('non', 'Keine Rechnungsansicht')
     ]
     unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE)
     fragentyp = models.ForeignKey(Aufgabenkategorie,null=True, on_delete=models.CASCADE)
@@ -43,12 +44,10 @@ class Aufgabe_neu(models.Model):
     unterkategorie = models.IntegerField(null = True, blank=True, default = 1)
     fragentyp_text = models.CharField(null = True,max_length=255)
     mailtext = models.TextField()
-    frage = models.TextField(null=True,default="Dieses Feld kann gelöscht werden")
     nutzungsdauer = models.IntegerField(null=True, blank=True)
     feedback_konto_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn der Betrag falsch ist.")
     immer_feedback = models.BooleanField(null=True, blank=True)
-
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
     eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\nTreskowallee 8\n10318 Berlin')
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001')
@@ -63,44 +62,15 @@ class Aufgabe_neu(models.Model):
     
 
     def __str__(self):
-        return f"{self.frage} ({self.fragentyp})"
+        return f"({self.fragentyp})"
 
 class AufgabeDetail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, related_name="details")
     konto = models.ForeignKey('Konto', on_delete=models.CASCADE,null=True,)
     soll_haben = models.CharField(max_length=50, choices=[("Soll", "Soll"), ("Haben", "Haben")])
     betrag = models.FloatField(null=True, blank=True)  # Kann leer sein, wenn es berechnet wird
-    monatsangabe = models.BooleanField(default=False)
-    monat = models.IntegerField(null=True, blank=True)
-    bezugs_konto_alt = models.CharField(max_length=255, null=True, blank=True)
     kontenplan = models.ForeignKey('Kontenplan', null=True, blank=True, on_delete=models.SET_NULL)
-    festbetrag = models.FloatField(null=True, blank=True, help_text="Fester Betrag, falls kein Bezugskonto genutzt wird")
-    bezugs_konto = models.ForeignKey('Konto',on_delete=models.SET_NULL,null=True,blank=True,related_name='verwendet_als_bezug')
-    faktor = models.FloatField(null=True, blank=True, help_text="Multiplikationsfaktor, falls abhängig von einem anderen Konto")
     bilanzposition = models.IntegerField(null=True,)
-    formel_typ = models.CharField(
-        max_length=50,
-        choices=[("faktor", "Multiplikation mit Faktor"), ("fix", "Fester Betrag"), ("summe", "Summe aus mehreren Konten")],
-        default="fix"
-    )
-
-    def berechne_betrag(self):
-        """ Berechnet den Betrag anhand der gespeicherten Formel. """
-        if self.formel_typ == "fix" and self.festbetrag is not None:
-            return self.festbetrag  # Fester Betrag bleibt unverändert
-        
-        elif self.formel_typ == "faktor" and self.bezugs_konten.exists():
-            # Falls das Konto von einem anderen Konto abhängig ist, berechne Betrag mit Faktor
-            referenz_konto = self.bezugs_konten.first()  # Erstes Bezugs-Konto nehmen (falls es mehrere gibt)
-            if referenz_konto:
-                return referenz_konto.berechne_betrag() * self.faktor  # Berechnung mit Faktor
-
-        elif self.formel_typ == "summe" and self.bezugs_konten.exists():
-            # Falls es eine Summe aus mehreren Konten ist, berechne die Summe
-            gesamt_betrag = sum(konto.berechne_betrag() for konto in self.bezugs_konten.all())
-            return gesamt_betrag  # Summe bleibt unverändert
-
-        return self.betrag if self.betrag else 0  # Falls keine Logik zutrifft, nutze originalen Betrag
 
 class Buchung(models.Model):
     STATUS_CHOICES = [

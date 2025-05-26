@@ -31,11 +31,13 @@
 <body>
     <div class="invoice-box">
         <div class="company-address">
-            <strong>{{ nutzer_aufgabe.absender.name }}</strong>
-            {{ nutzer_aufgabe.absender.straße|linebreaks }}
-            {{ nutzer_aufgabe.absender.stadt }}
-            {{ nutzer_aufgabe.absender.plz }} 
-            {{ nutzer_aufgabe.absender.email|linebreaks }}
+            {% if aufgabe.rechnungstyp != "non" %}
+                <strong>{{ nutzer_aufgabe.absender.name }}</strong>
+                {{ nutzer_aufgabe.absender.straße|linebreaks }}
+                {{ nutzer_aufgabe.absender.stadt }}
+                {{ nutzer_aufgabe.absender.plz }} 
+                {{ nutzer_aufgabe.absender.email|linebreaks }}
+            {% endif %}
         </div>
     
         <div class="client-address" style="text-align: right;">
@@ -44,16 +46,19 @@
     
         <div class="invoice-header" style="margin-top: 20px;">
             <p><strong>Datum:</strong> {{ datum|date:"d.m.Y" }}</p>
-            <p><strong>Rechnung Nr.:</strong> {{ rechnungsnummer|default:"Keine Nummer angegeben" }}</p>
+            {% if aufgabe.rechnungstyp != "non" %}
+                <p><strong>Rechnung Nr.:</strong> {{ rechnungsnummer|default:"Keine Nummer angegeben" }}</p>
+            {% endif %}
         </div>
     
         <div class="invoice-description" style="margin-top: 20px;">
             <h3>Rechnung</h3>
             <br><br>
                 <p>
-                {% if aufgabe.rechnungstyp == "ausgehend" or aufgabe.fragentyp_id == null%}
-                
-                    Guten Tag,
+                {% if aufgabe.rechnungstyp == "non"%}
+                    Guten Tag, <br><br>Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:
+                {% elif aufgabe.rechnungstyp == "ausgehend" or aufgabe.fragentyp_id == null %}
+                    Guten Tag, 
                 {% else%}
                     Sehr geehrtes SecureNet Team
                 {%endif%}
@@ -71,7 +76,7 @@
             <p><strong>Betrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
             {% endif %}
         </div>
-        {% if zahlweise%}
+        {% if zahlweise and aufgabe.rechnungstyp != "non" %}
         <div class="payment-info" style="margin-top: 20px;">
             <p><strong>Zahlungsweise:</strong> {{ zahlweise|default:"Keine Zahlungsart angegeben" }}</p>
         </div>

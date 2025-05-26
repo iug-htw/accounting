@@ -111,7 +111,11 @@ def aufgabe_import_form(request):
 
             for zeilennr, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
                 beschreibung = row[0]
-                rechnung = row[1]
+                rechnungsansicht = row[1]
+                if rechnungsansicht == 1:
+                    rechnungstyp = 'non'
+                else:
+                    rechnungstyp = 'intern'
                 immer_feedback = row[2]
                 zahlweise = row[3]
 
@@ -172,7 +176,7 @@ def aufgabe_import_form(request):
                 # Neue Aufgabe pro Zeile erstellen
                 neue_aufgabe = Aufgabe_neu.objects.create(
                     unternehmen_kategorie=unternehmen,
-                    rechnungstyp='intern',
+                    rechnungstyp=rechnungstyp,
                     fragentyp=fragentyp,
                     unterkategorie=unterkategorie,
                     fragentyp_text=fragentyp_text,
@@ -187,7 +191,6 @@ def aufgabe_import_form(request):
                     zahlweise=zahlweise,
                     rechnungsbetrag=0,
                     ersteller=request.user.id,
-                    frage='',
                     immer_feedback=immer_feedback,
                     rechnungsnummer=f"RE-{random.randint(10000, 99999)}"
                 )
@@ -200,10 +203,6 @@ def aufgabe_import_form(request):
                         soll_haben=soll_haben,
                         kontenplan=kontenplan,
                         betrag=betrag,
-                        formel_typ="fix",
-                        festbetrag=betrag,
-                        monatsangabe=False,
-                        monat=None
                     )
                     if konto.bilanzposition_nummer:
                         aufgabe_detail.bilanzposition = konto.bilanzposition_nummer
@@ -254,14 +253,8 @@ def speichere_aufgabe_details(request, aufgabe,kontenplan):
     konto_ids = request.POST.getlist('konto_id[]')
     soll_haben = request.POST.getlist('soll_haben[]')
     betraege = request.POST.getlist('betrag[]')
-    monatsangaben = request.POST.getlist('monatsangabe[]')
-    monate = request.POST.getlist('monat[]')
 
     # Neue Felder für Abhängigkeiten
-    formel_typen = request.POST.getlist('formel_typ[]')
-    festbetraege = request.POST.getlist('festbetrag[]')
-    faktoren = request.POST.getlist('faktor[]')
-    bezugs_konto_namen = request.POST.getlist('bezugs_konto[]')
 
     aufgabe_details = []  # Zwischenspeicher für bulk_create()
 
@@ -273,20 +266,9 @@ def speichere_aufgabe_details(request, aufgabe,kontenplan):
             konto=konto,
             soll_haben=soll_haben[i],
             betrag=float(betraege[i]) if betraege[i] else None,
-            monatsangabe=(monatsangaben[i].lower() == 'true'),
-            monat=(int(monate[i]) if monate[i] else None),
             kontenplan=kontenplan,
-            formel_typ=formel_typen[i],
-            festbetrag=float(festbetraege[i]) if festbetraege[i] else None,
-            faktor=float(faktoren[i]) if faktoren[i] else None
         )
         aufgabe_details.append(aufgabe_detail)
-    
-    bezugs_konto_ids = request.POST.getlist('bezugs_konto_id[]')
-    for i, aufgabe_detail in enumerate(AufgabeDetail.objects.filter(aufgabe=aufgabe)):
-        if i < len(bezugs_konto_ids) and bezugs_konto_ids[i]:
-            aufgabe_detail.bezugs_konto = Konto.objects.get(id=bezugs_konto_ids[i])
-            aufgabe_detail.save()
 
 @login_required
 def rechnung_detail_view(request, aufgabe_id):
@@ -343,6 +325,7 @@ def rechnung_detail_view(request, aufgabe_id):
         'eingehend': 'posts/rechnungen/rechnung_eingehend.html',
         'ausgehend': 'posts/rechnungen/rechnung_ausgehend.html',
         'intern': 'posts/rechnungen/rechnung_intern.html',
+        'non': 'posts/rechnungen/rechnung_intern.html'
     }
 
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
