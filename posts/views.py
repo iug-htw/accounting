@@ -67,6 +67,7 @@ def aufgabe_neu_erstellen(request):
         if form.is_valid():
             aufgabe = form.save(commit=False)
             aufgabe.ersteller = request.user.id
+            aufgabe.rechnungsnummer = f"RE-{random.randint(10000, 99999)}"
             kontenplan = form.cleaned_data['kontenplan']
             aufgabe.aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
             aufgabe.save()

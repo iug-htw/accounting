@@ -25,7 +25,6 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'mailtext',
             'feedback_konto_falsch',
             'feedback_betrag_falsch',
-            'rechnungsnummer',
             'zahlweise',
             'beschreibung',
             'verabschiedung'
