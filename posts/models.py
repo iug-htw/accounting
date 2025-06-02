@@ -38,28 +38,27 @@ class Aufgabe_neu(models.Model):
         ('intern', 'Interner Vorgang'),
         ('non', 'Keine Rechnungsansicht')
     ]
-    unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE)
+    unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE,help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     fragentyp = models.ForeignKey(Aufgabenkategorie,null=True, on_delete=models.CASCADE)
     ersteller = models.IntegerField(null=True, blank=True)
-    unterkategorie = models.IntegerField(null = True, blank=True, default = 1)
+    unterkategorie = models.IntegerField(null = True, blank=True, default = 1,help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     fragentyp_text = models.CharField(null = True,max_length=255)
-    mailtext = models.TextField()
+    mailtext = models.TextField(help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     nutzungsdauer = models.IntegerField(null=True, blank=True)
     feedback_konto_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Feedback, wenn der Betrag falsch ist.")
     immer_feedback = models.BooleanField(null=True, blank=True)
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
-    eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\nTreskowallee 8\n10318 Berlin')
+    eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\nTreskowallee 8\n10318 Berlin',help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001')
     datum = models.DateField(blank=True, null=True, auto_now_add=True)
     rechnungsbetrag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00)
-    zahlweise = models.CharField(max_length=255, blank=True, null=True)
-    verabschiedung = models.TextField(blank=True, null=True, default='Mit freundlichen Grüßen\nIhr Unternehmen')
-    kontakt = models.TextField(blank=True, null=True, default='Tel: 01234 567890\nE-Mail: info@unternehmen.de')
+    zahlweise = models.CharField(max_length=255, blank=True, null=True,help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
+    verabschiedung = models.TextField(blank=True, null=True, default='Mit freundlichen Grüßen\nIhr Unternehmen',help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
+    kontakt = models.TextField(blank=True, null=True, default='Tel: 01234 567890\nE-Mail: info@unternehmen.de',help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     beschreibung = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.')
     rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern')
     aufgabeninfo = models.TextField(null=True, blank=True, help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt).")
-    
 
     def __str__(self):
         return f"({self.fragentyp})"
@@ -69,7 +68,7 @@ class AufgabeDetail(models.Model):
     konto = models.ForeignKey('Konto', on_delete=models.CASCADE,null=True,)
     soll_haben = models.CharField(max_length=50, choices=[("Soll", "Soll"), ("Haben", "Haben")])
     betrag = models.FloatField(null=True, blank=True)  # Kann leer sein, wenn es berechnet wird
-    kontenplan = models.ForeignKey('Kontenplan', null=True, blank=True, on_delete=models.SET_NULL)
+    kontenplan = models.ForeignKey('Kontenplan', null=True, blank=True, on_delete=models.SET_NULL,help_text="Feedback, wenn ein falsches Konto gewählt wurde.")
     bilanzposition = models.IntegerField(null=True,)
 
 class Buchung(models.Model):
@@ -188,7 +187,10 @@ class Kontenplan(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Kontenplan {self.id} von {self.nutzer.username}"
+        if self.id == 1:
+            return "SecureNet"
+        else:
+            return f"Kontenplan {self.nutzer.username} {self.nutzer.id}"
 
 class Anfangsbestand(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="anfangsbestaende")

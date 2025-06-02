@@ -131,10 +131,19 @@ def aufgabe_import_form(request):
                     if not konto_name or not soll_haben or betrag is None:
                         break
 
-                    konto = Konto.objects.filter(
-                        name__iexact=konto_name.strip(),
-                        kontenplan=kontenplan
-                    ).first()
+                    try:
+                        # Versuche zuerst die Kontonummer (falls Zahl angegeben)
+                        konto_nummer = int(konto_name)
+                        konto = Konto.objects.filter(
+                            kontonummer=konto_nummer,
+                            kontenplan=kontenplan
+                        ).first()
+                    except (ValueError, TypeError):
+                        # Falls keine Zahl: Suche über den Namen (wie bisher)
+                        konto = Konto.objects.filter(
+                            name__iexact=str(konto_name).strip(),
+                            kontenplan=kontenplan
+                        ).first()
 
                     if not konto:
                         fehlendes_konto = True
@@ -934,10 +943,10 @@ def send_korrektur_mail(nutzer, aufgabe, request):
 @lehrkraft_required
 def konten_verwalten(request):
     if request.method == 'POST':
-        if 'neuer_kontenplan' in request.POST:
-            neuer_plan = Kontenplan.objects.create(nutzer=request.user)
-            messages.success(request, f"Neuer Kontenplan {neuer_plan.id} wurde erstellt.")
-            return redirect('posts:konten_verwalten')
+        if "neuer_kontenplan" in request.POST:
+            Kontenplan.objects.create(nutzer=request.user)
+            request.session["kontenplan_erfolgreich"] = True
+            return redirect("posts:konten_verwalten")
 
         if 'importiere_excel' in request.POST:
             return verarbeite_excel_import(request)
@@ -969,12 +978,20 @@ def konten_verwalten(request):
     konten_nach_plan = defaultdict(list)
     for konto in konten:
         konten_nach_plan[konto.kontenplan_id].append(konto)
-
+    erfolgsmeldung = request.session.pop("kontenplan_erfolgreich", False)
     return render(request, 'posts/konten_verwalten.html', {
         'form': form,
         'konten_nach_plan': dict(konten_nach_plan),
-        'kontenplaene': kontenplaene
+        'kontenplaene': kontenplaene,
+        "erfolgsmeldung": erfolgsmeldung,
     })
+
+@lehrkraft_required
+def kontenplan_loeschen(request, pk):
+    kontenplan = get_object_or_404(Kontenplan, pk=pk)
+    if request.user.is_superuser or kontenplan.nutzer == request.user:
+        kontenplan.delete()
+    return redirect('posts:konten_verwalten')
 
 def importiere_konten_aus_excel(datei, kontenplan, nutzer):
     print("📊 Importiere Excel-Datei für Plan", kontenplan.id)

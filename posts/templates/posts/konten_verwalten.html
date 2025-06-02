@@ -19,9 +19,19 @@
     <button type="submit">Konto hinzufügen</button>
 </form>
 <br><br>
-<form method="post">
+<form method="post" id="kontenplanForm">
     {% csrf_token %}
-    <button name="neuer_kontenplan" type="submit">Neuen Kontenplan erstellen</button>
+    <button id="neuerKontenplanBtn" name="neuer_kontenplan" type="submit">Neuen Kontenplan erstellen</button>
+    {% if erfolgsmeldung %}
+        <span style="color:green; margin-left:10px;">Kontenplan erfolgreich erstellt!</span>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const btn = document.getElementById("neuerKontenplanBtn");
+                btn.disabled = true;
+                btn.style.opacity = 0.5;
+            });
+        </script>
+    {% endif %}
 </form>
 <!-- Excel-Import -->
 <h3>Konten aus Excel importieren</h3>
@@ -52,7 +62,17 @@
     </tr>
     {% for plan_nr, konten in konten_nach_plan.items %}
         <tr>
-            <th colspan="4" style="background:#e0e0e0;">Kontenplan {{ plan_nr }}</th>
+            <th colspan="4" style="background:#e0e0e0;">
+                Kontenplan {{ plan_nr }}
+                {% with konten.0.kontenplan as plan %}
+                    {% if plan.nutzer.id == user.id or user.is_superuser %}
+                        <form method="post" action="{% url 'posts:kontenplan_loeschen' plan.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('Diesen Kontenplan wirklich löschen?');">🗑️</button>
+                        </form>
+                    {% endif %}
+                {% endwith %}
+            </th>
         </tr>
             {% for konto in konten %}
             <tr>

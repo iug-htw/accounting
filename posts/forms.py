@@ -7,16 +7,19 @@ class Aufgabe_neu_Form(forms.ModelForm):
     kontenplan = forms.ModelChoiceField(
         queryset=Kontenplan.objects.none(),  # Erst später im __init__ dynamisch setzen
         label="Kontenplan",
-        required=True
+        required=True,
+        help_text="Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
     )
     aufgabeninfo = forms.CharField(
         required=False,
         widget=forms.HiddenInput(),
-        label="Zusatzinformation zur Aufgabe"
+        label="Zusatzinformation zur Aufgabe",
+        help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt)."
     )
     class Meta:
         model = Aufgabe_neu
         fields = [
+            'kontenplan',
             'unternehmen_kategorie', 
             'fragentyp',
             'unterkategorie',
@@ -73,7 +76,8 @@ class AufgabeImportForm(forms.ModelForm):
     kontenplan = forms.ModelChoiceField(
         queryset=Kontenplan.objects.none(),
         label="Kontenplan",
-        required=True
+        required=True,
+        help_text="Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
     )
     aufgabeninfo = forms.CharField(
         required=False,
@@ -82,6 +86,16 @@ class AufgabeImportForm(forms.ModelForm):
     )
     class Meta:
         model = Aufgabe_neu
+        fields = [
+            'kontenplan',
+            'unternehmen_kategorie', 
+            'mailtext',
+            'feedback_konto_falsch',
+            'feedback_betrag_falsch',
+            'eigene_ansicht',
+            'kontakt',
+            'aufgabeninfo'
+        ]
         exclude = [
             'rechnungstyp', 'fragentyp', 'unterkategorie', 'fragentyp_text', 
             'nutzungsdauer', 'zahlweise', 'beschreibung', 'verabschiedung', 
