@@ -152,7 +152,7 @@ select[multiple] {
 .helptext {
     font-size: 12px;
     color: #777;
-    margin-top: -0.1rem;
+    margin-top: 0.1rem;
     margin-bottom: 1rem;
     display: block;
 }
