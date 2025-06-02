@@ -6,7 +6,12 @@
 {% endblock %}
 {% block content %}
   <h1>Aufgaben per Excel importieren</h1>
-
+  <div class="link-buttons">
+    <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">Unternehmen/Fallstudien verwalten</a>
+    <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">Fragentyp verwalten</a>
+    <a href="{% url 'posts:konten_verwalten' %}" class="btn btn-secondary">Konten verwalten</a>
+    <a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-info">Einzelne Aufgaben erstellen</a>
+    </div>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
