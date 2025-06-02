@@ -24,7 +24,7 @@
             {% for rechnung in rechnungsdaten %}
                 <tr>
                     <td>{{ rechnung.rechnungsnr }}</td>
-                    <td>{{ rechnung.fragentyp_text }}</td>
+                    <td>{{ rechnung.beschreibung }}</td>
                     <td>
                         {% if rechnung.aufgabenstatus == "offen" %}
                             <span class="status offen">Offen</span>

@@ -24,7 +24,6 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'fragentyp',
             'unterkategorie',
             'aufgabeninfo',
-            'fragentyp_text',
             'mailtext',
             'feedback_konto_falsch',
             'feedback_betrag_falsch',

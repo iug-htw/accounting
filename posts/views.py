@@ -647,7 +647,7 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
         betreff = f"Bitte bearbeiten Sie Folgende Rechnung: {aufgabe.rechnungsnummer}"
     else:
         v = round((versuch/2) + 1,0)
-        betreff = f"{aufgabe.fragentyp_text} Versuch {v}"
+        betreff = f"Rechnung: {aufgabe.rechnungsnummer} Versuch {v}"
     mailtext = f"{aufgabe.mailtext}"
 
     Mail.objects.create(
@@ -915,10 +915,10 @@ def send_korrektur_mail(nutzer, aufgabe, request):
     mail_text = (
         f"""
         Sehr geehrte/r {nutzer.username},
-        <p>Ihre Buchung zur Aufgabe '{aufgabe.fragentyp_text}' enthält einen Fehler.</p>
+        <p>Ihre Buchung zur beiliegenden Aufgabe enthält einen Fehler.</p>
         
-        <p>Bitte korrigieren Sie Ihre Eingaben über den folgenden Link: </p>
-        <p><a href="{update_url}">Profil aktualisieren</a></p>
+        <p>Bitte führen Sie eine Korrekturbuchung über den folgenden Link durch: </p>
+        <p><a href="{update_url}">Zur Korrekturbuchung</a></p>
         <p>Vielen Dank, <br>Ihr Buchhaltungsteam</p>"""
     )
 
@@ -1324,11 +1324,20 @@ def rechnungsuebersicht(request):
         # Anzahl Buchungen und Korrekturbuchungen zählen
         anzahl_buchungen = buchungen.count()
         anzahl_korrekturbuchungen = buchungen.filter(korrekturbuchung=True).count()
+        beschreibung_lang = aufgabe.beschreibung or ""
+        if len(beschreibung_lang) > 90:
+            cutoff_index = beschreibung_lang.find(" ", 90)
+            if cutoff_index != -1:
+                beschreibung_kurz = beschreibung_lang[:cutoff_index] + " ..."
+            else:
+                beschreibung_kurz = beschreibung_lang  # Kein Leerzeichen gefunden → komplette Beschreibung behalten
+        else:
+            beschreibung_kurz = beschreibung_lang
 
         rechnungsdaten.append({
             'id': aufgabe.id,
             'rechnungsnr': aufgabe.rechnungsnummer,
-            'fragentyp_text': aufgabe.fragentyp_text,
+            'beschreibung': beschreibung_kurz,
             'anzahl_buchungen': anzahl_buchungen,
             'anzahl_korrekturbuchungen': anzahl_korrekturbuchungen,
             'aufgabenstatus': nutzer_aufgabe.bearbeitungsstand
