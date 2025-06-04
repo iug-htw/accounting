@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +69,16 @@
                     {% else %}
                         <a class = "nav-element" href="{% url 'users:login' %}">Login</a>
                     {% endif %}
+                    
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <select name="language">
+                            <option value="de" {% if LANGUAGE_CODE == 'de' %}selected{% endif %}>Deutsch</option>
+                            <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
+                        </select>
+                        <button type="submit">{% trans "Sprache ändern" %}</button>
+                    </form>
+                    
             </nav>
         </header>
     </div>

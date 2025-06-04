@@ -20,6 +20,7 @@ from django.db.models import Q
 from collections import defaultdict
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 ORGA_MAILS = [
     {
@@ -345,12 +346,12 @@ def update_profile(request):
                 update_session_auth_hash(request, user)  # Nutzer bleibt eingeloggt
 
             elif neues_passwort and neues_passwort != passwort_bestätigung:
-                messages.error(request, "Passwörter stimmen nicht überein.")
+                messages.error(request, _("Passwörter stimmen nicht überein."))
                 return redirect("users:update_profile")
 
         if name_geändert or passwort_geändert:
             user.save()
-            messages.success(request, "Profil erfolgreich aktualisiert.")
+            messages.success(request, _("Profil erfolgreich aktualisiert."))
 
             # Älteste Mail des Nutzers ohne Aufgabe als bearbeitet markieren
             mail = Mail.objects.filter(nutzer=user, aufgabe__isnull=True).order_by("datum").first()
@@ -361,7 +362,7 @@ def update_profile(request):
 
             return redirect("users:update_profile")
 
-        messages.warning(request, "Keine Änderungen vorgenommen.")
+        messages.warning(request, _("Keine Änderungen vorgenommen."))
 
     return render(request, "users/update_profile.html", {"user": user})
 

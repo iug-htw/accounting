@@ -1424,7 +1424,7 @@ def ollama_prompt_view(request):
                 yield f"event: error\ndata: Ausnahme beim Streaming: {str(e)}\n\n"
         return StreamingHttpResponse(stream_antwort(), content_type='text/event-stream')
     return render(request, 'posts/ollama_prompt.html')
-@login_required
+
 def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
     id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
 

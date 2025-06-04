@@ -1,39 +1,44 @@
 {% extends 'master_layout.html' %}
 {% load static %}  {# MUSS vor static verwendet werden! #}
-
+{% load i18n %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/update_profile.css' %}">
 {% endblock %}
 
 {% block content %}
-<h2>Profil aktualisieren</h2>
-<div id="confirmation-message" style="display: none; color: green; margin-bottom: 10px;"></div>
+<h2>{% trans "Profil aktualisieren" %}</h2>
+{% if messages %}
+  {% for message in messages %}
+    <div class="confirmation-message {{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
 <form method="post">
     {% csrf_token %}
     
     <div>
-        <label for="display_name">Neuer Anzeigename (optional):</label>
+        <label for="display_name">{% trans "Neuer Anzeigename (optional):"%}</label>
         <input type="text" name="display_name" value="{{ user.display_name }}">
-        <button type="submit" name="save_display_name" onclick="showConfirmation('Nutzername erfolgreich geändert')">Anzeigename speichern</button>
+        <button type="submit" name="save_display_name">
+            {% trans "Anzeigename speichern" %}
+        </button>
     </div>
     <br><br>
     <div>
-        <label for="password">Neues Passwort (optional):</label>
+        <label for="password">{% trans "Neues Passwort (optional)"%}:</label>
         <input type="password" name="password">
     </div>
     
     <div>
-        <label for="password_confirm">Passwort bestätigen:</label>
+        <label for="password_confirm">{% trans "Passwort bestätigen:"%}</label>
         <input type="password" name="password_confirm">
-        <button type="submit" name="save_password" onclick="showConfirmation('Passwort erfolgreich geändert')">Passwort speichern</button>
+        <button type="submit" name="save_password">
+            {% trans "Passwort speichern" %}
+        </button>
     </div>
 </form>
 
+<script src="{% url 'javascript-catalog' %}"></script>
 <script>
-    function showConfirmation(message) {
-        localStorage.setItem('confirmationMessage', message);
-    }
-
     window.onload = function() {
         const message = localStorage.getItem('confirmationMessage');
         if (message) {
@@ -42,5 +47,11 @@
             localStorage.removeItem('confirmationMessage'); // Nachricht nach dem Anzeigen löschen
         }
     };
+    function showConfirmationMessage(textKey) {
+        const message = gettext(textKey);
+        const box = document.getElementById('confirmation-message');
+        box.innerText = message;
+        box.style.display = 'block';
+    }
 </script>
 {% endblock %}

@@ -78,7 +78,7 @@ button[type="submit"]:hover {
 }
 
 /* === BESTÄTIGUNGSMELDUNG === */
-#confirmation-message {
+.confirmation-message {
     text-align: center;
     font-weight: bold;
     color: #2e7d32;
@@ -88,4 +88,18 @@ button[type="submit"]:hover {
     border-radius: 6px;
     max-width: 500px;
     margin: 0 auto 1.5rem auto;
+}
+
+.confirmation-message.success {
+    color: #2e7d32;
+}
+
+/* Fehler */
+.confirmation-message.error {
+    color: #b00020;
+}
+
+/* Warnung (z. B. keine Änderung) */
+.confirmation-message.warning {
+    color: #8a6d3b;
 }

@@ -1,0 +1,66 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-04 11:14+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: .\config\settings.py:125
+msgid "Deutsch"
+msgstr "German"
+
+#: .\config\settings.py:126
+msgid "Englisch"
+msgstr "English"
+
+#: .\templates\master_layout.html:79
+msgid "Sprache ändern"
+msgstr "Change language"
+
+#: .\users\templates\users\update_profile.html:9
+msgid "Profil aktualisieren"
+msgstr "Update Profile"
+
+#: .\users\templates\users\update_profile.html:15
+msgid "Neuer Anzeigename (optional):"
+msgstr "New display name (optional)"
+
+#: .\users\templates\users\update_profile.html:17
+msgid "Anzeigename speichern"
+msgstr "Save display name"
+
+#: .\users\templates\users\update_profile.html:21
+msgid "Neues Passwort (optional)"
+msgstr "New password (optional)"
+
+#: .\users\templates\users\update_profile.html:26
+msgid "Passwort bestätigen:"
+msgstr "Confirm password"
+
+#: .\users\templates\users\update_profile.html:28
+msgid "Passwort speichern"
+msgstr "Save passwort"
+
+#: .\users\views.py:349
+msgid "Passwörter stimmen nicht überein."
+msgstr "Password incorrect"
+
+#: .\users\views.py:354
+msgid "Profil erfolgreich aktualisiert."
+msgstr "Profile update successfull"
+
+#: .\users\views.py:365
+msgid "Keine Änderungen vorgenommen."
+msgstr "No Changes submitted"

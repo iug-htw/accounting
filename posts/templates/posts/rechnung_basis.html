@@ -52,7 +52,11 @@
         </div>
     
         <div class="invoice-description" style="margin-top: 20px;">
-            <h3>Rechnung</h3>
+            {% if aufgabe.rechnungstyp == "non"%}
+                <h3>Geschäftsvorfall</h3>
+            {% else %}
+                <h3>Rechnung</h3>
+            {% endif %}
             <br><br>
                 <p>
                 {% if aufgabe.rechnungstyp == "non"%}

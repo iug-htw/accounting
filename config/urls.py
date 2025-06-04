@@ -21,11 +21,14 @@ from . import views
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
+from django.conf.urls.i18n import i18n_patterns
+from django.views.i18n import JavaScriptCatalog
 
 urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     path('admin_iug/', admin.site.urls),
+    
     path('vorlage/', views.vorlage, name = 'vorlage'),
     #path('buchungsaufgabe/', views.buchungsaufgabe, name = 'buchungsaufgabe'),
     path('', views.index, name = 'index'),
@@ -33,5 +36,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('frontpage2/', views.frontpage2, name = 'frontpage2' ),
     path('frontpage/', views.frontpage, name = 'frontpage' ),
+    path('i18n/', include('django.conf.urls.i18n')),
+    path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
 ]
 #urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
