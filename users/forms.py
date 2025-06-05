@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, Studiengang, Semester
+from django.utils.translation import gettext_lazy as _
 
 class CustomUserCreationForm(UserCreationForm):
     semester = forms.ModelChoiceField(
@@ -33,10 +34,10 @@ class StudiengangForm(forms.ModelForm):
     class Meta:
         model = Studiengang
         fields = ['name']
-        labels = {'name': 'Studiengang Name'}
+        labels = {'name': _("Studiengang Name")}
 
 class SemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
         fields = ['name']
-        labels = {'name': 'Semestername'}
+        labels = {'name': _("Semestername")}

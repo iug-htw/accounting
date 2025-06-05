@@ -68,7 +68,7 @@ def login_view(request):
                 return redirect(request.POST.get("next"))
             return redirect("frontpage")
         else:
-            messages.error(request, "Benutzername oder Passwort ist nicht korrekt.")
+            messages.error(request, _("Benutzername oder Passwort ist nicht korrekt."))
     
     else:
         form = AuthenticationForm()
@@ -120,7 +120,7 @@ def add_semester_view(request):
             semester = form.save(commit=False)
             semester.ersteller = request.user.id
             form.save()
-            messages.success(request, "Semester erfolgreich hinzugefügt.")
+            messages.success(request, _("Semester erfolgreich hinzugefügt."))
             return redirect('users:add_semester')
     else:
         form = SemesterForm()
@@ -139,7 +139,7 @@ def delete_semester_view(request, semester_id):
     if semester.ersteller and semester.ersteller != request.user.id and not request.user.is_superuser:
         return HttpResponse('Keine Berechtigung zum Löschen.')
     semester.delete()
-    messages.success(request, "Semester erfolgreich gelöscht.")
+    messages.success(request, _("Semester erfolgreich gelöscht."))
     return redirect('users:add_semester')
 
 @lehrkraft_required
@@ -185,9 +185,15 @@ def bulk_student_creation(request):
             neue_studierende.append(student)
 
         if fehlgeschlagene_namen:
-            messages.error(request, f"Folgende Namen sind bereits vergeben: {', '.join(fehlgeschlagene_namen)}")
+            message = _("Folgende Namen sind bereits vergeben: %(namen)s") % {
+                "namen": ", ".join(fehlgeschlagene_namen)
+            }
+            messages.error(request, message)
         else:
-            messages.success(request, f'{len(neue_studierende)} Studierende erfolgreich erstellt.')
+            message = _("%(anzahl)d Studierende erfolgreich erstellt.") % {
+                "anzahl": len(neue_studierende)
+            }
+            messages.success(request, message)
         unternehmen = Unternehmen.objects.all()
         return render(request, 'users/bulk_student_creation.html', {
             'studiengaenge': Studiengang.objects.all(),
@@ -277,7 +283,7 @@ def aufgaben_zuweisen_view(request):
                 erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
                 sende_orga_mail_wenn_noetig(student)
 
-        messages.success(request, "Aufgaben erfolgreich zugewiesen.")
+        messages.success(request, _("Aufgaben erfolgreich zugewiesen."))
         return redirect('users:aufgaben_zuweisen')
 
     return render(request, 'users/aufgaben_zuweisen.html', {
@@ -319,7 +325,7 @@ def aufgaben_selbst_zuweisen(request):
         naechster_versuch = berechne_naechsten_versuch(lehrer, aufgabe)
         erstelle_aufgaben_mail(lehrer, aufgabe, naechster_versuch, nutzer_aufgabe.absender)
 
-    messages.success(request, "Alle Aufgaben wurden dir erfolgreich zugewiesen.")
+    messages.success(request, _("Alle Aufgaben wurden dir erfolgreich zugewiesen."))
     return redirect('users:aufgaben_zuweisen')
 
 
@@ -462,5 +468,5 @@ def orga_mail_bestaetigen(request, mail_id):
     if mail.aufgabe is None:
         mail.status = "bearbeitet"
         mail.save(update_fields=["status"])
-        messages.success(request, "Die organisatorische Aufgabe wurde als erledigt markiert.")
+        messages.success(request, _("Die organisatorische Aufgabe wurde als erledigt markiert."))
     return redirect("posts:posteingang")

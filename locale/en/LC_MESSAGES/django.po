@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-04 11:14+0200\n"
+"POT-Creation-Date: 2025-06-05 10:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: .\config\settings.py:125
 msgid "Deutsch"
 msgstr "German"
@@ -25,42 +26,341 @@ msgstr "German"
 msgid "Englisch"
 msgstr "English"
 
+#: .\templates\frontpage.html:11
+msgid "Willkommen bei SecureNet!"
+msgstr "Welcome to SecureNet"
+
+#: .\templates\frontpage.html:27
+msgid "Starte jetzt und halte die Finanzen deines Startups auf Kurs! 🚀"
+msgstr "Get started now and keep your startup's finances on track! 🚀"
+
+#: .\templates\frontpage.html:34
+msgid "Meine Bilanz"
+msgstr "My Balance sheet"
+
+#: .\templates\frontpage.html:37
+msgid "Mein Hauptbuch"
+msgstr "My General ledger"
+
+#: .\templates\frontpage.html:44
+msgid "Dein Fortschritt"
+msgstr "Your progress"
+
+#: .\templates\frontpage.html:46 .\templates\frontpage.html:86
+#: .\templates\frontpage.html:115
+msgid "Bearbeitet"
+msgstr "Worked on"
+
+#: .\templates\frontpage.html:50 .\templates\frontpage.html:90
+#: .\templates\frontpage.html:119
+msgid "Korrekt"
+msgstr "Correct"
+
+#: .\templates\frontpage.html:59
+msgid "Leistungsübersicht Studierende"
+msgstr "Student Performance Overview"
+
+#: .\templates\frontpage.html:62 .\templates\index.html:30
+msgid "Semester:"
+msgstr "Semester:"
+
+#: .\templates\frontpage.html:64 .\templates\frontpage.html:70
+#: .\templates\frontpage.html:76
+msgid "Alle"
+msgstr "All"
+
+#: .\templates\frontpage.html:68 .\templates\index.html:29
+msgid "Studiengang:"
+msgstr "Study Program:"
+
+#: .\templates\frontpage.html:74
+msgid "Aufgabe:"
+msgstr "List of tasks"
+
+#: .\templates\frontpage.html:80
+msgid "Filtern"
+msgstr "Filter"
+
+#: .\templates\frontpage.html:97
+msgid "Fehlerhafte Buchungen:"
+msgstr "Incorrect Entries:"
+
+#: .\templates\frontpage.html:98
+msgid "Bearbeiter:innen:"
+msgstr "Number of active Students:"
+
+#: .\templates\frontpage.html:104
+msgid "Studierenden-Fortschritt"
+msgstr "Student progress:"
+
+#: .\templates\frontpage.html:107
+msgid "Studierende:"
+msgstr "List of your students:"
+
+#: .\templates\frontpage.html:109
+msgid "Bitte wählen"
+msgstr "Please select"
+
+#: .\templates\frontpage.html:111
+msgid "Fortschritt ansehen"
+msgstr "View progress"
+
+#: .\templates\index.html:7
+msgid "Allgemeine Informationen"
+msgstr "General information"
+
+#: .\templates\index.html:8
+msgid "Willkommen,"
+msgstr "Welcome,"
+
+#: .\templates\index.html:11
+msgid "Ihre Rolle: Admin"
+msgstr "Your role: Admin"
+
+#: .\templates\index.html:13
+msgid "Ihre Rolle:"
+msgstr "Your role:"
+
+#: .\templates\index.html:18
+msgid "Ihre Studierenden:"
+msgstr "List of your students:"
+
+#: .\templates\index.html:26
+msgid "Sie haben derzeit keine Studierenden unter Ihrer Betreuung."
+msgstr "You currently don't havy any students"
+
+#: .\templates\index.html:31
+msgid "Ihr Professor:"
+msgstr "Your teacher"
+
+#: .\templates\index.html:35
+msgid "Sie haben derzeit keinen zugewiesenen Professor."
+msgstr "You don't havy any teacher assigned to you"
+
+#: .\templates\master_layout.html:28
+msgid "Home"
+msgstr "Home"
+
+#: .\templates\master_layout.html:29
+msgid "Posteingang"
+msgstr "Inbox"
+
+#: .\templates\master_layout.html:30
+msgid "Rechnungen"
+msgstr "Billings"
+
+#: .\templates\master_layout.html:33 .\templates\master_layout.html:35
+msgid "Profil"
+msgstr "Account"
+
+#: .\templates\master_layout.html:36
+msgid "Handbuch"
+msgstr "User guide"
+
+#: .\templates\master_layout.html:38
+msgid "Handbuch Lehrende"
+msgstr "User guide teachers"
+
+#: .\templates\master_layout.html:44
+msgid "Aufgabenliste"
+msgstr "List of tasks"
+
+#: .\templates\master_layout.html:45
+msgid "Aufgaben zuweisen"
+msgstr "Assign tasks"
+
+#: .\templates\master_layout.html:46
+msgid "Nutzer anlegen"
+msgstr "Create Users"
+
+#: .\templates\master_layout.html:47
+msgid "Aufgabe erstellen"
+msgstr "Create task"
+
+#: .\templates\master_layout.html:52
+msgid "Buchhaltung ▾"
+msgstr "Accounting ▾"
+
+#: .\templates\master_layout.html:54
+msgid "Hauptbuch"
+msgstr "General ledger"
+
+#: .\templates\master_layout.html:55
+msgid "GuV"
+msgstr "Profit and loss statement"
+
+#: .\templates\master_layout.html:56
+msgid "Bilanz"
+msgstr "Balance sheet"
+
+#: .\templates\master_layout.html:57
+msgid "Buchungssätze"
+msgstr "Journal entries"
+
 #: .\templates\master_layout.html:79
 msgid "Sprache ändern"
 msgstr "Change language"
 
-#: .\users\templates\users\update_profile.html:9
-msgid "Profil aktualisieren"
-msgstr "Update Profile"
+#~ msgid "Semestername"
+#~ msgstr "Semester name"
 
-#: .\users\templates\users\update_profile.html:15
-msgid "Neuer Anzeigename (optional):"
-msgstr "New display name (optional)"
+#~ msgid "Semester verwalten"
+#~ msgstr "Manage semesters"
 
-#: .\users\templates\users\update_profile.html:17
-msgid "Anzeigename speichern"
-msgstr "Save display name"
+#~ msgid "Semester hinzufügen"
+#~ msgstr "Add semesters"
 
-#: .\users\templates\users\update_profile.html:21
-msgid "Neues Passwort (optional)"
-msgstr "New password (optional)"
+#~ msgid "Vorhandene Semester"
+#~ msgstr "Existing semesters"
 
-#: .\users\templates\users\update_profile.html:26
-msgid "Passwort bestätigen:"
-msgstr "Confirm password"
+#~ msgid "Sind Sie sicher, dass Sie dieses Semester löschen möchten?"
+#~ msgstr "Are you sure you want to delete this semester?"
 
-#: .\users\templates\users\update_profile.html:28
-msgid "Passwort speichern"
-msgstr "Save passwort"
+#~ msgid "Löschen"
+#~ msgstr "Delete"
 
-#: .\users\views.py:349
-msgid "Passwörter stimmen nicht überein."
-msgstr "Password incorrect"
+#~ msgid "Neuen Studiengang hinzufügen"
+#~ msgstr "Add programs"
 
-#: .\users\views.py:354
-msgid "Profil erfolgreich aktualisiert."
-msgstr "Profile update successfull"
+#~ msgid "Speichern"
+#~ msgstr "Save"
 
-#: .\users\views.py:365
-msgid "Keine Änderungen vorgenommen."
-msgstr "No Changes submitted"
+#~ msgid "Vorhandene Studiengänge"
+#~ msgstr "Existing programs"
+
+#~ msgid "Übersicht der zugewiesenen Aufgaben"
+#~ msgstr "Overview of assigned tasks"
+
+#~ msgid "Keine Aufgaben zugewiesen."
+#~ msgstr "No tasks assigned"
+
+#~ msgid "Aufgaben auswählen"
+#~ msgstr "Choose task"
+
+#, python-format
+#~ msgid "Aufgabe: %(id)s - %(typ)s"
+#~ msgstr "Task: %(id)s - %(typ)s"
+
+#~ msgid "Studiengänge auswählen"
+#~ msgstr "Choose Program"
+
+#~ msgid "Alle Aufgaben mir zuweisen"
+#~ msgstr "Assign all tasks to myself"
+
+#~ msgid "Studiengang bearbeiten"
+#~ msgstr "Modify student program"
+
+#~ msgid "Semester bearbeiten"
+#~ msgstr "Modify semesterss"
+
+#~ msgid "Fallstudie:"
+#~ msgstr "Case study"
+
+#~ msgid "Namensmodus:"
+#~ msgstr "Custom name"
+
+#~ msgid "Automatischer Name"
+#~ msgstr "Automatic name"
+
+#~ msgid "Individueller Name:"
+#~ msgstr "Custom name:"
+
+#~ msgid "Studierende anlegen"
+#~ msgstr "Create student program"
+
+#~ msgid "Benutzername"
+#~ msgstr "Username"
+
+#~ msgid "Passwort"
+#~ msgstr "Password"
+
+#~ msgid "Hinweis:"
+#~ msgstr "Notice:"
+
+#~ msgid ""
+#~ " Die Passwörter entsprechen den Benutzernamen. Die Studierenden sollten "
+#~ "diese bei der ersten Anmeldung ändern."
+#~ msgstr ""
+#~ "Passwords and usernames are the same. Students should change their "
+#~ "passwords after the first login. "
+
+#~ msgid "Bereits existierende Studierende"
+#~ msgstr "Already existing students"
+
+#~ msgid ""
+#~ "Diese Studierenden existierten bereits und wurden nicht erneut angelegt."
+#~ msgstr "These students already exists and no new accounts were created."
+
+#~ msgid "Login as a User"
+#~ msgstr "Login as a User"
+
+#~ msgid "Login"
+#~ msgstr "Login"
+
+#~ msgid "Einloggen"
+#~ msgstr "Login"
+
+#~ msgid "Neuen Nutzer registrieren"
+#~ msgstr "Register a new user"
+
+#~ msgid "Bestätigen"
+#~ msgstr "Confirm password"
+
+#~ msgid "Studiengang/Gruppe hinzufügen"
+#~ msgstr "Add programs"
+
+#~ msgid "Massennutzeranlegung"
+#~ msgstr "Create multiple accounts"
+
+#~ msgid "Profil aktualisieren"
+#~ msgstr "Update Profile"
+
+#~ msgid "Neuer Anzeigename (optional):"
+#~ msgstr "New display name (optional)"
+
+#~ msgid "Anzeigename speichern"
+#~ msgstr "Save display name"
+
+#~ msgid "Neues Passwort (optional)"
+#~ msgstr "New password (optional)"
+
+#~ msgid "Passwort bestätigen:"
+#~ msgstr "Confirm password"
+
+#~ msgid "Passwort speichern"
+#~ msgstr "Save password"
+
+#~ msgid "Benutzername oder Passwort ist nicht korrekt."
+#~ msgstr "Username or password are not correct"
+
+#~ msgid "Semester erfolgreich hinzugefügt."
+#~ msgstr "Successfully created semester"
+
+#~ msgid "Semester erfolgreich gelöscht."
+#~ msgstr "Successfully deleted semester"
+
+#, python-format
+#~ msgid "Folgende Namen sind bereits vergeben: %(namen)s"
+#~ msgstr "The following names were already taken: %(namen)s"
+
+#, python-format
+#~ msgid "%(anzahl)d Studierende erfolgreich erstellt."
+#~ msgstr "%(anzahl)d students successfully created"
+
+#~ msgid "Aufgaben erfolgreich zugewiesen."
+#~ msgstr "Tasks successfully assigned"
+
+#~ msgid "Alle Aufgaben wurden dir erfolgreich zugewiesen."
+#~ msgstr "Assign all tasks to myself"
+
+#~ msgid "Passwörter stimmen nicht überein."
+#~ msgstr "Password incorrect"
+
+#~ msgid "Profil erfolgreich aktualisiert."
+#~ msgstr "Profile update successfull"
+
+#~ msgid "Keine Änderungen vorgenommen."
+#~ msgstr "No Changes submitted"
+
+#~ msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
+#~ msgstr "The organizational task has been marked as completed."

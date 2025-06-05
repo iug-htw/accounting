@@ -8,6 +8,7 @@
     <title>SecureNet Homepage</title> 
     <link rel="stylesheet" href="{% static 'css/master_layout.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <script src="{% url 'javascript-catalog' %}"></script>
     {% block css %}
     {% endblock %}
 </head>
@@ -25,36 +26,36 @@
             </div>
             <!-- Navigation Bar -->
             <nav class="navigation-bar">
-                    <a href="{% url 'frontpage' %}" class="nav-element">Home</a>
-                    <a href="{% url 'posts:posteingang' %}" class="nav-element">Posteingang</a>
-                    <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">Rechnungen</a>
+                    <a href="{% url 'frontpage' %}" class="nav-element">{% trans "Home"%}</a>
+                    <a href="{% url 'posts:posteingang' %}" class="nav-element">{% trans "Posteingang"%}</a>
+                    <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">{% trans "Rechnungen"%}</a>
                     {% if user.is_authenticated %}
                         <div class="nav-dropdown">
-                            <a href="#" class="nav-element dropdown-toggle">Profil ▾</a>
+                            <a href="#" class="nav-element dropdown-toggle">{% trans "Profil"%} ▾</a>
                             <div class="dropdown-content">
-                                <a href="{% url 'users:update_profile' %}" class="nav-element" target="_blank">Profil</a>
-                                <a href="/media/nutzerdokumentation.pdf" class="nav-element">Handbuch</a>
+                                <a href="{% url 'users:update_profile' %}" class="nav-element" target="_blank">{% trans "Profil"%}</a>
+                                <a href="/media/nutzerdokumentation.pdf" class="nav-element">{% trans "Handbuch"%}</a>
                                 {% if request.user.role == 'teacher' %}
-                                    <a href="/media/nutzerdokumentation_lehrende.pdf" class="nav-element" target="_blank">Handbuch Lehrende</a>
+                                    <a href="/media/nutzerdokumentation_lehrende.pdf" class="nav-element" target="_blank">{% trans "Handbuch Lehrende"%}</a>
                                 {% endif %}
                             </div>
                         </div>
                         
                         {% if request.user.role == 'teacher' %}
-                            <a class = "nav-element" href="{% url 'posts:aufgaben_verwalten'%}">Aufgabenliste</a>
-                            <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">Aufgaben zuweisen</a>
-                            <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">Nutzer anlegen</a>
-                            <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
+                            <a class = "nav-element" href="{% url 'posts:aufgaben_verwalten'%}">{% trans "Aufgabenliste"%}</a>
+                            <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">{% trans "Aufgaben zuweisen"%}</a>
+                            <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">{% trans "Nutzer anlegen"%}</a>
+                            <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">{% trans "Aufgabe erstellen"%}</a>
                             
                         {% endif %}
                         
                         <div class="nav-dropdown">
-                            <a href="#" class="nav-element dropdown-toggle">Buchhaltung ▾</a>
+                            <a href="#" class="nav-element dropdown-toggle">{% trans "Buchhaltung ▾"%}</a>
                             <div class="dropdown-content">
-                                <a href="{% url 'posts:hauptbuch' %}">Hauptbuch</a>
-                                <a href="{% url 'posts:guv_uebersicht' %}">GuV</a>
-                                <a href="{% url 'posts:bilanz' %}">Bilanz</a>
-                                <a href="{% url 'posts:buchungssatz_uebersicht' %}">Buchungssätze</a>
+                                <a href="{% url 'posts:hauptbuch' %}">{% trans "Hauptbuch"%}</a>
+                                <a href="{% url 'posts:guv_uebersicht' %}">{% trans "GuV"%}</a>
+                                <a href="{% url 'posts:bilanz' %}">{% trans "Bilanz"%}</a>
+                                <a href="{% url 'posts:buchungssatz_uebersicht' %}">{% trans "Buchungssätze"%}</a>
                             </div>
                         </div>
                         <!--

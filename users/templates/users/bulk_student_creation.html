@@ -1,63 +1,63 @@
 {% extends 'master_layout.html' %}
-{% load static %}  {# Muss am Anfang stehen, um static-Funktion nutzen zu können #}
-
+{% load static %}  
+{% load i18n %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/bulk_student_creation.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1>Mehrere Studierende gleichzeitig anlegen</h1>
+<h1>{% trans "Nutzerkonten anlegen" %}</h1>
     <div class="nav-container_1">
-<a href="{% url 'users:add_studiengang' %}" class="nav-element_1">Studiengang bearbeiten</a>
-<a href="{% url 'users:add_semester' %}" class="nav-element_1">Semester bearbeiten</a>
+<a href="{% url 'users:add_studiengang' %}" class="nav-element_1">{% trans "Studiengang bearbeiten" %}</a>
+<a href="{% url 'users:add_semester' %}" class="nav-element_1">{% trans "Semester bearbeiten" %}</a>
     </div>
 <form method="post">
     {% csrf_token %}
 
 
-    <label for="anzahl">Anzahl der Studierenden:</label>
+    <label for="anzahl">{% trans "Anzahl der Studierenden:" %}</label>
     <input type="range" id="anzahl" name="anzahl_studierende" min="1" max="50" value="1" oninput="anzahlOutput.value = anzahl.value">
     <output id="anzahlOutput">1</output>
 
-    <label for="studiengang">Studiengang:</label>
+    <label for="studiengang">{% trans "Studiengang:" %}</label>
     <select name="studiengang" required>
         {% for sg in studiengaenge %}
             <option value="{{ sg.name }}">{{ sg.name }}</option>
         {% endfor %}
     </select>
 
-    <label for="semester">Semester:</label>
+    <label for="semester">{% trans "Semester:" %}</label>
     <select name="semester" required>
         {% for sem in semester %}
             <option value="{{ sem.name }}">{{ sem.name }}</option>
         {% endfor %}
     </select>
-    <label for="unternehmen">Fallstudie:</label>
+    <label for="unternehmen">{% trans "Fallstudie:" %}</label>
     <select name="unternehmen" required>
         {% for u in unternehmen %}
             <option value="{{ u.id }}">{{ u.name }}</option>
         {% endfor %}
     </select>
     <!-- Umschalter für Namensvergabe -->
-    <label for="name_mode">Namensmodus:</label>
+    <label for="name_mode">{% trans "Namensmodus:" %}</label>
     <input type="checkbox" id="name_mode" name="name_mode" onchange="toggleNameInput()">
-    <span id="name_mode_label">Automatischer Name</span>
+    <span id="name_mode_label">{% trans "Automatischer Name" %}</span>
 
     <!-- Eingabefeld für individuellen Namen (Standardmäßig versteckt) -->
     <div id="custom_name_field" style="display: none;">
-        <label for="custom_name">Individueller Name:</label>
+        <label for="custom_name">{% trans "Individueller Name:" %}</label>
         <input type="text" id="custom_name" name="custom_name">
     </div>
 
-    <button type="submit" class="btn btn-primary">Studierende anlegen</button>
+    <button type="submit" class="btn btn-primary">{% trans "Studierende anlegen" %}</button>
 </form>
 
 {% if neue_studierende %}
-<h2>Erstellte Studierende</h2>
+<h2>{% trans "Erstellte Studierende" %}</h2>
 <table border="1">
     <tr>
-        <th>Benutzername</th>
-        <th>Passwort</th>
+        <th>{% trans "Benutzername" %}</th>
+        <th>{% trans "Passwort" %}</th>
     </tr>
     {% for student in neue_studierende %}
     <tr>
@@ -66,14 +66,14 @@
     </tr>
     {% endfor %}
 </table>
-<p><strong>Hinweis:</strong> Die Passwörter entsprechen den Benutzernamen. Die Studierenden sollten diese bei der ersten Anmeldung ändern.</p>
+<p><strong>{% trans "Hinweis:" %}</strong> {% trans " Die Passwörter entsprechen den Benutzernamen. Die Studierenden sollten diese bei der ersten Anmeldung ändern." %}</p>
 {% endif %}
 
 {% if fehlgeschlagene_namen %}
-<h2>Bereits existierende Studierende</h2>
+<h2>{% trans "Bereits existierende Studierende" %}</h2>
 <table border="1">
     <tr>
-        <th>Benutzername</th>
+        <th>{% trans "Benutzername" %}</th>
     </tr>
     {% for student_name in fehlgeschlagene_namen %}
     <tr>
@@ -81,7 +81,7 @@
     </tr>
     {% endfor %}
 </table>
-<p><strong>Hinweis:</strong> Diese Studierenden existierten bereits und wurden nicht erneut angelegt.</p>
+<p><strong>{% trans "Hinweis:" %}</strong> {% trans "Diese Studierenden existierten bereits und wurden nicht erneut angelegt." %}</p>
 {% endif %}
 
 <script>
@@ -91,10 +91,10 @@
         let customNameField = document.getElementById("custom_name_field");
 
         if (nameMode.checked) {
-            nameLabel.innerText = "Individueller Name";
+            nameLabel.innerText = gettext("Individueller Name:");
             customNameField.style.display = "block";
         } else {
-            nameLabel.innerText = "Automatischer Name";
+            nameLabel.innerText = gettext("Automatischer Name");
             customNameField.style.display = "none";
         }
     }

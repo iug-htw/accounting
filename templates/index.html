@@ -1,21 +1,21 @@
 {% extends 'master_layout.html' %}
 {% load static %}
-
+{% load i18n %}
 {% block content %}
     <!-- Anzeige des Nutzernamens und der Rolle -->
 
-    <h1>Temporäre Indexsseite</h1>
-    <p>Willkommen, {{ user.username }}!</p>
+    <h1>{% trans "Allgemeine Informationen"%}</h1>
+    <p>{% trans "Willkommen,"%} {{ user.username }}!</p>
     
     {% if user.is_superuser %}
-        <p>Ihre Rolle: Admin</p>
+        <p>{% trans "Ihre Rolle: Admin"%}</p>
     {% else %}
-        <p>Ihre Rolle: {{ user.get_role_display }}</p>
+        <p>{% trans "Ihre Rolle:"%} {{ user.get_role_display }}</p>
     {% endif %}
     
     <!-- Nur für Lehrkräfte die Studierenden anzeigen -->
     {% if user.role == 'teacher' %}
-        <h2>Ihre Studierenden:</h2>
+        <h2>{% trans "Ihre Studierenden:"%}</h2>
         {% if students %}
             <ul>
             {% for student in students %}
@@ -23,16 +23,16 @@
             {% endfor %}
             </ul>
         {% else %}
-            <p>Sie haben derzeit keine Studierenden unter Ihrer Betreuung.</p>
+            <p>{% trans "Sie haben derzeit keine Studierenden unter Ihrer Betreuung."%}</p>
         {% endif %}
     {% elif user.role == 'student' and not user.is_superuser%}
-        <p><strong>Studiengang:</strong> {{ user.studiengang }}</p>
-        <p><strong>Semester:</strong> {{ user.semester }}</p>
-        <h2>Ihr Professor:</h2>
+        <p><strong>{% trans "Studiengang:"%}</strong> {{ user.studiengang }}</p>
+        <p><strong>{% trans "Semester:"%}</strong> {{ user.semester }}</p>
+        <h2>{% trans "Ihr Professor:"%}</h2>
         {% if user.professor %}
             <p>{{ user.professor.username }} - {{ user.professor.email }}</p>
         {% else %}
-            <p>Sie haben derzeit keinen zugewiesenen Professor.</p>
+            <p>{% trans "Sie haben derzeit keinen zugewiesenen Professor."%}</p>
         {% endif %}
     {% endif %}
 {% endblock %}
