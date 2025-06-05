@@ -1,29 +1,30 @@
 {% extends "master_layout.html" %}
+{% load i18n %}
 {% block content %}
-<h2>Kontenverwaltung</h2>
+<h2>{% trans "Kontenverwaltung"%}</h2>
 
 <!-- Formular zur Erstellung eines neuen Kontos -->
-<h3>Neues Konto hinzufügen</h3>
+<h3>{% trans "Neues Konto hinzufügen"%}</h3>
 <form method="post">
     {% csrf_token %}
-    <label for="id_name">Kontoname:</label>
+    <label for="id_name">{% trans "Kontoname:"%}</label>
     {{ form.name }}
 
-    <label for="id_kategorie">Kategorie:</label>
+    <label for="id_kategorie">{% trans "Kategorie:"%}</label>
     {{ form.kategorie }}
 
-    <label for="id_unterkategorie">Unterkategorie:</label>
+    <label for="id_unterkategorie">{% trans "Unterkategorie:"%}</label>
     {{ form.unterkategorie }}
-    <label for="id_kontenplan">Kontenplan:</label>
+    <label for="id_kontenplan">{% trans "Kontenplan:"%}</label>
     {{ form.kontenplan }}
-    <button type="submit">Konto hinzufügen</button>
+    <button type="submit">{% trans "Konto hinzufügen"%}</button>
 </form>
 <br><br>
 <form method="post" id="kontenplanForm">
     {% csrf_token %}
-    <button id="neuerKontenplanBtn" name="neuer_kontenplan" type="submit">Neuen Kontenplan erstellen</button>
+    <button id="neuerKontenplanBtn" name="neuer_kontenplan" type="submit">{% trans "Neuen Kontenplan erstellen"%}</button>
     {% if erfolgsmeldung %}
-        <span style="color:green; margin-left:10px;">Kontenplan erfolgreich erstellt!</span>
+        <span style="color:green; margin-left:10px;">{% trans "Kontenplan erfolgreich erstellt!"%}</span>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 const btn = document.getElementById("neuerKontenplanBtn");
@@ -34,36 +35,36 @@
     {% endif %}
 </form>
 <!-- Excel-Import -->
-<h3>Konten aus Excel importieren</h3>
+<h3>{% trans "Konten aus Excel importieren"%}</h3>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <label for="excel_datei">Excel-Datei:</label>
+    <label for="excel_datei">{% trans "Excel-Datei:"%}</label>
     <input type="file" name="excel_datei" accept=".xlsx" required>
 
-    <label for="kontenplan_id">Kontenplan:</label>
+    <label for="kontenplan_id">{% trans "Kontenplan:"%}</label>
     <select name="kontenplan_id" required>
         {% for plan in kontenplaene %}
-            <option value="{{ plan.id }}">Kontenplan {{ plan.id }} ({{ plan.nutzer.username }})</option>
+            <option value="{{ plan.id }}">{% trans "Kontenplan"%} {{ plan.id }} ({{ plan.nutzer.username }})</option>
         {% endfor %}
     </select>
 
-    <button type="submit" name="importiere_excel">Importieren</button>
+    <button type="submit" name="importiere_excel">{% trans "Importieren"%}</button>
 </form>
 <!-- Anzeige aller vorhandenen Konten mit Bearbeitungsoption -->
-<h3>Bestehende Konten</h3>
+<h3>{% trans "Bestehende Konten"%}</h3>
 <table>
     <tr>
-        <th>Name</th>
-        <th>Kontonummer</th>
-        <th>Kategorie</th>
-        <th>Unterkategorie</th>
-        <th>Bilanzposition</th>
-        <th>Aktionen</th>
+        <th>{% trans "Name"%}</th>
+        <th>{% trans "Kontonummer"%}</th>
+        <th>{% trans "Kategorie"%}</th>
+        <th>{% trans "Unterkategorie"%}</th>
+        <th>{% trans "Bilanzposition"%}</th>
+        <th>{% trans "Aktionen"%}</th>
     </tr>
     {% for plan_nr, konten in konten_nach_plan.items %}
         <tr>
             <th colspan="4" style="background:#e0e0e0;">
-                Kontenplan {{ plan_nr }}
+                {% trans "Kontenplan"%} {{ plan_nr }}
                 {% with konten.0.kontenplan as plan %}
                     {% if plan.nutzer.id == user.id or user.is_superuser %}
                         <form method="post" action="{% url 'posts:kontenplan_loeschen' plan.id %}" style="display:inline;">
@@ -83,10 +84,10 @@
                 <td>{{konto.bilanzposition_nummer}}</td>
                 <td>
                     {% if konto.erstellt_von_id == user.id or user.is_superuser %}
-                    <a href="{% url 'posts:konto_bearbeiten' konto.id %}">Bearbeiten</a>
+                    <a href="{% url 'posts:konto_bearbeiten' konto.id %}">{% trans "Bearbeiten"%}</a>
                     <form action="{% url 'posts:konto_loeschen' konto.id %}" method="post" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" onclick="return confirm('Möchtest du dieses Konto wirklich löschen?');">Löschen</button>
+                        <button type="submit" onclick="return confirm('Möchtest du dieses Konto wirklich löschen?');">{% trans "Löschen"%}</button>
                     </form>
                     {% endif %}
                 </td>
@@ -105,13 +106,13 @@
             
             if (kategorie === "Bestandskonto") {
                 unterkategorieField.innerHTML = `
-                    <option value="Aktiva">Aktiva</option>
-                    <option value="Passiva">Passiva</option>
+                    <option value="Aktiva">${gettext("Aktiva")}</option>
+                    <option value="Passiva">${gettext("Passiva")}</option>
                 `;
             } else if (kategorie === "Erfolgskonto") {
                 unterkategorieField.innerHTML = `
-                    <option value="Aufwand">Aufwand</option>
-                    <option value="Ertrag">Ertrag</option>
+                    <option value="Aufwand">${gettext("Aufwand")}</option>
+                    <option value="Ertrag">${gettext("Ertrag")}</option>
                 `;
             }
         }

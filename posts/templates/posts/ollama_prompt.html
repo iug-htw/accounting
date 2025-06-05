@@ -1,11 +1,12 @@
 {% extends 'master_layout.html' %}
+{% load i18n %}
 {% block content %}
 <div class="container">
-    <h2>Ollama Prompt Test</h2>
+    <h2>{% trans "Ollama Prompt Test"%}</h2>
     <form method="post" id="promptForm">
         {% csrf_token %}
-        <textarea name="prompt" rows="4" cols="60" placeholder="Prompt eingeben..."></textarea><br>
-        <button type="submit">Senden</button>
+        <textarea name="prompt" rows="4" cols="60" placeholder="{% trans "Prompt eingeben..."%}"></textarea><br>
+        <button type="submit">{% trans "Senden"%}</button>
     </form>
     <div id="antwortBox" style="margin-top: 20px;white-space: pre-wrap;padding: 
         1rem;border: 1px solid #ccc;background: #f9f9f9;max-width: 700px;max-height: 

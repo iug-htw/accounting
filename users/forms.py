@@ -7,12 +7,12 @@ class CustomUserCreationForm(UserCreationForm):
     semester = forms.ModelChoiceField(
         queryset=Semester.objects.all(),
         required=True,
-        label="Semester"
+        label=_("Semester")
     )
     studiengang = forms.ModelChoiceField(
         queryset=Studiengang.objects.all(),
         required=True,
-        label="Studiengang"
+        label=_("Studiengang")
     )
 
     class Meta:

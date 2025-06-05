@@ -8,14 +8,14 @@
 {% endblock %}
 {% block content %}
 <div class="container_rechnung">
-    <h1 class="headline_rechnung">Rechnung Nr. {{ aufgabe.rechnungsnummer }} </h1>
+    <h1 class="headline_rechnung">{% trans "Rechnung Nr."%} {{ aufgabe.rechnungsnummer }} </h1>
 <br>
     <button id="toggle-right-section" class="btn-toggle_rechnung">
-    📄 Buchungs-Navigation ausblenden
+    📄 {% trans "Buchungs-Navigation ausblenden"%}
     </button>
     {% if aufgabe.aufgabeninfo %}
         <button id="toggle-info-section" class="btn-toggle_rechnung" onclick="toggleInfoBox()">
-            Weitere Informationen anzeigen
+            {% trans "Weitere Informationen anzeigen"%}
         </button>
         <div id="info-box" class="infobox">
             {{ aufgabe.aufgabeninfo|safe }}
@@ -56,87 +56,87 @@
     <!-- Rechter Bereich: Eingabefelder -->
     <div class="right-section_rechnung">
        <!-- 🔘 Toggle-Button für rechte Seite -->
-        <h2>Buchungs-Navigation</h2>
-        <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">Buchungen anzeigen/verstecken 💡</button>
+        <h2>{% trans "Buchungs-Navigation"%}</h2>
+        <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">{% trans "Buchungen anzeigen/verstecken"%} 💡</button>
 
         <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
 
-    <h3>Frühere Versuche:</h3>
+    <h3>{% trans "Frühere Versuche:"%}</h3>
     {% if buchung_status %}
         <ul class="buchungen-liste">
             {% for item in buchung_status %}
                 <li class="buchung-item">
                     <button class="btn-attempt" onclick="showBuchungDetail('{{ item.buchung.buchung_id }}')">
-                        Versuch {{ forloop.counter }}
+                        {% trans "Versuch"%} {{ forloop.counter }}
                     </button>
 
                     <span class="{% if item.korrekt %}status-korrekt{% else %}status-falsch{% endif %}">
                         {% if item.korrekt %}
-                            ✅ Lösung korrekt
+                            ✅ {% trans "Lösung korrekt"%}
                         {% elif item.buchung.korrekturbuchung %}
-                            🔁 Korrekturbuchung
+                            🔁 {% trans "Korrekturbuchung"%}
                         {% else %}
-                            ❌ Lösung falsch
+                            ❌ {% trans "Lösung falsch"%}
                         {% endif %}
                     </span>
             
                     {% if item.is_letzte_falsche and not item.buchung.korrekturbuchung %}
                         <button class="btn-korrektur" onclick="fillKorrekturbuchung('{{ item.buchung.antwort_konten_soll }}', '{{ item.buchung.antwort_konten_haben }}', '{{ item.buchung.antwort_betrag_soll }}', '{{ item.buchung.antwort_betrag_haben }}')">
-                            Korrekturbuchung vorschlagen
+                            {% trans "Korrekturbuchung vorschlagen"%}
                         </button>
             
                         <button class="btn-korrektur-durchfuehren" onclick="showKorrekturbuchungMaske('{{ item.buchung.buchung_id }}')">
-                            Korrekturbuchung durchführen
+                            {% trans "Korrekturbuchung durchführen"%}
                         </button>
                     {% endif %}
                 </li>
 
                 <!-- Buchungsdetails -->
                 <div id="buchung-detail-{{ item.buchung.buchung_id }}" class="buchung-detail" style="display: none;">
-                    <p><strong>Soll-Konten:</strong>
+                    <p><strong>{% trans "Soll-Konten:"%}</strong>
                         {% for id in item.original_soll_konten %}
                             {{ konten_namen|get_konto:id }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
-                    <p><strong>Haben-Konten:</strong>
+                    <p><strong>{% trans "Haben-Konten:"%}</strong>
                         {% for id in item.original_haben_konten %}
                             {{ konten_namen|get_konto:id }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
-                    <p><strong>Beträge Soll:</strong>
+                    <p><strong>{% trans "Beträge Soll:"%}</strong>
                         {% for betrag in item.soll_betraege_liste %}
                             {{ betrag }} €{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
-                    <p><strong>Beträge Haben:</strong>
+                    <p><strong>{% trans "Beträge Haben:"%}</strong>
                         {% for betrag in item.haben_betraege_liste %}
                             {{ betrag }} €{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
                         {% if not item.buchung.versuch|divisibleby:2 %}
-                            <h3>Feedback</h3>
+                            <h3>{% trans "Feedback"%}</h3>
                             {% if item.buchung.konto_korrekt == 0 %}
-                                <p>✅ Alle Konten sind korrekt.</p>
+                                <p>✅ {% trans "Alle Konten sind korrekt."%}</p>
                             {% elif item.buchung.konto_korrekt == 1 %}
-                                <p>⚠️ Das Konto auf der Soll-Seite ist inkorrekt.</p>
+                                <p>⚠️ {% trans "Das Konto auf der Soll-Seite ist inkorrekt."%}</p>
                             {% elif item.buchung.konto_korrekt == 2 %}
-                                <p>⚠️ Das Konto auf der Haben-Seite ist inkorrekt.</p>
+                                <p>⚠️ {% trans "Das Konto auf der Haben-Seite ist inkorrekt."%}</p>
                             {% elif item.buchung.konto_korrekt == 3 %}
-                                <p>⚠️ Beide Konten sind falsch.</p>
+                                <p>⚠️ {% trans "Beide Konten sind falsch."%}</p>
                             {% endif %}
                             {% if item.buchung.betrag_korrekt == 0 %}
-                                <p>✅ Betrag ist korrekt.</p>
+                                <p>✅ {% trans "Betrag ist korrekt."%}</p>
                             {% elif item.buchung.betrag_korrekt == 1 %}
-                                <p>⚠️ Der Betrag auf der Soll-Seite ist inkorrekt.</p>
+                                <p>⚠️ {% trans "Der Betrag auf der Soll-Seite ist inkorrekt."%}</p>
                             {% elif item.buchung.betrag_korrekt == 2 %}
-                                <p>⚠️ Der Betrag auf der Haben-Seite ist inkorrekt.</p>
+                                <p>⚠️ {% trans "Der Betrag auf der Haben-Seite ist inkorrekt."%}</p>
                             {% elif item.buchung.betrag_korrekt == 3 %}
-                                <p>⚠️ Beide Beträge sind falsch.</p>
+                                <p>⚠️ {% trans "Beide Beträge sind falsch."%}</p>
                             {% endif %}
                             
                             {% if item.buchung.versuch > 2%}
                                 {% if item.buchung.konto_korrekt != 0 or item.buchung.betrag_korrekt != 0 %}
-                                    <h4>Zusätzliches Feedback:</h4>
+                                    <h4>{% trans "Zusätzliches Feedback:"%}</h4>
                                     {% if nutzergruppe == 0 or aufgabe.immer_feedback == 1 %} <!--nur die mit geraden Nutzergruppen-->
                                         {% if item.buchung.konto_korrekt != 0 %}
                                             <p>{{ aufgabe.feedback_konto_falsch }}</p>
@@ -149,14 +149,14 @@
                                         {% if item.buchung.feedback_ollama %}
                                             <p>{{ item.buchung.feedback_ollama }}</p>
                                         {% else %}
-                                            <p>Feedback wird geladen. Aktualisiere die Seite in einer Minute nochmal.</p>
+                                            <p>{% trans "Feedback wird geladen. Aktualisiere die Seite in einer Minute nochmal."%}</p>
                                         {% endif %}
                                     {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% if item.buchung.versuch > 4%}
-                                <h4>Richtige Lösung</h4>
-                                <li><strong>Soll-Konten:</strong>
+                                <h4>{% trans "Richtige Lösung"%}</h4>
+                                <li><strong>{% trans "Soll-Konten:"%}</strong>
                                     <ul>
                                         {% for i in nutzer_aufgabe.soll_konten %}
                                             <li>
@@ -166,7 +166,7 @@
                                     </ul>
                                 </li>
                         
-                                <li><strong>Haben-Konten:</strong>
+                                <li><strong>{% trans "Haben-Konten:"%}</strong>
                                     <ul>
                                         {% for i in nutzer_aufgabe.haben_konten %}
                                             <li>
@@ -181,21 +181,21 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>Keine vorherigen Buchungen gefunden.</p>
+        <p>{% trans "Keine vorherigen Buchungen gefunden."%}</p>
     {% endif %}
 
     <!-- Korrekturbuchung Maske -->
     <div id="korrekturbuchung-maske" style="display: none;">
-        <h3>Korrekturbuchung bestätigen</h3>
-        <p>Die umgekehrte Buchung wird durchgeführt, um die falsche Buchung auszugleichen.</p>
+        <h3>{% trans "Korrekturbuchung bestätigen"%}</h3>
+        <p>{% trans "Die umgekehrte Buchung wird durchgeführt, um die falsche Buchung auszugleichen."%}</p>
         <div id="korrekturbuchung-details" class = "input-group_rechnung">
             <!-- Hier werden die Buchungsdetails dynamisch eingefügt -->
         </div>
-        <button class="btn-korrektur-durchfuehren" onclick="durchfuehrenKorrekturbuchung()">Korrekturbuchung bestätigen</button>
+        <button class="btn-korrektur-durchfuehren" onclick="durchfuehrenKorrekturbuchung()">{% trans "Korrekturbuchung bestätigen"%}</button>
     </div>
 </div>
 
-            <h2 id="h2">Buchungssatz</h2>
+            <h2 id="h2">{% trans "Buchungssatz"%}</h2>
 
 <form id = "absenden" method="post" action="{% url 'posts:rechnung_detail' aufgabe.id %}">
     {% csrf_token %}
@@ -203,10 +203,10 @@
 
         <!-- SOLL-KONTEN -->
         <div id="soll-container_rechnung">
-            <label><strong>Eingaben Soll:</strong></label>
+            <label><strong>{% trans "Eingaben Soll:"%}</strong></label>
             <div class="input-group_rechnung">
                 <select name="soll_konto[]" onchange="kontoOderBetragGeaendert(this)">
-                    <option value="">Bitte wählen...</option>
+                    <option value="">{% trans "Bitte wählen..."%}</option>
                     {% for konto in konten %}
                         {% if konto.kontenplan_id == kontenplan_id %}
                             {% with konto.kontonummer|stringformat:"04d" as nummer %}
@@ -217,17 +217,17 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-                <input type="number" step="0.01" placeholder="Betrag eingeben" name="soll_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
+                <input type="number" step="0.01" placeholder="{% trans "Betrag eingeben"%}" name="soll_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
             </div>
-            <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">Neues Soll-Feld hinzufügen</button>
+            <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">{% trans "Neues Soll-Feld hinzufügen"%}</button>
         </div>
 
         <!-- HABEN-KONTEN -->
         <div id="haben-container_rechnung">
-            <label><strong>Eingaben Haben:</strong></label>
+            <label><strong>{% trans "Eingaben Haben:"%}</strong></label>
             <div class="input-group_rechnung">
                 <select name="haben_konto[]" onchange="kontoOderBetragGeaendert(this)">
-                    <option value="">Bitte wählen...</option>
+                    <option value="">{% trans "Bitte wählen..."%}</option>
                     {% for konto in konten %}
                         {% if konto.kontenplan_id == kontenplan_id %}
                             {% with konto.kontonummer|stringformat:"04d" as nummer %}
@@ -238,19 +238,19 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-                <input type="number" step="0.01" placeholder="Betrag eingeben" name="haben_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
+                <input type="number" step="0.01" placeholder="{% trans "Betrag eingeben"%}" name="haben_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
             </div>
-            <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">Neues Haben-Feld hinzufügen</button>
+            <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">{% trans "Neues Haben-Feld hinzufügen"%}</button>
         </div>
 
     </div>
 
     <!-- SUBMIT-BUTTON -->
     <button id="btn-submit" class="btn-submit_rechnung" onclick="summenCheck(event)">
-        Eingaben übermitteln
+        {% trans "Eingaben übermitteln"%}
     </button>    
     <br><br>
-    <p>Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung erfolgen.</p> 
+    <p>{% trans "Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung erfolgen."%}</p> 
 </form>
         </div>
     </div>
@@ -266,7 +266,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             submitButton.disabled = true;
             let warnung = document.createElement('p');
             warnung.style.color = 'red';
-            warnung.textContent = 'Die letzte Buchung muss korrigiert werden, bevor neue Buchungen möglich sind. Gehe dafür auf Buchungen anzeigen/verstecken.';
+            warnung.textContent = gettext('Die letzte Buchung muss korrigiert werden, bevor neue Buchungen möglich sind. Gehe dafür auf Buchungen anzeigen/verstecken.');
             submitButton.parentElement.insertBefore(warnung, submitButton);
         }
 });
@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (localStorage.getItem("rightSectionHidden") === "true") {
         rightSection.classList.add("right-section-hidden");
         contentWrapper.classList.add("hide-right");
-        toggleRightBtn.textContent = "📥 Buchungs-Navigation einblenden";
+        toggleRightBtn.textContent = gettext("📥 Buchungs-Navigation einblenden");
     }
 
     toggleRightBtn.addEventListener("click", () => {
@@ -304,8 +304,8 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("rightSectionHidden", isNowHidden.toString());
 
         toggleRightBtn.textContent = isNowHidden
-            ? "📥 Buchungs-Navigation einblenden"
-            : "📄 Buchungs-Navigation ausblenden";
+            ? gettext("📥 Buchungs-Navigation einblenden")
+            : gettext("📄 Buchungs-Navigation ausblenden");
     });
 
     // === 4. Scrollposition & Ansicht beim Submit speichern ===
@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
-        <option value="">Bitte wählen...</option>
+        <option value="">{{ gettext("Bitte wählen...") }}</option>
         {% for konto in konten %}
             {% if konto.kontenplan_id == kontenplan_id %}
                 {% with konto.kontonummer|stringformat:"04d" as nummer %}
@@ -340,14 +340,14 @@ function addField(containerId) {
         <select name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" onchange="kontoOderBetragGeaendert(this)" required>
             ${kontenOptions}
         </select>
-        <input type="number" step="0.01" oninput="kontoOderBetragGeaendert(this)" placeholder="Betrag eingeben" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
+        <input type="number" step="0.01" oninput="kontoOderBetragGeaendert(this)" placeholder="${gettext('Betrag eingeben')}" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
         <button type="button" class="btn-remove_rechnung" onclick="removeField(this)"></button>
     `;
 
     container.appendChild(newFieldGroup);
     $(newFieldGroup).find('select').select2({
         width: 'resolve',
-        placeholder: 'Bitte wählen...',
+        placeholder: gettext('Bitte wählen...'),
         allowClear: true
     });
 }
@@ -395,8 +395,8 @@ function durchfuehrenKorrekturbuchung() {
             window.location.reload();
         })
         .catch(error => {
-            alert('Fehler bei der Durchführung der Korrekturbuchung.');
-            console.error('Error:', error);
+            alert(gettext('Fehler bei der Durchführung der Korrekturbuchung.'));
+            console.error(gettext('Fehler:'), error);
         });
     }
 }
@@ -431,9 +431,9 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
         for (let i = 0; i < habenKonten.length; i++) {
             korrekturSollContainer.innerHTML += `
                 <div class = "input-group_rechnung">
-                    <label>Soll-Konto:</label>
+                    <label>${gettext('Soll-Konto')}:</label>
                     <input type="text" value="${idToName[habenKonten[i]] || habenKonten[i]}" readonly>
-                    <label>Betrag:</label>
+                    <label>${gettext('Betrag:')}:</label>
                     <input type="number" step="0.01" value="${betraegeHaben[i]}" readonly>
                 </div>
             `;
@@ -442,9 +442,9 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
         for (let i = 0; i < sollKonten.length; i++) {
             korrekturHabenContainer.innerHTML += `
                 <div class = "input-group_rechnung">
-                    <label>Haben-Konto:</label>
+                    <label>${gettext('Haben-Konto')}:</label>
                     <input type="text" value="${idToName[sollKonten[i]] || sollKonten[i]}" readonly>
-                    <label>Betrag:</label>
+                    <label>${gettext('Betrag:')}:</label>
                     <input type="number"  step="0.01" value="${betraegeSoll[i]}" readonly>
                 </div>
             `;
@@ -455,7 +455,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
         if (!document.getElementById('korrektur-hinweis')) {
             const headingNeu = document.createElement('div');
             headingNeu.id = 'korrektur-hinweis';
-            headingNeu.innerHTML = '<h5>Konten und Werte werden vertauscht, um die letzte Buchung zu korrigieren</h5>';
+            headingNeu.innerHTML = `<h5>${gettext('Konten und Werte werden vertauscht, um die letzte Buchung zu korrigieren')}</h5>`;
             heading.appendChild(headingNeu);
         }
     }
@@ -488,7 +488,7 @@ function summenCheck(event) {
         let warnung = document.createElement('p');
         warnung.id = 'summenwarnung';
         warnung.style.color = 'red';
-        warnung.textContent = '⚠️ Beträge dürfen nicht 0 sein!';
+        warnung.textContent = gettext('⚠️ Beträge dürfen nicht 0 sein!');
         submitButton.after(warnung);
         return;
     }
@@ -498,7 +498,7 @@ function summenCheck(event) {
         let warnung = document.createElement('p');
         warnung.id = 'summenwarnung';
         warnung.style.color = 'red';
-        warnung.textContent = '⚠️ Die Summe der Soll-Beträge muss der Summe der Haben-Beträge entsprechen!';
+        warnung.textContent = gettext('⚠️ Die Summe der Soll-Beträge muss der Summe der Haben-Beträge entsprechen!');
         submitButton.after(warnung);
     } else {
         // Formular korrekt absenden
@@ -558,7 +558,7 @@ function fetchLiveTKonto(sollKonten, sollBetraege, habenKonten, habenBetraege) {
         renderTKontoVorschau(data);
     })
     .catch(error => {
-        console.error('Fehler beim Laden des T-Kontos:', error);
+        console.error(gettext('Fehler beim Laden des T-Kontos:'), error);
     });
 }
 
@@ -568,7 +568,7 @@ function renderTKontoVorschau(data) {
     container.innerHTML = '';
 
     for (const konto of data.konten) {
-        let html = `<div><h3>${konto.name}</h3><table><thead><tr><th>Soll</th><th>Haben</th></tr></thead><tbody>`;
+        let html = `<div><h3>${konto.name}</h3><table><thead><tr><th>${gettext('Soll')}</th><th>${gettext('Haben')}</th></tr></thead><tbody>`;
 
         const maxLen = Math.max(konto.soll.length, konto.haben.length);
         for (let i = 0; i < maxLen; i++) {
@@ -596,7 +596,7 @@ function toggleInfoBox() {
     document.addEventListener("DOMContentLoaded", function () {
         $('select[name="soll_konto[]"], select[name="haben_konto[]"]').select2({
             width: 'resolve',
-            placeholder: 'Bitte wählen...',
+            placeholder: gettext('Bitte wählen...'),
             allowClear: true
         });
     });

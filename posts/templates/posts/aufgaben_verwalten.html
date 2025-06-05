@@ -1,22 +1,22 @@
 {% extends 'master_layout.html' %}
 {% load static %}
-
+{% load i18n %}
 {% block css %}
     <link rel="stylesheet" href="{% static 'css/rechnungsübersicht.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1>Aufgabenverwaltung</h1>
+<h1>{% trans "Aufgabenverwaltung"%}</h1>
 
 {% if aufgaben %}
     <table class="table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Fragentyp</th>
-                <th>Beschreibung</th>
-                <th>Bearbeiten</th>
-                <th>Zur Rechnung</th>
+                <th>{% trans "ID"%}</th>
+                <th>{% trans "Fragentyp"%}</th>
+                <th>{% trans "Beschreibung"%}</th>
+                <th>{% trans "Bearbeiten"%}</th>
+                <th>{% trans "Zur Rechnung"%}</th>
             </tr>
         </thead>
         <tbody>
@@ -27,12 +27,12 @@
                     <td>{{ aufgabe.beschreibung|default:"Keine Beschreibung" }}</td>
                     <td>
                         <a href="{% url 'posts:aufgabe_bearbeiten' aufgabe.id %}" class="btn">
-                           Aufgabe bearbeiten
+                           {% trans "Aufgabe bearbeiten"%}
                         </a>
                     </td>
                     <td>
                         <a href="{% url 'posts:rechnung_detail' aufgabe.id %}" class="btn">
-                            <p>Link</p>
+                            <p>{% trans "Link"%}</p>
                         </a>
                     </td>
                     
@@ -41,7 +41,7 @@
                         <a href="{% url 'posts:aufgabe_loeschen' aufgabe.id %}" 
                            class="btn btn-danger" 
                            onclick="return confirm('Soll diese Aufgabe wirklich gelöscht werden?');">
-                           Löschen
+                           {% trans "Löschen"%}
                         </a>
                     </td>
                     {% endif %}
@@ -51,8 +51,8 @@
         </tbody>
     </table>
 {% else %}
-    <p>Keine Aufgaben vorhanden.</p>
+    <p>{% trans "Keine Aufgaben vorhanden."%}</p>
 {% endif %}
 
-<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">Neue Aufgabe erstellen</a>
+<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">{% trans "Neue Aufgabe erstellen"%}</a>
 {% endblock %}

@@ -2,19 +2,21 @@ from django import forms
 from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail, Konto, Kontenplan
 import json
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
+
 
 class Aufgabe_neu_Form(forms.ModelForm):
     kontenplan = forms.ModelChoiceField(
         queryset=Kontenplan.objects.none(),  # Erst später im __init__ dynamisch setzen
-        label="Kontenplan",
+        label=_("Kontenplan"),
         required=True,
-        help_text="Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
+        help_text=_("Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht.")
     )
     aufgabeninfo = forms.CharField(
         required=False,
         widget=forms.HiddenInput(),
-        label="Zusatzinformation zur Aufgabe",
-        help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt)."
+        label=_("Zusatzinformation zur Aufgabe"),
+        help_text=_("Optionaler Informationstext zur Aufgabe (HTML erlaubt).")
     )
     class Meta:
         model = Aufgabe_neu
@@ -74,14 +76,14 @@ class AufgabenkategorieForm(forms.ModelForm):
 class AufgabeImportForm(forms.ModelForm):
     kontenplan = forms.ModelChoiceField(
         queryset=Kontenplan.objects.none(),
-        label="Kontenplan",
+        label=_("Kontenplan"),
         required=True,
-        help_text="Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
+        help_text=_("Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht.")
     )
     aufgabeninfo = forms.CharField(
         required=False,
         widget=forms.HiddenInput(),
-        label="Zusatzinformation zur Aufgabe"
+        label=_("Zusatzinformation zur Aufgabe")
     )
     class Meta:
         model = Aufgabe_neu

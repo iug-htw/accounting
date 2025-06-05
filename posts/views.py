@@ -18,6 +18,7 @@ from collections import defaultdict
 from django.utils.html import format_html
 from django.views.decorators.http import require_GET
 from decouple import config
+from django.utils.translation import gettext as _
 #passt
 
 
@@ -890,7 +891,7 @@ def mail_detail(request, mail_id):
         aufgabe_link = reverse('posts:rechnung_detail', args=[mail.aufgabe.id])
     
     # Falls die Mail zur Namens- & Passwortänderung ist, ersetze den Link
-    elif "Bitte aktualisieren Sie Ihren Anzeigenamen" in mail.betreff:
+    elif _("Bitte aktualisieren Sie Ihren Anzeigenamen") in mail.betreff:
         aufgabe_link = reverse('users:update_profile')
 
     return render(request, 'posts/mail_detail.html', {

@@ -1,5 +1,6 @@
 {% extends 'master_layout.html' %}
 {% load static%}
+{% load i18n %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/posteingang.css' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
@@ -7,15 +8,15 @@
 {% block content %}
 
     <div class="container">
-        <h1 class="title">Posteingang</h1>
+        <h1 class="title">{% trans "Posteingang"%}</h1>
         <div class="table-container">
             <table class="mail-table">
                 <thead>
                     <tr>
-                        <th>Betreff</th>
-                        <th>Kategorie</th>
-                        <th>Von</th>
-                        <th>Datum</th>
+                        <th>{% trans "Betreff"%}</th>
+                        <th>{% trans "Kategorie"%}</th>
+                        <th>{% trans "Von"%}</th>
+                        <th>{% trans "Datum"%}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,9 +27,9 @@
                         </td>
                         <td>
                             {% if mail.status == 'bearbeitet' %}
-                                <span class="status status-bearbeitet">Bearbeitet</span>
+                                <span class="status status-bearbeitet">{% trans "Bearbeitet"%}</span>
                             {% else %}
-                                <span class="status status-nicht-bearbeitet">Nicht bearbeitet</span>
+                                <span class="status status-nicht-bearbeitet">{% trans "Nicht bearbeitet"%}</span>
                             {% endif %}
                         </td>
                         <td>{{ mail.absender.email }}</td>
@@ -36,7 +37,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="empty-row">Keine Mails verfügbar.</td>
+                        <td colspan="4" class="empty-row">{% trans "Keine Mails verfügbar."%}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

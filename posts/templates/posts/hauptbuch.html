@@ -1,26 +1,27 @@
 {% extends 'master_layout.html' %}
 {% load my_filters %}
+{% load i18n %}
 {% load static %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/hauptbuch.css' %}">
 {% endblock %}
 {% block content %}
-<h1 class="h1">Dein Hauptbuch</h1>
-<p class="p">Hier findest du dein Hauptbuch mit all deinen offenen T-Konten</p>
+<h1 class="h1">{% trans "Dein Hauptbuch"%}</h1>
+<p class="p">{% trans "Hier findest du dein Hauptbuch mit all deinen offenen T-Konten"%}</p>
 <form>
-    <label for="konto_filter">Filter nach Konto:</label>
+    <label for="konto_filter">{% trans "Filter nach Konto:"%}</label>
     <select name="konto" id="konto_filter">
-        <option value="">Alle Konten</option>
+        <option value="">{% trans "Alle Konten"%}</option>
         {% for konto in konten %}
             <option value="{{ konto.name }}">{{ konto.name }}</option>
         {% endfor %}
     </select>
 
-    <label for="aufgabe_filter">Filter nach Aufgabe:</label>
+    <label for="aufgabe_filter">{% trans "Filter nach Aufgabe:"%}</label>
     <select name="aufgabe_id" id="aufgabe_filter">
-        <option value="">Alle Aufgaben</option>
+        <option value="">{% trans "Alle Aufgaben"%}</option>
         {% for aufgabe_id in aufgaben_ids %}
-            <option value="{{ aufgabe_id }}">Aufgabe {{ aufgabe_id }}</option>
+            <option value="{{ aufgabe_id }}">{% trans "Aufgabe"%} {{ aufgabe_id }}</option>
         {% endfor %}
     </select>
 </form>
@@ -33,8 +34,8 @@
             <!-- Die Überschrift (Soll/Haben) wird jetzt Teil der Haupttabelle -->
             <thead>
                 <tr>
-                    <th class="soll">Soll</th>
-                    <th class="haben">Haben</th>
+                    <th class="soll">{% trans "Soll"%}</th>
+                    <th class="haben">{% trans "Haben"%}</th>
                 </tr>
             </thead>
             <tbody>

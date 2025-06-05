@@ -1,23 +1,23 @@
 {% extends 'master_layout.html' %}
 {% load static %}
-
+{% load i18n %}
 {% block css %}
     <link rel="stylesheet" href="{% static 'css/rechnungsübersicht.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1 class="headline">Meine Rechnungen</h1>
-<p class="subtext">Alle deine Rechnungen auf einen Blick</p>
+<h1 class="headline">{% trans "Meine Rechnungen"%}</h1>
+<p class="subtext">{% trans "Alle deine Rechnungen auf einen Blick"%}</p>
 
 <!-- Neuer Wrapper um die Tabelle -->
 <div class="content-wrapper">
     <table>
         <thead>
             <tr>
-                <th>Rechnungsnr.</th>
-                <th>Fragentyp</th>
-                <th>Status</th>
-                <th>Aktion</th>
+                <th>{% trans "Rechnungsnr."%}</th>
+                <th>{% trans "Fragentyp"%}</th>
+                <th>{% trans "Status"%}</th>
+                <th>{% trans "Aktion"%}</th>
             </tr>
         </thead>
         <tbody>
@@ -27,26 +27,26 @@
                     <td>{{ rechnung.beschreibung }}</td>
                     <td>
                         {% if rechnung.aufgabenstatus == "offen" %}
-                            <span class="status offen">Offen</span>
+                            <span class="status offen">{% trans "Offen"%}</span>
                         {% else %}
-                            <span class="status bearbeitet">Bearbeitet</span>
+                            <span class="status bearbeitet">{% trans "Bearbeitet"%}</span>
                         {% endif %}
                     </td>
                     <td>
                         <a href="{% url 'posts:rechnung_detail' rechnung.id %}" class="btn">
-                            Rechnung öffnen →
+                            {% trans "Rechnung öffnen →"%}
                         </a>
                     </td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="6">Keine Rechnungen gefunden.</td>
+                    <td colspan="6">{% trans "Keine Rechnungen gefunden."%}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 
-<a href="{% url 'posts:hauptbuch' %}" class="back-btn">↩ Zurück zum Hauptbuch</a>
+<a href="{% url 'posts:hauptbuch' %}" class="back-btn">{% trans "↩ Zurück zum Hauptbuch"%}</a>
 
 {% endblock %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-05 11:05+0200\n"
+"POT-Creation-Date: 2025-06-05 13:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,37 +18,62 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\templates\frontpage.html:133
+#: .\posts\templates\posts\aufgabe_erstellen.html:64
+msgid "Konto:"
+msgstr "Account:"
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:70
+msgid "Soll/Haben:"
+msgstr "Credit/Debit"
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:72
+msgid "Soll"
+msgstr "Credit"
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:73
+msgid "Haben"
+msgstr "Debit"
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:75
+msgid "Betrag"
+msgstr "Amount"
+
+#: .\templates\frontpage.html:126
 #, fuzzy
 #| msgid "Semestername"
 msgid "Alle Semester"
 msgstr "All semesters"
 
-#: .\templates\frontpage.html:134
+#: .\templates\frontpage.html:127
 #, fuzzy
 #| msgid "Studiengang Name"
 msgid "Alle Studiengänge"
 msgstr "All Student programs"
 
-#: .\templates\frontpage.html:135
+#: .\templates\frontpage.html:128
 msgid "Alle Aufgaben"
 msgstr "All tasks"
 
-#: .\templates\frontpage.html:136
+#: .\templates\frontpage.html:129
 msgid "Bitte Studierenden wählen"
 msgstr "Please select a student"
 
-#~ msgid "Deutsch"
+#: .\users\templates\users\bulk_student_creation.html:94
+msgid "Individueller Name:"
+msgstr "Individual name:"
+
+#: .\users\templates\users\bulk_student_creation.html:97
+msgid "Automatischer Name"
+msgstr "Automatic name"
+
+#, fuzzy
+#~| msgid "Deutsch"
+#~ msgctxt "abbrev. month December"
+#~ msgid "Dec"
 #~ msgstr "German"
 
 #~ msgid "Englisch"
 #~ msgstr "English"
-
-#~ msgid "Automatischer Name"
-#~ msgstr "Automatic name"
-
-#~ msgid "Individueller Name:"
-#~ msgstr "Individual name:"
 
 #~ msgid "Passwörter stimmen nicht überein."
 #~ msgstr "Passwords are not the same."

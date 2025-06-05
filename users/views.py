@@ -24,23 +24,25 @@ from django.utils.translation import gettext as _
 
 ORGA_MAILS = [
     {
-        "betreff": "Personalanfrage: Neue Mitarbeitende einstellen",
-        "mailtext": "Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team"
+        "betreff": _("Personalanfrage: Neue Mitarbeitende einstellen"),
+        "mailtext": _("Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team")
     },
     {
-        "betreff": "Neue Werbekampagne geplant – Agenturfreigabe erforderlich",
-        "mailtext": "Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team"
+        "betreff": _("Neue Werbekampagne geplant – Agenturfreigabe erforderlich"),
+        "mailtext": _("Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team")
     },
     {
-        "betreff": "Geplante IT-Wartung – Zustimmung erforderlich",
-        "mailtext": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung"
+        "betreff": _("Geplante IT-Wartung – Zustimmung erforderlich"),
+        "mailtext": _("Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung")
     }
 ]
 
 @lehrkraft_required  # Ensure only logged-in users can access this view
 def register_view(request):
     if not request.user.role == 'teacher':  # Only teachers can create students
-        return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
+        link = reverse("index")
+        text = _('Fehlende Berechtigung') + f'<br><a href="{link}">{_("Zurück zur Startseite")}</a>'
+        return HttpResponse(text)
     
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -108,7 +110,7 @@ def delete_studiengang_view(request, studiengang_id):
     studiengang = Studiengang.objects.get(id=studiengang_id)
     # Berechtigung prüfen
     if studiengang.ersteller and studiengang.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse('Keine Berechtigung zum Löschen.')
+        return HttpResponse(_('Keine Berechtigung zum Löschen.'))
     studiengang.delete()
     return redirect('users:add_studiengang')
 
@@ -137,7 +139,7 @@ def add_semester_view(request):
 def delete_semester_view(request, semester_id):
     semester = Semester.objects.get(id=semester_id)
     if semester.ersteller and semester.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse('Keine Berechtigung zum Löschen.')
+        return HttpResponse(_('Keine Berechtigung zum Löschen.'))
     semester.delete()
     messages.success(request, _("Semester erfolgreich gelöscht."))
     return redirect('users:add_semester')
@@ -271,10 +273,10 @@ def aufgaben_zuweisen_view(request):
             for student in studierende:
                 sem_name = student.semester.name
                 studiengang_name = student.studiengang.name
-                aufgabe_name = f"Aufgabe {aufgabe.id}"
+                aufgabe_name = _("Aufgabe {id}").format(id=aufgabe.id)
                 if sem_name in aufgaben_uebersicht and studiengang_name in aufgaben_uebersicht[sem_name]:
                     if aufgabe_name in aufgaben_uebersicht[sem_name][studiengang_name]:
-                        print(f"bereits zugewiesen")
+                        print(_("bereits zugewiesen"))
                         continue  # Aufgabe wurde bereits zugewiesen
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
@@ -383,8 +385,8 @@ def send_profile_update_mail(user, request):
     Mail.objects.create(
         nutzer=user,
         aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
-        betreff="Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort",
-        mailtext=f"""
+        betreff=_("Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"),
+        mailtext=_("""
         Hallo {user.username},
 
         <p>Bitte setzen Sie Ihren Anzeigenamen und Ihr Passwort über den folgenden Link:</p>
@@ -392,9 +394,9 @@ def send_profile_update_mail(user, request):
         <p><a href="{update_profile_url}">Profil aktualisieren</a></p>
 
         <p>Vielen Dank!</p>
-        """,
+        """).format(username=user.username, url=update_profile_url),
         versuch=1,  # Standardversuch
-        status="nicht bearbeitet",
+        status = "nicht bearbeitet",
         absender=absender,
     )
 
@@ -410,8 +412,8 @@ def send_willkommen_mail(user):
     Mail.objects.create(
         nutzer=user,
         aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
-        betreff="Willkommen bei SecureNet",
-        mailtext=f"""
+        betreff=_("Willkommen bei SecureNet"),
+        mailtext=_("""
         Hallo,
 
         willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen. <br><br> \n
@@ -428,7 +430,7 @@ def send_willkommen_mail(user):
 
         Viel Erfolg bei SecureNet!
         Dein SecureNet-Team
-        """,
+        """).format(link=dokumentation_link),
         versuch=0,  # Standardversuch
         status="bearbeitet",
         absender=absender
