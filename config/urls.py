@@ -38,5 +38,6 @@ urlpatterns = [
     path('frontpage/', views.frontpage, name = 'frontpage' ),
     path('i18n/', include('django.conf.urls.i18n')),
     path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
+    path('set_language/', views.set_language, name='set_language'),
 ]
 #urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

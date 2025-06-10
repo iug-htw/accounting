@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 #from django.core.exceptions import PermissionDenied
-
+from django.utils import translation
+from django.shortcuts import redirect
 
 # Create your views here.
 def vorlage(request):
@@ -20,3 +21,10 @@ def frontpage(request):
 
 #def custom_permission_denied_view(request, exception):
 #    return render(request, 'errors/permission_denied.html', status=403)
+def set_language(request):
+    if request.method == "POST":
+        lang = request.POST.get('language')
+        if lang in ['de', 'en']:
+            request.session[translation.LANGUAGE_SESSION_KEY] = lang
+            translation.activate(lang)
+    return redirect(request.META.get('HTTP_REFERER', '/'))

@@ -187,7 +187,7 @@ class Konto(models.Model):
 
 class Kontenplan(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("Nutzer"))
-
+    sprache = models.IntegerField(null=True, default = 0)
     def __str__(self):
         if self.id == 1:
             return "SecureNet"

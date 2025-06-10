@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'modeltranslation',
     'posts',
     'users',
 ]
@@ -122,9 +123,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGES = [
-    ('de', _('Deutsch')),
-    ('en', _('Englisch')),
+    ('de', 'Deutsch'),
+    ('en', 'English'),
 ]
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'de'
 
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
