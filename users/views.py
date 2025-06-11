@@ -487,7 +487,7 @@ def send_willkommen_mail(user):
         versuch=0,  # Standardversuch
         status="bearbeitet",
         absender=absender
-    )
+    ) 
 
 def sende_orga_mail_wenn_noetig(student):
     if not student.unternehmen or student.unternehmen.id != 1:
