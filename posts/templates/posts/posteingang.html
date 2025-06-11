@@ -8,6 +8,7 @@
 {% block content %}
 
     <div class="container">
+        <p>Aktuelle Sprache: {{ LANGUAGE_CODE }}</p>
         <h1 class="title">{% trans "Posteingang"%}</h1>
         <div class="table-container">
             <table class="mail-table">
@@ -23,7 +24,7 @@
                     {% for mail in mails %}
                     <tr class="mail-row" onclick="window.location='{% url 'posts:mail_detail' mail.id %}'">
                         <td>
-                            <span class="mail-subject">{{ mail.betreff }}</span>
+                            <span class="mail-subject">{% if LANGUAGE_CODE == "en" %} {{ mail.betreff_en }} {% else %} {{ mail.betreff }} {% endif %}</span>
                         </td>
                         <td>
                             {% if mail.status == 'bearbeitet' %}

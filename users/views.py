@@ -24,17 +24,29 @@ from django.utils.translation import gettext as _
 
 ORGA_MAILS = [
     {
-        "betreff": _("Personalanfrage: Neue Mitarbeitende einstellen"),
-        "mailtext": _("Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team")
+        "betreff": "Personalanfrage: Neue Mitarbeitende einstellen",
+        "betreff_de": "Personalanfrage: Neue Mitarbeitende einstellen",
+        "betreff_en": "Staffing request: Hiring new employees",
+        "mailtext": "Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team",
+        "mailtext_de": "Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team",
+        "mailtext_en": "Dear Management,\n\nThe company continues to grow steadily – please consider filling 1–2 new positions. The request has been forwarded to HR.\n\nYour HR Team"
     },
     {
-        "betreff": _("Neue Werbekampagne geplant – Agenturfreigabe erforderlich"),
-        "mailtext": _("Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team")
+        "betreff": "Neue Werbekampagne geplant – Agenturfreigabe erforderlich",
+        "betreff_de": "Neue Werbekampagne geplant – Agenturfreigabe erforderlich",
+        "betreff_en": "Planned new advertising campaign – agency approval required",
+        "mailtext": "Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team",
+        "mailtext_de": "Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team",
+        "mailtext_en": "Dear Management,\n\nPlease confirm the approval of the marketing team's new campaign. The agency is awaiting feedback. Your Marketing Team\n\nYour Marketing-Team",
     },
     {
-        "betreff": _("Geplante IT-Wartung – Zustimmung erforderlich"),
-        "mailtext": _("Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung")
-    }
+        "betreff": "Geplante IT-Wartung – Zustimmung erforderlich",
+        "betreff_de": "Geplante IT-Wartung – Zustimmung erforderlich",
+        "betreff_en": "Planned IT maintenance – approval required",
+        "mailtext": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung",
+        "mailtext_de": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung",
+        "mailtext_en": "Good day,\n\nOur IT department is planning a server update next week. Please approve this measure. Your IT Department\n\nYour IT department",
+    } 
 ]
 
 @lehrkraft_required  # Ensure only logged-in users can access this view
@@ -382,39 +394,54 @@ def send_profile_update_mail(user, request):
             name="SecureNet", email="info@securenet.de",
             straße="Treskowallee 8", stadt="Berlin", plz="10318"
         )
-    Mail.objects.create(
-        nutzer=user,
-        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
-        betreff=_("Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"),
-        mailtext=_("""
-        Hallo {user.username},
+    betreff="Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"
+    betreff_en="Please update your displayed name and your password"
+    mailtext="""
+        Hallo {username},
 
         <p>Bitte setzen Sie Ihren Anzeigenamen und Ihr Passwort über den folgenden Link:</p>
 
         <p><a href="{update_profile_url}">Profil aktualisieren</a></p>
 
         <p>Vielen Dank!</p>
-        """).format(username=user.username, url=update_profile_url),
+        """.format(username=user.username, update_profile_url=update_profile_url)
+    mailtext_en="""
+        Hello {username},
+
+        <p>Please set your password and your display name with the following link:</p>
+
+        <p><a href="{update_profile_url}">Update profile</a></p>
+
+        <p>Thank your!</p>
+        """.format(username=user.username, update_profile_url=update_profile_url)
+    Mail.objects.create(
+        nutzer=user,
+        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
+        betreff=betreff,
+        betreff_de=betreff,
+        betreff_en=betreff_en,
+        mailtext=mailtext,
+        mailtext_de = mailtext,
+        mailtext_en=mailtext_en,
         versuch=1,  # Standardversuch
         status = "nicht bearbeitet",
         absender=absender,
+        
     )
 
 def send_willkommen_mail(user):
     if settings.DEBUG:
         dokumentation_link = "http://localhost:8000/media/nutzerdokumentation.pdf"
     else:
-        dokumentation_link = "hhttps://train.f4.htw-berlin.de/media/nutzerdokumentation.pdf"
+        dokumentation_link = "https://train.f4.htw-berlin.de/media/nutzerdokumentation.pdf"
     absender, _ = Absender.objects.get_or_create(
             name="SecureNet", email="info@securenet.de",
             straße="Treskowallee 8", stadt="Berlin", plz="10318"
         )
-    Mail.objects.create(
-        nutzer=user,
-        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
-        betreff=_("Willkommen bei SecureNet"),
-        mailtext=_("""
-        Hallo,
+    betreff="Willkommen bei SecureNet"
+    betreff_en="Welcome to SecureNet"
+    mailtext="""
+        Hallo, <br>
 
         willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen. <br><br> \n
 
@@ -425,12 +452,38 @@ def send_willkommen_mail(user):
         Für eine Einführung in dein Unternehmen, kannst du gerne hier die Nutzerdokumentation einsehen: <br>
         <p><a href="{dokumentation_link}" target="_blank"> Nutzerdokumentation </a></p>
         <br><br>
-        Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung.
+        Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung. <br>
 
 
         Viel Erfolg bei SecureNet!
         Dein SecureNet-Team
-        """).format(link=dokumentation_link),
+        """.format(dokumentation_link=dokumentation_link)
+    mailtext_en = """
+        Hello, <br>
+
+        Welcome to SecureNet! As the CEO of your cyber security startup, it's your job not only to protect your company from attacks using vulnerability assessments and penetration tests, but also to manage the accounting professionally. <br><br> \n
+
+        In your inbox, you'll find all important invoices and tasks you need to complete. Your general ledger gives you a transparent overview of all T-accounts, so you can always track which entries have been made. The invoice overview helps you keep an eye on open and already processed invoices.<br><br>
+
+        To ensure your company remains successful in the long term, you should regularly review the balance sheet. It shows whether your business is on solid financial footing and how assets and liabilities balance out.<br><br>
+
+        For an introduction to your company, feel free to check the user documentation here: <br>
+        <p><a href="{dokumentation_link}" target="_blank"> User Documentation </a></p>
+        <br><br>
+        Start now and make sure your finances stay on track! If you have any questions or uncertainties, your inbox is your central point of contact. <br>
+
+        Wishing you success at SecureNet!  
+        Your SecureNet Team
+        """.format(dokumentation_link=dokumentation_link)
+    Mail.objects.create(
+        nutzer=user,
+        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
+        betreff=betreff,
+        betreff_de=betreff,
+        betreff_en=betreff_en,
+        mailtext=mailtext,
+        mailtext_de=mailtext,
+        mailtext_en=mailtext_en,
         versuch=0,  # Standardversuch
         status="bearbeitet",
         absender=absender
@@ -458,7 +511,11 @@ def sende_orga_mail_wenn_noetig(student):
             nutzer=student,
             absender=absender,
             betreff=info["betreff"],
+            betreff_de=info["betreff_de"],
+            betreff_en=info["betreff_en"],
             mailtext=info["mailtext"],
+            mailtext_de=info["mailtext_de"],
+            mailtext_en=info["mailtext_en"],
             versuch=1,
             status="nicht bearbeitet"
         )

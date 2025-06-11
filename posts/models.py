@@ -46,6 +46,8 @@ class Aufgabe_neu(models.Model):
     unterkategorie = models.IntegerField(null = True, blank=True, default = 1,help_text="Feld für Unterteilung von Fragen mit dem selben Fragentyp", verbose_name=_("Unterkategorie"))
     fragentyp_text = models.CharField(null = True,max_length=255) #kann weg
     mailtext = models.TextField(help_text="Der angezeigte Text in der Mail, welchen die Nutzer für jede Aufgabe erhalten.", verbose_name=_("Mailtext"))
+    mailtext_de = models.TextField(null=True,help_text="Der angezeigte Text in der Mail, welchen die Nutzer für jede Aufgabe erhalten.", verbose_name=_("Mailtext"))
+    mailtext_en = models.TextField(null=True,help_text="Der angezeigte Text in der Mail, welchen die Nutzer für jede Aufgabe erhalten.", verbose_name=_("Mailtext"))
     nutzungsdauer = models.IntegerField(null=True, blank=True, verbose_name=_("Nutzungsdauer"))
     feedback_konto_falsch = models.TextField(null=True, blank=True, help_text="Ein allgemeines Feedback für eine falsche Lösung hinsichtlich der ausgewählten Konten.", verbose_name=_("Feedback Konto falsch"))
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Ein allgemeines Feedback für eine falsche Lösung hinsichtlich des Betrages.", verbose_name=_("Feedback Betrag falsch"))
@@ -57,8 +59,12 @@ class Aufgabe_neu(models.Model):
     rechnungsbetrag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00, verbose_name=_("Rechnungsbetrag"))
     zahlweise = models.CharField(max_length=255, blank=True, null=True,help_text="Auf welche Weise wird gezahlt? (Bar, Überweisung...)", verbose_name=_("Zahlweise"))
     verabschiedung = models.TextField(blank=True, null=True, default='Mit freundlichen Grüßen\nIhr Unternehmen',help_text="Angezeigter Text in der Mail. Zeigt die Verabschiedung. ", verbose_name=_("Verabschiedung"))
+    verabschiedung_de = models.TextField(blank=True, null=True, default='Mit freundlichen Grüßen\nIhr Unternehmen',help_text="Angezeigter Text in der Mail. Zeigt die Verabschiedung. ", verbose_name=_("Verabschiedung"))
+    verabschiedung_en = models.TextField(blank=True, null=True, default='With regards\nYour Business',help_text="Angezeigter Text in der Mail. Zeigt die Verabschiedung. ", verbose_name=_("Verabschiedung"))
     kontakt = models.TextField(blank=True, null=True, default='Tel: 01234 567890\nE-Mail: info@unternehmen.de',help_text="Angezeigter Text in der Mail. Zeigt die Kontaktdaten des eigenen Unternehmens", verbose_name=_("Kontakt"))
     beschreibung = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.', verbose_name=_("Beschreibung"))
+    beschreibung_de = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.', verbose_name=_("Beschreibung"))
+    beschreibung_en = models.TextField(blank=True, null=True, default='No further details.', verbose_name=_("Beschreibung"))
     rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern', verbose_name=_("Rechnungstyp"))
     aufgabeninfo = models.TextField(null=True, blank=True, help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt).", verbose_name=_("Aufgabeninfo"))
 
@@ -143,7 +149,11 @@ class Mail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Aufgabe"))
     absender = models.ForeignKey(Absender, on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Absender"))  # Neu
     betreff = models.CharField(max_length=255, verbose_name=_("Betreff"))
+    betreff_de = models.CharField(null=True,max_length=255, verbose_name=_("Betreff"))
+    betreff_en = models.CharField(null=True,max_length=255, verbose_name=_("Betreff"))
     mailtext = models.TextField(verbose_name=_("Mailtext"))
+    mailtext_de = models.TextField(null=True,verbose_name=_("Mailtext"))
+    mailtext_en = models.TextField(null=True,verbose_name=_("Mailtext"))
     versuch = models.PositiveIntegerField(default=1, verbose_name=_("Versuch"))
     von = models.CharField(max_length=100, default="system@secure-net.de", verbose_name=_("Von"))
     absender_name = models.CharField(max_length=100, default="", verbose_name=_("Absender Name"))  # Neuer Name

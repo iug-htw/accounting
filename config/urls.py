@@ -21,7 +21,7 @@ from . import views
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
-from django.conf.urls.i18n import i18n_patterns
+from django.conf.urls.i18n import i18n_patterns,set_language
 from django.views.i18n import JavaScriptCatalog
 
 urlpatterns = [
@@ -38,6 +38,6 @@ urlpatterns = [
     path('frontpage/', views.frontpage, name = 'frontpage' ),
     path('i18n/', include('django.conf.urls.i18n')),
     path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
-    path('set_language/', views.set_language, name='set_language'),
+    path('set_language/', set_language, name='set_language'),
 ]
 #urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

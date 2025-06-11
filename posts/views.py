@@ -663,6 +663,7 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
         nutzer=nutzer,
         aufgabe=aufgabe,
         betreff=betreff,
+        betreff_de=betreff,
         betreff_en=betreff_en,
         mailtext=mailtext,
         versuch=versuch,
@@ -921,7 +922,7 @@ def send_korrektur_mail(nutzer, aufgabe, request):
 
     naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
     update_url = request.build_absolute_uri(reverse("posts:rechnung_detail", args=[aufgabe.id]))
-    mail_betreff_de = f"Korrekturbuchung für Rechnung - {aufgabe.rechnungsnummer}"
+    mail_betreff = f"Korrekturbuchung für Rechnung - {aufgabe.rechnungsnummer}"
     mail_betreff_en = f"Correction entry for the invoice - {aufgabe.rechnungsnummer}"
     mail_text_en = (
         f"""
@@ -932,7 +933,7 @@ def send_korrektur_mail(nutzer, aufgabe, request):
         <p><a href="{update_url}">Correct the journal Entry</a></p>
         <p>Thank you, <br>Your Booking Team</p>"""
     )
-    mail_text_de = (
+    mailtext = (
         f"""
         Sehr geehrte/r {nutzer.username},
         <p>Ihre Buchung zur beiliegenden Aufgabe enthält einen Fehler.</p>
@@ -953,10 +954,12 @@ def send_korrektur_mail(nutzer, aufgabe, request):
     Mail.objects.create(
         nutzer=nutzer,
         aufgabe=aufgabe,
-        betreff_de=mail_betreff_de,
+        betreff=mail_betreff,
+        betreff_de=mail_betreff,
         betreff_en=mail_betreff_en,
         absender=absender,
-        mailtext_de=mail_text_de,
+        mailtext=mailtext,
+        mailtext_de=mailtext,
         mailtext_en=mail_text_en,
         versuch=naechster_versuch,  # Dynamischer Versuchswert
         status='nicht bearbeitet'

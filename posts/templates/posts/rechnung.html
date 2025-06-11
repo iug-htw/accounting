@@ -1,6 +1,7 @@
 {% extends 'master_layout.html' %}
 {% load my_filters %}
 {% load static %}
+{% load i18n %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/rechnung.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -323,7 +324,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
-        <option value="">{{ gettext("Bitte wählen...") }}</option>
+        <option value="">{% trans "Bitte wählen..." %}</option>
         {% for konto in konten %}
             {% if konto.kontenplan_id == kontenplan_id %}
                 {% with konto.kontonummer|stringformat:"04d" as nummer %}

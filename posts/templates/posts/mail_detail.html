@@ -13,20 +13,19 @@
             <div class="mail-header">
                 <p><strong>{% trans "Von:"%}</strong> {{ mail.absender.name }} ({{ mail.absender.email }})</p>
                 <p><strong>{% trans "Adresse:"%}</strong> {{ mail.absender.straße }}, {{ mail.absender.plz }} {{ mail.absender.stadt }}</p>
-                <p><strong>{% trans "Betreff:"%}</strong> {% if mail.aufgabe_id == null %} {{ mail.betreff}} {%else%} {{ mail.aufgabe.fragentyp_text }} {%endif%}</p>
+                <p><strong>{% trans "Betreff:"%}</strong> {% if LANGUAGE_CODE == "en" and mail.betreff_en != null %} {{ mail.betreff_en }} {% elif LANGUAGE_CODE == "de" and mail.betreff_de != null %} {{ mail.betreff }} {% else %} {{mail.betreff}} {% endif %} </p>
                 <p><strong>{% trans "Empfangen am:"%}</strong> {{ mail.datum|date:"d.m.Y H:i" }}</p>
             </div>
 
             <div class="mail-content">
                 {% autoescape off %}
-                <p>{{ mail.mailtext }}</p>
+                <p>{% if LANGUAGE_CODE == "en" and mail.mailtext_en != null %} {{ mail.mailtext_en }} {% elif LANGUAGE_CODE == "de" and mail.mailtext_de != null %} {{ mail.mailtext_de }} {% else %} {{mail.mailtext}} {% endif %}</p>
                 {% endautoescape %}
             </div>
 
             <div class="mail-footer">
                 {% if mail.aufgabe %}
                     <a href="{{ aufgabe_link }}" class="btn btn-primary">{% trans "Zur Aufgabe"%}</a>
-                {% elif mail.betreff == _("Willkommen bei SecureNet")%}
                 {% elif mail.betreff == _("Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort")%}
                     <a href="{{ aufgabe_link }}" class="btn btn-primary">{% trans "Profil aktualisieren"%}</a>
                 {% else %}
