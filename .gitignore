@@ -9,4 +9,4 @@
 *.pyc
 __pycache__/
 db.sqlite3
-young_wolf/settings.py
+config/settings.py
