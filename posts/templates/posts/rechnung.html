@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             submitButton.disabled = true;
             let warnung = document.createElement('p');
             warnung.style.color = 'red';
-            warnung.textContent = gettext('Die letzte Buchung muss korrigiert werden, bevor neue Buchungen möglich sind. Gehe dafür auf Buchungen anzeigen/verstecken.');
+            warnung.textContent = "{{ _('Die letzte Buchung muss korrigiert werden, bevor neue Buchungen möglich sind. Gehe dafür auf Buchungen anzeigen/verstecken.') }}";
             submitButton.parentElement.insertBefore(warnung, submitButton);
         }
 });
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (localStorage.getItem("rightSectionHidden") === "true") {
         rightSection.classList.add("right-section-hidden");
         contentWrapper.classList.add("hide-right");
-        toggleRightBtn.textContent = gettext("📥 Buchungs-Navigation einblenden");
+        toggleRightBtn.textContent = "{{ _('📥 Buchungs-Navigation einblenden') }}";
     }
 
     toggleRightBtn.addEventListener("click", () => {
@@ -305,8 +305,8 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("rightSectionHidden", isNowHidden.toString());
 
         toggleRightBtn.textContent = isNowHidden
-            ? gettext("📥 Buchungs-Navigation einblenden")
-            : gettext("📄 Buchungs-Navigation ausblenden");
+            ? "{{ _("📥 Buchungs-Navigation einblenden")}}"
+            : "{{ _("📄 Buchungs-Navigation ausblenden")}}";
     });
 
     // === 4. Scrollposition & Ansicht beim Submit speichern ===
@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
-        <option value="">{% trans "Bitte wählen..." %}</option>
+        <option value="">"{{ _('Bitte wählen...') }}"</option>
         {% for konto in konten %}
             {% if konto.kontenplan_id == kontenplan_id %}
                 {% with konto.kontonummer|stringformat:"04d" as nummer %}
@@ -341,14 +341,14 @@ function addField(containerId) {
         <select name="${containerId.includes('soll') ? 'soll_konto[]' : 'haben_konto[]'}" onchange="kontoOderBetragGeaendert(this)" required>
             ${kontenOptions}
         </select>
-        <input type="number" step="0.01" oninput="kontoOderBetragGeaendert(this)" placeholder="${gettext('Betrag eingeben')}" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
+        <input type="number" step="0.01" oninput="kontoOderBetragGeaendert(this)" placeholder="{{ _('Betrag eingeben')}}" name="${containerId.includes('soll') ? 'soll_betrag[]' : 'haben_betrag[]'}" required>
         <button type="button" class="btn-remove_rechnung" onclick="removeField(this)"></button>
     `;
 
     container.appendChild(newFieldGroup);
     $(newFieldGroup).find('select').select2({
         width: 'resolve',
-        placeholder: gettext('Bitte wählen...'),
+        placeholder: "{{ _('Bitte wählen...') }}",
         allowClear: true
     });
 }
@@ -489,7 +489,7 @@ function summenCheck(event) {
         let warnung = document.createElement('p');
         warnung.id = 'summenwarnung';
         warnung.style.color = 'red';
-        warnung.textContent = gettext('⚠️ Beträge dürfen nicht 0 sein!');
+        warnung.textContent = "{{ _('⚠️ Beträge dürfen nicht 0 sein!')}}";
         submitButton.after(warnung);
         return;
     }
@@ -499,7 +499,7 @@ function summenCheck(event) {
         let warnung = document.createElement('p');
         warnung.id = 'summenwarnung';
         warnung.style.color = 'red';
-        warnung.textContent = gettext('⚠️ Die Summe der Soll-Beträge muss der Summe der Haben-Beträge entsprechen!');
+        warnung.textContent = "{{ _('⚠️ Die Summe der Soll-Beträge muss der Summe der Haben-Beträge entsprechen!')}}";
         submitButton.after(warnung);
     } else {
         // Formular korrekt absenden
@@ -594,12 +594,13 @@ function toggleInfoBox() {
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        $('select[name="soll_konto[]"], select[name="haben_konto[]"]').select2({
-            width: 'resolve',
-            placeholder: gettext('Bitte wählen...'),
-            allowClear: true
-        });
+document.addEventListener("DOMContentLoaded", function () {
+    const placeholderText = "{{ _('Bitte wählen...') }}";
+    $('select[name="soll_konto[]"], select[name="haben_konto[]"]').select2({
+        width: 'resolve',
+        placeholder: placeholderText,
+        allowClear: true
     });
+});
 </script>
 {% endblock %}

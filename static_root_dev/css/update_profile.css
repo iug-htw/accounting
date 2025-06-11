@@ -16,7 +16,7 @@ h2 {
 }
 
 /* === FORMULAR-STYLING === */
-form {
+.profil_form {
     max-width: 500px;
     margin: 0 auto;
     background-color: #ffffff;
@@ -28,7 +28,7 @@ form {
     gap: 1.5rem;
 }
 
-form div {
+.profil_form div {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -58,7 +58,7 @@ input[type="password"]:focus {
 }
 
 /* === BUTTONS === */
-button[type="submit"] {
+.profil_form button[type="submit"] {
     margin-top: 0.5rem;
     padding: 0.8rem 1.2rem;
     background-color: #120639;
@@ -72,13 +72,13 @@ button[type="submit"] {
     align-self: flex-start;
 }
 
-button[type="submit"]:hover {
+.profil_form button[type="submit"]:hover {
     background-color: #3c0f79;
     transform: translateY(-1px);
 }
 
 /* === BESTÄTIGUNGSMELDUNG === */
-#confirmation-message {
+.confirmation-message {
     text-align: center;
     font-weight: bold;
     color: #2e7d32;
@@ -88,4 +88,18 @@ button[type="submit"]:hover {
     border-radius: 6px;
     max-width: 500px;
     margin: 0 auto 1.5rem auto;
+}
+
+.confirmation-message.success {
+    color: #2e7d32;
+}
+
+/* Fehler */
+.confirmation-message.error {
+    color: #b00020;
+}
+
+/* Warnung (z. B. keine Änderung) */
+.confirmation-message.warning {
+    color: #8a6d3b;
 }

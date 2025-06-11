@@ -71,7 +71,7 @@
                         <a class = "nav-element" href="{% url 'users:login' %}">Login</a>
                     {% endif %}
                     
-                    <form action="{% url 'set_language' %}" method="post">
+                    <form class="language-form" action="{% url 'set_language' %}" method="post">
                         {% csrf_token %}
                         <label for="language-select">Sprache wählen:</label>
                         <select name="language" id="language-select">
