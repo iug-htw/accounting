@@ -20,5 +20,5 @@ js
     django-admin makemessages -d djangojs -l en --extension=py -i users
     für html
     django-admin makemessages -d djangojs -l en --extension=js,html -i users
-ignore bedingung
+ignore bedingung 
     -i static_root_dev -i admin -i users -i posts -i config -i .env -i templates
