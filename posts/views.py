@@ -304,7 +304,7 @@ def rechnung_detail_view(request, aufgabe_id):
     #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
-    konten = Konto.objects.exclude(name="GuV").order_by('kontonummer')
+    konten = Konto.objects.exclude(name="GuV").order_by('kontonummer', 'name')
 
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe)
@@ -751,13 +751,19 @@ def hauptbuch_view(request):
     user = request.user
     # Falls noch keine anfangsbestaende existieren, generiere sie
     generate_user_anfangsbestaende(user)
+    unternehmen = user.unternehmen
+    if not unternehmen or not unternehmen.kontenplan:
+        konten = Konto.objects.none()
+    else:
+        # Konten aus dem Kontenplan des Unternehmens des Nutzers
+        konten = Konto.objects.filter(kontenplan=unternehmen.kontenplan).order_by('name')
+
     # anfangsbestaende des Nutzers abrufen
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=user)
     # Alle Buchungen des Nutzers abrufen
     buchungen = Buchung.objects.filter(nutzer=user)
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
     t_konten = build_t_konten(buchungen, anfangsbestaende)
-    konten = Konto.objects.all().order_by('name')
     aufgaben_ids = sorted({f"{buchung.aufgabe.id} {buchung.versuch})" for buchung in buchungen})
 
     return render(request, "posts/hauptbuch.html", {
@@ -923,13 +929,13 @@ def send_korrektur_mail(nutzer, aufgabe, request):
     naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
     update_url = request.build_absolute_uri(reverse("posts:rechnung_detail", args=[aufgabe.id]))
     mail_betreff = f"Korrekturbuchung für Rechnung - {aufgabe.rechnungsnummer}"
-    mail_betreff_en = f"Correction entry for the invoice - {aufgabe.rechnungsnummer}"
+    mail_betreff_en = f"Adjustment entry for the invoice - {aufgabe.rechnungsnummer}"
     mail_text_en = (
         f"""
         Dear {nutzer.username},
         <p>Your journal entry for the attached invoice contains an error.</p>
         
-        <p>Please correct the entry by completing a correction following this link: </p>
+        <p>Please correct the entry by completing an adjustment entry following this link: </p>
         <p><a href="{update_url}">Correct the journal Entry</a></p>
         <p>Thank you, <br>Your Booking Team</p>"""
     )

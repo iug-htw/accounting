@@ -16,7 +16,7 @@
             <option value="{{ konto.name }}">{{ konto.name }}</option>
         {% endfor %}
     </select>
-
+    <!--
     <label for="aufgabe_filter">{% trans "Filter nach Aufgabe:"%}</label>
     <select name="aufgabe_id" id="aufgabe_filter">
         <option value="">{% trans "Alle Aufgaben"%}</option>
@@ -24,6 +24,7 @@
             <option value="{{ aufgabe_id }}">{% trans "Aufgabe"%} {{ aufgabe_id }}</option>
         {% endfor %}
     </select>
+    -->
 </form>
 
 <section class="hauptbuch">
@@ -43,7 +44,7 @@
                     <td>
                         <table class="soll-haben-tabelle">
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
-                            <tr style="background-color: {{ farbe }};">
+                            <tr style="background-color: {{ farbe }};" data-aufgabe="{{ aufgabe_id }}">
                                 <td class="konto-name">
                                     {% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}
                                 </td>
@@ -55,7 +56,7 @@
                     <td>
                         <table class="soll-haben-tabelle">
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
-                            <tr style="background-color: {{ farbe }};">
+                            <tr style="background-color: {{ farbe }};" data-aufgabe="{{ aufgabe_id }}">
                                 <td class="konto-name">
                                     {% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}
                                 </td>
@@ -79,7 +80,7 @@
         let kontenDivs = document.querySelectorAll(".konto");
         
         kontenDivs.forEach(div => {
-            let rows = div.querySelectorAll("tr[data-konto]");
+            let rows = div.querySelectorAll("tr");
             let hasVisibleRow = false;
             
             rows.forEach(row => {
