@@ -1,45 +1,79 @@
 
 {% extends "posts/rechnung_basis.html" %}
-<!--
+{% load my_filters %}
+{% load static %}
+{% load i18n %}
 {% block content %}
 <div class="invoice-box">
-    <div class="company-address">
-        <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
+        <div class="company-address">
+            {% if aufgabe.rechnungstyp != "non" %}
+                <strong>{{ nutzer_aufgabe.absender.name }}</strong>
+                {{ nutzer_aufgabe.absender.straße|linebreaks }}
+                {{ nutzer_aufgabe.absender.stadt }}
+                {{ nutzer_aufgabe.absender.plz }} 
+                {{ nutzer_aufgabe.absender.email|linebreaks }}
+            {% endif %}
+        </div>
+    
+        <div class="client-address" style="text-align: right;">
+            <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
+        </div>
+    
+        <div class="invoice-header" style="margin-top: 20px;">
+            <p><strong>{% trans "Datum:"%}</strong> {{ datum|date:"d.m.Y" }}</p>
+            {% if aufgabe.rechnungstyp != "non" %}
+                <p><strong>{% trans "Rechnung Nr.:"%}</strong> {{ rechnungsnummer|default:_("Keine Nummer angegeben") }}</p>
+            {% endif %}
+        </div>
+    
+        <div class="invoice-description" style="margin-top: 20px;">
+            {% if aufgabe.rechnungstyp == "non"%}
+                <h3>{% trans "Geschäftsvorfall"%}</h3>
+            {% else %}
+                <h3>{% trans "Rechnung"%}</h3>
+            {% endif %}
+            <br><br>
+                <p>
+                {% if aufgabe.rechnungstyp == "non"%}
+                    {% trans "Guten Tag,"%} <br><br>{% trans "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"%}
+                {% elif aufgabe.rechnungstyp == "ausgehend" or aufgabe.fragentyp_id == null %}
+                    {% trans "Guten Tag,"%} 
+                {% else%}
+                    {% trans "Sehr geehrtes SecureNet Team"%}
+                {%endif%}
+                <br><br>
+                {{ beschreibung|linebreaks }}<br><br>
+            </p>
+        </div>
+    
+        <div class="invoice-amount" style="margin-top: 20px;">
+            {% if aufgabe.fragentyp_id == 10 %}
+                <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rechnungsbetrag|mul:1.05|floatformat:2 }}</p>
+            {% elif aufgabe.fragentyp_id == 13%}
+                <p><strong>{% trans "Anschaffungskosten (Netto):"%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
+            {% else %}
+            <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+            {% endif %}
+        </div>
+        {% if zahlweise and aufgabe.rechnungstyp != "non" %}
+        <div class="payment-info" style="margin-top: 20px;">
+            <p><strong>{% trans "Zahlungsweise:"%}</strong> {{ zahlweise|default:_("Keine Zahlungsart angegeben") }}</p>
+        </div>
+        {%endif%}
+        <div class="invoice-footer" style="margin-top: 40px;">
+            <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
+            {% if aufgabe.rechnungstyp == "ausgehend" %}
+                <p>{% trans "Ihr SecureNet Team"%} </p>
+                <p><strong>{% trans "Kontakt:"%}</strong><br>SecureNet@gmail.com</p>
+            {% elif aufgabe.rechnungstyp == "eingehend" %}
+                <p>{{ nutzer_aufgabe.absender.name }}</p>
+                <p><strong>{% trans "Kontakt:"%}</strong><br>{{ nutzer_aufgabe.absender.email|linebreaks }}</p>
+            {%else %}
+                <p>SecureNet GmbH</p>
+            {%endif%}
+            <br>
+            
+        </div>
     </div>
-
-    <div class="client-address" style="text-align: right;">
-        <p><strong>{{ anschrift_kunde|linebreaks }}</strong></p>
-    </div>
-
-    <div class="invoice-header" style="margin-top: 20px;">
-        <p><strong>Datum:</strong> {{ datum|date:"d.m.Y" }}</p>
-        <p><strong>Rechnung Nr.:</strong> {{ rechnungsnummer|default:"Keine Nummer angegeben" }}</p>
-    </div>
-
-    <div class="invoice-description" style="margin-top: 20px;">
-        <h3>Rechnung</h3>
-        <p>
-            Sehr geehrte/r {{ anschrift_kunde|linebreaks }},<br><br>
-            vielen Dank für Ihren Auftrag. Wir freuen uns, Ihnen folgende Leistung in Rechnung zu stellen:
-        </p>
-
-        <p>{{ beschreibung|linebreaks }}</p>
-    </div>
-
-    <div class="invoice-amount" style="margin-top: 20px;">
-        <p><strong>Rechnungsbetrag (Netto):</strong> {{ rechnungsbetrag|floatformat:2 }} EUR zzgl. Steuern</p> 
-    </div>
-
-    <div class="payment-info" style="margin-top: 20px;">
-        <p><strong>Zahlungsweise:</strong> {{ zahlweise|default:"Keine Zahlungsart angegeben" }}</p>
-        <p><strong>Zahlungsziel:</strong> Bitte begleichen Sie den Betrag innerhalb von 30 Tagen.</p>
-    </div>
-
-    <div class="invoice-footer" style="margin-top: 40px;">
-        <p>Mit freundlichen Grüßen,</p>
-        <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
-        <p><strong>Kontakt:</strong><br>{{ kontakt|linebreaks }}</p>
-    </div>
-</div>
 {% endblock %}
-!-->
+
