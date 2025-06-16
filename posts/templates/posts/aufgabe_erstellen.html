@@ -1,94 +1,55 @@
 {% extends 'master_layout.html' %}
 {% load static %}
-
+{% load i18n %}
 {% block css %}
    <link rel="stylesheet" href="{% static 'css/aufgabe_erstellen.css' %}">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.css">
 {% endblock %}
 
 {% block content %}
-    <h1>Neue Aufgabe erstellen</h1>
+    <h1>{% trans "Neue Aufgabe erstellen"%}</h1>
     <div class="link-buttons">
-    <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">Unternehmen verwalten</a>
-    <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">Fragentyp verwalten</a>
+    <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">{% trans "Unternehmen/Fallstudien verwalten"%}</a>
+    <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">{% trans "Fragentyp verwalten"%}</a>
     <a href="{% url 'posts:konten_verwalten' %}" class="btn btn-secondary">Konten verwalten</a>
-    <a href="{% url 'posts:aufgabe_import_form' %}" class="btn btn-info">Aufgaben aus Excel importieren</a>
+    <a href="{% url 'posts:aufgabe_import_form' %}" class="btn btn-info">{% trans "Aufgaben aus Excel importieren"%}</a>
     </div>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-group">
-            <label for="aufgabeninfo_input"><strong>Zusatzinformation zur Aufgabe (optional):</strong></label>
+            <label for="aufgabeninfo_input"><strong>{% trans "Zusatzinformation zur Aufgabe (optional):"%}</strong></label>
             <input id="aufgabeninfo_input" type="hidden" name="aufgabeninfo" value="{{ form.aufgabeninfo.value|default_if_none:'' }}">
             <trix-editor input="aufgabeninfo_input"></trix-editor>
         </div>
-        <h2>Buchungssätze hinzufügen</h2>
+        <h2>{% trans "Buchungssätze hinzufügen"%}</h2>
+        <p class="pcenter">{% trans "Bitte zuerst ein Unternehmen auswählen, um die Konten nach dem Kontenplan zu filtern" %}</p>
         <div id="fields-container">
             <div class="field-group">
                 <!-- Konto Auswahl -->
-                <label>Konto:</label>
-                <select name="konto_id[]" required>
+                <label>{% trans "Konto:"%}</label>
+                <select name="konto_id[]" class="konto-select" required>
                     {% for konto in konten %}
                     <option value="{{ konto.id }}">{{ konto.name }}</option>
                     {% endfor %}
                 </select>
 
                 <!-- Soll/Haben Auswahl -->
-                <label>Soll/Haben:</label>
+                <label>{% trans "Soll/Haben:"%}</label>
                 <select name="soll_haben[]" required>
-                    <option value="Soll">Soll</option>
-                    <option value="Haben">Haben</option>
+                    <option value="Soll">{% trans "Soll"%}</option>
+                    <option value="Haben">{% trans "Haben"%}</option>
                 </select>
 
                 <!-- Betrag (falls kein Bezug besteht) -->
                 <input type="number" step="0.01" placeholder="Betrag" name="betrag[]" class="betrag">
-
-                <!-- Berechnungsart -->
-                <label>Berechnungsart:</label>
-                <select name="formel_typ[]" class="formel-typ" required onchange="toggleFields(this)">
-                    <option value="fix">Fester Betrag</option>
-                    <option value="faktor">Multiplikation mit Faktor</option>
-                    <option value="summe">Summe aus mehreren Konten</option>
                 </select>
-
-                <!-- Fester Betrag -->
-                <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
-
-                <!-- Faktor für Prozentrechnung -->
-                <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
-
-                <!-- Bezugs-Konto Auswahl (für Faktor-Berechnung) -->
-                <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
-                <select name="bezugs_konto_id[]" class="bezugs-konto" style="display: none;">
-                    <option value="">Kein Bezugs-Konto</option>
-                    {% for konto in konten %}
-                        <option value="{{ konto.id }}">{{ konto.name }}</option>
-                    {% endfor %}
-                </select>
-
-                <!-- Mehrfachauswahl für Summe -->
-                <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
-                <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
-                    {% for konto in konten %}
-                    <option value="{{ konto.id }}">{{ konto.name }}</option>
-                    {% endfor %}
-                </select>
-
-                <!-- Monatsangabe -->
-                <label>Monatsangabe:</label>
-                <select name="monatsangabe[]" class="monatsangabe" onchange="toggleMonatField(this)">
-                    <option value="false">Nein</option>
-                    <option value="true">Ja</option>
-                </select>
-
-                <!-- Monatseingabe -->
-                <input type="number" placeholder="Monat" name="monat[]" min="1" max="12" class="monat" style="display: none;">
             </div>
         </div>
 
-        <button type="button" onclick="addFieldGroup()">Weitere Buchung hinzufügen</button>
+        <button type="button" onclick="addFieldGroup()">{% trans "Weitere Buchung hinzufügen"%}</button>
         <br><br>
-        <button type="submit">Speichern</button>
+        <button type="submit">{% trans "Speichern"%}</button>
     </form>
 <script>
     function addFieldGroup() {
@@ -101,41 +62,18 @@
             {% endfor %}
         `;
         newFieldGroup.innerHTML = `
-            <label>Konto:</label>
-            <select name="konto_id[]" required>
+            <label>${gettext("Konto:")}</label>
+            <select name="konto_id[]" class="konto-select" required>
             {% for konto in konten %}
                 <option value="{{ konto.id }}">{{ konto.name }}</option>
             {% endfor %}
             </select>
-            <label>Soll/Haben:</label>
+            <label>${gettext("Soll/Haben:")}</label>
             <select name="soll_haben[]" required>
-                <option value="Soll">Soll</option>
-                <option value="Haben">Haben</option>
+                <option value="Soll">${gettext("Soll")}</option>
+                <option value="Haben">${gettext("Haben")}</option>
             </select>
-            <input type="number" step="0.0000001" placeholder="Betrag" name="betrag[]" class="betrag">
-            <label>Berechnungsart:</label>
-            <select name="formel_typ[]" class="formel-typ" required onchange="toggleFields(this)">
-                <option value="fix">Fester Betrag</option>
-                <option value="faktor">Multiplikation mit Faktor</option>
-                <option value="summe">Summe aus mehreren Konten</option>
-            </select>
-            <input type="number" step="0.0000001" placeholder="Fester Betrag" name="festbetrag[]" class="festbetrag">
-            <input type="number" step="0.0000001" placeholder="Faktor (z.B. 0.19 für 19%)" name="faktor[]" class="faktor" style="display: none;">
-            <label class="bezugs-konto-label" style="display: none;">Bezugs-Konto:</label>
-            <select name="bezugs_konto[]" class="bezugs-konto" style="display: none;">
-                <option value="">Kein Bezugs-Konto</option>
-                ${kontenOptions}
-            </select>
-            <label class="bezugs-konten-label" style="display: none;">Summierte Konten:</label>
-            <select name="bezugs_konten[]" multiple class="bezugs-konten" style="display: none;">
-                ${kontenOptions}
-            </select>
-            <label>Monatsangabe:</label>
-            <select name="monatsangabe[]" class="monatsangabe" onchange="toggleMonatField(this)">
-                <option value="false">Nein</option>
-                <option value="true">Ja</option>
-            </select>
-            <input type="number" placeholder="Monat" name="monat[]" min="1" max="12" class="monat" style="display: none;">
+            <input type="number" step="0.0000001" placeholder="${gettext("Betrag")}" name="betrag[]" class="betrag">
         `;
         container.appendChild(newFieldGroup);
     }
@@ -143,57 +81,65 @@
         let parent = selectElement.parentElement;
         let festbetrag = parent.querySelector('.festbetrag');
         let faktor = parent.querySelector('.faktor');
-        let bezugsKonto = parent.querySelector('.bezugs-konto');
-        let bezugsKonten = parent.querySelector('.bezugs-konten');
-        let bezugsKontoLabel = parent.querySelector('.bezugs-konto-label');
-        let bezugsKontenLabel = parent.querySelector('.bezugs-konten-label');
         festbetrag.style.display = selectElement.value === "fix" ? "inline-block" : "none";
         faktor.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
-        bezugsKonto.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
-        bezugsKonten.style.display = selectElement.value === "summe" ? "inline-block" : "none";
-        bezugsKontoLabel.style.display = selectElement.value === "faktor" ? "inline-block" : "none";
-        bezugsKontenLabel.style.display = selectElement.value === "summe" ? "inline-block" : "none";
     }
-    function toggleMonatField(selectElement) {
-        let parent = selectElement.parentElement;
-        let monatField = parent.querySelector('.monat');
-        monatField.style.display = selectElement.value === "true" ? "inline-block" : "none";
-    }
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
+<script>
 document.addEventListener('DOMContentLoaded', function () {
     const kontenplanSelect = document.getElementById('id_kontenplan');
-    kontenplanSelect.addEventListener('change', function() {
-        let kontenplanId = this.value;
+
+    kontenplanSelect.addEventListener('change', function () {
+        const kontenplanId = this.value;
 
         fetch(`/posts/kontenplan_konten_laden/?kontenplan_id=${kontenplanId}`)
             .then(response => response.json())
-            .then(data => aktualisiereKontenDropdowns(data.konten));
+            .then(data => {
+                aktualisiereKontenDropdowns(data.konten);
+            });
     });
 
     function aktualisiereKontenDropdowns(konten) {
-        let kontoDropdowns = document.querySelectorAll('select[name="konto_id[]"], select[name="bezugs_konto_id[]"], select[name="bezugs_konten[]"]');
-
-        kontoDropdowns.forEach(dropdown => {
-            // Alle bisherigen Optionen löschen
-            dropdown.innerHTML = '';
-
-            // Leere Option nur für einfache Dropdowns
-            if (dropdown.name !== "bezugs_konten[]") {
-                let leerOption = document.createElement('option');
-                leerOption.value = '';
-                leerOption.textContent = 'Bitte wählen';
-                dropdown.appendChild(leerOption);
-            }
-
-            // Neue Optionen einfügen
+        const selects = document.querySelectorAll('.konto-select');
+        selects.forEach(select => {
+            const aktuellerWert = select.value;
+            select.innerHTML = ''; // Leere Dropdown
             konten.forEach(konto => {
-                let option = document.createElement('option');
+                const option = document.createElement('option');
                 option.value = konto.id;
                 option.textContent = konto.name;
-                dropdown.appendChild(option);
+                if (konto.id == aktuellerWert) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
             });
         });
     }
+
+    // Automatisch beim Laden auslösen (optional, falls bereits ein Wert ausgewählt ist)
+    if (kontenplanSelect.value) {
+        fetch(`/posts/kontenplan_konten_laden/?kontenplan_id=${kontenplanSelect.value}`)
+            .then(response => response.json())
+            .then(data => {
+                aktualisiereKontenDropdowns(data.konten);
+            });
+    }
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (event) {
+        const betraege = Array.from(form.querySelectorAll('input[name="betrag[]"]'));
+        const mindestensEinsAusgefüllt = betraege.some(input => {
+        const val = input.value.trim().toLowerCase();
+        return val !== '' && val !== 'betrag' && !isNaN(parseFloat(val));
+        });
+
+        if (!mindestensEinsAusgefüllt) {
+            event.preventDefault();
+            alert('Bitte geben Sie mindestens einen Betrag ein.');
+        }
+    });
 });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
+
 {% endblock %}

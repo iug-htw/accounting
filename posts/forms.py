@@ -2,30 +2,33 @@ from django import forms
 from .models import Unternehmen, Aufgabe_neu, Buchung, Aufgabenkategorie, AufgabeDetail, Konto, Kontenplan
 import json
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
+
 
 class Aufgabe_neu_Form(forms.ModelForm):
     kontenplan = forms.ModelChoiceField(
         queryset=Kontenplan.objects.none(),  # Erst später im __init__ dynamisch setzen
-        label="Kontenplan",
-        required=True
+        label=_("Kontenplan"),
+        required=True,
+        help_text=_("Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht.")
     )
     aufgabeninfo = forms.CharField(
         required=False,
         widget=forms.HiddenInput(),
-        label="Zusatzinformation zur Aufgabe"
+        label=_("Zusatzinformation zur Aufgabe"),
+        help_text=_("Optionaler Informationstext zur Aufgabe (HTML erlaubt).")
     )
     class Meta:
         model = Aufgabe_neu
         fields = [
+            'kontenplan',
             'unternehmen_kategorie', 
             'fragentyp',
             'unterkategorie',
             'aufgabeninfo',
-            'fragentyp_text',
             'mailtext',
             'feedback_konto_falsch',
             'feedback_betrag_falsch',
-            'rechnungsnummer',
             'zahlweise',
             'beschreibung',
             'verabschiedung'
@@ -73,20 +76,31 @@ class AufgabenkategorieForm(forms.ModelForm):
 class AufgabeImportForm(forms.ModelForm):
     kontenplan = forms.ModelChoiceField(
         queryset=Kontenplan.objects.none(),
-        label="Kontenplan",
-        required=True
+        label=_("Kontenplan"),
+        required=True,
+        help_text=_("Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht.")
     )
     aufgabeninfo = forms.CharField(
         required=False,
         widget=forms.HiddenInput(),
-        label="Zusatzinformation zur Aufgabe"
+        label=_("Zusatzinformation zur Aufgabe")
     )
     class Meta:
         model = Aufgabe_neu
+        fields = [
+            'kontenplan',
+            'unternehmen_kategorie', 
+            'mailtext',
+            'feedback_konto_falsch',
+            'feedback_betrag_falsch',
+            'eigene_ansicht',
+            'kontakt',
+            'aufgabeninfo'
+        ]
         exclude = [
             'rechnungstyp', 'fragentyp', 'unterkategorie', 'fragentyp_text', 
             'nutzungsdauer', 'zahlweise', 'beschreibung', 'verabschiedung', 
-            'rechnungsbetrag', 'frage', 'rechnungsnummer', 'ersteller','immer_feedback'
+            'rechnungsbetrag', 'rechnungsnummer', 'ersteller','immer_feedback'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -108,7 +122,7 @@ class AufgabeBearbeitenForm(forms.ModelForm):
 class AufgabeDetailBearbeitenForm(forms.ModelForm):
     class Meta:
         model = AufgabeDetail
-        fields = ['konto', 'soll_haben', 'betrag', 'monatsangabe', 'monat']
+        fields = ['konto', 'soll_haben', 'betrag']
 
 class KontoForm(forms.ModelForm):
     class Meta:

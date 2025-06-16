@@ -20,26 +20,41 @@ from django.db.models import Q
 from collections import defaultdict
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 ORGA_MAILS = [
     {
         "betreff": "Personalanfrage: Neue Mitarbeitende einstellen",
-        "mailtext": "Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team"
+        "betreff_de": "Personalanfrage: Neue Mitarbeitende einstellen",
+        "betreff_en": "Staffing request: Hiring new employees",
+        "mailtext": "Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team",
+        "mailtext_de": "Sehr geehrte Geschäftsführung,\n\ndas Unternehmen wächst stetig – bitte prüfen Sie die Besetzung von 1–2 neuen Stellen. Die Anfrage wurde an HR weitergeleitet.\n\nIhr HR-Team",
+        "mailtext_en": "Dear Management,\n\nThe company continues to grow steadily – please consider filling 1–2 new positions. The request has been forwarded to HR.\n\nYour HR Team"
     },
     {
         "betreff": "Neue Werbekampagne geplant – Agenturfreigabe erforderlich",
-        "mailtext": "Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team"
+        "betreff_de": "Neue Werbekampagne geplant – Agenturfreigabe erforderlich",
+        "betreff_en": "Planned new advertising campaign – agency approval required",
+        "mailtext": "Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team",
+        "mailtext_de": "Liebe Geschäftsführung,\n\nbitte bestätigen Sie die Freigabe der neuen Kampagne des Marketing-Teams. Die Agentur wartet auf Rückmeldung.\n\nIhr Marketing-Team",
+        "mailtext_en": "Dear Management,\n\nPlease confirm the approval of the marketing team's new campaign. The agency is awaiting feedback. Your Marketing Team\n\nYour Marketing-Team",
     },
     {
         "betreff": "Geplante IT-Wartung – Zustimmung erforderlich",
-        "mailtext": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung"
-    }
+        "betreff_de": "Geplante IT-Wartung – Zustimmung erforderlich",
+        "betreff_en": "Planned IT maintenance – approval required",
+        "mailtext": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung",
+        "mailtext_de": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung",
+        "mailtext_en": "Good day,\n\nOur IT department is planning a server update next week. Please approve this measure. Your IT Department\n\nYour IT department",
+    } 
 ]
 
 @lehrkraft_required  # Ensure only logged-in users can access this view
 def register_view(request):
     if not request.user.role == 'teacher':  # Only teachers can create students
-        return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
+        link = reverse("index")
+        text = _('Fehlende Berechtigung') + f'<br><a href="{link}">{_("Zurück zur Startseite")}</a>'
+        return HttpResponse(text)
     
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -67,7 +82,7 @@ def login_view(request):
                 return redirect(request.POST.get("next"))
             return redirect("frontpage")
         else:
-            messages.error(request, "Benutzername oder Passwort ist nicht korrekt.")
+            messages.error(request, _("Benutzername oder Passwort ist nicht korrekt."))
     
     else:
         form = AuthenticationForm()
@@ -107,7 +122,7 @@ def delete_studiengang_view(request, studiengang_id):
     studiengang = Studiengang.objects.get(id=studiengang_id)
     # Berechtigung prüfen
     if studiengang.ersteller and studiengang.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse('Keine Berechtigung zum Löschen.')
+        return HttpResponse(_('Keine Berechtigung zum Löschen.'))
     studiengang.delete()
     return redirect('users:add_studiengang')
 
@@ -119,7 +134,7 @@ def add_semester_view(request):
             semester = form.save(commit=False)
             semester.ersteller = request.user.id
             form.save()
-            messages.success(request, "Semester erfolgreich hinzugefügt.")
+            messages.success(request, _("Semester erfolgreich hinzugefügt."))
             return redirect('users:add_semester')
     else:
         form = SemesterForm()
@@ -136,9 +151,9 @@ def add_semester_view(request):
 def delete_semester_view(request, semester_id):
     semester = Semester.objects.get(id=semester_id)
     if semester.ersteller and semester.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse('Keine Berechtigung zum Löschen.')
+        return HttpResponse(_('Keine Berechtigung zum Löschen.'))
     semester.delete()
-    messages.success(request, "Semester erfolgreich gelöscht.")
+    messages.success(request, _("Semester erfolgreich gelöscht."))
     return redirect('users:add_semester')
 
 @lehrkraft_required
@@ -184,9 +199,15 @@ def bulk_student_creation(request):
             neue_studierende.append(student)
 
         if fehlgeschlagene_namen:
-            messages.error(request, f"Folgende Namen sind bereits vergeben: {', '.join(fehlgeschlagene_namen)}")
+            message = _("Folgende Namen sind bereits vergeben: %(namen)s") % {
+                "namen": ", ".join(fehlgeschlagene_namen)
+            }
+            messages.error(request, message)
         else:
-            messages.success(request, f'{len(neue_studierende)} Studierende erfolgreich erstellt.')
+            message = _("%(anzahl)d Studierende erfolgreich erstellt.") % {
+                "anzahl": len(neue_studierende)
+            }
+            messages.success(request, message)
         unternehmen = Unternehmen.objects.all()
         return render(request, 'users/bulk_student_creation.html', {
             'studiengaenge': Studiengang.objects.all(),
@@ -264,10 +285,10 @@ def aufgaben_zuweisen_view(request):
             for student in studierende:
                 sem_name = student.semester.name
                 studiengang_name = student.studiengang.name
-                aufgabe_name = f"Aufgabe {aufgabe.id}"
+                aufgabe_name = _("Aufgabe {id}").format(id=aufgabe.id)
                 if sem_name in aufgaben_uebersicht and studiengang_name in aufgaben_uebersicht[sem_name]:
                     if aufgabe_name in aufgaben_uebersicht[sem_name][studiengang_name]:
-                        print(f"bereits zugewiesen")
+                        print(_("bereits zugewiesen"))
                         continue  # Aufgabe wurde bereits zugewiesen
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
@@ -276,7 +297,7 @@ def aufgaben_zuweisen_view(request):
                 erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
                 sende_orga_mail_wenn_noetig(student)
 
-        messages.success(request, "Aufgaben erfolgreich zugewiesen.")
+        messages.success(request, _("Aufgaben erfolgreich zugewiesen."))
         return redirect('users:aufgaben_zuweisen')
 
     return render(request, 'users/aufgaben_zuweisen.html', {
@@ -318,7 +339,7 @@ def aufgaben_selbst_zuweisen(request):
         naechster_versuch = berechne_naechsten_versuch(lehrer, aufgabe)
         erstelle_aufgaben_mail(lehrer, aufgabe, naechster_versuch, nutzer_aufgabe.absender)
 
-    messages.success(request, "Alle Aufgaben wurden dir erfolgreich zugewiesen.")
+    messages.success(request, _("Alle Aufgaben wurden dir erfolgreich zugewiesen."))
     return redirect('users:aufgaben_zuweisen')
 
 
@@ -345,12 +366,12 @@ def update_profile(request):
                 update_session_auth_hash(request, user)  # Nutzer bleibt eingeloggt
 
             elif neues_passwort and neues_passwort != passwort_bestätigung:
-                messages.error(request, "Passwörter stimmen nicht überein.")
+                messages.error(request, _("Passwörter stimmen nicht überein."))
                 return redirect("users:update_profile")
 
         if name_geändert or passwort_geändert:
             user.save()
-            messages.success(request, "Profil erfolgreich aktualisiert.")
+            messages.success(request, _("Profil erfolgreich aktualisiert."))
 
             # Älteste Mail des Nutzers ohne Aufgabe als bearbeitet markieren
             mail = Mail.objects.filter(nutzer=user, aufgabe__isnull=True).order_by("datum").first()
@@ -361,7 +382,7 @@ def update_profile(request):
 
             return redirect("users:update_profile")
 
-        messages.warning(request, "Keine Änderungen vorgenommen.")
+        messages.warning(request, _("Keine Änderungen vorgenommen."))
 
     return render(request, "users/update_profile.html", {"user": user})
 
@@ -373,39 +394,54 @@ def send_profile_update_mail(user, request):
             name="SecureNet", email="info@securenet.de",
             straße="Treskowallee 8", stadt="Berlin", plz="10318"
         )
-    Mail.objects.create(
-        nutzer=user,
-        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
-        betreff="Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort",
-        mailtext=f"""
-        Hallo {user.username},
+    betreff="Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"
+    betreff_en="Please update your displayed name and your password"
+    mailtext="""
+        Hallo {username},
 
         <p>Bitte setzen Sie Ihren Anzeigenamen und Ihr Passwort über den folgenden Link:</p>
 
         <p><a href="{update_profile_url}">Profil aktualisieren</a></p>
 
         <p>Vielen Dank!</p>
-        """,
+        """.format(username=user.username, update_profile_url=update_profile_url)
+    mailtext_en="""
+        Hello {username},
+
+        <p>Please set your password and your display name with the following link:</p>
+
+        <p><a href="{update_profile_url}">Update profile</a></p>
+
+        <p>Thank your!</p>
+        """.format(username=user.username, update_profile_url=update_profile_url)
+    Mail.objects.create(
+        nutzer=user,
+        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
+        betreff=betreff,
+        betreff_de=betreff,
+        betreff_en=betreff_en,
+        mailtext=mailtext,
+        mailtext_de = mailtext,
+        mailtext_en=mailtext_en,
         versuch=1,  # Standardversuch
-        status="nicht bearbeitet",
+        status = "nicht bearbeitet",
         absender=absender,
+        
     )
 
 def send_willkommen_mail(user):
     if settings.DEBUG:
         dokumentation_link = "http://localhost:8000/media/nutzerdokumentation.pdf"
     else:
-        dokumentation_link = "hhttps://train.f4.htw-berlin.de/media/nutzerdokumentation.pdf"
+        dokumentation_link = "https://train.f4.htw-berlin.de/media/nutzerdokumentation.pdf"
     absender, _ = Absender.objects.get_or_create(
             name="SecureNet", email="info@securenet.de",
             straße="Treskowallee 8", stadt="Berlin", plz="10318"
         )
-    Mail.objects.create(
-        nutzer=user,
-        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
-        betreff="Willkommen bei SecureNet",
-        mailtext=f"""
-        Hallo,
+    betreff="Willkommen bei SecureNet"
+    betreff_en="Welcome to SecureNet"
+    mailtext="""
+        Hallo, <br>
 
         willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen. <br><br> \n
 
@@ -416,16 +452,42 @@ def send_willkommen_mail(user):
         Für eine Einführung in dein Unternehmen, kannst du gerne hier die Nutzerdokumentation einsehen: <br>
         <p><a href="{dokumentation_link}" target="_blank"> Nutzerdokumentation </a></p>
         <br><br>
-        Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung.
+        Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung. <br>
 
 
         Viel Erfolg bei SecureNet!
         Dein SecureNet-Team
-        """,
+        """.format(dokumentation_link=dokumentation_link)
+    mailtext_en = """
+        Hello, <br>
+
+        Welcome to SecureNet! As the CEO of your cyber security startup, it's your job not only to protect your company from attacks using vulnerability assessments and penetration tests, but also to manage the accounting professionally. <br><br> \n
+
+        In your inbox, you'll find all important invoices and tasks you need to complete. Your general ledger gives you a transparent overview of all T-accounts, so you can always track which entries have been made. The invoice overview helps you keep an eye on open and already processed invoices.<br><br>
+
+        To ensure your company remains successful in the long term, you should regularly review the balance sheet. It shows whether your business is on solid financial footing and how assets and liabilities balance out.<br><br>
+
+        For an introduction to your company, feel free to check the user documentation here: <br>
+        <p><a href="{dokumentation_link}" target="_blank"> User Documentation </a></p>
+        <br><br>
+        Start now and make sure your finances stay on track! If you have any questions or uncertainties, your inbox is your central point of contact. <br>
+
+        Wishing you success at SecureNet!  
+        Your SecureNet Team
+        """.format(dokumentation_link=dokumentation_link)
+    Mail.objects.create(
+        nutzer=user,
+        aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen
+        betreff=betreff,
+        betreff_de=betreff,
+        betreff_en=betreff_en,
+        mailtext=mailtext,
+        mailtext_de=mailtext,
+        mailtext_en=mailtext_en,
         versuch=0,  # Standardversuch
         status="bearbeitet",
         absender=absender
-    )
+    ) 
 
 def sende_orga_mail_wenn_noetig(student):
     if not student.unternehmen or student.unternehmen.id != 1:
@@ -449,7 +511,11 @@ def sende_orga_mail_wenn_noetig(student):
             nutzer=student,
             absender=absender,
             betreff=info["betreff"],
+            betreff_de=info["betreff_de"],
+            betreff_en=info["betreff_en"],
             mailtext=info["mailtext"],
+            mailtext_de=info["mailtext_de"],
+            mailtext_en=info["mailtext_en"],
             versuch=1,
             status="nicht bearbeitet"
         )
@@ -461,5 +527,5 @@ def orga_mail_bestaetigen(request, mail_id):
     if mail.aufgabe is None:
         mail.status = "bearbeitet"
         mail.save(update_fields=["status"])
-        messages.success(request, "Die organisatorische Aufgabe wurde als erledigt markiert.")
+        messages.success(request, _("Die organisatorische Aufgabe wurde als erledigt markiert."))
     return redirect("posts:posteingang")

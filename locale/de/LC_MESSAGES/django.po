@@ -1,0 +1,1609 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-11 10:56+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: .\posts\forms.py:11 .\posts\forms.py:79 .\posts\models.py:79
+#: .\posts\models.py:194 .\posts\templates\posts\konten_verwalten.html:47
+#: .\posts\templates\posts\konten_verwalten.html:67
+msgid "Kontenplan"
+msgstr ""
+
+#: .\posts\forms.py:13 .\posts\forms.py:81
+msgid "Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
+msgstr ""
+
+#: .\posts\forms.py:18 .\posts\forms.py:86
+msgid "Zusatzinformation zur Aufgabe"
+msgstr ""
+
+#: .\posts\forms.py:19
+msgid "Optionaler Informationstext zur Aufgabe (HTML erlaubt)."
+msgstr ""
+
+#: .\posts\models.py:10 .\posts\models.py:25
+#: .\posts\templates\posts\konten_verwalten.html:57 .\users\models.py:38
+#: .\users\models.py:44
+msgid "Name"
+msgstr ""
+
+#: .\posts\models.py:11
+msgid "kontenplan"
+msgstr ""
+
+#: .\posts\models.py:12
+msgid "Fallstudie"
+msgstr ""
+
+#: .\posts\models.py:13 .\posts\models.py:45 .\posts\models.py:97
+#: .\users\models.py:39 .\users\models.py:45
+msgid "Ersteller"
+msgstr ""
+
+#: .\posts\models.py:26
+msgid "Email"
+msgstr ""
+
+#: .\posts\models.py:27
+msgid "Straße"
+msgstr ""
+
+#: .\posts\models.py:28
+msgid "Stadt"
+msgstr ""
+
+#: .\posts\models.py:29
+msgid "Plz"
+msgstr ""
+
+#: .\posts\models.py:30
+msgid "telnr"
+msgstr ""
+
+#: .\posts\models.py:38
+msgid "Eingehende Rechnung"
+msgstr ""
+
+#: .\posts\models.py:39
+msgid "Ausgehende Rechnung"
+msgstr ""
+
+#: .\posts\models.py:40
+msgid "Interner Vorgang"
+msgstr ""
+
+#: .\posts\models.py:41
+msgid "Keine Rechnungsansicht"
+msgstr ""
+
+#: .\posts\models.py:43
+msgid "Unternehmen Kategorie"
+msgstr ""
+
+#: .\posts\models.py:44 .\posts\templates\posts\aufgaben_verwalten.html:16
+#: .\posts\templates\posts\rechnungsuebersicht.html:18
+msgid "Fragentyp"
+msgstr ""
+
+#: .\posts\models.py:46 .\posts\models.py:186
+#: .\posts\templates\posts\konten_verwalten.html:60
+msgid "Unterkategorie"
+msgstr ""
+
+#: .\posts\models.py:48 .\posts\models.py:49 .\posts\models.py:50
+#: .\posts\models.py:154 .\posts\models.py:155 .\posts\models.py:156
+msgid "Mailtext"
+msgstr ""
+
+#: .\posts\models.py:51
+msgid "Nutzungsdauer"
+msgstr ""
+
+#: .\posts\models.py:52
+msgid "Feedback Konto falsch"
+msgstr ""
+
+#: .\posts\models.py:53
+msgid "Feedback Betrag falsch"
+msgstr ""
+
+#: .\posts\models.py:54
+msgid "immer Feedback"
+msgstr ""
+
+#: .\posts\models.py:56
+msgid "Eigene Ansicht"
+msgstr ""
+
+#: .\posts\models.py:57
+msgid "Rechnungsnummer"
+msgstr ""
+
+#: .\posts\models.py:58 .\posts\models.py:161
+#: .\posts\templates\posts\posteingang.html:20
+msgid "Datum"
+msgstr ""
+
+#: .\posts\models.py:59
+msgid "Rechnungsbetrag"
+msgstr ""
+
+#: .\posts\models.py:60
+msgid "Zahlweise"
+msgstr ""
+
+#: .\posts\models.py:61 .\posts\models.py:62 .\posts\models.py:63
+msgid "Verabschiedung"
+msgstr ""
+
+#: .\posts\models.py:64
+msgid "Kontakt"
+msgstr ""
+
+#: .\posts\models.py:65 .\posts\models.py:66 .\posts\models.py:67
+#: .\posts\templates\posts\aufgaben_verwalten.html:17
+msgid "Beschreibung"
+msgstr ""
+
+#: .\posts\models.py:68
+msgid "Rechnungstyp"
+msgstr ""
+
+#: .\posts\models.py:69
+msgid "Aufgabeninfo"
+msgstr ""
+
+#: .\posts\models.py:75 .\posts\models.py:95 .\posts\models.py:133
+#: .\posts\models.py:149
+#: .\posts\templates\posts\buchungssatz_uebersicht.html:14
+#: .\posts\templates\posts\hauptbuch.html:24
+msgid "Aufgabe"
+msgstr ""
+
+#: .\posts\models.py:76 .\posts\models.py:211
+#: .\posts\templates\posts\bilanz.html:75
+#: .\posts\templates\posts\bilanz.html:77 .\posts\templates\posts\guv.html:73
+#: .\posts\templates\posts\guv.html:75
+msgid "Konto"
+msgstr ""
+
+#: .\posts\models.py:77
+msgid "Soll/Haben"
+msgstr ""
+
+#: .\posts\models.py:78 .\posts\models.py:212
+#: .\posts\templates\posts\bilanz.html:76
+#: .\posts\templates\posts\bilanz.html:78 .\posts\templates\posts\guv.html:74
+#: .\posts\templates\posts\guv.html:76
+msgid "Betrag"
+msgstr ""
+
+#: .\posts\models.py:80 .\posts\templates\posts\konten_verwalten.html:61
+msgid "Bilanzposition"
+msgstr ""
+
+#: .\posts\models.py:84 .\posts\models.py:128
+#: .\posts\templates\posts\rechnungsuebersicht.html:30
+msgid "Offen"
+msgstr ""
+
+#: .\posts\models.py:85 .\posts\models.py:129 .\posts\models.py:164
+#: .\posts\templates\posts\posteingang.html:31
+#: .\posts\templates\posts\rechnungsuebersicht.html:32
+#: .\templates\frontpage.html:40 .\templates\frontpage.html:80
+#: .\templates\frontpage.html:109
+msgid "Bearbeitet"
+msgstr ""
+
+#: .\posts\models.py:86 .\posts\models.py:130 .\templates\frontpage.html:44
+#: .\templates\frontpage.html:84 .\templates\frontpage.html:113
+msgid "Korrekt"
+msgstr ""
+
+#: .\posts\models.py:89
+msgid "Richtig"
+msgstr ""
+
+#: .\posts\models.py:90
+msgid "Soll ist falsch"
+msgstr ""
+
+#: .\posts\models.py:91
+msgid "Haben ist falsch"
+msgstr ""
+
+#: .\posts\models.py:92
+msgid "Beide sind falsch"
+msgstr ""
+
+#: .\posts\models.py:94
+msgid "Buchungs ID"
+msgstr ""
+
+#: .\posts\models.py:96 .\posts\models.py:135 .\posts\models.py:148
+#: .\posts\models.py:199 .\posts\models.py:210
+msgid "Nutzer"
+msgstr ""
+
+#: .\posts\models.py:98 .\posts\templates\posts\rechnungsuebersicht.html:19
+msgid "Status"
+msgstr ""
+
+#: .\posts\models.py:99
+msgid "Freischaltung"
+msgstr ""
+
+#: .\posts\models.py:100 .\posts\models.py:157
+#: .\posts\templates\posts\rechnung.html:71
+msgid "Versuch"
+msgstr ""
+
+#: .\posts\models.py:101
+msgid "Abgeschlossen Datum"
+msgstr ""
+
+#: .\posts\models.py:102
+msgid "Antwort Konten Soll"
+msgstr ""
+
+#: .\posts\models.py:103
+msgid "Antwort Konten Haben"
+msgstr ""
+
+#: .\posts\models.py:104
+msgid "Antwort Betrag Soll"
+msgstr ""
+
+#: .\posts\models.py:105
+msgid "Antwort Betrag Haben"
+msgstr ""
+
+#: .\posts\models.py:106
+msgid "Original Konten Soll"
+msgstr ""
+
+#: .\posts\models.py:107
+msgid "Original Konten Haben"
+msgstr ""
+
+#: .\posts\models.py:108
+#: .\posts\templates\posts\buchungssatz_uebersicht.html:18
+#: .\posts\templates\posts\rechnung.html:78
+msgid "Korrekturbuchung"
+msgstr ""
+
+#: .\posts\models.py:109
+msgid "Konto Korrekt"
+msgstr ""
+
+#: .\posts\models.py:110
+msgid "Betrag Korrekt"
+msgstr ""
+
+#: .\posts\models.py:111
+msgid "Feedback Ollama"
+msgstr ""
+
+#: .\posts\models.py:134 .\posts\models.py:150
+msgid "Absender"
+msgstr ""
+
+#: .\posts\models.py:136
+msgid "Soll Konten"
+msgstr ""
+
+#: .\posts\models.py:137
+msgid "Haben Konten"
+msgstr ""
+
+#: .\posts\models.py:138
+msgid "Soll Beträge"
+msgstr ""
+
+#: .\posts\models.py:139
+msgid "Haben Beträge"
+msgstr ""
+
+#: .\posts\models.py:140
+msgid "Erstellt am"
+msgstr ""
+
+#: .\posts\models.py:141
+msgid "Bearbeitungsstand"
+msgstr ""
+
+#: .\posts\models.py:151 .\posts\models.py:152 .\posts\models.py:153
+#: .\posts\templates\posts\posteingang.html:17
+msgid "Betreff"
+msgstr ""
+
+#: .\posts\models.py:158 .\posts\templates\posts\posteingang.html:19
+msgid "Von"
+msgstr ""
+
+#: .\posts\models.py:159
+msgid "Absender Name"
+msgstr ""
+
+#: .\posts\models.py:160
+msgid "Absender Adresse"
+msgstr ""
+
+#: .\posts\models.py:163 .\posts\templates\posts\posteingang.html:33
+msgid "Nicht bearbeitet"
+msgstr ""
+
+#: .\posts\models.py:165
+msgid "nicht bearbeitet"
+msgstr ""
+
+#: .\posts\models.py:173 .\posts\templates\posts\guv.html:25
+msgid "Bestandskonto"
+msgstr ""
+
+#: .\posts\models.py:174 .\posts\templates\posts\guv.html:26
+msgid "Erfolgskonto"
+msgstr ""
+
+#: .\posts\models.py:178 .\posts\templates\posts\bilanz.html:27
+#: .\posts\templates\posts\bilanz.html:71
+msgid "Aktiva"
+msgstr ""
+
+#: .\posts\models.py:179 .\posts\templates\posts\bilanz.html:28
+#: .\posts\templates\posts\bilanz.html:72
+msgid "Passiva"
+msgstr ""
+
+#: .\posts\models.py:180
+msgid "Aufwand"
+msgstr ""
+
+#: .\posts\models.py:181
+msgid "Ertrag"
+msgstr ""
+
+#: .\posts\models.py:184
+msgid "name"
+msgstr ""
+
+#: .\posts\models.py:185
+msgid "kategorie"
+msgstr ""
+
+#: .\posts\models.py:187 .\posts\templates\posts\konten_verwalten.html:58
+msgid "Kontonummer"
+msgstr ""
+
+#: .\posts\models.py:188
+msgid "Bilanzposition Nummer"
+msgstr ""
+
+#: .\posts\models.py:189
+msgid "eins"
+msgstr ""
+
+#: .\posts\models.py:192
+msgid "Erstellt von"
+msgstr ""
+
+#: .\posts\models.py:204
+#, python-format
+msgid "Kontenplan %(nutzer)s (%(id)s)"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_bearbeiten.html:5
+#: .\posts\templates\posts\aufgaben_verwalten.html:30
+msgid "Aufgabe bearbeiten"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_bearbeiten.html:15
+#: .\posts\templates\posts\aufgabe_erstellen.html:51
+#: .\users\templates\users\add_studiengang.html:10
+msgid "Speichern"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:10
+#: .\posts\templates\posts\aufgaben_verwalten.html:57
+msgid "Neue Aufgabe erstellen"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:12
+#: .\posts\templates\posts\aufgabe_import_form.html:11
+msgid "Unternehmen/Fallstudien verwalten"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:13
+#: .\posts\templates\posts\aufgabe_import_form.html:12
+msgid "Fragentyp verwalten"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:15
+msgid "Aufgaben aus Excel importieren"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:21
+#: .\posts\templates\posts\aufgabe_import_form.html:20
+msgid "Zusatzinformation zur Aufgabe (optional):"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:25
+msgid "Buchungssätze hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:29
+msgid "Konto:"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:37
+msgid "Soll/Haben:"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:39
+#: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:31
+#: .\posts\templates\posts\guv.html:69
+#: .\posts\templates\posts\hauptbuch.html:37
+msgid "Soll"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:40
+#: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:31
+#: .\posts\templates\posts\guv.html:70
+#: .\posts\templates\posts\hauptbuch.html:38
+msgid "Haben"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:49
+msgid "Weitere Buchung hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_import_form.html:9
+msgid "Aufgaben per Excel importieren"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_import_form.html:13
+msgid "Konten verwalten"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_import_form.html:14
+msgid "Einzelne Aufgaben erstellen"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_import_form.html:24
+msgid "Excel-Datei (.xlsx) hochladen:"
+msgstr ""
+
+#: .\posts\templates\posts\aufgabe_import_form.html:27
+msgid "Import starten"
+msgstr ""
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:9
+msgid "Aufgabenverwaltung"
+msgstr ""
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:15
+msgid "ID"
+msgstr ""
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:18
+#: .\posts\templates\posts\konten_verwalten.html:87
+msgid "Bearbeiten"
+msgstr ""
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:19
+msgid "Zur Rechnung"
+msgstr ""
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:35
+msgid "Link"
+msgstr ""
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:44
+#: .\posts\templates\posts\konten_verwalten.html:90
+#: .\posts\templates\posts\neue_kategorie.html:24
+#: .\posts\templates\posts\neues_unternehmen.html:24
+#: .\users\templates\users\add_semester.html:20
+#: .\users\templates\users\add_studiengang.html:19
+msgid "Löschen"
+msgstr ""
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:54
+msgid "Keine Aufgaben vorhanden."
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:12
+msgid ""
+"Hier können alle Konten abgeschlossen werden, um die Bilanz aufzustellen. "
+"Wichtig ist, dass vorher das GuV-Konto abgeschlossen wird."
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:13
+msgid ""
+"Aktuell wird die Bilanz nicht gespeichert, sie dient lediglich zur "
+"Kontrolle, ob die Buchungssätze und Zuweisungen der Konten richtig erfolgt "
+"sind."
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:20 .\posts\templates\posts\guv.html:22
+#: .\posts\templates\posts\konten_verwalten.html:13
+#: .\posts\templates\posts\konto_bearbeiten.html:11
+msgid "Kategorie:"
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:22 .\posts\templates\posts\guv.html:24
+#: .\posts\templates\posts\rechnung.html:210
+#: .\posts\templates\posts\rechnung.html:231
+#: .\posts\templates\posts\rechnung.html:327
+msgid "Bitte wählen..."
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:24
+msgid "Gewinn"
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:25
+msgid "Verlust"
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:31 .\posts\templates\posts\guv.html:28
+msgid "Konto abschließen"
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:66 .\templates\master_layout.html:57
+msgid "Bilanz"
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:86
+#: .\posts\templates\posts\bilanz.html:88 .\posts\templates\posts\guv.html:84
+#: .\posts\templates\posts\guv.html:86
+msgid "Summe"
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:98
+msgid "Alle Konten abschließen"
+msgstr ""
+
+#: .\posts\templates\posts\buchungssatz_uebersicht.html:10
+msgid "Buchungssatz-Übersicht"
+msgstr ""
+
+#: .\posts\templates\posts\buchungssatz_uebersicht.html:29
+msgid "an"
+msgstr ""
+
+#: .\posts\templates\posts\guv.html:11
+msgid "GuV Übersicht"
+msgstr ""
+
+#: .\posts\templates\posts\guv.html:12
+msgid "Hier kannst du deine Konten abschließen und die GuV erstellen."
+msgstr ""
+
+#: .\posts\templates\posts\guv.html:15
+msgid "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."
+msgstr ""
+
+#: .\posts\templates\posts\guv.html:64 .\templates\master_layout.html:56
+msgid "GuV"
+msgstr ""
+
+#: .\posts\templates\posts\guv.html:94
+msgid "GuV Konto abschließen v2"
+msgstr ""
+
+#: .\posts\templates\posts\hauptbuch.html:9
+msgid "Dein Hauptbuch"
+msgstr ""
+
+#: .\posts\templates\posts\hauptbuch.html:10
+msgid "Hier findest du dein Hauptbuch mit all deinen offenen T-Konten"
+msgstr ""
+
+#: .\posts\templates\posts\hauptbuch.html:12
+msgid "Filter nach Konto:"
+msgstr ""
+
+#: .\posts\templates\posts\hauptbuch.html:14
+msgid "Alle Konten"
+msgstr ""
+
+#: .\posts\templates\posts\hauptbuch.html:20
+msgid "Filter nach Aufgabe:"
+msgstr ""
+
+#: .\posts\templates\posts\hauptbuch.html:22
+msgid "Alle Aufgaben"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:4
+msgid "Kontenverwaltung"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:7
+msgid "Neues Konto hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:10
+#: .\posts\templates\posts\konto_bearbeiten.html:8
+msgid "Kontoname:"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:16
+#: .\posts\templates\posts\konto_bearbeiten.html:14
+msgid "Unterkategorie:"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:18
+#: .\posts\templates\posts\konten_verwalten.html:44
+#: .\posts\templates\posts\konto_bearbeiten.html:20
+#: .\posts\templates\posts\neues_unternehmen.html:19
+msgid "Kontenplan:"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:20
+msgid "Konto hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:25
+msgid "Neuen Kontenplan erstellen"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:27
+msgid "Kontenplan erfolgreich erstellt!"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:38
+msgid "Konten aus Excel importieren"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:41
+msgid "Excel-Datei:"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:51
+msgid "Importieren"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:54
+msgid "Bestehende Konten"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:59
+#: .\posts\templates\posts\posteingang.html:18
+msgid "Kategorie"
+msgstr ""
+
+#: .\posts\templates\posts\konten_verwalten.html:62
+msgid "Aktionen"
+msgstr ""
+
+#: .\posts\templates\posts\konto_bearbeiten.html:4
+msgid "Konto bearbeiten"
+msgstr ""
+
+#: .\posts\templates\posts\konto_bearbeiten.html:16
+msgid "Kontonummer:"
+msgstr ""
+
+#: .\posts\templates\posts\konto_bearbeiten.html:18
+msgid "Bilanzposition:"
+msgstr ""
+
+#: .\posts\templates\posts\konto_bearbeiten.html:22
+msgid "Änderungen speichern"
+msgstr ""
+
+#: .\posts\templates\posts\konto_bearbeiten.html:25
+msgid "Zurück zur Übersicht"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:10
+msgid "Mail-Details"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:14
+msgid "Von:"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:15
+msgid "Adresse:"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:16
+msgid "Betreff:"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:17
+msgid "Empfangen am:"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:28
+msgid "Zur Aufgabe"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:29
+msgid "Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:30
+#: .\users\templates\users\update_profile.html:9
+msgid "Profil aktualisieren"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:34
+msgid "Aufgabe delegieren"
+msgstr ""
+
+#: .\posts\templates\posts\mail_detail.html:37
+msgid "Zurück zum Posteingang"
+msgstr ""
+
+#: .\posts\templates\posts\neue_kategorie.html:6
+msgid "Aufgabenkategorien verwalten"
+msgstr ""
+
+#: .\posts\templates\posts\neue_kategorie.html:11
+msgid "Aufgabenkategorie hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\neue_kategorie.html:14
+msgid "Bestehende Aufgabenkategorien"
+msgstr ""
+
+#: .\posts\templates\posts\neue_kategorie.html:23
+msgid "Soll die Kategorie wirklich gelöscht werden?"
+msgstr ""
+
+#: .\posts\templates\posts\neue_kategorie.html:31
+#: .\posts\templates\posts\neues_unternehmen.html:32
+msgid "Zurück zur Aufgabenerstellung"
+msgstr ""
+
+#: .\posts\templates\posts\neues_unternehmen.html:6
+msgid "Unternehmen verwalten"
+msgstr ""
+
+#: .\posts\templates\posts\neues_unternehmen.html:11
+msgid "Unternehmen hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\neues_unternehmen.html:14
+msgid "Bestehende Unternehmen"
+msgstr ""
+
+#: .\posts\templates\posts\neues_unternehmen.html:18
+msgid "Name:"
+msgstr ""
+
+#: .\posts\templates\posts\neues_unternehmen.html:20
+#: .\users\templates\users\bulk_student_creation.html:35
+msgid "Fallstudie:"
+msgstr ""
+
+#: .\posts\templates\posts\neues_unternehmen.html:23
+msgid "Soll das Unternehmen wirklich gelöscht werden?"
+msgstr ""
+
+#: .\posts\templates\posts\neues_unternehmen.html:28
+msgid "Keine Unternehmen vorhanden."
+msgstr ""
+
+#: .\posts\templates\posts\ollama_prompt.html:5
+msgid "Ollama Prompt Test"
+msgstr ""
+
+#: .\posts\templates\posts\ollama_prompt.html:8
+msgid "Prompt eingeben..."
+msgstr ""
+
+#: .\posts\templates\posts\ollama_prompt.html:9
+msgid "Senden"
+msgstr ""
+
+#: .\posts\templates\posts\posteingang.html:12
+#: .\templates\master_layout.html:30
+msgid "Posteingang"
+msgstr ""
+
+#: .\posts\templates\posts\posteingang.html:41
+msgid "Keine Mails verfügbar."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:12
+msgid "Rechnung Nr."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:15
+msgid "Buchungs-Navigation ausblenden"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:19
+msgid "Weitere Informationen anzeigen"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:60
+msgid "Buchungs-Navigation"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:61
+msgid "Buchungen anzeigen/verstecken"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:65
+msgid "Frühere Versuche:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:76
+msgid "Lösung korrekt"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:80
+msgid "Lösung falsch"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:86
+msgid "Korrekturbuchung vorschlagen"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:90
+msgid "Korrekturbuchung durchführen"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:97
+#: .\posts\templates\posts\rechnung.html:160
+msgid "Soll-Konten:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:102
+#: .\posts\templates\posts\rechnung.html:170
+msgid "Haben-Konten:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:107
+msgid "Beträge Soll:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:112
+msgid "Beträge Haben:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:118
+msgid "Feedback"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:120
+msgid "Alle Konten sind korrekt."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:122
+msgid "Das Konto auf der Soll-Seite ist inkorrekt."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:124
+msgid "Das Konto auf der Haben-Seite ist inkorrekt."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:126
+msgid "Beide Konten sind falsch."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:129
+msgid "Betrag ist korrekt."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:131
+msgid "Der Betrag auf der Soll-Seite ist inkorrekt."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:133
+msgid "Der Betrag auf der Haben-Seite ist inkorrekt."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:135
+msgid "Beide Beträge sind falsch."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:140
+msgid "Zusätzliches Feedback:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:153
+msgid "Feedback wird geladen. Aktualisiere die Seite in einer Minute nochmal."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:159
+msgid "Richtige Lösung"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:185
+msgid "Keine vorherigen Buchungen gefunden."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:190
+#: .\posts\templates\posts\rechnung.html:195
+msgid "Korrekturbuchung bestätigen"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:191
+msgid ""
+"Die umgekehrte Buchung wird durchgeführt, um die falsche Buchung "
+"auszugleichen."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:199
+msgid "Buchungssatz"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:207
+msgid "Eingaben Soll:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:221
+#: .\posts\templates\posts\rechnung.html:242
+msgid "Betrag eingeben"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:223
+msgid "Neues Soll-Feld hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:228
+msgid "Eingaben Haben:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:244
+msgid "Neues Haben-Feld hinzufügen"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:251
+msgid "Eingaben übermitteln"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung.html:254
+msgid ""
+"Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das "
+"Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung "
+"erfolgen."
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:7
+#: .\posts\templates\posts\rechnung_basis.html:59
+msgid "Rechnung"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:49
+msgid "Datum:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:51
+msgid "Rechnung Nr.:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:51
+msgid "Keine Nummer angegeben"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:57
+msgid "Geschäftsvorfall"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:64
+#: .\posts\templates\posts\rechnung_basis.html:66
+msgid "Guten Tag,"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:64
+msgid "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:68
+msgid "Sehr geehrtes SecureNet Team"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:77
+msgid "Betrag (Brutto):"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:79
+msgid "Anschaffungskosten (Netto):"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:81
+msgid "Betrag:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:86
+msgid "Zahlungsweise:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:86
+msgid "Keine Zahlungsart angegeben"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:92
+msgid "Ihr SecureNet Team"
+msgstr ""
+
+#: .\posts\templates\posts\rechnung_basis.html:93
+#: .\posts\templates\posts\rechnung_basis.html:96
+msgid "Kontakt:"
+msgstr ""
+
+#: .\posts\templates\posts\rechnungsuebersicht.html:9
+msgid "Meine Rechnungen"
+msgstr ""
+
+#: .\posts\templates\posts\rechnungsuebersicht.html:10
+msgid "Alle deine Rechnungen auf einen Blick"
+msgstr ""
+
+#: .\posts\templates\posts\rechnungsuebersicht.html:17
+msgid "Rechnungsnr."
+msgstr ""
+
+#: .\posts\templates\posts\rechnungsuebersicht.html:20
+msgid "Aktion"
+msgstr ""
+
+#: .\posts\templates\posts\rechnungsuebersicht.html:37
+msgid "Rechnung öffnen →"
+msgstr ""
+
+#: .\posts\templates\posts\rechnungsuebersicht.html:43
+msgid "Keine Rechnungen gefunden."
+msgstr ""
+
+#: .\posts\templates\posts\rechnungsuebersicht.html:50
+msgid "↩ Zurück zum Hauptbuch"
+msgstr ""
+
+#: .\posts\views.py:56
+#, python-format
+msgid "Fehlende Berechtigung<br><a href=\"%(link)s\">Zurück zur Startseite</a>"
+msgstr ""
+
+#: .\posts\views.py:68 .\posts\views.py:86
+msgid "Das Formular ist nicht gültig."
+msgstr ""
+
+#: .\posts\views.py:83
+msgid "Aufgabe und Details erfolgreich erstellt."
+msgstr ""
+
+#: .\posts\views.py:234
+#, python-format
+msgid "%(anzahl)d Aufgaben erfolgreich importiert."
+msgstr ""
+
+#: .\posts\views.py:237
+#, python-format
+msgid "%(anzahl)d Aufgaben konnten nicht importiert werden: %(fehler)s"
+msgstr ""
+
+#: .\posts\views.py:240
+msgid "Fehlerhafte Eingaben oder keine Datei hochgeladen."
+msgstr ""
+
+#: .\posts\views.py:692
+msgid "Unternehmen erfolgreich hinzugefügt."
+msgstr ""
+
+#: .\posts\views.py:695
+msgid "Fehler beim Speichern des Unternehmens."
+msgstr ""
+
+#: .\posts\views.py:719 .\users\views.py:125 .\users\views.py:154
+msgid "Keine Berechtigung zum Löschen."
+msgstr ""
+
+#: .\posts\views.py:721
+#, python-format
+msgid "Das Unternehmen '%(name)s' wurde gelöscht."
+msgstr ""
+
+#: .\posts\views.py:731
+msgid "Kategorie erfolgreich hinzugefügt."
+msgstr ""
+
+#: .\posts\views.py:734
+msgid "Fehler beim Speichern der Kategorie."
+msgstr ""
+
+#: .\posts\views.py:746
+#, python-format
+msgid "Die Kategorie '%(name)s' wurde gelöscht."
+msgstr ""
+
+#: .\posts\views.py:815
+msgid "Keine Berechtigung zum Bearbeiten."
+msgstr ""
+
+#: .\posts\views.py:826
+msgid "Fehler beim Bearbeiten der Details."
+msgstr ""
+
+#: .\posts\views.py:871
+#, python-format
+msgid "Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt."
+msgstr ""
+
+#: .\posts\views.py:984
+msgid "Konto erfolgreich hinzugefügt."
+msgstr ""
+
+#: .\posts\views.py:987
+msgid "Fehler: Überprüfe deine Eingaben."
+msgstr ""
+
+#: .\posts\views.py:1058
+msgid "Konten erfolgreich importiert."
+msgstr ""
+
+#: .\posts\views.py:1404
+msgid "Keine Berechtigung zum Löschen dieser Aufgabe."
+msgstr ""
+
+#: .\templates\frontpage.html:11
+msgid "Willkommen bei SecureNet!"
+msgstr ""
+
+#: .\templates\frontpage.html:13
+msgid ""
+"Als Teil von SecureNet schützt dein Cyber-Security-Startup Unternehmen mit "
+"Schwachstellenanalysen und Penetrationstests vor Angriffen. Deine zentrale "
+"Anlaufstelle ist der Posteingang, wo alle Rechnungen und Aufgaben eintreffen."
+msgstr ""
+
+#: .\templates\frontpage.html:16
+msgid ""
+"Im Hauptbuch findest du eine übersichtliche Darstellung der T-Konten, und "
+"die Rechnungsübersicht bietet dir den perfekten Überblick über offene und "
+"bearbeitete Rechnungen."
+msgstr ""
+
+#: .\templates\frontpage.html:19
+msgid ""
+"Die Bilanz hilft dir, die finanzielle Lage deines Startups im Blick zu "
+"behalten. Sie zeigt dir, wie sich Vermögenswerte (Aktiva) und Finanzierung "
+"(Passiva) ausgleichen, und hilft dir, fundierte Entscheidungen für dein "
+"Unternehmen zu treffen."
+msgstr ""
+
+#: .\templates\frontpage.html:21
+msgid "Starte jetzt und halte die Finanzen deines Startups auf Kurs! 🚀"
+msgstr ""
+
+#: .\templates\frontpage.html:28
+msgid "Meine Bilanz"
+msgstr ""
+
+#: .\templates\frontpage.html:31
+msgid "Mein Hauptbuch"
+msgstr ""
+
+#: .\templates\frontpage.html:38
+msgid "Dein Fortschritt"
+msgstr ""
+
+#: .\templates\frontpage.html:53
+msgid "Leistungsübersicht Studierende"
+msgstr ""
+
+#: .\templates\frontpage.html:56 .\templates\index.html:30
+#: .\users\templates\users\bulk_student_creation.html:29
+msgid "Semester:"
+msgstr ""
+
+#: .\templates\frontpage.html:58 .\templates\frontpage.html:64
+#: .\templates\frontpage.html:70
+msgid "Alle"
+msgstr ""
+
+#: .\templates\frontpage.html:62 .\templates\index.html:29
+#: .\users\templates\users\bulk_student_creation.html:22
+msgid "Studiengang:"
+msgstr ""
+
+#: .\templates\frontpage.html:68
+msgid "Aufgabe:"
+msgstr ""
+
+#: .\templates\frontpage.html:74
+msgid "Filtern"
+msgstr ""
+
+#: .\templates\frontpage.html:91
+msgid "Fehlerhafte Buchungen:"
+msgstr ""
+
+#: .\templates\frontpage.html:92
+msgid "Bearbeiter:innen:"
+msgstr ""
+
+#: .\templates\frontpage.html:98
+msgid "Studierenden-Fortschritt"
+msgstr ""
+
+#: .\templates\frontpage.html:101
+msgid "Studierende:"
+msgstr ""
+
+#: .\templates\frontpage.html:103
+msgid "Bitte wählen"
+msgstr ""
+
+#: .\templates\frontpage.html:105
+msgid "Fortschritt ansehen"
+msgstr ""
+
+#: .\templates\index.html:7
+msgid "Allgemeine Informationen"
+msgstr ""
+
+#: .\templates\index.html:8
+msgid "Willkommen,"
+msgstr ""
+
+#: .\templates\index.html:11
+msgid "Ihre Rolle: Admin"
+msgstr ""
+
+#: .\templates\index.html:13
+msgid "Ihre Rolle:"
+msgstr ""
+
+#: .\templates\index.html:18
+msgid "Ihre Studierenden:"
+msgstr ""
+
+#: .\templates\index.html:26
+msgid "Sie haben derzeit keine Studierenden unter Ihrer Betreuung."
+msgstr ""
+
+#: .\templates\index.html:31
+msgid "Ihr Professor:"
+msgstr ""
+
+#: .\templates\index.html:35
+msgid "Sie haben derzeit keinen zugewiesenen Professor."
+msgstr ""
+
+#: .\templates\master_layout.html:29
+msgid "Home"
+msgstr ""
+
+#: .\templates\master_layout.html:31
+msgid "Rechnungen"
+msgstr ""
+
+#: .\templates\master_layout.html:34 .\templates\master_layout.html:36
+msgid "Profil"
+msgstr ""
+
+#: .\templates\master_layout.html:37
+msgid "Handbuch"
+msgstr ""
+
+#: .\templates\master_layout.html:39
+msgid "Handbuch Lehrende"
+msgstr ""
+
+#: .\templates\master_layout.html:45
+msgid "Aufgabenliste"
+msgstr ""
+
+#: .\templates\master_layout.html:46
+#: .\users\templates\users\aufgaben_zuweisen.html:9
+msgid "Aufgaben zuweisen"
+msgstr ""
+
+#: .\templates\master_layout.html:47
+msgid "Nutzer anlegen"
+msgstr ""
+
+#: .\templates\master_layout.html:48
+msgid "Aufgabe erstellen"
+msgstr ""
+
+#: .\templates\master_layout.html:53
+msgid "Buchhaltung ▾"
+msgstr ""
+
+#: .\templates\master_layout.html:55
+msgid "Hauptbuch"
+msgstr ""
+
+#: .\templates\master_layout.html:58
+msgid "Buchungssätze"
+msgstr ""
+
+#: .\users\forms.py:10 .\users\models.py:65
+msgid "Semester"
+msgstr ""
+
+#: .\users\forms.py:15 .\users\models.py:71
+msgid "Studiengang"
+msgstr ""
+
+#: .\users\forms.py:37
+msgid "Studiengang Name"
+msgstr ""
+
+#: .\users\forms.py:43
+msgid "Semestername"
+msgstr ""
+
+#: .\users\models.py:52
+msgid "Studierende"
+msgstr ""
+
+#: .\users\models.py:53
+msgid "Lehrkraft"
+msgstr ""
+
+#: .\users\models.py:63
+msgid "Professor"
+msgstr ""
+
+#: .\users\models.py:77
+msgid "Unternehmen"
+msgstr ""
+
+#: .\users\models.py:79
+msgid "Anzeigename"
+msgstr ""
+
+#: .\users\models.py:80
+msgid "Nutzergruppe"
+msgstr ""
+
+#: .\users\templates\users\add_semester.html:5
+msgid "Semester verwalten"
+msgstr ""
+
+#: .\users\templates\users\add_semester.html:10
+#: .\users\templates\users\register.html:17
+msgid "Semester hinzufügen"
+msgstr ""
+
+#: .\users\templates\users\add_semester.html:13
+msgid "Vorhandene Semester"
+msgstr ""
+
+#: .\users\templates\users\add_semester.html:20
+msgid "Sind Sie sicher, dass Sie dieses Semester löschen möchten?"
+msgstr ""
+
+#: .\users\templates\users\add_studiengang.html:6
+msgid "Neuen Studiengang hinzufügen"
+msgstr ""
+
+#: .\users\templates\users\add_studiengang.html:13
+msgid "Vorhandene Studiengänge"
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:13
+msgid "Übersicht der zugewiesenen Aufgaben"
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:23
+msgid "Keine Aufgaben zugewiesen."
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:33
+msgid "Aufgaben auswählen"
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:41
+#, python-format
+msgid "Aufgabe: %(id)s - %(typ)s"
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:53
+msgid "Semester auswählen"
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:66
+msgid "Studiengänge auswählen"
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:79
+msgid "Aufgabe zuweisen"
+msgstr ""
+
+#: .\users\templates\users\aufgaben_zuweisen.html:80
+msgid "Alle Aufgaben mir zuweisen"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:9
+msgid "Nutzerkonten anlegen"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:11
+msgid "Studiengang bearbeiten"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:12
+msgid "Semester bearbeiten"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:18
+msgid "Anzahl der Studierenden:"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:42
+msgid "Namensmodus:"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:44
+#: .\users\translations.py:4
+msgid "Automatischer Name"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:48
+#: .\users\translations.py:5
+msgid "Individueller Name:"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:52
+msgid "Studierende anlegen"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:56
+msgid "Erstellte Studierende"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:59
+#: .\users\templates\users\bulk_student_creation.html:76
+msgid "Benutzername"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:60
+msgid "Passwort"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:69
+#: .\users\templates\users\bulk_student_creation.html:84
+msgid "Hinweis:"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:69
+msgid ""
+" Die Passwörter entsprechen den Benutzernamen. Die Studierenden sollten "
+"diese bei der ersten Anmeldung ändern."
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:73
+msgid "Bereits existierende Studierende"
+msgstr ""
+
+#: .\users\templates\users\bulk_student_creation.html:84
+msgid ""
+"Diese Studierenden existierten bereits und wurden nicht erneut angelegt."
+msgstr ""
+
+#: .\users\templates\users\login.html:5
+msgid "Login as a User"
+msgstr ""
+
+#: .\users\templates\users\login.html:16
+msgid "Login"
+msgstr ""
+
+#: .\users\templates\users\login.html:41
+msgid "Einloggen"
+msgstr ""
+
+#: .\users\templates\users\register.html:5
+#: .\users\templates\users\register.html:9
+msgid "Neuen Nutzer registrieren"
+msgstr ""
+
+#: .\users\templates\users\register.html:13
+msgid "Bestätigen"
+msgstr ""
+
+#: .\users\templates\users\register.html:16
+msgid "Studiengang/Gruppe hinzufügen"
+msgstr ""
+
+#: .\users\templates\users\register.html:18
+msgid "Massennutzeranlegung"
+msgstr ""
+
+#: .\users\templates\users\update_profile.html:19
+msgid "Neuer Anzeigename (optional):"
+msgstr ""
+
+#: .\users\templates\users\update_profile.html:22
+msgid "Anzeigename speichern"
+msgstr ""
+
+#: .\users\templates\users\update_profile.html:27
+msgid "Neues Passwort (optional)"
+msgstr ""
+
+#: .\users\templates\users\update_profile.html:32
+msgid "Passwort bestätigen:"
+msgstr ""
+
+#: .\users\templates\users\update_profile.html:35
+msgid "Passwort speichern"
+msgstr ""
+
+#: .\users\views.py:56
+msgid "Fehlende Berechtigung"
+msgstr ""
+
+#: .\users\views.py:56
+msgid "Zurück zur Startseite"
+msgstr ""
+
+#: .\users\views.py:85
+msgid "Benutzername oder Passwort ist nicht korrekt."
+msgstr ""
+
+#: .\users\views.py:137
+msgid "Semester erfolgreich hinzugefügt."
+msgstr ""
+
+#: .\users\views.py:156
+msgid "Semester erfolgreich gelöscht."
+msgstr ""
+
+#: .\users\views.py:202
+#, python-format
+msgid "Folgende Namen sind bereits vergeben: %(namen)s"
+msgstr ""
+
+#: .\users\views.py:207
+#, python-format
+msgid "%(anzahl)d Studierende erfolgreich erstellt."
+msgstr ""
+
+#: .\users\views.py:288
+#, python-brace-format
+msgid "Aufgabe {id}"
+msgstr ""
+
+#: .\users\views.py:291
+msgid "bereits zugewiesen"
+msgstr ""
+
+#: .\users\views.py:300
+msgid "Aufgaben erfolgreich zugewiesen."
+msgstr ""
+
+#: .\users\views.py:342
+msgid "Alle Aufgaben wurden dir erfolgreich zugewiesen."
+msgstr ""
+
+#: .\users\views.py:369
+msgid "Passwörter stimmen nicht überein."
+msgstr ""
+
+#: .\users\views.py:374
+msgid "Profil erfolgreich aktualisiert."
+msgstr ""
+
+#: .\users\views.py:385
+msgid "Keine Änderungen vorgenommen."
+msgstr ""
+
+#: .\users\views.py:530
+msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
+msgstr ""

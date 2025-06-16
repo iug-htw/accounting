@@ -1,4 +1,5 @@
 {% extends 'master_layout.html' %}
+{% load i18n %}
 {% load static%}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/posteingang.css' %}">
@@ -6,35 +7,34 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-        <h1 class="title">Mail-Details</h1>
+        <h1 class="title">{% trans "Mail-Details"%}</h1>
 
         <div class="mail-detail-box">
             <div class="mail-header">
-                <p><strong>Von:</strong> {{ mail.absender.name }} ({{ mail.absender.email }})</p>
-                <p><strong>Adresse:</strong> {{ mail.absender.straße }}, {{ mail.absender.plz }} {{ mail.absender.stadt }}</p>
-                <p><strong>Betreff:</strong> {% if mail.aufgabe_id == null %} {{ mail.betreff}} {%else%} {{ mail.aufgabe.fragentyp_text }} {%endif%}</p>
-                <p><strong>Empfangen am:</strong> {{ mail.datum|date:"d.m.Y H:i" }}</p>
+                <p><strong>{% trans "Von:"%}</strong> {{ mail.absender.name }} ({{ mail.absender.email }})</p>
+                <p><strong>{% trans "Adresse:"%}</strong> {{ mail.absender.straße }}, {{ mail.absender.plz }} {{ mail.absender.stadt }}</p>
+                <p><strong>{% trans "Betreff:"%}</strong> {% if LANGUAGE_CODE == "en" and mail.betreff_en != null %} {{ mail.betreff_en }} {% elif LANGUAGE_CODE == "de" and mail.betreff_de != null %} {{ mail.betreff }} {% else %} {{mail.betreff}} {% endif %} </p>
+                <p><strong>{% trans "Empfangen am:"%}</strong> {{ mail.datum|date:"d.m.Y H:i" }}</p>
             </div>
 
             <div class="mail-content">
                 {% autoescape off %}
-                <p>{{ mail.mailtext }}</p>
+                <p>{% if LANGUAGE_CODE == "en" and mail.mailtext_en != null %} {{ mail.mailtext_en }} {% elif LANGUAGE_CODE == "de" and mail.mailtext_de != null %} {{ mail.mailtext_de }} {% else %} {{mail.mailtext}} {% endif %}</p>
                 {% endautoescape %}
             </div>
 
             <div class="mail-footer">
                 {% if mail.aufgabe %}
-                    <a href="{{ aufgabe_link }}" class="btn btn-primary">Zur Aufgabe</a>
-                {% elif mail.betreff == "Willkommen bei SecureNet"%}
-                {% elif mail.betreff == "Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"%}
-                    <a href="{{ aufgabe_link }}" class="btn btn-primary">Profil aktualisieren</a>
+                    <a href="{{ aufgabe_link }}" class="btn btn-primary">{% trans "Zur Aufgabe"%}</a>
+                {% elif mail.betreff == _("Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort")%}
+                    <a href="{{ aufgabe_link }}" class="btn btn-primary">{% trans "Profil aktualisieren"%}</a>
                 {% else %}
                     <form method="POST" action="{% url 'users:orga_mail_bestätigen' mail.id %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">Aufgabe delegieren</button>
+                        <button type="submit" class="btn btn-primary">{% trans "Aufgabe delegieren"%}</button>
                     </form>
                 {% endif %}
-                <a href="{% url 'posts:posteingang' %}" class="btn btn-secondary">Zurück zum Posteingang</a>
+                <a href="{% url 'posts:posteingang' %}" class="btn btn-secondary">{% trans "Zurück zum Posteingang"%}</a>
             </div>
         </div>
     </div>

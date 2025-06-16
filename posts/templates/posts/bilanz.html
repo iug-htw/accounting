@@ -1,6 +1,7 @@
 {% extends 'master_layout.html' %}
 {% load static %}
 {% load my_filters %}
+{% load i18n %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/hauptbuch.css' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
@@ -8,29 +9,29 @@
 
 {% block content %}
 <h1>Bilanz</h1>
-<p>Hier können alle Konten abgeschlossen werden, um die Bilanz aufzustellen. Wichtig ist, dass vorher das GuV-Konto abgeschlossen wird. 
-    <br>Aktuell wird die Bilanz nicht gespeichert, sie dient lediglich zur Kontrolle, ob die Buchungssätze und Zuweisungen der Konten richtig erfolgt sind.
+<p>{% trans "Hier können alle Konten abgeschlossen werden, um die Bilanz aufzustellen. Wichtig ist, dass vorher das GuV-Konto abgeschlossen wird."%} 
+    <br>{% trans "Aktuell wird die Bilanz nicht gespeichert, sie dient lediglich zur Kontrolle, ob die Buchungssätze und Zuweisungen der Konten richtig erfolgt sind."%}
 </p>
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
     <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ bestandskonten|get_item:konto }}">
         <h2>{{ daten.name }}</h2>
-        <label>Kategorie:</label>
+        <label>{% trans "Kategorie:"%}</label>
         <select class="konto-kategorie">
-            <option value="" selected disabled>Bitte wählen...</option>
+            <option value="" selected disabled>{% trans "Bitte wählen..."%}</option>
             {% if konto == 'GuV' %}
-            <option value="Passiva">Gewinn</option>
-            <option value="Aktiva">Verlust</option>
+            <option value="Passiva">{% trans "Gewinn"%}</option>
+            <option value="Aktiva">{% trans "Verlust"%}</option>
             {% else %}
-            <option value="Aktiva">Aktiva</option>
-            <option value="Passiva">Passiva</option>
+            <option value="Aktiva">{% trans "Aktiva"%}</option>
+            <option value="Passiva">{% trans "Passiva"%}</option>
             {% endif %}
         </select>
-        <button class="konto-abschluss-btn">Konto abschließen</button>
+        <button class="konto-abschluss-btn">{% trans "Konto abschließen"%}</button>
         <table>
             <thead>
-                <tr><th>Soll</th><th>Haben</th></tr>
+                <tr><th>{% trans "Soll"%}</th><th>{% trans "Haben"%}</th></tr>
             </thead>
             <tbody>
                 <tr>
@@ -62,19 +63,19 @@
 </section>
 <section>
         <div class="konto">
-            <h2>Bilanz</h2>
+            <h2>{% trans "Bilanz"%}</h2>
             <div class="bilanz-container">
                 <table class="bilanz-tabelle t-konto">
                     <thead>
                         <tr>
-                            <th colspan="2">Aktiva</th>
-                            <th colspan="2">Passiva</th>
+                            <th colspan="2">{% trans "Aktiva"%}</th>
+                            <th colspan="2">{% trans "Passiva"%}</th>
                         </tr>
                         <tr>
-                            <th>Konto</th>
-                            <th>Betrag</th>
-                            <th>Konto</th>
-                            <th>Betrag</th>
+                            <th>{% trans "Konto"%}</th>
+                            <th>{% trans "Betrag"%}</th>
+                            <th>{% trans "Konto"%}</th>
+                            <th>{% trans "Betrag"%}</th>
                         </tr>
                     </thead>
                     <tbody id="bilanz-body">
@@ -82,9 +83,9 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td>Summe</td>
+                            <td>{% trans "Summe"%}</td>
                             <td id="summe-aktiv">{{summe|german_format}}</td>
-                            <td>Summe</td>
+                            <td>{% trans "Summe"%}</td>
                             <td id="summe-passiv">{{summe|german_format}}</td>
                         </tr>
                     </tfoot>
@@ -94,7 +95,7 @@
     </section>
 
 
-<button id="abschluss-alle-btn">Alle Konten abschließen</button>
+<button id="abschluss-alle-btn">{% trans "Alle Konten abschließen"%}</button>
 
 <script>
     //passt
@@ -132,24 +133,24 @@ document.addEventListener("DOMContentLoaded", function() {
             // **Differenz auf der kleineren Seite unter der ersten leeren Zeile hinzufügen**
             let differenzZeile = document.createElement("tr");
             if (sollSumme > habenSumme) {
-                differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                 habenTabelle.appendChild(differenzZeile);
             } else {
-                differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                 sollTabelle.appendChild(differenzZeile);
             }
 
             // **Summenzeile auf der größeren Seite hinzufügen**
             let summenZeile = document.createElement("tr");
             summenZeile.style.fontWeight = "bold";
-            summenZeile.innerHTML = `<td>Summe</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
 
             sollTabelle.appendChild(summenZeile.cloneNode(true)); 
             habenTabelle.appendChild(summenZeile);
 
 
             this.disabled = true;
-            this.innerText = "Abgeschlossen";
+            this.innerText = gettext("Abgeschlossen");
         });
     });
 
@@ -258,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function() {
             summePassivElement.innerText = summePassiv.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
             this.disabled = true;
-            this.innerText = "Abgeschlossen";
+            this.innerText = gettext("Abgeschlossen");
         }); //passt
     });
 });

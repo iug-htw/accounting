@@ -1,7 +1,8 @@
 {% extends "master_layout.html" %}
 {% load static %}
+{% load i18n %}
 {% block content %}
-<h2>Aufgabe bearbeiten</h2>
+<h2>{% trans "Aufgabe bearbeiten"%}</h2>
 <form method="post">
     {% csrf_token %}
         
@@ -11,7 +12,7 @@
         {{ detail_form.as_p }}
     {% endfor %}
     
-    <button type="submit">Speichern</button>
+    <button type="submit">{% trans "Speichern"%}</button>
 </form>
 
 {% endblock %}

@@ -1,18 +1,19 @@
 {% extends 'master_layout.html' %}
 {% load static %}
+{% load i18n %}
 {% block title %}
-    Register a New User
+    {% trans "Neuen Nutzer registrieren"%}
 {% endblock %}
 
 {% block content %}
-    <h1>Register a New User</h1>
+    {% trans "Neuen Nutzer registrieren"%}
     <form class="form-with-validation" action="{%url 'users:register'%}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button class="form-submit">Submit</button>
+        <button class="form-submit">{% trans "Bestätigen"%}</button>
     </form>
     <br><br><br>
-    <a href="{% url 'users:add_studiengang' %}">Studiengang/Gruppe hinzufügen</a><br><br>
-    <a href="{% url 'users:add_semester' %}">Semester hinzufügen</a><br><br>
-    <a href="{% url 'users:bulk_student_creation' %}">Massennutzeranlegung</a>
+    <a href="{% url 'users:add_studiengang' %}">{% trans "Studiengang/Gruppe hinzufügen"%}</a><br><br>
+    <a href="{% url 'users:add_semester' %}">{% trans "Semester hinzufügen"%}</a><br><br>
+    <a href="{% url 'users:bulk_student_creation' %}">{% trans "Massennutzeranlegung"%}</a>
 {% endblock %}

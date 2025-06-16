@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 #from django.core.exceptions import PermissionDenied
-
+from django.utils import translation
+from django.conf import settings
+from django.shortcuts import redirect
 
 # Create your views here.
 def vorlage(request):

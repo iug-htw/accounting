@@ -1,15 +1,16 @@
 {% extends 'master_layout.html' %}
 {% load static %}
+{% load i18n %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/aufgaben_zuweisen.css' %}">
 {% endblock %}
 {% block content %}
 
-<h1>Aufgaben zuweisen</h1>
+<h1>{% trans "Aufgaben zuweisen" %}</h1>
 
 <!-- Aufgabenübersicht -->
 <div class="card-section">
-    <h2>Übersicht der zugewiesenen Aufgaben</h2>
+    <h2>{% trans "Übersicht der zugewiesenen Aufgaben" %}</h2>
     {% for semester, studiengaenge in aufgaben_uebersicht.items %}
         <h3>{{ semester }}</h3>
         {% for studiengang, aufgaben in studiengaenge.items %}
@@ -19,7 +20,7 @@
                 {% endfor %}
             </p>
         {% empty %}
-            <p>Keine Aufgaben zugewiesen.</p>
+            <p>{% trans "Keine Aufgaben zugewiesen." %}</p>
         {% endfor %}
     {% endfor %}
 </div>
@@ -29,7 +30,7 @@
     {% csrf_token %}
     <!-- Aufgaben auswählen -->
     <div class="card-section">
-        <h2>Aufgaben auswählen</h2>
+        <h2>{% trans "Aufgaben auswählen" %}</h2>
         <!-- Pro Fallstudie ein eigener Block -->
         {% for unternehmensname, aufgaben in fallstudien_aufgaben.items %}
             <h3>{{ unternehmensname }}</h3> <!-- Nur eine kleine Überschrift -->
@@ -37,7 +38,9 @@
                 {% with "aufgabe_"|add:aufgabe.id|stringformat:"s" as input_id %}
                 <div class="aufgaben-eintrag">
                     <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}" id="{{ input_id }}" class="checkbox-aufgabe">
-                    <label for="{{ input_id }}">Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
+                    <label for="{{ input_id }}">{% blocktrans %}Aufgabe: {{ id }} - {{ typ }}{% endblocktrans %}
+                        {% comment %} Kontextuelle Daten direkt anzeigen, weil bereits übersetzt {% endcomment %}
+                        Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
                 </div>
                 {% endwith %}
             {% endfor %}
@@ -46,7 +49,7 @@
 
     <!-- Semester auswählen -->
     <div class="card-section">
-        <h2>Semester auswählen</h2>
+        <h2>{% trans "Semester auswählen" %}</h2>
         {% for sem in semester %}
             {% with "semester_"|add:sem.id|stringformat:"s" as sem_id %}
             <div>
@@ -59,7 +62,7 @@
 
     <!-- Studiengänge auswählen -->
     <div class="card-section">
-        <h2>Studiengänge auswählen</h2>
+        <h2>{% trans "Studiengänge auswählen" %}</h2>
         {% for studiengang in studiengaenge %}
             {% with "studiengang_"|add:studiengang.id|stringformat:"s" as stud_id %}
             <div>
@@ -72,8 +75,8 @@
 
     <!-- Buttons -->
 <div class="button-row">
-    <button type="submit" class="btn-primary">Aufgabe zuweisen</button>
-    <button type="submit" name="alle_zuweisen" class="btn-secondary" id="alle-zuweisen">Alle Aufgaben mir zuweisen</button>
+    <button type="submit" class="btn-primary">{% trans "Aufgabe zuweisen" %}</button>
+    <button type="submit" name="alle_zuweisen" class="btn-secondary" id="alle-zuweisen"> {% trans "Alle Aufgaben mir zuweisen" %}</button>
 </div>
 </form>
 

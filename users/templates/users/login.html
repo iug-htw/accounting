@@ -1,8 +1,8 @@
 {% extends 'master_layout.html' %}
 {% load static %}
-
+{% load i18n %}
 {% block title %}
-    Login as a User
+    {% trans "Login as a User"%}
 {% endblock %}
 
 {% block css %}
@@ -13,7 +13,7 @@
 <div class="login-wrapper">
     <div class="login-box">
     <img src="/media/avatar.png" alt="Avatar" class="login-avatar">
-        <h1>Login</h1>
+        <h1>{% trans "Login"%}</h1>
 
         {% if messages %}
             <div class="login-error">
@@ -38,7 +38,7 @@
                 <input type="hidden" name="next" value="{{ request.GET.next }}" />
             {% endif %}
 
-            <button type="submit" class="form-submit">Einloggen</button>
+            <button type="submit" class="form-submit">{% trans "Einloggen"%}</button>
         </form>
     </div>
 </div>

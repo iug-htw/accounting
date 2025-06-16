@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
 from posts.models import Unternehmen
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -34,22 +35,22 @@ class CustomUserManager(BaseUserManager):
 
 
 class Studiengang(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    ersteller = models.IntegerField(null=True, blank=True)
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Name"))
+    ersteller = models.IntegerField(null=True, blank=True, verbose_name=_("Ersteller"))
     def __str__(self):
         return self.name
 
 class Semester(models.Model):
-    name = models.CharField(max_length=10, unique=True)
-    ersteller = models.IntegerField(null=True, blank=True)
+    name = models.CharField(max_length=10, unique=True, verbose_name=_("Name"))
+    ersteller = models.IntegerField(null=True, blank=True, verbose_name=_("Ersteller"))
     def __str__(self):
         return self.name
 
 class CustomUser(AbstractUser):
     objects = CustomUserManager()
     ROLE_CHOICES = (
-        ('student', 'Studierende'),
-        ('teacher', 'Lehrkraft'),
+        ('student', _('Studierende')),
+        ('teacher', _('Lehrkraft')),
     )
     
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
@@ -59,23 +60,24 @@ class CustomUser(AbstractUser):
         null=True, blank=True, 
         limit_choices_to={'role': 'teacher'},
         on_delete=models.SET_NULL,
-        related_name='students'
+        related_name='students', verbose_name=_("Professor")
     )
-    semester = models.ForeignKey(Semester, null = True, on_delete=models.CASCADE, default = 1)
+    semester = models.ForeignKey(Semester, null = True, on_delete=models.CASCADE, default = 1, verbose_name=_("Semester"))
     studiengang = models.ForeignKey(
         Studiengang,
         on_delete=models.CASCADE,
         null=True, blank=True,  # Allow empty reference initially
-        related_name='students'  # Optional but recommended for clarity
+        related_name='students',  # Optional but recommended for clarity
+        verbose_name=_("Studiengang")
     )
     unternehmen = models.ForeignKey(
         Unternehmen,
         on_delete=models.SET_NULL,
         null=True, blank=True,
-        related_name="studierende"
+        related_name="studierende", verbose_name=_("Unternehmen")
     )
-    display_name = models.CharField(max_length=150, blank=True, null=True)
-    nutzergruppe = models.IntegerField(null=True, blank=True)  # Kann für Lehrer None sein
+    display_name = models.CharField(max_length=150, blank=True, null=True, verbose_name=_("Anzeigename"))
+    nutzergruppe = models.IntegerField(null=True, blank=True, verbose_name=_("Nutzergruppe"))  # Kann für Lehrer None sein
     def __str__(self):
         return f'{self.username} ({self.get_role_display()})'
     def save(self, *args, **kwargs):

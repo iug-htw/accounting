@@ -1,22 +1,23 @@
 {% extends 'master_layout.html' %}
+{% load i18n %}
 
 {% block content %}
-<h1>Semester verwalten</h1>
+<h1>{% trans "Semester verwalten"%}</h1>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Semester hinzufügen</button>
+    <button type="submit" class="btn btn-primary">{% trans "Semester hinzufügen"%}</button>
 </form>
 
-<h2>Vorhandene Semester</h2>
+<h2>{% trans "Vorhandene Semester"%}</h2>
 <ul>
     {% for sem in semester %}
         <li>
             {{ sem.name }}
             {% if sem.ersteller == request.user.id or request.user.is_superuser %}
             <a href="{% url 'users:delete_semester' sem.id %}" 
-               onclick="return confirm('Sind Sie sicher, dass Sie dieses Semester löschen möchten?')">Löschen</a>
+               onclick="return confirm('{% trans "Sind Sie sicher, dass Sie dieses Semester löschen möchten?" %}')">{% trans "Löschen"%}</a>
             {% endif %}
         </li>
     {% endfor %}

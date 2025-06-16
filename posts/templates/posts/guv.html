@@ -1,6 +1,6 @@
 {% extends 'master_layout.html' %}
 {% load my_filters %}
-
+{% load i18n %}
 {% load static %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/hauptbuch.css' %}">
@@ -8,27 +8,28 @@
 {% endblock %}
 
 {% block content %}
-<h1>GuV Übersicht</h1>
-<p>Hier kannst du deine Konten abschließen und die GuV erstellen.
-<br>Um ein Konto abzuschließen, muss die Art des Kontos ausgewählt werden und über den Button "Konto abschließen" wird das abgeschlossene Konto 
-in das GuV-Konto geschrieben. Das GuV-Konto ist am Seitenende einsehbar und wird dynamisch mit jedem abgeschlossenem Erfolgskonto erweitert. Bestandskonten werden nicht in das GuV-Konto geschrieben.<br>
-Das GuV-Konto wird am Seitenende durch den Button abgeschlossen.
+<h1>{% trans "GuV Übersicht"%}</h1>
+<p>{% trans "Hier kannst du deine Konten abschließen und die GuV erstellen."%}
+<br>
+{% trans "Um ein Konto abzuschließen, muss die Art des Kontos ausgewählt werden und über den Button 'Konto abschließen' wird das abgeschlossene Konto in das GuV-Konto geschrieben. Das GuV-Konto ist am Seitenende einsehbar und wird dynamisch mit jedem abgeschlossenem Erfolgskonto erweitert. Bestandskonten werden nicht in das GuV-Konto geschrieben."%}
+<br>
+{% trans "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."%}
 </p>
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
     <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ konto_kategorien|get_item:konto }}">
         <h2>{{ daten.name }} </h2>
-        <label>Kategorie:</label>
+        <label>{% trans "Kategorie:"%}</label>
         <select class="konto-kategorie">
-            <option value="" selected disabled>Bitte wählen...</option>
-            <option value="Bestandskonto">Bestandskonto</option>
-            <option value="Erfolgskonto">Erfolgskonto</option>
+            <option value="" selected disabled>{% trans "Bitte wählen..."%}</option>
+            <option value="Bestandskonto">{% trans "Bestandskonto"%}</option>
+            <option value="Erfolgskonto">{% trans "Erfolgskonto"%}</option>
         </select>
-        <button class="konto-abschluss-btn">Konto abschließen</button>
+        <button class="konto-abschluss-btn">{% trans "Konto abschließen"%}</button>
         <table>
             <thead>
-                <tr><th>Soll</th><th>Haben</th></tr>
+                <tr><th class="soll">{% trans "Soll"%}</th><th class="haben">{% trans "Haben"%}</th></tr>
             </thead>
             <tbody>
                 <tr>
@@ -61,19 +62,19 @@ Das GuV-Konto wird am Seitenende durch den Button abgeschlossen.
 
 <section>
     <div class="konto">
-        <h2>GuV</h2>
+        <h2>{% trans "GuV"%}</h2>
         <div class="guv-container">
             <table class="guv-tabelle t-konto">
                 <thead>
                     <tr>
-                        <th colspan="2">Soll</th>
-                        <th colspan="2">Haben</th>
+                        <th colspan="2">{% trans "Soll"%}</th>
+                        <th colspan="2">{% trans "Haben"%}</th>
                     </tr>
                     <tr>
-                        <th>Konto</th>
-                        <th>Betrag</th>
-                        <th>Konto</th>
-                        <th>Betrag</th>
+                        <th>{% trans "Konto"%}</th>
+                        <th>{% trans "Betrag"%}</th>
+                        <th>{% trans "Konto"%}</th>
+                        <th>{% trans "Betrag"%}</th>
                     </tr>
                 </thead>
                 <tbody id="guv-body">
@@ -81,9 +82,9 @@ Das GuV-Konto wird am Seitenende durch den Button abgeschlossen.
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td>Summe</td>
+                        <td>{% trans "Summe"%}</td>
                         <td id="summe-soll">0.00</td>
-                        <td>Summe</td>
+                        <td>{% trans "Summe"%}</td>
                         <td id="summe-haben">0.00</td>
                     </tr>
                 </tfoot>
@@ -91,7 +92,7 @@ Das GuV-Konto wird am Seitenende durch den Button abgeschlossen.
         </div>
     </div>
 </section>
-<button id="abschluss-v2-btn">GuV Konto abschließen v2</button>
+<button id="abschluss-v2-btn">{% trans "GuV Konto abschließen v2"%}</button>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
@@ -111,12 +112,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Falsche Zuweisungen behandeln
             if (echteKategorie === "Bestandskonto" && kategorie === "Erfolgskonto") {
-                alert(`Fehler: ${kontoName} ist ein Bestandskonto, aber wurde als Erfolgskonto ausgewählt.`);
+                alert(gettext("Fehler:") + ` ${kontoName} ` + gettext("ist ein Bestandskonto, aber wurde als Erfolgskonto ausgewählt."));
                 return;
             }
 
             if (echteKategorie === "Erfolgskonto" && kategorie === "Bestandskonto") {
-                alert(`Fehler: ${kontoName} ist ein Erfolgskonto, aber wurde als Bestandskonto ausgewählt.`);
+                alert(gettext("Fehler:") + ` ${kontoName} ` + gettext("ist ein Erfolgskonto, aber wurde als Bestandskonto ausgewählt."));
                 return;
             }
 
@@ -125,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log(`Konto ${kontoName} wird abgeschlossen.`);
                 abgeschlosseneErfolgskonten.add(kontoName);
             } else {
-                alert(`Fehler: Unbekannte Kategorie für ${kontoName}.`);
+                alert(gettext("Fehler: Unbekannte Kategorie für") + ` ${kontoName}.`);
                 return;
             }
 
@@ -155,22 +156,22 @@ document.addEventListener("DOMContentLoaded", function () {
             // Differenz (SBK) auf der kleineren Seite einfügen
             let differenzZeile = document.createElement("tr");
             if (sollSumme > habenSumme) {
-                differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                 habenTabelle.appendChild(differenzZeile);
             } else {
-                differenzZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                 sollTabelle.appendChild(differenzZeile);
             }
 
             // Summenzeile einfügen
             let summenZeile = document.createElement("tr");
             summenZeile.style.fontWeight = "bold";
-            summenZeile.innerHTML = `<td>Summe</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
             sollTabelle.appendChild(summenZeile.cloneNode(true));
             habenTabelle.appendChild(summenZeile);
 
             this.disabled = true;
-            this.innerText = "Abgeschlossen";
+            this.innerText = gettext("Abgeschlossen");
         });
     });    
 });
@@ -264,9 +265,9 @@ document.addEventListener("DOMContentLoaded", function () {
       
           // Schreibe den SBK-Wert auf die kleinere Seite
           if (sollGesamt < habenGesamt) {
-              neueSBKZeile.innerHTML = `<td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
+              neueSBKZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
           } else {
-              neueSBKZeile.innerHTML = `<td></td><td></td><td>SBK</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+              neueSBKZeile.innerHTML = `<td></td><td></td><td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
           }
       
           guvBody.appendChild(neueSBKZeile);

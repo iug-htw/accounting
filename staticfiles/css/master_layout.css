@@ -216,3 +216,40 @@ body {
 .nav-dropdown:hover .dropdown-content {
     display: block;
 }
+.language-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+.language-form label {
+    font-weight: bold;
+    color: #333;
+}
+
+.language-form select {
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #ccc;
+    font-size: 0.85rem;
+}
+
+.language-form button {
+    padding: 0.3rem 0.6rem;
+    background-color: #57a42d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.language-form button:hover {
+    background-color: #3d7d1f;
+}

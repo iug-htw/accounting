@@ -18,6 +18,7 @@ from collections import defaultdict
 from django.utils.html import format_html
 from django.views.decorators.http import require_GET
 from decouple import config
+from django.utils.translation import gettext as _
 #passt
 
 
@@ -31,14 +32,14 @@ def lehrkraft_required(view_func):
         if request.user.is_authenticated and (request.user.role == 'teacher' or request.user.is_superuser):
             return view_func(request, *args, **kwargs)
         else:
-            return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
+           fehlende_berechtigung_response()
     return _wrapped_view_func
 
 # Für Studierende
 def student_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
         if not request.user.is_authenticated or request.user.role != 'student':
-            return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
+            fehlende_berechtigung_response()
         return view_func(request, *args, **kwargs)
     return _wrapped_view_func
 
@@ -47,8 +48,15 @@ def admin_required(view_func):
         if request.user.is_authenticated and request.user.is_superuser:
             return view_func(request, *args, **kwargs)
         else:
-            return HttpResponse(f'Fehlende Berechtigung <br><a href="{reverse("index")}">Zurück zur Startseite</a>')
+            fehlende_berechtigung_response()
     return _wrapped_view_func
+
+def fehlende_berechtigung_response():
+    return HttpResponse(
+        _('Fehlende Berechtigung<br><a href="%(link)s">Zurück zur Startseite</a>') % {
+            "link": reverse("index")
+        }
+    )
 
 def handle_form_submission(request, form_class, success_message, redirect_url, instance=None):
     form = form_class(request.POST, instance=instance)
@@ -57,7 +65,7 @@ def handle_form_submission(request, form_class, success_message, redirect_url, i
         messages.success(request, success_message)
         return redirect(redirect_url)
     else:
-        messages.error(request, "Das Formular ist nicht gültig.")
+        messages.error(request, _("Das Formular ist nicht gültig."))
         return None
 
 @lehrkraft_required
@@ -67,14 +75,15 @@ def aufgabe_neu_erstellen(request):
         if form.is_valid():
             aufgabe = form.save(commit=False)
             aufgabe.ersteller = request.user.id
+            aufgabe.rechnungsnummer = f"RE-{random.randint(10000, 99999)}"
             kontenplan = form.cleaned_data['kontenplan']
             aufgabe.aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
             aufgabe.save()
             speichere_aufgabe_details(request, aufgabe, kontenplan)
-            messages.success(request, 'Aufgabe und Details erfolgreich erstellt.')
+            messages.success(request, _("Aufgabe und Details erfolgreich erstellt."))
             return redirect('frontpage')
         else:
-            messages.error(request, 'Das Formular ist nicht gültig.')
+            messages.error(request, _("Das Formular ist nicht gültig."))
     else:
         form = Aufgabe_neu_Form(user=request.user)
 
@@ -111,7 +120,11 @@ def aufgabe_import_form(request):
 
             for zeilennr, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
                 beschreibung = row[0]
-                rechnung = row[1]
+                rechnungsansicht = row[1]
+                if rechnungsansicht == 1:
+                    rechnungstyp = 'non'
+                else:
+                    rechnungstyp = 'intern'
                 immer_feedback = row[2]
                 zahlweise = row[3]
 
@@ -126,10 +139,19 @@ def aufgabe_import_form(request):
                     if not konto_name or not soll_haben or betrag is None:
                         break
 
-                    konto = Konto.objects.filter(
-                        name__iexact=konto_name.strip(),
-                        kontenplan=kontenplan
-                    ).first()
+                    try:
+                        # Versuche zuerst die Kontonummer (falls Zahl angegeben)
+                        konto_nummer = int(konto_name)
+                        konto = Konto.objects.filter(
+                            kontonummer=konto_nummer,
+                            kontenplan=kontenplan
+                        ).first()
+                    except (ValueError, TypeError):
+                        # Falls keine Zahl: Suche über den Namen (wie bisher)
+                        konto = Konto.objects.filter(
+                            name__iexact=str(konto_name).strip(),
+                            kontenplan=kontenplan
+                        ).first()
 
                     if not konto:
                         fehlendes_konto = True
@@ -172,7 +194,7 @@ def aufgabe_import_form(request):
                 # Neue Aufgabe pro Zeile erstellen
                 neue_aufgabe = Aufgabe_neu.objects.create(
                     unternehmen_kategorie=unternehmen,
-                    rechnungstyp='intern',
+                    rechnungstyp=rechnungstyp,
                     fragentyp=fragentyp,
                     unterkategorie=unterkategorie,
                     fragentyp_text=fragentyp_text,
@@ -183,11 +205,11 @@ def aufgabe_import_form(request):
                     verabschiedung=verabschiedung,
                     kontakt=kontakt,
                     aufgabeninfo=aufgabeninfo,
-                    beschreibung=beschreibung_final,
+                    beschreibung_de=beschreibung_final,
+                    beschreibung_en=f"\nThis transaction was carried out in the current fiscal year and relates to regular business operations. Record this business transaction.\n{beschreibung}\n",
                     zahlweise=zahlweise,
                     rechnungsbetrag=0,
                     ersteller=request.user.id,
-                    frage='',
                     immer_feedback=immer_feedback,
                     rechnungsnummer=f"RE-{random.randint(10000, 99999)}"
                 )
@@ -200,10 +222,6 @@ def aufgabe_import_form(request):
                         soll_haben=soll_haben,
                         kontenplan=kontenplan,
                         betrag=betrag,
-                        formel_typ="fix",
-                        festbetrag=betrag,
-                        monatsangabe=False,
-                        monat=None
                     )
                     if konto.bilanzposition_nummer:
                         aufgabe_detail.bilanzposition = konto.bilanzposition_nummer
@@ -213,14 +231,13 @@ def aufgabe_import_form(request):
 
             # Feedback
             if erfolgreich:
-                messages.success(request, f"{len(erfolgreich)} Aufgaben erfolgreich importiert.")
+                messages.success(request, _("%(anzahl)d Aufgaben erfolgreich importiert.") % {"anzahl": len(erfolgreich)})
             if fehlgeschlagen:
                 fehlermeldung = ", ".join(f"Zeile {z} ('{b}')" for z, b in fehlgeschlagen)
-                messages.error(request, f"{len(fehlgeschlagen)} Aufgaben konnten nicht importiert werden: {fehlermeldung}")
-
+                messages.error(request, _("%(anzahl)d Aufgaben konnten nicht importiert werden: %(fehler)s") % {"anzahl": len(fehlgeschlagen), "fehler": fehlermeldung})
             return redirect('posts:aufgaben_verwalten')
         else:
-            messages.error(request, "Fehlerhafte Eingaben oder keine Datei hochgeladen.")
+            messages.error(request, _("Fehlerhafte Eingaben oder keine Datei hochgeladen."))
 
     else:
         beispiel_unternehmen = Unternehmen.objects.first()
@@ -250,18 +267,11 @@ def kontenplan_konten_laden(request):
     return JsonResponse({'konten': konten_liste})
 
 def speichere_aufgabe_details(request, aufgabe,kontenplan):
-    """Speichert die Details der erstellten Aufgabe und verarbeitet Abhängigkeiten korrekt"""
     konto_ids = request.POST.getlist('konto_id[]')
     soll_haben = request.POST.getlist('soll_haben[]')
     betraege = request.POST.getlist('betrag[]')
-    monatsangaben = request.POST.getlist('monatsangabe[]')
-    monate = request.POST.getlist('monat[]')
 
     # Neue Felder für Abhängigkeiten
-    formel_typen = request.POST.getlist('formel_typ[]')
-    festbetraege = request.POST.getlist('festbetrag[]')
-    faktoren = request.POST.getlist('faktor[]')
-    bezugs_konto_namen = request.POST.getlist('bezugs_konto[]')
 
     aufgabe_details = []  # Zwischenspeicher für bulk_create()
 
@@ -273,20 +283,9 @@ def speichere_aufgabe_details(request, aufgabe,kontenplan):
             konto=konto,
             soll_haben=soll_haben[i],
             betrag=float(betraege[i]) if betraege[i] else None,
-            monatsangabe=(monatsangaben[i].lower() == 'true'),
-            monat=(int(monate[i]) if monate[i] else None),
             kontenplan=kontenplan,
-            formel_typ=formel_typen[i],
-            festbetrag=float(festbetraege[i]) if festbetraege[i] else None,
-            faktor=float(faktoren[i]) if faktoren[i] else None
         )
         aufgabe_details.append(aufgabe_detail)
-    
-    bezugs_konto_ids = request.POST.getlist('bezugs_konto_id[]')
-    for i, aufgabe_detail in enumerate(AufgabeDetail.objects.filter(aufgabe=aufgabe)):
-        if i < len(bezugs_konto_ids) and bezugs_konto_ids[i]:
-            aufgabe_detail.bezugs_konto = Konto.objects.get(id=bezugs_konto_ids[i])
-            aufgabe_detail.save()
 
 @login_required
 def rechnung_detail_view(request, aufgabe_id):
@@ -305,7 +304,7 @@ def rechnung_detail_view(request, aufgabe_id):
     #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
-    konten = Konto.objects.exclude(name="GuV").order_by('kontonummer')
+    konten = Konto.objects.exclude(name="GuV").order_by('kontonummer', 'name')
 
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe)
@@ -343,6 +342,7 @@ def rechnung_detail_view(request, aufgabe_id):
         'eingehend': 'posts/rechnungen/rechnung_eingehend.html',
         'ausgehend': 'posts/rechnungen/rechnung_ausgehend.html',
         'intern': 'posts/rechnungen/rechnung_intern.html',
+        'non': 'posts/rechnungen/rechnung_intern.html'
     }
 
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
@@ -652,15 +652,19 @@ def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     #print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
     if versuch == 1:
         betreff = f"Bitte bearbeiten Sie Folgende Rechnung: {aufgabe.rechnungsnummer}"
+        betreff_en = f"Please process the following invoice: {aufgabe.rechnungsnummer}"
     else:
         v = round((versuch/2) + 1,0)
-        betreff = f"{aufgabe.fragentyp_text} Versuch {v}"
+        betreff = f"Rechnung: {aufgabe.rechnungsnummer} Versuch {v}"
+        betreff_en = f"Invoice: {aufgabe.rechnungsnummer} Try {v}"
     mailtext = f"{aufgabe.mailtext}"
 
     Mail.objects.create(
         nutzer=nutzer,
         aufgabe=aufgabe,
         betreff=betreff,
+        betreff_de=betreff,
+        betreff_en=betreff_en,
         mailtext=mailtext,
         versuch=versuch,
         absender=absender,  # Speichert die Absender-Referenz
@@ -685,10 +689,10 @@ def unternehmen_verwalten(request):
             unternehmen = form.save(commit=False)  # ✅ Hier wird das Objekt erzeugt
             unternehmen.ersteller = request.user.id
             unternehmen.save()
-            messages.success(request, "Unternehmen erfolgreich hinzugefügt.")
+            messages.success(request, _("Unternehmen erfolgreich hinzugefügt."))
             return redirect('posts:unternehmen_verwalten')
         else:
-            messages.error(request, "Fehler beim Speichern des Unternehmens.")
+            messages.error(request, _("Fehler beim Speichern des Unternehmens."))
     else:
         form = UnternehmenForm()
 
@@ -712,9 +716,9 @@ def unternehmen_loeschen(request, unternehmen_id):
     """ Löscht ein Unternehmen und gibt eine Bestätigung aus. """
     unternehmen = get_object_or_404(Unternehmen, id=unternehmen_id)
     if unternehmen.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse("Keine Berechtigung zum Löschen.")
+        return HttpResponse(_("Keine Berechtigung zum Löschen."))
     unternehmen.delete()
-    messages.success(request, f"Das Unternehmen '{unternehmen.name}' wurde gelöscht.")
+    messages.success(request, _("Das Unternehmen '%(name)s' wurde gelöscht.") % {"name": unternehmen.name})
     return redirect('posts:unternehmen_verwalten')
 
 @lehrkraft_required
@@ -724,10 +728,10 @@ def aufgabenkategorie_verwalten(request):
         form = AufgabenkategorieForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Kategorie erfolgreich hinzugefügt.")
+            messages.success(request, _("Kategorie erfolgreich hinzugefügt."))
             return redirect('posts:aufgabenkategorie_verwalten')
         else:
-            messages.error(request, "Fehler beim Speichern der Kategorie.")
+            messages.error(request, _("Fehler beim Speichern der Kategorie."))
     else:
         form = AufgabenkategorieForm()
 
@@ -739,7 +743,7 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
     """ Löscht eine Kategorie und gibt eine Bestätigung aus. """
     kategorie = get_object_or_404(Aufgabenkategorie, id=kategorie_id)
     kategorie.delete()
-    messages.success(request, f"Die Kategorie '{kategorie.name}' wurde gelöscht.")
+    messages.success(request, _("Die Kategorie '%(name)s' wurde gelöscht.") % {"name": kategorie.name})
     return redirect('posts:aufgabenkategorie_verwalten')
 
 @login_required
@@ -747,13 +751,19 @@ def hauptbuch_view(request):
     user = request.user
     # Falls noch keine anfangsbestaende existieren, generiere sie
     generate_user_anfangsbestaende(user)
+    unternehmen = user.unternehmen
+    if not unternehmen or not unternehmen.kontenplan:
+        konten = Konto.objects.none()
+    else:
+        # Konten aus dem Kontenplan des Unternehmens des Nutzers
+        konten = Konto.objects.filter(kontenplan=unternehmen.kontenplan).order_by('name')
+
     # anfangsbestaende des Nutzers abrufen
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=user)
     # Alle Buchungen des Nutzers abrufen
     buchungen = Buchung.objects.filter(nutzer=user)
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
     t_konten = build_t_konten(buchungen, anfangsbestaende)
-    konten = Konto.objects.all().order_by('name')
     aufgaben_ids = sorted({f"{buchung.aufgabe.id} {buchung.versuch})" for buchung in buchungen})
 
     return render(request, "posts/hauptbuch.html", {
@@ -808,7 +818,7 @@ def build_t_konten(buchungen, anfangsbestände):
 def aufgabe_bearbeiten(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
     if aufgabe.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse("Keine Berechtigung zum Bearbeiten.")
+        return HttpResponse(_("Keine Berechtigung zum Bearbeiten."))
     details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
 
     if request.method == 'POST':
@@ -819,7 +829,7 @@ def aufgabe_bearbeiten(request, aufgabe_id):
                 if detail_form.is_valid():
                     detail_form.save()
                 else:
-                    messages.error(request, "Fehler beim Bearbeiten der Details.")
+                    messages.error(request, _("Fehler beim Bearbeiten der Details."))
             return result
 
     form = AufgabeBearbeitenForm(instance=aufgabe)
@@ -864,7 +874,7 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
     )
 
     erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch+1, absender)
-    messages.success(request, f'Korrekturbuchung im Versuch {naechster_versuch} erfolgreich durchgeführt.')
+    messages.success(request, _('Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt.') % {'versuch': naechster_versuch})
     return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
 
 @login_required
@@ -897,7 +907,7 @@ def mail_detail(request, mail_id):
         aufgabe_link = reverse('posts:rechnung_detail', args=[mail.aufgabe.id])
     
     # Falls die Mail zur Namens- & Passwortänderung ist, ersetze den Link
-    elif "Bitte aktualisieren Sie Ihren Anzeigenamen" in mail.betreff:
+    elif "Bitte aktualisieren Sie Ihren Anzeigenamen" in mail.betreff_de:
         aufgabe_link = reverse('users:update_profile')
 
     return render(request, 'posts/mail_detail.html', {
@@ -919,13 +929,23 @@ def send_korrektur_mail(nutzer, aufgabe, request):
     naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
     update_url = request.build_absolute_uri(reverse("posts:rechnung_detail", args=[aufgabe.id]))
     mail_betreff = f"Korrekturbuchung für Rechnung - {aufgabe.rechnungsnummer}"
-    mail_text = (
+    mail_betreff_en = f"Adjustment entry for the invoice - {aufgabe.rechnungsnummer}"
+    mail_text_en = (
+        f"""
+        Dear {nutzer.username},
+        <p>Your journal entry for the attached invoice contains an error.</p>
+        
+        <p>Please correct the entry by completing an adjustment entry following this link: </p>
+        <p><a href="{update_url}">Correct the journal Entry</a></p>
+        <p>Thank you, <br>Your Booking Team</p>"""
+    )
+    mailtext = (
         f"""
         Sehr geehrte/r {nutzer.username},
-        <p>Ihre Buchung zur Aufgabe '{aufgabe.fragentyp_text}' enthält einen Fehler.</p>
+        <p>Ihre Buchung zur beiliegenden Aufgabe enthält einen Fehler.</p>
         
-        <p>Bitte korrigieren Sie Ihre Eingaben über den folgenden Link: </p>
-        <p><a href="{update_url}">Profil aktualisieren</a></p>
+        <p>Bitte führen Sie eine Korrekturbuchung über den folgenden Link durch: </p>
+        <p><a href="{update_url}">Zur Korrekturbuchung</a></p>
         <p>Vielen Dank, <br>Ihr Buchhaltungsteam</p>"""
     )
 
@@ -941,8 +961,12 @@ def send_korrektur_mail(nutzer, aufgabe, request):
         nutzer=nutzer,
         aufgabe=aufgabe,
         betreff=mail_betreff,
+        betreff_de=mail_betreff,
+        betreff_en=mail_betreff_en,
         absender=absender,
-        mailtext=mail_text,
+        mailtext=mailtext,
+        mailtext_de=mailtext,
+        mailtext_en=mail_text_en,
         versuch=naechster_versuch,  # Dynamischer Versuchswert
         status='nicht bearbeitet'
     )
@@ -950,10 +974,10 @@ def send_korrektur_mail(nutzer, aufgabe, request):
 @lehrkraft_required
 def konten_verwalten(request):
     if request.method == 'POST':
-        if 'neuer_kontenplan' in request.POST:
-            neuer_plan = Kontenplan.objects.create(nutzer=request.user)
-            messages.success(request, f"Neuer Kontenplan {neuer_plan.id} wurde erstellt.")
-            return redirect('posts:konten_verwalten')
+        if "neuer_kontenplan" in request.POST:
+            Kontenplan.objects.create(nutzer=request.user)
+            request.session["kontenplan_erfolgreich"] = True
+            return redirect("posts:konten_verwalten")
 
         if 'importiere_excel' in request.POST:
             return verarbeite_excel_import(request)
@@ -963,10 +987,10 @@ def konten_verwalten(request):
             konto = form.save(commit=False)
             konto.erstellt_von = request.user
             konto.save()
-            messages.success(request, "Konto erfolgreich hinzugefügt.")
+            messages.success(request, _("Konto erfolgreich hinzugefügt."))
             return redirect('posts:konten_verwalten')
         else:
-            messages.error(request, "Fehler: Überprüfe deine Eingaben.")
+            messages.error(request, _("Fehler: Überprüfe deine Eingaben."))
     else:
         form = KontoForm(user=request.user)
 
@@ -985,15 +1009,22 @@ def konten_verwalten(request):
     konten_nach_plan = defaultdict(list)
     for konto in konten:
         konten_nach_plan[konto.kontenplan_id].append(konto)
-
+    erfolgsmeldung = request.session.pop("kontenplan_erfolgreich", False)
     return render(request, 'posts/konten_verwalten.html', {
         'form': form,
         'konten_nach_plan': dict(konten_nach_plan),
-        'kontenplaene': kontenplaene
+        'kontenplaene': kontenplaene,
+        "erfolgsmeldung": erfolgsmeldung,
     })
 
+@lehrkraft_required
+def kontenplan_loeschen(request, pk):
+    kontenplan = get_object_or_404(Kontenplan, pk=pk)
+    if request.user.is_superuser or kontenplan.nutzer == request.user:
+        kontenplan.delete()
+    return redirect('posts:konten_verwalten')
+
 def importiere_konten_aus_excel(datei, kontenplan, nutzer):
-    print("📊 Importiere Excel-Datei für Plan", kontenplan.id)
     wb = openpyxl.load_workbook(datei)
     sheet = wb.active
     fehlerhafte_zeilen = []
@@ -1015,13 +1046,11 @@ def importiere_konten_aus_excel(datei, kontenplan, nutzer):
                 erstellt_von=nutzer
             )
         except Exception as e:
-            print(f"❌ Fehler in Zeile {index}: {e}")
             fehlerhafte_zeilen.append(index)
 
     return fehlerhafte_zeilen
 
 def verarbeite_excel_import(request):
-    print("📥 Excel-Import wurde aufgerufen")
     excel_datei = request.FILES.get('excel_datei')
     kontenplan_id = request.POST.get('kontenplan_id')
 
@@ -1032,7 +1061,7 @@ def verarbeite_excel_import(request):
         if fehler:
             messages.warning(request, f"Einige Zeilen wurden übersprungen (Reihen: {', '.join(map(str, fehler))})")
         else:
-            messages.success(request, "Konten erfolgreich importiert.")
+            messages.success(request, _("Konten erfolgreich importiert."))
     except Exception as e:
         messages.error(request, f"Fehler beim Import: {str(e)}")
 
@@ -1097,7 +1126,6 @@ def lehrer_fortschritt(request):
         Q(konto_korrekt__gt=0) | Q(betrag_korrekt__gt=0),
         korrekturbuchung=False
     ).count()
-    print(f"Anzahl Studis: {buchungen.values('nutzer').distinct()}")
     anzahl_studierende = buchungen.values('nutzer').distinct().count()
 
     return JsonResponse({
@@ -1323,11 +1351,20 @@ def rechnungsuebersicht(request):
         # Anzahl Buchungen und Korrekturbuchungen zählen
         anzahl_buchungen = buchungen.count()
         anzahl_korrekturbuchungen = buchungen.filter(korrekturbuchung=True).count()
+        beschreibung_lang = aufgabe.beschreibung or ""
+        if len(beschreibung_lang) > 90:
+            cutoff_index = beschreibung_lang.find(" ", 90)
+            if cutoff_index != -1:
+                beschreibung_kurz = beschreibung_lang[:cutoff_index] + " ..."
+            else:
+                beschreibung_kurz = beschreibung_lang  # Kein Leerzeichen gefunden → komplette Beschreibung behalten
+        else:
+            beschreibung_kurz = beschreibung_lang
 
         rechnungsdaten.append({
             'id': aufgabe.id,
             'rechnungsnr': aufgabe.rechnungsnummer,
-            'fragentyp_text': aufgabe.fragentyp_text,
+            'beschreibung': beschreibung_kurz,
             'anzahl_buchungen': anzahl_buchungen,
             'anzahl_korrekturbuchungen': anzahl_korrekturbuchungen,
             'aufgabenstatus': nutzer_aufgabe.bearbeitungsstand
@@ -1370,10 +1407,9 @@ def aufgabe_loeschen(request, aufgabe_id):
 
     # Nur löschen, wenn Ersteller übereinstimmt oder Admin
     if aufgabe.ersteller != request.user.id and not request.user.is_superuser:
-        return HttpResponse("Keine Berechtigung zum Löschen dieser Aufgabe.")
+        return HttpResponse(_("Keine Berechtigung zum Löschen dieser Aufgabe."))
 
     aufgabe.delete()
-    messages.success(request, f"Aufgabe {aufgabe.id} wurde gelöscht.")
     return redirect('posts:aufgaben_verwalten')
 
 #+ Zeile 278
@@ -1414,7 +1450,7 @@ def ollama_prompt_view(request):
                 yield f"event: error\ndata: Ausnahme beim Streaming: {str(e)}\n\n"
         return StreamingHttpResponse(stream_antwort(), content_type='text/event-stream')
     return render(request, 'posts/ollama_prompt.html')
-@login_required
+
 def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
     id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
 
@@ -1440,7 +1476,6 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
         nutzeraufgabe.haben_konten,
         [round(float(b), 2) for b in nutzeraufgabe.haben_betraege]
     )
-
     prompt = (
         f"Du bist ein Tutor für Buchhaltung. Deine Aufgabe ist es, didaktisches Feedback auf fehlerhafte Buchungssätze zu geben. Das Feedback soll maximal drei Sätze lang sein.Verwende keine IDs, sondern nur Kontonamen und Beträge. Vermeide es, die richtige Lösung vollständig zu nennen, vor allem den vollständigen Namen der richtigen Konten.\n\n"
         f"Sachverhalt: \n{beschreibung}\n"
@@ -1448,6 +1483,9 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
         f"Richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}"
         f"Falls die gewählten Konten nicht korrekt sind, erläutere kurz, warum sie nicht passend sind, und gib einen Hinweis, welches Konto oder welche Konten stattdessen in diesem Fall sinnvoll wären. Wenn die Anzahl der Konten nicht übereinstimmt, soll ebenfalls ein zusätzlicher Hinweis gegeben werden. Unstimmige Beträge: Falls die Beträge nicht korrekt sind, weise darauf hin, dass die Summe nicht dem Rechnungsbetrag entspricht, und gib einen Tipp, wie sich der korrekte Betrag zusammensetzt. Falls nur eines der beiden fehlerhaft ist, nenne nur den entsprechenden Punkt. Falls beides falsch ist, gehe auf beide Punkte ein. Vermeide es, die richtige Lösung explizit zu nennen, sondern leite den Nutzer mit Hinweisen zur richtigen Lösung. Gib mir nur das Feedback zurück."
     )
+    sprache = nutzeraufgabe.aufgabe.unternehmen_kategorie.kontenplan.sprache
+    if sprache != 0:
+        prompt = prompt + " Schreibe die antwort auf englisch!"
     ollama_payload = {
         "model": "llama3.3:70b",
         "prompt": prompt,

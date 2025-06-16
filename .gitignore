@@ -8,3 +8,5 @@
 /dataSources.local.xml
 *.pyc
 __pycache__/
+db.sqlite3
+config/settings.py

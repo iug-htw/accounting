@@ -1,27 +1,28 @@
 {% extends "master_layout.html" %}
+{% load i18n %}
 {% block content %}
-<h2>Konto bearbeiten</h2>
+<h2>{% trans "Konto bearbeiten"%}</h2>
 
 <form method="post">
     {% csrf_token %}
-    <label for="id_name">Kontoname:</label>
+    <label for="id_name">{% trans "Kontoname:"%}</label>
     {{ form.name }}
 
-    <label for="id_kategorie">Kategorie:</label>
+    <label for="id_kategorie">{% trans "Kategorie:"%}</label>
     {{ form.kategorie }}
 
-    <label for="id_unterkategorie">Unterkategorie:</label>
+    <label for="id_unterkategorie">{% trans "Unterkategorie:"%}</label>
     {{ form.unterkategorie }}
-    <label for="id_kontonumemr">Kontonummer:</label>
+    <label for="id_kontonumemr">{% trans "Kontonummer:"%}</label>
     {{ form.kontonummer }}
-    <label for="id_bilanzposition">Bilanzposition:</label>
+    <label for="id_bilanzposition">{% trans "Bilanzposition:"%}</label>
     {{ form.bilanzposition_nummer }}
-    <label for="id_kontenplan">Kontenplan:</label>
+    <label for="id_kontenplan">{% trans "Kontenplan:"%}</label>
     {{ form.kontenplan }}
-    <button type="submit">Änderungen speichern</button>
+    <button type="submit">{% trans "Änderungen speichern"%}</button>
 </form>
 
-<a href="{% url 'posts:konten_verwalten' %}">Zurück zur Übersicht</a>
+<a href="{% url 'posts:konten_verwalten' %}">{% trans "Zurück zur Übersicht"%}</a>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         let kategorieField = document.querySelector("#id_kategorie");
@@ -33,13 +34,13 @@
             
             if (kategorie === "Bestandskonto") {
                 unterkategorieField.innerHTML = `
-                    <option value="Aktiva">Aktiva</option>
-                    <option value="Passiva">Passiva</option>
+                    <option value="Aktiva">${gettext("Aktiva")}</option>
+                    <option value="Passiva">${gettext("Passiva")}</option>
                 `;
             } else if (kategorie === "Erfolgskonto") {
                 unterkategorieField.innerHTML = `
-                    <option value="Aufwand">Aufwand</option>
-                    <option value="Ertrag">Ertrag</option>
+                    <option value="Aufwand">${gettext("Aufwand")}</option>
+                    <option value="Ertrag">${gettext("Ertrag")}</option>
                 `;
             }
         }

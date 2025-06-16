@@ -1,16 +1,17 @@
 {% extends 'master_layout.html' %}
+{% load i18n %}
 {% load static %}
 
 {% block content %}
-<h1>Aufgabenkategorien verwalten</h1>
+<h1>{% trans "Aufgabenkategorien verwalten"%}</h1>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Aufgabenkategorie hinzufügen</button>
+    <button type="submit">{% trans "Aufgabenkategorie hinzufügen"%}</button>
 </form>
 
-<h2>Bestehende Aufgabenkategorien</h2>
+<h2>{% trans "Bestehende Aufgabenkategorien"%}</h2>
 
 <ul>
     {% for aufgabenkategorie in aufgabenkategorien %}
@@ -19,13 +20,13 @@
             {% if request.user.role == 'user.is_superuser' %}
                 <a href="{% url 'posts:aufgabenkategorie_loeschen' aufgabenkategorie.id %}" 
                 class="btn btn-danger" 
-                onclick="return confirm('Soll die Kategorie wirklich gelöscht werden?');">
-                Löschen
+                onclick="return confirm('{% trans "Soll die Kategorie wirklich gelöscht werden?" %}');">
+                {% trans "Löschen"%}
                 </a>
             {% endif %}
         </li>
     {% endfor %}
 </ul>
 
-<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">Zurück zur Aufgabenerstellung</a>
+<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">{% trans "Zurück zur Aufgabenerstellung"%}</a>
 {% endblock %}

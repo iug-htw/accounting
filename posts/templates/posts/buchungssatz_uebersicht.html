@@ -1,20 +1,21 @@
 {% extends 'master_layout.html' %}
 {% load my_filters %}
+{% load i18n %}
 {% load static %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/buchungssatz_uebersicht.css' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 {% block content %}
-<h2>Buchungssatz-Übersicht</h2>
+<h2>{% trans "Buchungssatz-Übersicht"%}</h2>
 <div class="aufgaben-grid">
 {% for aufgabe, buchungsliste in aufgaben_buchungen.items %}
      <div class="aufgabe-block">
-    <h3>Aufgabe {{ aufgabe.id }}: {{ aufgabe.fragentyp_text }}</h3>
+    <h3>{% trans "Aufgabe"%} {{ aufgabe.id }}: {{ aufgabe.fragentyp_text }}</h3>
     
         {% for buchung in buchungsliste %}
             <div class="buchung">
-                {{ buchung.buchung_nr }}){% if buchung.korrekturbuchung %} <i>Korrekturbuchung</i>{% endif %}
+                {{ buchung.buchung_nr }}){% if buchung.korrekturbuchung %} <i>{% trans "Korrekturbuchung"%}</i>{% endif %}
                 <table style="margin-left: 1em;">
                     <tr>
                         <th></th>
@@ -25,7 +26,7 @@
                         <tr>
                             <td class="soll" style="padding-right: 1em;">{{ soll.0 }}</td>
                             <td class="soll" style="text-align: right; min-width: 6em;">{{ soll.1 }}</td>
-                            <td>{% if forloop.first %}an{% endif %}</td>
+                            <td>{% if forloop.first %}{% trans "an"%}{% endif %}</td>
                             <td class="haben" style="padding-right: 1em;">{{ haben.0 }}</td>
                             <td class="haben" style="text-align: right; min-width: 6em;">{{ haben.1 }}</td>
                         </tr>

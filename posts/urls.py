@@ -35,6 +35,6 @@ urlpatterns = [
     path('aufgabe_import_form/', views.aufgabe_import_form, name='aufgabe_import_form'),
     path('kontenplan_konten_laden/', views.kontenplan_konten_laden, name='kontenplan_konten_laden'),
     path('tkonto_vorschau/', views.tkonto_vorschau, name='tkonto_vorschau'),
-
+    path('kontenplan_loeschen/<int:pk>/', views.kontenplan_loeschen, name='kontenplan_loeschen'),
 
 ]

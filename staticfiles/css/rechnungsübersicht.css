@@ -74,3 +74,6 @@ th {
 .back-btn:hover {
     text-decoration: underline;
 }
+ h1, p {
+    text-align: center;
+ }

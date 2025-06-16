@@ -1,32 +1,33 @@
 {% extends 'master_layout.html' %}
+{% load i18n %}
 {% load static%}
 
 {% block content %}
-<h1>Unternehmen verwalten</h1>
+<h1>{% trans "Unternehmen verwalten"%}</h1>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Unternehmen hinzufügen</button>
+    <button type="submit">{% trans "Unternehmen hinzufügen"%}</button>
 </form>
 
-<h2>Bestehende Unternehmen</h2>
+<h2>{% trans "Bestehende Unternehmen"%}</h2>
 <ul>
     {% for unternehmen in unternehmen %}
         <li>
-            Name: {{ unternehmen.name }}
-            Kontenplan: {{ unternehmen.kontenplan }}
-            Fallstudie: {{ unternehmen.fallstudie }}
+            {% trans "Name:"%} {{ unternehmen.name }}
+            {% trans "Kontenplan:"%} {{ unternehmen.kontenplan }}
+            {% trans "Fallstudie:"%} {{ unternehmen.fallstudie }}
             <a href="{% url 'posts:unternehmen_loeschen' unternehmen.id %}" 
                class="btn btn-danger" 
-               onclick="return confirm('Soll das Unternehmen wirklich gelöscht werden?');">
-               Löschen
+               onclick="return confirm('{% trans "Soll das Unternehmen wirklich gelöscht werden?"%}');">
+               {% trans "Löschen"%}
             </a>
         </li>
     {% empty %}
-        <li>Keine Unternehmen vorhanden.</li>
+        <li>{% trans "Keine Unternehmen vorhanden."%}</li>
     {% endfor %}
 </ul>
 
-<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">Zurück zur Aufgabenerstellung</a>
+<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">{% trans "Zurück zur Aufgabenerstellung"%}</a>
 {% endblock %}

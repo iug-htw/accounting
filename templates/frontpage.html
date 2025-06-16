@@ -1,5 +1,6 @@
 {% extends 'master_layout.html' %}
 {% load static %}
+{% load i18n %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/frontpage.css' %}">
 {% endblock %}
@@ -7,46 +8,40 @@
 <div class="logo-and-description">
     <img src="/media/securenet-logo.png" alt="SecureNet Logo" class="securenet-logo_front">
     <div class="description">
-        <h1>Willkommen bei SecureNet!  {{ user.display_name }}!</h1>
+        <h1>{% trans "Willkommen bei SecureNet!"%}  {{ user.display_name }}!</h1>
         <p>
-            Als Teil von SecureNet schützt dein Cyber-Security-Startup Unternehmen mit
-            Schwachstellenanalysen und Penetrationstests vor Angriffen. Deine zentrale
-            Anlaufstelle ist der Posteingang, wo alle Rechnungen und Aufgaben eintreffen.
+            {% trans "Als Teil von SecureNet schützt dein Cyber-Security-Startup Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen. Deine zentrale Anlaufstelle ist der Posteingang, wo alle Rechnungen und Aufgaben eintreffen."%}
         </p>
         <p>
-            Im Hauptbuch findest du eine übersichtliche Darstellung der T-Konten, und die
-            Rechnungsübersicht bietet dir den perfekten Überblick über offene und
-            bearbeitete Rechnungen.
+            {% trans "Im Hauptbuch findest du eine übersichtliche Darstellung der T-Konten, und die Rechnungsübersicht bietet dir den perfekten Überblick über offene und bearbeitete Rechnungen."%}
         </p>
         <p>
-            Die Bilanz hilft dir, die finanzielle Lage deines Startups im Blick zu behalten.
-            Sie zeigt dir, wie sich Vermögenswerte (Aktiva) und Finanzierung (Passiva) ausgleichen,
-            und hilft dir, fundierte Entscheidungen für dein Unternehmen zu treffen.
+            {% trans "Die Bilanz hilft dir, die finanzielle Lage deines Startups im Blick zu behalten. Sie zeigt dir, wie sich Vermögenswerte (Aktiva) und Finanzierung (Passiva) ausgleichen, und hilft dir, fundierte Entscheidungen für dein Unternehmen zu treffen."%}
         </p>
-        <p>Starte jetzt und halte die Finanzen deines Startups auf Kurs! 🚀</p>
+        <p>{% trans "Starte jetzt und halte die Finanzen deines Startups auf Kurs! 🚀"%}</p>
     </div>
 </div>
 
 <!-- Action Buttons -->
 <div class="action-buttons">
     <div class="widget-button">
-        <a href="{% url 'posts:bilanz' %}" class="button">Meine Bilanz <span class="emoji">⚖️</span></a>
+        <a href="{% url 'posts:bilanz' %}" class="button">{% trans "Meine Bilanz"%} <span class="emoji">⚖️</span></a>
     </div>
     <div class="widget-button">
-        <a href="{% url 'posts:hauptbuch' %}" class="button">Mein Hauptbuch<span class="emoji">📚</span></a></a>
+        <a href="{% url 'posts:hauptbuch' %}" class="button">{% trans "Mein Hauptbuch"%}<span class="emoji">📚</span></a></a>
     </div>
 </div>
     <!-- Fortschrittsanzeige für Studierende -->
 {% if user.role == 'student' %}
 <!-- Progress Section -->
 <section class="progress-container">
-    <h2>Dein Fortschritt</h2>
+    <h2>{% trans "Dein Fortschritt"%}</h2>
    <div class="progress-bar-container">
-        <span>Bearbeitet</span>
+        <span>{% trans "Bearbeitet"%}</span>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-bearbeitet" style="width: 1%;">0%</div>
         </div>
-        <span>Korrekt</span>
+        <span>{% trans "Korrekt"%}</span>
         <div class="progress-bar">
             <div class="progress-fill correct" id="progress-korrekt" style="width: 1%;">0%</div>
         </div>
@@ -55,73 +50,72 @@
 {% endif %}
 <!-- Fortschrittsanzeige für Lehrer -->
 {% if user.role == 'teacher' %}
-<h2 class="section-title">Leistungsübersicht Studierende</h2>
+<h2 class="section-title">{% trans "Leistungsübersicht Studierende"%}</h2>
 
 <div class="filter-container">
-    <label>Semester:
+    <label>{% trans "Semester:"%}
         <select id="filter-semester">
-        <option value="">Alle</option>
+        <option value="">{% trans "Alle"%}</option>
     </select>
 </label>
 
-<label>Studiengang:
+<label>{% trans "Studiengang:"%}
     <select id="filter-studiengang">
-        <option value="">Alle</option>
+        <option value="">{% trans "Alle"%}</option>
     </select>
 </label>
 
-<label>Aufgabe:
+<label>{% trans "Aufgabe:"%}
     <select id="filter-aufgabe">
-        <option value="">Alle</option>
+        <option value="">{% trans "Alle"%}</option>
     </select>
 </label>
 
-<button onclick="ladeLehrerFortschritt()" class="leistung-btn">Filtern</button>
+<button onclick="ladeLehrerFortschritt()" class="leistung-btn">{% trans "Filtern"%}</button>
 </div>
 
 <!-- Fortschrittsbalken der Lehrerübersicht DIREKT unter den Filtern -->
 <div class="fortschritt-und-info" style="display: flex; gap: 2em; align-items: flex-start; flex-wrap: wrap;">
     <div class="progress-bar-container teacher-progress" style="flex: 1;">
-        <span>Bearbeitet</span>
+        <span>{% trans "Bearbeitet"%}</span>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-lehrer-bearbeitet" style="width: 0.2%;">0%</div>
         </div>
-        <span>Korrekt</span>
+        <span>{% trans "Korrekt"%}</span>
         <div class="progress-bar">
             <div class="progress-fill correct" id="progress-lehrer-korrekt" style="width: 0.2%;">0%</div>
         </div>
     </div>
 
     <div class="zusatz-info" id="lehrer-zusatz-info" style="min-width: 220px;">
-        <p><strong>Fehlerhafte Buchungen:</strong><br><span id="anzahl-fehlerhaft">–</span></p>
-        <p><strong>Bearbeiter:innen:</strong><br><span id="anzahl-bearbeiter">–</span></p>
+        <p><strong>{% trans "Fehlerhafte Buchungen:"%}</strong><br><span id="anzahl-fehlerhaft">–</span></p>
+        <p><strong>{% trans "Bearbeiter:innen:"%}</strong><br><span id="anzahl-bearbeiter">–</span></p>
     </div>
 </div>
 
 
 
-<h2 class="section-title">Studierenden-Fortschritt</h2>
+<h2 class="section-title">{% trans "Studierenden-Fortschritt"%}</h2>
 
 <div class="filter-container">
-    <label for="filter-student">Studierende:</label>
+    <label for="filter-student">{% trans "Studierende:"%}</label>
     <select id="filter-student" class="dropdown">
-        <option value="">Bitte wählen</option>
+        <option value="">{% trans "Bitte wählen"%}</option>
     </select>
-    <button onclick="ladeStudiFortschritt()" class="leistung-btn">Fortschritt ansehen</button>
+    <button onclick="ladeStudiFortschritt()" class="leistung-btn">{% trans "Fortschritt ansehen"%}</button>
 </div>
 
 <div class="progress-bar-container">
-    <span>Bearbeitet</span>
+    <span>{% trans "Bearbeitet"%}</span>
     <div class="progress-bar">
         <div class="progress-fill" id="progress-studi-bearbeitet" style="width: 1%;">0%</div>
     </div>
-    <span>Korrekt</span>
+    <span>{% trans "Korrekt"%}</span>
     <div class="progress-bar">
         <div class="progress-fill correct" id="progress-studi-korrekt" style="width: 1%;">0%</div>
     </div>
 </div>
 {% endif %}
-
 
 <script>
 // 📌 Funktion zum Befüllen eines Dropdowns mit API-Daten
@@ -129,10 +123,10 @@ function befuellenDropdown(elementId, daten, wertKey, textKey) {
     let dropdown = document.getElementById(elementId);
     if (!dropdown) return;
     let defaultOptionText = {
-        'filter-semester': 'Alle Semester',
-        'filter-studiengang': 'Alle Studiengänge',
-        'filter-aufgabe': 'Alle Aufgaben',
-        'filter-student': 'Bitte Studierenden wählen'
+        'filter-semester': gettext('Alle Semester'),
+        'filter-studiengang': gettext('Alle Studiengänge'),
+        'filter-aufgabe': gettext('Alle Aufgaben'),
+        'filter-student': gettext('Bitte Studierenden wählen')
     };
     dropdown.innerHTML = `<option value="">${defaultOptionText[elementId] || 'Bitte wählen'}</option>`;
 

@@ -1,0 +1,34 @@
+ssh wiuser@train.f4.htw-berlin.de
+source env/bin/activate
+python manage.py runserver 0.0.0.0:8000
+    http://train.f4.htw-berlin.de:8000
+sudo systemctl stop gunicorn
+sudo systemctl restart gunicorn
+sudo systemctl enable gunicorn
+sudo systemctl start gunicorn
+sudo nano /etc/nginx/sites-available/django_project
+sudo nginx -t
+sudo systemctl restart nginx
+    https://train.f4.htw-berlin.de
+
+http://127.0.0.1:8000/users/login/?next=/
+ 
+html
+    django-admin makemessages -l en --extension=html,py -i users
+js
+    für views
+    django-admin makemessages -d djangojs -l en --extension=py -i users
+    für html
+    django-admin makemessages -d djangojs -l en --extension=js,html -i users
+ignore bedingung 
+    -i static_root_dev -i admin -i users -i posts -i config -i .env -i templates
+
+python manage.py collectstatic --clear --noinput
+
+Pull
+git fetch origin
+git reset --hard origin/branch1
+
+Neustart der VM
+sudo systemctl restart gunicorn
+sudo systemctl restart nginx

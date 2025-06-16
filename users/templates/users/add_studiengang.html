@@ -1,21 +1,22 @@
 <!-- add_studiengang.html -->
 {% extends 'master_layout.html' %}
 {% load static %}
+{% load i18n %}
 {% block content %}
-    <h2>Neuen Studiengang hinzufügen</h2>
+    <h2>{% trans "Neuen Studiengang hinzufügen"%}</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Speichern</button>
+        <button type="submit">{% trans "Speichern"%}</button>
     </form>
 
-    <h3>Vorhandene Studiengänge</h3>
+    <h3>{% trans "Vorhandene Studiengänge"%}</h3>
     <ul>
         {% for studiengang in studiengaenge %}
             <li>
                 {{ studiengang.name }}
                 {% if studiengang.ersteller == request.user.id or request.user.is_superuser %}
-                    <a href="{% url 'users:delete_studiengang' studiengang.id %}">Löschen</a>
+                    <a href="{% url 'users:delete_studiengang' studiengang.id %}">{% trans "Löschen"%}</a>
                 {% endif %}
             </li>
         {% endfor %}

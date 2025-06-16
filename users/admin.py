@@ -33,12 +33,12 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2', 'email', 'role', 'professor'),  # Hinzufügen von Rolle und Professor
+            'fields': ('username', 'password1', 'password2', 'role', 'professor','nutzergruppe','semester','studiengang'),  # Hinzufügen von Rolle und Professor
         }),
     )
 
     # Felder, die in der Admin-Listenansicht angezeigt werden
-    list_display = ('username', 'email', 'role', 'professor','last_login')
+    list_display = ('username', 'role', 'professor','last_login','nutzergruppe','semester','studiengang')
     
     # Filter, um nach bestimmten Rollen zu filtern
     list_filter = ('role',)
