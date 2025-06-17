@@ -27,6 +27,7 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'unterkategorie',
             'aufgabeninfo',
             'mailtext',
+            'umsatzsteuerfrei',
             'feedback_konto_falsch',
             'feedback_betrag_falsch',
             'zahlweise',
@@ -117,13 +118,18 @@ class AufgabeImportForm(forms.ModelForm):
 class AufgabeBearbeitenForm(forms.ModelForm):
     class Meta:
         model = Aufgabe_neu
-        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'rechnungstyp','mailtext','verabschiedung','nutzungsdauer','beschreibung', 'feedback_konto_falsch', 'feedback_betrag_falsch','zahlweise']
+        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'rechnungstyp','mailtext','verabschiedung','nutzungsdauer','rechnungsnummer','umsatzsteuerfrei','beschreibung', 'feedback_konto_falsch', 'feedback_betrag_falsch','zahlweise']
+    
 
 class AufgabeDetailBearbeitenForm(forms.ModelForm):
     class Meta:
         model = AufgabeDetail
         fields = ['konto', 'soll_haben', 'betrag']
-
+    def __init__(self, *args, **kwargs):
+        kontenplan = kwargs.pop('kontenplan', None)
+        super().__init__(*args, **kwargs)
+        if kontenplan:
+            self.fields['konto'].queryset = Konto.objects.filter(kontenplan=kontenplan)
 class KontoForm(forms.ModelForm):
     class Meta:
         model = Konto

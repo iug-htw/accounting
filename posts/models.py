@@ -53,6 +53,7 @@ class Aufgabe_neu(models.Model):
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Ein allgemeines Feedback für eine falsche Lösung hinsichtlich des Betrages.", verbose_name=_("Feedback Betrag falsch"))
     immer_feedback = models.BooleanField(null=True, blank=True, verbose_name=_("immer Feedback"))
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
+    umsatzsteuerfrei = models.BooleanField(null=True, blank=True, default=0)
     eigene_ansicht = models.TextField(blank=True, null=True, default='Secure Net\nTreskowallee 8\n10318 Berlin',help_text="Angezeigter Text in der Mail, welche für die Nutzer verschickt wird. Zeigt die Addresse des eigenen Unternehmens", verbose_name=_("Eigene Ansicht"))
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001', verbose_name=_("Rechnungsnummer"))
     datum = models.DateField(blank=True, null=True, auto_now_add=True, verbose_name=_("Datum"))

@@ -346,7 +346,7 @@ def rechnung_detail_view(request, aufgabe_id):
     }
 
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
-    id_to_name = {konto.id: konto.name for konto in Konto.objects.all()}
+    id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
@@ -364,6 +364,7 @@ def rechnung_detail_view(request, aufgabe_id):
         'nutzer_aufgabe': nutzer_aufgabe,
         'next_aufgabe': next_aufgabe,
         'buchungen': buchungen,
+        'umsatzsteuerfrei':aufgabe.umsatzsteuerfrei,
         'buchung_status': buchung_status,
         'konten': konten,
         'block_buchung': block_buchung,
@@ -820,7 +821,7 @@ def aufgabe_bearbeiten(request, aufgabe_id):
     if aufgabe.ersteller != request.user.id and not request.user.is_superuser:
         return HttpResponse(_("Keine Berechtigung zum Bearbeiten."))
     details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
-
+    kontenplan = aufgabe.unternehmen_kategorie.kontenplan
     if request.method == 'POST':
         result = handle_form_submission(request, AufgabeBearbeitenForm, "Aufgabe erfolgreich bearbeitet.", 'posts:aufgaben_verwalten', instance=aufgabe)
         if result:
@@ -833,7 +834,7 @@ def aufgabe_bearbeiten(request, aufgabe_id):
             return result
 
     form = AufgabeBearbeitenForm(instance=aufgabe)
-    detail_forms = [AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail) for detail in details]
+    detail_forms = [AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail, kontenplan=kontenplan) for detail in details]
     return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
 
 def name_oder_id_liste_zu_id_liste(eingabe_liste):

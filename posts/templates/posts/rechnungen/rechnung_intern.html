@@ -3,41 +3,58 @@
 {% load my_filters %}
 {% load static %}
 {% load i18n %}
-<!--
 {% block content %}
 <div class="invoice-box">
-    <div class="company-address">
-        <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
-    </div>
 
-    <div class="client-address" style="text-align: right;">
-        <p><strong>{{ anschrift_kunde|linebreaks }}</strong></p>
+        <div class="invoice-header" style="margin-top: 20px;">
+            <p><strong>{% trans "Datum:"%}</strong> {{ datum|date:"d.m.Y" }}</p>
+            {% if aufgabe.rechnungstyp != "non" %}
+                <p><strong>{% trans "Rechnung Nr.:"%}</strong> {{ rechnungsnummer|default:_("Keine Nummer angegeben") }}</p>
+            {% endif %}
+        </div>
+    
+        <div class="invoice-description" style="margin-top: 20px;">
+                <h3>{% trans "Geschäftsvorfall"%}</h3>
+            <br><br>
+                <p>
+                {% if aufgabe.rechnungstyp == "non"%}
+                    {% trans "Guten Tag,"%} <br><br>{% trans "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"%}
+                {% else %}
+                    {% trans "Guten Tag,"%} 
+                {%endif%}
+                <br><br>
+                {{ beschreibung|linebreaks }}<br><br>
+            </p>
+        </div>
+    
+        <div class="invoice-amount" style="margin-top: 20px;">
+            {% if aufgabe.fragentyp_id == 10 %}
+                <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rechnungsbetrag|mul:1.05|floatformat:2 }}</p>
+            {% elif aufgabe.fragentyp_id == 13%}
+                <p><strong>{% trans "Anschaffungskosten (Netto):"%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
+            {% else %}
+            <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
+            {% endif %}
+        </div>
+        {% if zahlweise and aufgabe.rechnungstyp != "non" %}
+        <div class="payment-info" style="margin-top: 20px;">
+            <p><strong>{% trans "Zahlungsweise:"%}</strong> {{ zahlweise|default:_("Keine Zahlungsart angegeben") }}</p>
+        </div>
+        {%endif%}
+        <div class="invoice-footer" style="margin-top: 40px;">
+            <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
+            {% if aufgabe.rechnungstyp == "ausgehend" %}
+                <p>{% trans "Ihr SecureNet Team"%} </p>
+                <p><strong>{% trans "Kontakt:"%}</strong><br>SecureNet@gmail.com</p>
+            {% elif aufgabe.rechnungstyp == "eingehend" %}
+                <p>{{ nutzer_aufgabe.absender.name }}</p>
+                <p><strong>{% trans "Kontakt:"%}</strong><br>{{ nutzer_aufgabe.absender.email|linebreaks }}</p>
+            {%else %}
+                <p>Ihre SecureNet Buchhaltung</p>
+            {%endif%}
+            <br>
+            
+        </div>
     </div>
-
-    <div class="invoice-header" style="margin-top: 20px;">
-        <p><strong>Datum:</strong> {{ datum|date:"d.m.Y" }}</p>
-        <p><strong>Interner Vorgang Nr.:</strong> {{ rechnungsnummer|default:"Keine Nummer angegeben" }}</p>
-    </div>
-
-    <div class="invoice-description" style="margin-top: 20px;">
-        <h3>Interner Vorgang</h3>
-        <p>
-            Sehr geehrte Kolleginnen und Kollegen,<br><br>
-            {{ beschreibung|linebreaks }}
-        </p>
-    </div>
-
-    <div class="invoice-amount" style="margin-top: 20px;">
-        <p><strong>Gesamtbetrag:</strong> {{ rechnungsbetrag|floatformat:2 }} EUR</p>
-        <p><strong>Verwendungszweck:</strong> {{ zahlweise|default:"Interne Umbuchung" }}</p>
-    </div>
-
-    <div class="invoice-footer" style="margin-top: 40px;">
-        <p>Bitte nehmen Sie die Buchung in Ihrer Kostenstellenübersicht vor.</p>
-        <p>Mit freundlichen Grüßen,</p>
-        <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
-        <p><strong>Kontakt:</strong><br>{{ kontakt|linebreaks }}</p>
-    </div>
-</div>
 {% endblock %}
-!-->
+
