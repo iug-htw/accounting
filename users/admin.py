@@ -26,7 +26,7 @@ class CustomUserAdmin(UserAdmin):
 
     # Felder, die im Admin-Formular angezeigt werden sollen
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('role', 'professor')}),  # Füge die Felder "role" und "professor" hinzu
+        (None, {'fields': ('role', 'professor','nutzergruppe')}),  # Füge die Felder "role" und "professor" hinzu
     )
 
     # Felder, die beim Hinzufügen eines neuen Benutzers im Admin angezeigt werden

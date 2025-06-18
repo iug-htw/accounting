@@ -551,8 +551,8 @@ def handle_nutzer_buchung(request, aufgabe):
         betrag_status = 0  # Beide korrekt
 
     # Summe Soll = Summe Haben prüfen
-    summe_soll_nutzer = sum(betraege_soll_nutzer)
-    summe_haben_nutzer = sum(betraege_haben_nutzer)
+    summe_soll_nutzer = round(sum(betraege_soll_nutzer),2)
+    summe_haben_nutzer = round(sum(betraege_haben_nutzer),2)
     summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
 
     # Speichern der Fehlerstatus in der Datenbank

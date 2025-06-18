@@ -77,7 +77,7 @@
         </tr>
             {% for konto in konten %}
             <tr>
-                <td>{{ konto.name }}</td>
+                <td>{{ konto.name }} {{form.id}}</td>
                 <td>{{konto.kontonummer}}</td>
                 <td>{{ konto.kategorie }}</td>
                 <td>{{ konto.unterkategorie }}</td>
