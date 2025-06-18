@@ -283,13 +283,8 @@ def aufgaben_zuweisen_view(request):
                 unternehmen=aufgabe.unternehmen_kategorie
             )
             for student in studierende:
-                sem_name = student.semester.name
-                studiengang_name = student.studiengang.name
-                aufgabe_name = _("Aufgabe {id}").format(id=aufgabe.id)
-                if sem_name in aufgaben_uebersicht and studiengang_name in aufgaben_uebersicht[sem_name]:
-                    if aufgabe_name in aufgaben_uebersicht[sem_name][studiengang_name]:
-                        print(_("bereits zugewiesen"))
-                        continue  # Aufgabe wurde bereits zugewiesen
+                if NutzerAufgabe.objects.filter(nutzer=student, aufgabe=aufgabe).exists():
+                    continue  # Aufgabe bereits zugewiesen – überspringen
                 zufaellige_werte = generiere_zufaellige_werte(aufgabe)
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
                 #print(f"Hier steht der Absender in User{nutzer_aufgabe.absender_id}")

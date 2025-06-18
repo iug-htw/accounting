@@ -652,8 +652,8 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
 def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
     #print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
     if versuch == 1:
-        betreff = f"Bitte bearbeiten Sie Folgende Rechnung: {aufgabe.rechnungsnummer}"
-        betreff_en = f"Please process the following invoice: {aufgabe.rechnungsnummer}"
+        betreff = f"Bitte bearbeiten Sie folgenden Geschäftsvorfall: {aufgabe.rechnungsnummer}"
+        betreff_en = f"Please process the following business transaction: {aufgabe.rechnungsnummer}"
     else:
         v = round((versuch/2) + 1,0)
         betreff = f"Rechnung: {aufgabe.rechnungsnummer} Versuch {v}"
