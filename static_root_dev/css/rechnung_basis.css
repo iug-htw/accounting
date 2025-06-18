@@ -1,0 +1,21 @@
+body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+.header, .footer { text-align: center; }
+.details, .amount { margin-top: 20px; }
+.amount { font-weight: bold; font-size: 1.2em; }
+.highlight { background-color: #f0f0f0; padding: 10px; border-radius: 5px; }
+.no-data { color: #999; font-style: italic; }
+.invoice-box {
+    width: 800px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+.company-address, .client-address, .invoice-header, .invoice-description, .invoice-amount, .invoice-footer {
+    margin-bottom: 15px;
+}
+.invoice-amount {
+    font-weight: bold;
+}
