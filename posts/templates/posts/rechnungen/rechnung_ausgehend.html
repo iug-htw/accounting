@@ -23,7 +23,7 @@
             <p><strong>{% trans "Datum:"%}</strong> {{ datum|date:"d.m.Y" }}</p>
             <p><strong>{% trans "Rechnung Nr.:"%}</strong> {{ rechnungsnummer }}</p>
             {% if aufgabe.hat_leistungszeitraum == 1 %}
-                <p><strong>{% trans "Leistungszeitraum"%}: </strong> {{datum |date:"d.m.Y"}}</p>
+                <p><strong>{% trans "Leistungszeitraum"%}: </strong> {{leistungszeitraum_anfang |date:"d.m.Y"}} - {{leistungszeitraum_ende |date:"d.m.Y"}}</p>
             {% else %}
                 <p><strong>{% trans "Datum"%}: </strong> {{datum |date:"d.m.Y"}}</p>
             {% endif %}

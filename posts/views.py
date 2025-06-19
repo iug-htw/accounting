@@ -356,6 +356,8 @@ def rechnung_detail_view(request, aufgabe_id):
         'hat_leistungszeitraum': aufgabe.hat_leistungszeitraum,
         #'anschrift_kunde': aufgabe.anschrift_kunde,
         'eigene_ansicht': aufgabe.eigene_ansicht,
+        'leistungszeitraum_anfang': nutzer_aufgabe.leistungszeitraum_anfang,
+        'leistungszeitraum_ende': nutzer_aufgabe.leistungszeitraum_ende,
         'beschreibung': aufgabe.beschreibung,
         'rechnungsbetrag': Decimal(sum(nutzer_aufgabe.haben_betraege)),
         'zahlweise': aufgabe.zahlweise,
