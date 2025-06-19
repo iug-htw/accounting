@@ -22,7 +22,11 @@
         <div class="invoice-header" style="margin-top: 20px;">
             <p><strong>{% trans "Datum:"%}</strong> {{ datum|date:"d.m.Y" }}</p>
             <p><strong>{% trans "Rechnung Nr.:"%}</strong> {{ rechnungsnummer }}</p>
-            <p><strong>Leistungszeitraum: </strong> 01.02.2025 - 28.02.2025</p>
+            {% if aufgabe.hat_leistungszeitraum == 1 %}
+                <p><strong>{% trans "Leistungszeitraum"%}: </strong> {{datum |date:"d.m.Y"}}</p>
+            {% else %}
+                <p><strong>{% trans "Datum"%}: </strong> {{datum |date:"d.m.Y"}}</p>
+            {% endif %}
         </div>
     
         <div class="invoice-description" style="margin-top: 20px;">
@@ -55,5 +59,6 @@
             
         </div>
     </div>
+
 {% endblock %}
 

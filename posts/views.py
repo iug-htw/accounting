@@ -6,6 +6,7 @@ from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufg
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm,AufgabeImportForm
 from django.contrib import messages
 import json, random, hashlib,openpyxl,threading,requests
+from random import choice
 from openpyxl import load_workbook
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
@@ -344,14 +345,15 @@ def rechnung_detail_view(request, aufgabe_id):
         'intern': 'posts/rechnungen/rechnung_intern.html',
         'non': 'posts/rechnungen/rechnung_intern.html'
     }
-
+    datum = nutzer_aufgabe.erstellt_am
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
     id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
         'rechnungsnummer': aufgabe.rechnungsnummer,
-        'datum': aufgabe.datum,
+        'datum': datum,
+        'hat_leistungszeitraum': aufgabe.hat_leistungszeitraum,
         #'anschrift_kunde': aufgabe.anschrift_kunde,
         'eigene_ansicht': aufgabe.eigene_ansicht,
         'beschreibung': aufgabe.beschreibung,
@@ -629,14 +631,16 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
     )
 
     if not nutzer_aufgabe.absender:
-        absender = generate_random_absender()
-        nutzer_aufgabe.absender = absender
-        nutzer_aufgabe.save(update_fields=["absender"])
-        #print(f"✅ Neuer Absender gesetzt für Nutzer {nutzer.username}, Aufgabe {aufgabe.id}: {absender.id}")
-    #else:
-        #print(f"⚠️ Nutzer {nutzer.username}, Aufgabe {aufgabe.id} hat bereits einen Absender: {nutzer_aufgabe.absender_id}")
+        absender_liste = Absender.objects.all()
+        nutzer_aufgabe.speichere_leistungszeitraum()
+        if absender_liste.exists():
+            absender = choice(absender_liste)  # zufälligen bestehenden wählen
+        else:
+            absender = None  # Fallback: None, falls keine existieren
+        if absender:
+            nutzer_aufgabe.absender = absender
+            nutzer_aufgabe.save(update_fields=["absender"])
 
-    #print(f"✅ Absender für {nutzer.username} - Aufgabe {aufgabe.id}: {nutzer_aufgabe.absender}")
     return nutzer_aufgabe
 
 def berechne_naechsten_versuch(nutzer, aufgabe):

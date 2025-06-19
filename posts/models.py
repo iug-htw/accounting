@@ -5,6 +5,8 @@ from django.utils import timezone
 import json
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
+from datetime import date, timedelta
+import random
 
 class Unternehmen(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
@@ -68,6 +70,7 @@ class Aufgabe_neu(models.Model):
     beschreibung_en = models.TextField(blank=True, null=True, default='No further details.', verbose_name=_("Beschreibung"))
     rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern', verbose_name=_("Rechnungstyp"))
     aufgabeninfo = models.TextField(null=True, blank=True, help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt).", verbose_name=_("Aufgabeninfo"))
+    hat_leistungszeitraum = models.BooleanField(null=True, blank=True, default=0)
 
     def __str__(self):
         return f"({self.fragentyp})"
@@ -140,10 +143,28 @@ class NutzerAufgabe(models.Model):
     haben_betraege = models.JSONField(default=list, verbose_name=_("Haben Beträge"))  # Liste der Haben-Beträge
     erstellt_am = models.DateTimeField(auto_now_add=True, verbose_name=_("Erstellt am"))
     bearbeitungsstand = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offen', verbose_name=_("Bearbeitungsstand"))
+    leistungszeitraum_anfang = models.DateField(null=True, blank=True)
+    leistungszeitraum_ende = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"NutzerAufgabe für {self.nutzer.username} - {self.aufgabe.fragentyp_text}"
-
+    def speichere_leistungszeitraum(self):
+        """Erzeugt einen gültigen Leistungszeitraum auf Basis der Aufgabenerstellung."""
+        referenzdatum = date.today()
+        # 1. Wähle Startdatum: 1–3 Monate vor Rechnungsdatum
+        tage_vorher = random.randint(1, 45)
+        dauer_tage = random.randint(14, 60)
+        startdatum = referenzdatum - timedelta(days=tage_vorher+dauer_tage)
+        endedatum = referenzdatum - timedelta(days=tage_vorher)
+        # 3. Falls Jahreswechsel: kürze Enddatum auf 31.12 des Startjahres
+        if endedatum.year != startdatum.year:
+            endedatum = date(startdatum.year, 12, 31)
+        self.leistungszeitraum_anfang = startdatum
+        self.leistungszeitraum_ende = endedatum
+    def save(self, *args, **kwargs):
+        if not self.leistungszeitraum_anfang or not self.leistungszeitraum_ende:
+            self.speichere_leistungszeitraum()
+        super().save(*args, **kwargs)
     
 class Mail(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("Nutzer"))
