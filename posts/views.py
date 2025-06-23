@@ -33,14 +33,14 @@ def lehrkraft_required(view_func):
         if request.user.is_authenticated and (request.user.role == 'teacher' or request.user.is_superuser):
             return view_func(request, *args, **kwargs)
         else:
-           fehlende_berechtigung_response()
+           return fehlende_berechtigung_response()
     return _wrapped_view_func
 
 # Für Studierende
 def student_required(view_func):
     def _wrapped_view_func(request, *args, **kwargs):
         if not request.user.is_authenticated or request.user.role != 'student':
-            fehlende_berechtigung_response()
+            return fehlende_berechtigung_response()
         return view_func(request, *args, **kwargs)
     return _wrapped_view_func
 
@@ -49,7 +49,7 @@ def admin_required(view_func):
         if request.user.is_authenticated and request.user.is_superuser:
             return view_func(request, *args, **kwargs)
         else:
-            fehlende_berechtigung_response()
+            return fehlende_berechtigung_response()
     return _wrapped_view_func
 
 def fehlende_berechtigung_response():
@@ -311,7 +311,7 @@ def rechnung_detail_view(request, aufgabe_id):
         buchung = handle_nutzer_buchung(request, aufgabe)
         if not is_buchung_korrekt(buchung, nutzer_aufgabe):
             send_korrektur_mail(request.user, aufgabe, request)
-        return redirect('posts:rechnung_detail', aufgabe_id=aufgabe.id)
+        return redirect('frontpage')
 
     letzte_buchung = buchungen.last()
 
@@ -854,7 +854,8 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=buchung.aufgabe_id)
     nutzeraufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
     absender = get_object_or_404(Absender, id=nutzeraufgabe.absender_id)
-
+    print(f"✅ Nutzeraufgabe gefunden: {nutzeraufgabe}")
+    print(f"✅ Absender geladen: {absender}")
     letzte_buchung = Buchung.objects.filter(aufgabe=buchung.aufgabe, nutzer=request.user).order_by('-versuch').first()
     naechster_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
 
@@ -865,7 +866,8 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
     # Prüfen ob ID oder Name enthalten ist, und ggf. umwandeln
     soll_ids = [str(k) for k in name_oder_id_liste_zu_id_liste(soll_liste)]
     haben_ids = [str(k) for k in name_oder_id_liste_zu_id_liste(haben_liste)]
-
+    print(f"➡️ Soll-IDs: {soll_ids}")
+    print(f"➡️ Haben-IDs: {haben_ids}")
     neue_buchung = Buchung.objects.create(
         aufgabe=buchung.aufgabe,
         nutzer=request.user,
@@ -879,10 +881,11 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
         korrekturbuchung=True,
         versuch=naechster_versuch
     )
-
+    print(f"✅ Neue Korrekturbuchung gespeichert: {neue_buchung}")
+    print("📧 Mail erstellt")
     erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch+1, absender)
     messages.success(request, _('Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt.') % {'versuch': naechster_versuch})
-    return redirect('posts:rechnung_detail', aufgabe_id=buchung.aufgabe.id)
+    return redirect('frontpage')
 
 @login_required
 def posteingang(request):
@@ -944,6 +947,7 @@ def send_korrektur_mail(nutzer, aufgabe, request):
         
         <p>Please correct the entry by completing an adjustment entry following this link: </p>
         <p><a href="{update_url}">Correct the journal Entry</a></p>
+        <p>Your previous journal entries, as well as feedback on them, are stored in the input section for the accounts. To view them, expand the entries by clicking on 'Show/Hide Entries' and then click on your most recent entry.</p> 
         <p>Thank you, <br>Your Booking Team</p>"""
     )
     mailtext = (
@@ -953,6 +957,7 @@ def send_korrektur_mail(nutzer, aufgabe, request):
         
         <p>Bitte führen Sie eine Korrekturbuchung über den folgenden Link durch: </p>
         <p><a href="{update_url}">Zur Korrekturbuchung</a></p>
+        <p>Ihre alten Buchungen, sowie Feedback zu den Buchungen, ist unter in der Eingabemaske für die Konten hinterlegt. Klappen Sie dafür die Buchungen auf, indem Sie auf "Buchungen anzeigen/verstecken" und anschließend auf Ihre letzte Buchung drücken.</p> 
         <p>Vielen Dank, <br>Ihr Buchhaltungsteam</p>"""
     )
 
@@ -1406,7 +1411,13 @@ def aufgaben_verwalten(request):
         aufgaben = Aufgabe_neu.objects.all()
     else:
         aufgaben = Aufgabe_neu.objects.filter(Q(ersteller=request.user.id) | Q(ersteller=1))
-    return render(request, 'posts/aufgaben_verwalten.html', {'aufgaben': aufgaben})
+    aufgaben_nach_unternehmen = defaultdict(list)
+    for aufgabe in aufgaben:
+        aufgaben_nach_unternehmen[aufgabe.unternehmen_kategorie].append(aufgabe)
+
+    return render(request, 'posts/aufgaben_verwalten.html', {
+        'aufgaben_nach_unternehmen': dict(aufgaben_nach_unternehmen)
+    })
 
 @lehrkraft_required
 def aufgabe_loeschen(request, aufgabe_id):

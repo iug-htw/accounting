@@ -1,24 +1,24 @@
 /* === Globale Einstellungen === */
-body {
+.aufgabe-zuweisen-page body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f8;
     color: #333;
     margin: 0;
 }
 /* === Überschriften === */
-h1 {
+.aufgabe-zuweisen-page h1 {
     text-align: center;
     color: #222;
     margin-bottom: 1.5rem;
 }
 
-h2 {
+.aufgabe-zuweisen-page h2 {
     font-size: 20px;
     color: #222;
     margin-bottom: 1rem;
 }
 
-h3 {
+.aufgabe-zuweisen-page h3 {
     font-size: 18px;
     color: #333;
     margin: 1.5rem 0 0.5rem;
@@ -57,18 +57,18 @@ h3 {
 }
 
 /* === Checkboxen === */
-input[type="checkbox"] {
+.aufgabe-zuweisen-page input[type="checkbox"] {
     transform: scale(1.1);
     cursor: pointer;
 }
 
-label {
+.aufgabe-zuweisen-page label {
     font-size: 15px;
     color: #333;
 }
 
 /* === Aufgabe zuweisen Button === */
-form:not([action$="aufgaben_selbst_zuweisen"]) button[type="submit"] {
+.aufgabe-zuweisen-page form:not([action$="aufgaben_selbst_zuweisen"]) button[type="submit"] {
     padding: 10px 20px;
     background-color: #120639;
     color: #fff;
@@ -81,19 +81,19 @@ form:not([action$="aufgaben_selbst_zuweisen"]) button[type="submit"] {
     margin-top: 0.5rem;
 }
 
-form:not([action$="aufgaben_selbst_zuweisen"]) button[type="submit"]:hover {
+.aufgabe-zuweisen-page form:not([action$="aufgaben_selbst_zuweisen"]) button[type="submit"]:hover {
     background-color: #3c0f79;
 }
 
 /* === "Alle Aufgaben mir zuweisen" Button === */
-form[action$="aufgaben_selbst_zuweisen"] {
+.aufgabe-zuweisen-page form[action$="aufgaben_selbst_zuweisen"] {
     display: flex;
     justify-content: center;
     margin-top: -1rem;
     margin-bottom: 3rem;
 }
 
-form[action$="aufgaben_selbst_zuweisen"] button {
+.aufgabe-zuweisen-page form[action$="aufgaben_selbst_zuweisen"] button {
     padding: 10px 20px;
     background-color: #120639;
     color: white;
@@ -106,7 +106,7 @@ form[action$="aufgaben_selbst_zuweisen"] button {
     margin-top: 1rem;
 }
 
-form[action$="aufgaben_selbst_zuweisen"] button:hover {
+.aufgabe-zuweisen-page form[action$="aufgaben_selbst_zuweisen"] button:hover {
     background-color: #3c0f79;
 }
 /* === Button-Gruppe (Zuweisen + Alle Aufgaben) === */

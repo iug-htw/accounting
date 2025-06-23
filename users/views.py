@@ -369,7 +369,7 @@ def update_profile(request):
             messages.success(request, _("Profil erfolgreich aktualisiert."))
 
             # Älteste Mail des Nutzers ohne Aufgabe als bearbeitet markieren
-            mail = Mail.objects.filter(nutzer=user, aufgabe__isnull=True).order_by("datum").first()
+            mail = Mail.objects.filter(nutzer=user, aufgabe__isnull=True).order_by("datum")[1]
             #rint(mail.id)
             if mail:
                 mail.status = "bearbeitet"

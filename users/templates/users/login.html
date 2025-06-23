@@ -29,10 +29,12 @@
                 {{ form.username.label_tag }}
                 {{ form.username }}
             </div>
-            <div class="form-group">
+            <div class="form-group" style="position: relative;">
                 {{ form.password.label_tag }}
                 {{ form.password }}
+                <button type="button" onclick="togglePassword('id_password')" style="position: absolute; right: 10px; top: 33px;">👁</button>
             </div>
+
 
             {% if request.GET.next %}
                 <input type="hidden" name="next" value="{{ request.GET.next }}" />
@@ -42,4 +44,15 @@
         </form>
     </div>
 </div>
+<script>
+function togglePassword(id) {
+    const input = document.getElementById(id);
+    if (input && input.type === "password") {
+        input.type = "text";
+    } else if (input) {
+        input.type = "password";
+    }
+}
+</script>
+
 {% endblock %}

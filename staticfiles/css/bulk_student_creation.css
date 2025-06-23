@@ -1,5 +1,5 @@
 /* === GRUNDLAYOUT === */
-body {
+.nutzer-erstellen-page body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f8;
     color: #222;
@@ -7,7 +7,7 @@ body {
     padding: 2rem;
 }
 
-h1, h2 {
+.nutzer-erstellen-page h1, .nutzer-erstellen-page h2 {
     text-align: center;
     color: #120639;
     margin-bottom: 1.5rem;
@@ -43,7 +43,7 @@ h1, h2 {
 
 
 /* === FORMULAR === */
-form {
+.nutzer-erstellen-page form {
     max-width: 600px;
     margin: 0 auto;
     background: #ffffff;
@@ -55,16 +55,16 @@ form {
     gap: 1.2rem;
 }
 
-label {
+.nutzer-erstellen-page label {
     font-weight: bold;
     margin-bottom: 0.3rem;
     color: #333;
     font-size: 14px;
 }
 
-input[type="text"],
-select,
-input[type="range"] {
+.nutzer-erstellen-page input[type="text"],
+.nutzer-erstellen-page select,
+.nutzer-erstellen-page input[type="range"] {
     padding: 0.7rem;
     font-size: 14px;
     border-radius: 6px;
@@ -75,12 +75,12 @@ input[type="range"] {
     width: 100%;
 }
 
-input[type="range"] {
+.nutzer-erstellen-page input[type="range"] {
     padding: 0;
 }
 
-input:focus,
-select:focus {
+.nutzer-erstellen-page input:focus,
+.nutzer-erstellen-page select:focus {
     outline: none;
     border-color: #57a424;
     box-shadow: 0 0 0 2px rgba(87, 164, 36, 0.2);
@@ -97,7 +97,7 @@ select:focus {
 }
 
 /* === BUTTON === */
-button[type="submit"] {
+.nutzer-erstellen-page button[type="submit"] {
     background-color: #5cbad3;
     color: white;
     padding: 12px 20px;
@@ -109,12 +109,12 @@ button[type="submit"] {
     transition: background-color 0.3s ease;
 }
 
-button[type="submit"]:hover {
+.nutzer-erstellen-page button[type="submit"]:hover {
     background-color: #8cd0dd;
 }
 
 /* === TABELLE === */
-table {
+.nutzer-erstellen-page table {
     margin: 2rem auto;
     border-collapse: collapse;
     width: 90%;
@@ -124,24 +124,24 @@ table {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-table th,
-table td {
+.nutzer-erstellen-page table .nutzer-erstellen-page th,
+.nutzer-erstellen-page table .nutzer-erstellen-page td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-table th {
+.nutzer-erstellen-page table .nutzer-erstellen-page th {
     background-color: #f0f0f0;
     color: #120639;
     font-size: 14px;
 }
 
-table td {
+.nutzer-erstellen-page table .nutzer-erstellen-page td {
     font-size: 14px;
 }
 
-p {
+.nutzer-erstellen-page p {
     text-align: center;
     margin-top: 1rem;
     font-size: 13px;

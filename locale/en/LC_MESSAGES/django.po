@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-11 13:31+0200\n"
+"POT-Creation-Date: 2025-06-23 16:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,17 +18,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\posts\forms.py:11 .\posts\forms.py:79 .\posts\models.py:79
-#: .\posts\models.py:194 .\posts\templates\posts\konten_verwalten.html:47
+#: .\posts\forms.py:11 .\posts\forms.py:81 .\posts\models.py:83
+#: .\posts\models.py:216 .\posts\templates\posts\konten_verwalten.html:47
 #: .\posts\templates\posts\konten_verwalten.html:67
 msgid "Kontenplan"
 msgstr "Chart of accounts"
 
-#: .\posts\forms.py:13 .\posts\forms.py:81
+#: .\posts\forms.py:13 .\posts\forms.py:83
 msgid "Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
 msgstr "Select the chart of accounts to which this task refers."
 
-#: .\posts\forms.py:18 .\posts\forms.py:86
+#: .\posts\forms.py:18 .\posts\forms.py:88
 msgid "Zusatzinformation zur Aufgabe"
 msgstr "Additional information about the task"
 
@@ -36,173 +36,175 @@ msgstr "Additional information about the task"
 msgid "Optionaler Informationstext zur Aufgabe (HTML erlaubt)."
 msgstr "Optional information text for the task (HTML allowed)."
 
-#: .\posts\models.py:10 .\posts\models.py:25
+#: .\posts\models.py:12 .\posts\models.py:27
 #: .\posts\templates\posts\konten_verwalten.html:57 .\users\models.py:38
 #: .\users\models.py:44
 msgid "Name"
 msgstr "Name"
 
-#: .\posts\models.py:11
+#: .\posts\models.py:13
 msgid "kontenplan"
 msgstr "chart of accounts"
 
-#: .\posts\models.py:12
+#: .\posts\models.py:14
 msgid "Fallstudie"
 msgstr "Case study"
 
-#: .\posts\models.py:13 .\posts\models.py:45 .\posts\models.py:97
+#: .\posts\models.py:15 .\posts\models.py:47 .\posts\models.py:101
 #: .\users\models.py:39 .\users\models.py:45
 msgid "Ersteller"
 msgstr "Creator"
 
-#: .\posts\models.py:26
+#: .\posts\models.py:28
 msgid "Email"
 msgstr "Email"
 
-#: .\posts\models.py:27
+#: .\posts\models.py:29
 msgid "Straße"
 msgstr "Street"
 
-#: .\posts\models.py:28
+#: .\posts\models.py:30
 msgid "Stadt"
 msgstr "City"
 
-#: .\posts\models.py:29
+#: .\posts\models.py:31
 msgid "Plz"
 msgstr "Zip Code"
 
-#: .\posts\models.py:30
+#: .\posts\models.py:32
 msgid "telnr"
 msgstr "phone number"
 
-#: .\posts\models.py:38
+#: .\posts\models.py:40
 msgid "Eingehende Rechnung"
 msgstr "Incoming invoice"
 
-#: .\posts\models.py:39
+#: .\posts\models.py:41
 msgid "Ausgehende Rechnung"
 msgstr "Outgoing invoice"
 
-#: .\posts\models.py:40
+#: .\posts\models.py:42
 msgid "Interner Vorgang"
 msgstr "Internal transaction"
 
-#: .\posts\models.py:41
+#: .\posts\models.py:43
 msgid "Keine Rechnungsansicht"
 msgstr "No invoice view"
 
-#: .\posts\models.py:43
+#: .\posts\models.py:45
 msgid "Unternehmen Kategorie"
 msgstr "Business category"
 
-#: .\posts\models.py:44 .\posts\templates\posts\aufgaben_verwalten.html:16
+#: .\posts\models.py:46 .\posts\templates\posts\aufgaben_verwalten.html:21
 #: .\posts\templates\posts\rechnungsuebersicht.html:18
 msgid "Fragentyp"
 msgstr "Question type"
 
-#: .\posts\models.py:46 .\posts\models.py:186
+#: .\posts\models.py:48 .\posts\models.py:208
 #: .\posts\templates\posts\konten_verwalten.html:60
 msgid "Unterkategorie"
 msgstr "Sub Category"
 
-#: .\posts\models.py:48 .\posts\models.py:49 .\posts\models.py:50
-#: .\posts\models.py:154 .\posts\models.py:155 .\posts\models.py:156
+#: .\posts\models.py:50 .\posts\models.py:51 .\posts\models.py:52
+#: .\posts\models.py:176 .\posts\models.py:177 .\posts\models.py:178
 msgid "Mailtext"
 msgstr "Mailtext"
 
-#: .\posts\models.py:51
+#: .\posts\models.py:53
 msgid "Nutzungsdauer"
 msgstr "Useful life"
 
-#: .\posts\models.py:52
+#: .\posts\models.py:54
 msgid "Feedback Konto falsch"
 msgstr "Feedback incorrect account"
 
-#: .\posts\models.py:53
+#: .\posts\models.py:55
 msgid "Feedback Betrag falsch"
 msgstr "Feedback incorrect amount"
 
-#: .\posts\models.py:54
+#: .\posts\models.py:56
 msgid "immer Feedback"
 msgstr "always feedback"
 
-#: .\posts\models.py:56
+#: .\posts\models.py:59
 msgid "Eigene Ansicht"
 msgstr "Custom view"
 
-#: .\posts\models.py:57
+#: .\posts\models.py:60
 msgid "Rechnungsnummer"
 msgstr "Invoice number"
 
-#: .\posts\models.py:58 .\posts\models.py:161
+#: .\posts\models.py:61 .\posts\models.py:183
 #: .\posts\templates\posts\posteingang.html:19
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:27
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:27
 msgid "Datum"
 msgstr "Date"
 
-#: .\posts\models.py:59
+#: .\posts\models.py:62
 msgid "Rechnungsbetrag"
 msgstr "Invoice amount"
 
-#: .\posts\models.py:60
+#: .\posts\models.py:63
 msgid "Zahlweise"
 msgstr "Payment method"
 
-#: .\posts\models.py:61 .\posts\models.py:62 .\posts\models.py:63
+#: .\posts\models.py:64 .\posts\models.py:65 .\posts\models.py:66
 msgid "Verabschiedung"
 msgstr "Closing"
 
-#: .\posts\models.py:64
+#: .\posts\models.py:67
 msgid "Kontakt"
 msgstr "Contact"
 
-#: .\posts\models.py:65 .\posts\models.py:66 .\posts\models.py:67
-#: .\posts\templates\posts\aufgaben_verwalten.html:17
+#: .\posts\models.py:68 .\posts\models.py:69 .\posts\models.py:70
+#: .\posts\templates\posts\aufgaben_verwalten.html:22
 msgid "Beschreibung"
 msgstr "Description"
 
-#: .\posts\models.py:68
+#: .\posts\models.py:71
 msgid "Rechnungstyp"
 msgstr "Invoice type"
 
-#: .\posts\models.py:69
+#: .\posts\models.py:72
 msgid "Aufgabeninfo"
 msgstr "Task info"
 
-#: .\posts\models.py:75 .\posts\models.py:95 .\posts\models.py:133
-#: .\posts\models.py:149
+#: .\posts\models.py:79 .\posts\models.py:99 .\posts\models.py:137
+#: .\posts\models.py:171
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:14
 #: .\posts\templates\posts\hauptbuch.html:24
 msgid "Aufgabe"
 msgstr "Task"
 
-#: .\posts\models.py:76 .\posts\models.py:211
+#: .\posts\models.py:80 .\posts\models.py:233
 #: .\posts\templates\posts\bilanz.html:75
 #: .\posts\templates\posts\bilanz.html:77 .\posts\templates\posts\guv.html:74
 #: .\posts\templates\posts\guv.html:76
 msgid "Konto"
 msgstr "Account"
 
-#: .\posts\models.py:77
+#: .\posts\models.py:81
 msgid "Soll/Haben"
 msgstr "Credit/Debit"
 
-#: .\posts\models.py:78 .\posts\models.py:212
+#: .\posts\models.py:82 .\posts\models.py:234
 #: .\posts\templates\posts\bilanz.html:76
 #: .\posts\templates\posts\bilanz.html:78 .\posts\templates\posts\guv.html:75
 #: .\posts\templates\posts\guv.html:77
 msgid "Betrag"
 msgstr "Amount"
 
-#: .\posts\models.py:80 .\posts\templates\posts\konten_verwalten.html:61
+#: .\posts\models.py:84 .\posts\templates\posts\konten_verwalten.html:61
 msgid "Bilanzposition"
 msgstr "Balance sheet item"
 
-#: .\posts\models.py:84 .\posts\models.py:128
+#: .\posts\models.py:88 .\posts\models.py:132
 #: .\posts\templates\posts\rechnungsuebersicht.html:30
 msgid "Offen"
 msgstr "Open"
 
-#: .\posts\models.py:85 .\posts\models.py:129 .\posts\models.py:164
+#: .\posts\models.py:89 .\posts\models.py:133 .\posts\models.py:186
 #: .\posts\templates\posts\posteingang.html:30
 #: .\posts\templates\posts\rechnungsuebersicht.html:32
 #: .\templates\frontpage.html:40 .\templates\frontpage.html:80
@@ -210,265 +212,272 @@ msgstr "Open"
 msgid "Bearbeitet"
 msgstr "Processed"
 
-#: .\posts\models.py:86 .\posts\models.py:130 .\templates\frontpage.html:44
+#: .\posts\models.py:90 .\posts\models.py:134 .\templates\frontpage.html:44
 #: .\templates\frontpage.html:84 .\templates\frontpage.html:113
 msgid "Korrekt"
 msgstr "Correct"
 
-#: .\posts\models.py:89
+#: .\posts\models.py:93
 msgid "Richtig"
 msgstr "Correct"
 
-#: .\posts\models.py:90
+#: .\posts\models.py:94
 msgid "Soll ist falsch"
 msgstr "Dedit is incorrect"
 
-#: .\posts\models.py:91
+#: .\posts\models.py:95
 msgid "Haben ist falsch"
 msgstr "Credit is incorrect"
 
-#: .\posts\models.py:92
+#: .\posts\models.py:96
 msgid "Beide sind falsch"
 msgstr "Both are incorrect"
 
-#: .\posts\models.py:94
+#: .\posts\models.py:98
 msgid "Buchungs ID"
 msgstr "Entry ID"
 
-#: .\posts\models.py:96 .\posts\models.py:135 .\posts\models.py:148
-#: .\posts\models.py:199 .\posts\models.py:210
+#: .\posts\models.py:100 .\posts\models.py:139 .\posts\models.py:170
+#: .\posts\models.py:221 .\posts\models.py:232
 msgid "Nutzer"
 msgstr "User"
 
-#: .\posts\models.py:98 .\posts\templates\posts\rechnungsuebersicht.html:19
+#: .\posts\models.py:102 .\posts\templates\posts\rechnungsuebersicht.html:19
 msgid "Status"
 msgstr "Status"
 
-#: .\posts\models.py:99
+#: .\posts\models.py:103
 msgid "Freischaltung"
 msgstr "Activation"
 
-#: .\posts\models.py:100 .\posts\models.py:157
-#: .\posts\templates\posts\rechnung.html:71
+#: .\posts\models.py:104 .\posts\models.py:179
+#: .\posts\templates\posts\rechnung.html:72
 msgid "Versuch"
 msgstr "Try"
 
-#: .\posts\models.py:101
+#: .\posts\models.py:105
 msgid "Abgeschlossen Datum"
 msgstr "Completion date"
 
-#: .\posts\models.py:102
+#: .\posts\models.py:106
 msgid "Antwort Konten Soll"
 msgstr "Answer accounts debit"
 
-#: .\posts\models.py:103
+#: .\posts\models.py:107
 msgid "Antwort Konten Haben"
 msgstr "Answer accounts credit"
 
-#: .\posts\models.py:104
+#: .\posts\models.py:108
 msgid "Antwort Betrag Soll"
 msgstr "Answer amount debit"
 
-#: .\posts\models.py:105
+#: .\posts\models.py:109
 msgid "Antwort Betrag Haben"
 msgstr "Answer amount credit"
 
-#: .\posts\models.py:106
+#: .\posts\models.py:110
 msgid "Original Konten Soll"
 msgstr "Original account debit"
 
-#: .\posts\models.py:107
+#: .\posts\models.py:111
 msgid "Original Konten Haben"
 msgstr "Original accoutn credit"
 
-#: .\posts\models.py:108
+#: .\posts\models.py:112
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:18
-#: .\posts\templates\posts\rechnung.html:78
+#: .\posts\templates\posts\rechnung.html:79
 msgid "Korrekturbuchung"
 msgstr "Adjustment entry"
 
-#: .\posts\models.py:109
+#: .\posts\models.py:113
 msgid "Konto Korrekt"
 msgstr "Account correct"
 
-#: .\posts\models.py:110
+#: .\posts\models.py:114
 msgid "Betrag Korrekt"
 msgstr "Amount correct"
 
-#: .\posts\models.py:111
+#: .\posts\models.py:115
 msgid "Feedback Ollama"
 msgstr "Feedback Ollama"
 
-#: .\posts\models.py:134 .\posts\models.py:150
+#: .\posts\models.py:138 .\posts\models.py:172
 msgid "Absender"
 msgstr "Sender"
 
-#: .\posts\models.py:136
+#: .\posts\models.py:140
 msgid "Soll Konten"
 msgstr "Debit accounts"
 
-#: .\posts\models.py:137
+#: .\posts\models.py:141
 msgid "Haben Konten"
 msgstr "Credit accounts"
 
-#: .\posts\models.py:138
+#: .\posts\models.py:142
 msgid "Soll Beträge"
 msgstr "Debit amounts"
 
-#: .\posts\models.py:139
+#: .\posts\models.py:143
 msgid "Haben Beträge"
 msgstr "Credit amounts"
 
-#: .\posts\models.py:140
+#: .\posts\models.py:144
 msgid "Erstellt am"
 msgstr "Created at"
 
-#: .\posts\models.py:141
+#: .\posts\models.py:145
 msgid "Bearbeitungsstand"
 msgstr "Processing status"
 
-#: .\posts\models.py:151 .\posts\models.py:152 .\posts\models.py:153
+#: .\posts\models.py:173 .\posts\models.py:174 .\posts\models.py:175
 #: .\posts\templates\posts\posteingang.html:16
 msgid "Betreff"
 msgstr "Subject"
 
-#: .\posts\models.py:158 .\posts\templates\posts\posteingang.html:18
+#: .\posts\models.py:180 .\posts\templates\posts\posteingang.html:18
 msgid "Von"
 msgstr "From"
 
-#: .\posts\models.py:159
+#: .\posts\models.py:181
 msgid "Absender Name"
 msgstr "Sender name"
 
-#: .\posts\models.py:160
+#: .\posts\models.py:182
 msgid "Absender Adresse"
 msgstr "Sender address"
 
-#: .\posts\models.py:163 .\posts\templates\posts\posteingang.html:32
+#: .\posts\models.py:185 .\posts\templates\posts\posteingang.html:32
 msgid "Nicht bearbeitet"
 msgstr "Not processed"
 
-#: .\posts\models.py:165
+#: .\posts\models.py:187
 msgid "nicht bearbeitet"
 msgstr "Not processed"
 
-#: .\posts\models.py:173 .\posts\templates\posts\guv.html:26
+#: .\posts\models.py:195 .\posts\templates\posts\guv.html:26
 msgid "Bestandskonto"
 msgstr "Balance sheet account"
 
-#: .\posts\models.py:174 .\posts\templates\posts\guv.html:27
+#: .\posts\models.py:196 .\posts\templates\posts\guv.html:27
 msgid "Erfolgskonto"
 msgstr "Profit and loss account"
 
-#: .\posts\models.py:178 .\posts\templates\posts\bilanz.html:27
+#: .\posts\models.py:200 .\posts\templates\posts\bilanz.html:27
 #: .\posts\templates\posts\bilanz.html:71
 msgid "Aktiva"
 msgstr "Assets"
 
-#: .\posts\models.py:179 .\posts\templates\posts\bilanz.html:28
+#: .\posts\models.py:201 .\posts\templates\posts\bilanz.html:28
 #: .\posts\templates\posts\bilanz.html:72
 msgid "Passiva"
 msgstr "Liabilities"
 
-#: .\posts\models.py:180
+#: .\posts\models.py:202
 msgid "Aufwand"
 msgstr "Expense"
 
-#: .\posts\models.py:181
+#: .\posts\models.py:203
 msgid "Ertrag"
 msgstr "Revenue"
 
-#: .\posts\models.py:184
+#: .\posts\models.py:206
 msgid "name"
 msgstr "name"
 
-#: .\posts\models.py:185
+#: .\posts\models.py:207
 msgid "kategorie"
 msgstr "category"
 
-#: .\posts\models.py:187 .\posts\templates\posts\konten_verwalten.html:58
+#: .\posts\models.py:209 .\posts\templates\posts\konten_verwalten.html:58
 msgid "Kontonummer"
 msgstr "Account number"
 
-#: .\posts\models.py:188
+#: .\posts\models.py:210
 msgid "Bilanzposition Nummer"
 msgstr "Balance sheet item number"
 
-#: .\posts\models.py:189
+#: .\posts\models.py:211
 msgid "eins"
 msgstr "one"
 
-#: .\posts\models.py:192
+#: .\posts\models.py:214
 msgid "Erstellt von"
 msgstr "Created by"
 
-#: .\posts\models.py:204
+#: .\posts\models.py:226
 #, python-format
 msgid "Kontenplan %(nutzer)s (%(id)s)"
 msgstr "Chart of accounts %(nutzer)s (%(id)s)"
 
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:5
-#: .\posts\templates\posts\aufgaben_verwalten.html:30
 msgid "Aufgabe bearbeiten"
 msgstr "Edit task"
 
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:15
-#: .\posts\templates\posts\aufgabe_erstellen.html:51
+#: .\posts\templates\posts\aufgabe_erstellen.html:53
 #: .\users\templates\users\add_studiengang.html:10
 msgid "Speichern"
 msgstr "Save"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:10
-#: .\posts\templates\posts\aufgaben_verwalten.html:57
+#: .\posts\templates\posts\aufgabe_erstellen.html:11
+#: .\posts\templates\posts\aufgaben_verwalten.html:58
 msgid "Neue Aufgabe erstellen"
 msgstr "Create a new task"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:12
+#: .\posts\templates\posts\aufgabe_erstellen.html:13
 #: .\posts\templates\posts\aufgabe_import_form.html:11
 msgid "Unternehmen/Fallstudien verwalten"
 msgstr "Manage Business/Case studys"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:13
+#: .\posts\templates\posts\aufgabe_erstellen.html:14
 #: .\posts\templates\posts\aufgabe_import_form.html:12
 msgid "Fragentyp verwalten"
 msgstr "Manage question type"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:15
+#: .\posts\templates\posts\aufgabe_erstellen.html:16
 msgid "Aufgaben aus Excel importieren"
 msgstr "Import tasks from Excel"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:21
+#: .\posts\templates\posts\aufgabe_erstellen.html:22
 #: .\posts\templates\posts\aufgabe_import_form.html:20
 msgid "Zusatzinformation zur Aufgabe (optional):"
 msgstr "Additional information regarding the task (optional)"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:25
+#: .\posts\templates\posts\aufgabe_erstellen.html:26
 msgid "Buchungssätze hinzufügen"
 msgstr "Add journal entries"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:29
+#: .\posts\templates\posts\aufgabe_erstellen.html:27
+msgid ""
+"Bitte zuerst ein Unternehmen auswählen, um die Konten nach dem Kontenplan zu "
+"filtern"
+msgstr ""
+"Please select a company first to filter the accounts according to the chart "
+"of accounts."
+
+#: .\posts\templates\posts\aufgabe_erstellen.html:31
 msgid "Konto:"
 msgstr "Account:"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:37
+#: .\posts\templates\posts\aufgabe_erstellen.html:39
 msgid "Soll/Haben:"
 msgstr "Debit/Crebit"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:39
+#: .\posts\templates\posts\aufgabe_erstellen.html:41
 #: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:32
 #: .\posts\templates\posts\guv.html:70
-#: .\posts\templates\posts\hauptbuch.html:37
+#: .\posts\templates\posts\hauptbuch.html:38
 msgid "Soll"
 msgstr "Dedit"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:40
+#: .\posts\templates\posts\aufgabe_erstellen.html:42
 #: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:32
 #: .\posts\templates\posts\guv.html:71
-#: .\posts\templates\posts\hauptbuch.html:38
+#: .\posts\templates\posts\hauptbuch.html:39
 msgid "Haben"
 msgstr "Credit"
 
-#: .\posts\templates\posts\aufgabe_erstellen.html:49
+#: .\posts\templates\posts\aufgabe_erstellen.html:51
 msgid "Weitere Buchung hinzufügen"
 msgstr "Add journal entry"
 
@@ -496,23 +505,21 @@ msgstr "Start import"
 msgid "Aufgabenverwaltung"
 msgstr "List of tasks"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:15
+#: .\posts\templates\posts\aufgaben_verwalten.html:20
 msgid "ID"
 msgstr "ID"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:18
+#: .\posts\templates\posts\aufgaben_verwalten.html:23
+#: .\posts\templates\posts\aufgaben_verwalten.html:35
 #: .\posts\templates\posts\konten_verwalten.html:87
 msgid "Bearbeiten"
 msgstr "Processed"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:19
+#: .\posts\templates\posts\aufgaben_verwalten.html:24
 msgid "Zur Rechnung"
 msgstr "To the invoice"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:35
-msgid "Link"
-msgstr "Link"
-
+#: .\posts\templates\posts\aufgaben_verwalten.html:25
 #: .\posts\templates\posts\aufgaben_verwalten.html:44
 #: .\posts\templates\posts\konten_verwalten.html:90
 #: .\posts\templates\posts\neue_kategorie.html:24
@@ -522,7 +529,11 @@ msgstr "Link"
 msgid "Löschen"
 msgstr "Delete"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:54
+#: .\posts\templates\posts\aufgaben_verwalten.html:38
+msgid "Link"
+msgstr "Link"
+
+#: .\posts\templates\posts\aufgaben_verwalten.html:55
 msgid "Keine Aufgaben vorhanden."
 msgstr "No tasks available"
 
@@ -550,11 +561,11 @@ msgid "Kategorie:"
 msgstr "Category:"
 
 #: .\posts\templates\posts\bilanz.html:22 .\posts\templates\posts\guv.html:25
-#: .\posts\templates\posts\rechnung.html:210
-#: .\posts\templates\posts\rechnung.html:231
-#: .\posts\templates\posts\rechnung.html:327
-#: .\posts\templates\posts\rechnung.html:351
-#: .\posts\templates\posts\rechnung.html:598
+#: .\posts\templates\posts\rechnung.html:211
+#: .\posts\templates\posts\rechnung.html:232
+#: .\posts\templates\posts\rechnung.html:331
+#: .\posts\templates\posts\rechnung.html:355
+#: .\posts\templates\posts\rechnung.html:602
 msgid "Bitte wählen..."
 msgstr "Please select..."
 
@@ -570,7 +581,7 @@ msgstr "Loss"
 msgid "Konto abschließen"
 msgstr "Close account"
 
-#: .\posts\templates\posts\bilanz.html:66 .\templates\master_layout.html:57
+#: .\posts\templates\posts\bilanz.html:66 .\templates\master_layout.html:66
 msgid "Bilanz"
 msgstr "Balance sheet"
 
@@ -608,12 +619,17 @@ msgid ""
 "dynamisch mit jedem abgeschlossenem Erfolgskonto erweitert. Bestandskonten "
 "werden nicht in das GuV-Konto geschrieben."
 msgstr ""
+"To close an account, the type of account must be selected. By clicking the "
+"'Close Account' button, the closed account is transferred to the income "
+"statement (P&L) account. The P&L account can be viewed at the bottom of the "
+"page and is dynamically updated with each closed income account. Balance "
+"sheet accounts are not transferred to the P&L account."
 
 #: .\posts\templates\posts\guv.html:16
 msgid "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."
 msgstr "The P&L account is closed at the bottom of the page using the button."
 
-#: .\posts\templates\posts\guv.html:65 .\templates\master_layout.html:56
+#: .\posts\templates\posts\guv.html:65 .\templates\master_layout.html:65
 msgid "GuV"
 msgstr "P&L"
 
@@ -806,7 +822,7 @@ msgid "Name:"
 msgstr "Name:"
 
 #: .\posts\templates\posts\neues_unternehmen.html:20
-#: .\users\templates\users\bulk_student_creation.html:35
+#: .\users\templates\users\bulk_student_creation.html:36
 msgid "Fallstudie:"
 msgstr "Case study:"
 
@@ -831,7 +847,7 @@ msgid "Senden"
 msgstr "Send"
 
 #: .\posts\templates\posts\posteingang.html:11
-#: .\templates\master_layout.html:30
+#: .\templates\master_layout.html:31
 msgid "Posteingang"
 msgstr "Inbox"
 
@@ -840,8 +856,8 @@ msgid "Keine Mails verfügbar."
 msgstr "No mails available"
 
 #: .\posts\templates\posts\rechnung.html:12
-msgid "Rechnung Nr."
-msgstr "Invoice No."
+msgid "Dokument: "
+msgstr "Document: "
 
 #: .\posts\templates\posts\rechnung.html:15
 msgid "Buchungs-Navigation ausblenden"
@@ -856,141 +872,152 @@ msgid "Buchungs-Navigation"
 msgstr "Entry navigation"
 
 #: .\posts\templates\posts\rechnung.html:61
-msgid "Buchungen anzeigen/verstecken"
-msgstr "Show/hide Entries"
+msgid ""
+"Hinweis: Dieses Menü kann geöffnet werden, um die alten Buchungen und "
+"Feedback zu den Buchungen anzuzeigen"
+msgstr ""
+"Note: This menu can be opened to view previous entries and feedback on the "
+"bookings."
 
-#: .\posts\templates\posts\rechnung.html:65
+#: .\posts\templates\posts\rechnung.html:62
+#, fuzzy
+#| msgid "Buchungen anzeigen/verstecken"
+msgid "Buchungen/Feedback anzeigen"
+msgstr "Show entries/feedback"
+
+#: .\posts\templates\posts\rechnung.html:66
 msgid "Frühere Versuche:"
 msgstr "Previous attempts:"
 
-#: .\posts\templates\posts\rechnung.html:76
+#: .\posts\templates\posts\rechnung.html:77
 msgid "Lösung korrekt"
 msgstr "Correct solution"
 
-#: .\posts\templates\posts\rechnung.html:80
-msgid "Lösung falsch"
-msgstr "Incorrect solution"
+#: .\posts\templates\posts\rechnung.html:81
+msgid "Lösung falsch. Aufklappen, um Feedback anzuzeigen"
+msgstr ""
+"Wrong answer. Note: Expand this menu to view past entries and feedback."
 
-#: .\posts\templates\posts\rechnung.html:86
+#: .\posts\templates\posts\rechnung.html:87
 msgid "Korrekturbuchung vorschlagen"
 msgstr "Suggest adjustment entry"
 
-#: .\posts\templates\posts\rechnung.html:90
+#: .\posts\templates\posts\rechnung.html:91
 msgid "Korrekturbuchung durchführen"
 msgstr "Perform adjustment entry"
 
-#: .\posts\templates\posts\rechnung.html:97
-#: .\posts\templates\posts\rechnung.html:160
+#: .\posts\templates\posts\rechnung.html:98
+#: .\posts\templates\posts\rechnung.html:161
 msgid "Soll-Konten:"
 msgstr "Dedit/Credit"
 
-#: .\posts\templates\posts\rechnung.html:102
-#: .\posts\templates\posts\rechnung.html:170
+#: .\posts\templates\posts\rechnung.html:103
+#: .\posts\templates\posts\rechnung.html:171
 msgid "Haben-Konten:"
 msgstr "Credit-accounts:"
 
-#: .\posts\templates\posts\rechnung.html:107
+#: .\posts\templates\posts\rechnung.html:108
 msgid "Beträge Soll:"
 msgstr "Amounts debit:"
 
-#: .\posts\templates\posts\rechnung.html:112
+#: .\posts\templates\posts\rechnung.html:113
 msgid "Beträge Haben:"
 msgstr "Amounts credit:"
 
-#: .\posts\templates\posts\rechnung.html:118
+#: .\posts\templates\posts\rechnung.html:119
 msgid "Feedback"
 msgstr "Feedback"
 
-#: .\posts\templates\posts\rechnung.html:120
+#: .\posts\templates\posts\rechnung.html:121
 msgid "Alle Konten sind korrekt."
 msgstr "All accounts are correct."
 
-#: .\posts\templates\posts\rechnung.html:122
+#: .\posts\templates\posts\rechnung.html:123
 msgid "Das Konto auf der Soll-Seite ist inkorrekt."
 msgstr "The account on the debit side is incorrect."
 
-#: .\posts\templates\posts\rechnung.html:124
+#: .\posts\templates\posts\rechnung.html:125
 msgid "Das Konto auf der Haben-Seite ist inkorrekt."
 msgstr "The account on the crebit side is incorrect."
 
-#: .\posts\templates\posts\rechnung.html:126
+#: .\posts\templates\posts\rechnung.html:127
 msgid "Beide Konten sind falsch."
 msgstr "Both accounts are incorrect"
 
-#: .\posts\templates\posts\rechnung.html:129
+#: .\posts\templates\posts\rechnung.html:130
 msgid "Betrag ist korrekt."
 msgstr "Amount is incorrect"
 
-#: .\posts\templates\posts\rechnung.html:131
+#: .\posts\templates\posts\rechnung.html:132
 msgid "Der Betrag auf der Soll-Seite ist inkorrekt."
 msgstr "The amount on the debit side is incorrect."
 
-#: .\posts\templates\posts\rechnung.html:133
+#: .\posts\templates\posts\rechnung.html:134
 msgid "Der Betrag auf der Haben-Seite ist inkorrekt."
 msgstr "The amount on the crebit side is incorrect."
 
-#: .\posts\templates\posts\rechnung.html:135
+#: .\posts\templates\posts\rechnung.html:136
 msgid "Beide Beträge sind falsch."
 msgstr "Both amounts are incorrect"
 
-#: .\posts\templates\posts\rechnung.html:140
+#: .\posts\templates\posts\rechnung.html:141
 msgid "Zusätzliches Feedback:"
 msgstr "Additional feedback:"
 
-#: .\posts\templates\posts\rechnung.html:153
+#: .\posts\templates\posts\rechnung.html:154
 msgid "Feedback wird geladen. Aktualisiere die Seite in einer Minute nochmal."
 msgstr "Feedback is loading. Please refresh the page again in a minute."
 
-#: .\posts\templates\posts\rechnung.html:159
+#: .\posts\templates\posts\rechnung.html:160
 msgid "Richtige Lösung"
 msgstr "Correct solution"
 
-#: .\posts\templates\posts\rechnung.html:185
+#: .\posts\templates\posts\rechnung.html:186
 msgid "Keine vorherigen Buchungen gefunden."
 msgstr "No previous entrys found."
 
-#: .\posts\templates\posts\rechnung.html:190
-#: .\posts\templates\posts\rechnung.html:195
+#: .\posts\templates\posts\rechnung.html:191
+#: .\posts\templates\posts\rechnung.html:196
 msgid "Korrekturbuchung bestätigen"
 msgstr "Confirm adjustment entry"
 
-#: .\posts\templates\posts\rechnung.html:191
+#: .\posts\templates\posts\rechnung.html:192
 msgid ""
 "Die umgekehrte Buchung wird durchgeführt, um die falsche Buchung "
 "auszugleichen."
 msgstr "The reverse entry is made to offset the incorrect booking."
 
-#: .\posts\templates\posts\rechnung.html:199
+#: .\posts\templates\posts\rechnung.html:200
 msgid "Buchungssatz"
 msgstr "Journal entry"
 
-#: .\posts\templates\posts\rechnung.html:207
+#: .\posts\templates\posts\rechnung.html:208
 msgid "Eingaben Soll:"
 msgstr "Input debit:"
 
-#: .\posts\templates\posts\rechnung.html:221
-#: .\posts\templates\posts\rechnung.html:242
-#: .\posts\templates\posts\rechnung.html:344
+#: .\posts\templates\posts\rechnung.html:222
+#: .\posts\templates\posts\rechnung.html:243
+#: .\posts\templates\posts\rechnung.html:348
 msgid "Betrag eingeben"
 msgstr "Insert amount"
 
-#: .\posts\templates\posts\rechnung.html:223
+#: .\posts\templates\posts\rechnung.html:224
 msgid "Neues Soll-Feld hinzufügen"
 msgstr "Add new debit field"
 
-#: .\posts\templates\posts\rechnung.html:228
+#: .\posts\templates\posts\rechnung.html:229
 msgid "Eingaben Haben:"
 msgstr "Input credit:"
 
-#: .\posts\templates\posts\rechnung.html:244
+#: .\posts\templates\posts\rechnung.html:245
 msgid "Neues Haben-Feld hinzufügen"
 msgstr "Add new credit field"
 
-#: .\posts\templates\posts\rechnung.html:251
+#: .\posts\templates\posts\rechnung.html:252
 msgid "Eingaben übermitteln"
 msgstr "Submit entries"
 
-#: .\posts\templates\posts\rechnung.html:254
+#: .\posts\templates\posts\rechnung.html:255
 msgid ""
 "Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das "
 "Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung "
@@ -999,116 +1026,171 @@ msgstr ""
 "Note: All entries (including incorrect ones) are recorded in the general "
 "ledger. In case of incorrect entries, an adjustment entry must be made."
 
-#: .\posts\templates\posts\rechnung.html:270
+#: .\posts\templates\posts\rechnung.html:271
 msgid ""
 "Die letzte Buchung muss korrigiert werden, bevor neue Buchungen möglich "
 "sind. Gehe dafür auf Buchungen anzeigen/verstecken."
-msgstr "The last transaction need to be adjusted before you can create a new journal entry"
+msgstr ""
+"The last transaction need to be adjusted before you can create a new journal "
+"entry"
 
-#: .\posts\templates\posts\rechnung.html:297
-#: .\posts\templates\posts\rechnung.html:308
-#, fuzzy
-#| msgid "Buchungs-Navigation ausblenden"
+#: .\posts\templates\posts\rechnung.html:276
 msgid "📥 Buchungs-Navigation einblenden"
-msgstr "Hide entry navigation"
+msgstr "Show entry navigation"
 
-#: .\posts\templates\posts\rechnung.html:309
-#, fuzzy
-#| msgid "Buchungs-Navigation ausblenden"
+#: .\posts\templates\posts\rechnung.html:277
 msgid "📄 Buchungs-Navigation ausblenden"
 msgstr "Hide entry navigation"
 
-#: .\posts\templates\posts\rechnung.html:492
+#: .\posts\templates\posts\rechnung.html:496
 msgid "⚠️ Beträge dürfen nicht 0 sein!"
 msgstr "Amounts can't be 0!"
 
-#: .\posts\templates\posts\rechnung.html:502
+#: .\posts\templates\posts\rechnung.html:506
 msgid ""
 "⚠️ Die Summe der Soll-Beträge muss der Summe der Haben-Beträge entsprechen!"
 msgstr "The amounts from the credit and debit side have to be equal!"
 
-#: .\posts\templates\posts\rechnung_basis.html:7
-#: .\posts\templates\posts\rechnung_basis.html:59
-msgid "Rechnung"
-msgstr "Invoice"
+#: .\posts\templates\posts\rechnung_basis.html:9
+msgid "Dokument"
+msgstr "Document"
 
-#: .\posts\templates\posts\rechnung_basis.html:49
-msgid "Datum:"
-msgstr "Date:"
-
-#: .\posts\templates\posts\rechnung_basis.html:51
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:23
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:22
 msgid "Rechnung Nr.:"
 msgstr "Invoice No.:"
 
-#: .\posts\templates\posts\rechnung_basis.html:51
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:25
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:25
+msgid "Leistungszeitraum"
+msgstr "Service period"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:32
+msgid "Rechnung"
+msgstr "Invoice"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:35
+#, fuzzy
+#| msgid "Guten Tag,"
+msgid "Guten Tag"
+msgstr "Good day,"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:43
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:42
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:32
+msgid "Betrag (Brutto):"
+msgstr "Amount (gross):"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:43
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:42
+msgid "(Betrag ohne Rabatt)"
+msgstr "(Amount without discount)"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:45
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:44
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:34
+msgid "Anschaffungskosten (Netto):"
+msgstr "Acquisition cost (net):"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:47
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:46
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:36
+msgid "Betrag:"
+msgstr "Amount:"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:47
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:46
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:38
+msgid "(frei von Ust.)"
+msgstr "(VAT-exempt)"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:47
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:46
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:39
+msgid "(inklusive 19,00%% Umsatzsteuer)"
+msgstr "(including 19.00% VAT)"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:51
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:51
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:45
+msgid "Zahlungsweise:"
+msgstr "Payment method:"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:51
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:51
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:45
+msgid "Keine Zahlungsart angegeben"
+msgstr "No payment method specified"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:55
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:51
+msgid "Ihr SecureNet Team"
+msgstr "Your SecureNet Team"
+
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:56
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:57
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:52
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:55
+msgid "Kontakt:"
+msgstr "Contact:"
+
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:22
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:12
 msgid "Keine Nummer angegeben"
 msgstr "No number provided"
 
-#: .\posts\templates\posts\rechnung_basis.html:57
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:32
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:17
 msgid "Geschäftsvorfall"
 msgstr "Business transaction"
 
-#: .\posts\templates\posts\rechnung_basis.html:64
-#: .\posts\templates\posts\rechnung_basis.html:66
-msgid "Guten Tag,"
-msgstr "Good day,"
+#: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:35
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:21
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:23
+msgid "Sehr geehrte Buchhaltung,"
+msgstr "Dear Accounting Department,"
 
-#: .\posts\templates\posts\rechnung_basis.html:64
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:10
+msgid "Datum:"
+msgstr "Date:"
+
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:12
+msgid "Dokument:"
+msgstr "Document:"
+
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:21
 msgid "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"
 msgstr ""
 "The following business transaction has been received and must be processed:"
 
-#: .\posts\templates\posts\rechnung_basis.html:68
-msgid "Sehr geehrtes SecureNet Team"
-msgstr "Dear SecureNet Team"
-
-#: .\posts\templates\posts\rechnung_basis.html:77
-msgid "Betrag (Brutto):"
-msgstr "Amount (gross):"
-
-#: .\posts\templates\posts\rechnung_basis.html:79
-msgid "Anschaffungskosten (Netto):"
-msgstr "Acquisition cost (net):"
-
-#: .\posts\templates\posts\rechnung_basis.html:81
-msgid "Betrag:"
-msgstr "Amount:"
-
-#: .\posts\templates\posts\rechnung_basis.html:86
-msgid "Zahlungsweise:"
-msgstr "Payment method:"
-
-#: .\posts\templates\posts\rechnung_basis.html:86
-msgid "Keine Zahlungsart angegeben"
-msgstr "No payment method specified"
-
-#: .\posts\templates\posts\rechnung_basis.html:92
-msgid "Ihr SecureNet Team"
-msgstr "Your SecureNet Team"
-
-#: .\posts\templates\posts\rechnung_basis.html:93
-#: .\posts\templates\posts\rechnung_basis.html:96
-msgid "Kontakt:"
-msgstr "Contact:"
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:37
+msgid " "
+msgstr " "
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:9
-msgid "Meine Rechnungen"
-msgstr "My invoices"
+#, fuzzy
+#| msgid "Geschäftsvorfall"
+msgid "Meine Geschäftsvorfälle"
+msgstr "Business transaction"
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:10
-msgid "Alle deine Rechnungen auf einen Blick"
+#, fuzzy
+#| msgid "Alle deine Rechnungen auf einen Blick"
+msgid "Alle deine Geschäftsvorfälle auf einen Blick"
 msgstr "All your invoices at a glance"
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:17
-msgid "Rechnungsnr."
-msgstr "Invoice no."
+msgid "Dokument Nr."
+msgstr "Document No."
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:20
 msgid "Aktion"
 msgstr "Action"
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:37
-msgid "Rechnung öffnen →"
+#, fuzzy
+#| msgid "Rechnung öffnen →"
+msgid "Dokument öffnen →"
 msgstr "Open invoice →"
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:43
@@ -1119,89 +1201,89 @@ msgstr "No invoices found"
 msgid "↩ Zurück zum Hauptbuch"
 msgstr "↩ Back to general ledger"
 
-#: .\posts\views.py:56
+#: .\posts\views.py:57
 #, python-format
 msgid "Fehlende Berechtigung<br><a href=\"%(link)s\">Zurück zur Startseite</a>"
 msgstr "Missing permission<br><a href=\"%(link)s\">Back to homepage</a>"
 
-#: .\posts\views.py:68 .\posts\views.py:86
+#: .\posts\views.py:69 .\posts\views.py:87
 msgid "Das Formular ist nicht gültig."
 msgstr "The form is not valid."
 
-#: .\posts\views.py:83
+#: .\posts\views.py:84
 msgid "Aufgabe und Details erfolgreich erstellt."
 msgstr "Task and details created successfully."
 
-#: .\posts\views.py:234
+#: .\posts\views.py:235
 #, python-format
 msgid "%(anzahl)d Aufgaben erfolgreich importiert."
 msgstr "%(anzahl)d tasks imported successfully."
 
-#: .\posts\views.py:237
+#: .\posts\views.py:238
 #, python-format
 msgid "%(anzahl)d Aufgaben konnten nicht importiert werden: %(fehler)s"
 msgstr "%(anzahl)d tasks could not be imported: %(fehler)s"
 
-#: .\posts\views.py:240
+#: .\posts\views.py:241
 msgid "Fehlerhafte Eingaben oder keine Datei hochgeladen."
 msgstr "Invalid entries or no file uploaded."
 
-#: .\posts\views.py:692
+#: .\posts\views.py:699
 msgid "Unternehmen erfolgreich hinzugefügt."
 msgstr "Business added successfully."
 
-#: .\posts\views.py:695
+#: .\posts\views.py:702
 msgid "Fehler beim Speichern des Unternehmens."
 msgstr "Error while saving the Business."
 
-#: .\posts\views.py:719 .\users\views.py:125 .\users\views.py:154
+#: .\posts\views.py:726 .\users\views.py:125 .\users\views.py:154
 msgid "Keine Berechtigung zum Löschen."
 msgstr "No permission to delete."
 
-#: .\posts\views.py:721
+#: .\posts\views.py:728
 #, python-format
 msgid "Das Unternehmen '%(name)s' wurde gelöscht."
 msgstr "The Business '%(name)s' has been deleted."
 
-#: .\posts\views.py:731
+#: .\posts\views.py:738
 msgid "Kategorie erfolgreich hinzugefügt."
 msgstr "Successfully created category"
 
-#: .\posts\views.py:734
+#: .\posts\views.py:741
 msgid "Fehler beim Speichern der Kategorie."
 msgstr "Error while saving the category."
 
-#: .\posts\views.py:746
+#: .\posts\views.py:753
 #, python-format
 msgid "Die Kategorie '%(name)s' wurde gelöscht."
 msgstr "The category '%(name)s' has been deleted."
 
-#: .\posts\views.py:815
+#: .\posts\views.py:828
 msgid "Keine Berechtigung zum Bearbeiten."
 msgstr "No permission to edit."
 
-#: .\posts\views.py:826
+#: .\posts\views.py:839
 msgid "Fehler beim Bearbeiten der Details."
 msgstr "Error while editing the details."
 
-#: .\posts\views.py:871
+#: .\posts\views.py:887
 #, python-format
 msgid "Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt."
 msgstr "Adjustment entry in attempt %(versuch)s completed successfully."
 
-#: .\posts\views.py:984
+#: .\posts\views.py:1002
 msgid "Konto erfolgreich hinzugefügt."
 msgstr "Successfully created account"
 
-#: .\posts\views.py:987
+#: .\posts\views.py:1005
 msgid "Fehler: Überprüfe deine Eingaben."
 msgstr "Error: Check your entries."
 
-#: .\posts\views.py:1058
+#: .\posts\views.py:1076
 msgid "Konten erfolgreich importiert."
 msgstr "Accounts successfully imported"
 
-#: .\posts\views.py:1404
+#: .\posts\views.py:1428
 msgid "Keine Berechtigung zum Löschen dieser Aufgabe."
 msgstr "No permission to delete this task."
 
@@ -1261,7 +1343,7 @@ msgid "Leistungsübersicht Studierende"
 msgstr "Student Performance Overview"
 
 #: .\templates\frontpage.html:56 .\templates\index.html:30
-#: .\users\templates\users\bulk_student_creation.html:29
+#: .\users\templates\users\bulk_student_creation.html:30
 msgid "Semester:"
 msgstr "Semester:"
 
@@ -1271,7 +1353,7 @@ msgid "Alle"
 msgstr "All"
 
 #: .\templates\frontpage.html:62 .\templates\index.html:29
-#: .\users\templates\users\bulk_student_creation.html:22
+#: .\users\templates\users\bulk_student_creation.html:23
 msgid "Studiengang:"
 msgstr "Study Program:"
 
@@ -1343,50 +1425,76 @@ msgstr "You don't havy any teacher assigned to you"
 msgid "Home"
 msgstr "Home"
 
-#: .\templates\master_layout.html:31
+#: .\templates\master_layout.html:36
 msgid "Rechnungen"
 msgstr "Billings"
 
-#: .\templates\master_layout.html:34 .\templates\master_layout.html:36
+#: .\templates\master_layout.html:39 .\templates\master_layout.html:41
 msgid "Profil"
 msgstr "Account"
 
-#: .\templates\master_layout.html:37
+#: .\templates\master_layout.html:42
 msgid "Handbuch"
 msgstr "User guide"
 
-#: .\templates\master_layout.html:39
+#: .\templates\master_layout.html:44
 msgid "Handbuch Lehrende"
 msgstr "User guide teachers"
 
-#: .\templates\master_layout.html:45
+#: .\templates\master_layout.html:51
+#, fuzzy
+#| msgid "Kontenverwaltung"
+msgid "Verwaltung"
+msgstr "Manage accounts"
+
+#: .\templates\master_layout.html:53
 msgid "Aufgabenliste"
 msgstr "List of tasks"
 
-#: .\templates\master_layout.html:46
+#: .\templates\master_layout.html:54
 #: .\users\templates\users\aufgaben_zuweisen.html:9
 msgid "Aufgaben zuweisen"
 msgstr "Assign tasks"
 
-#: .\templates\master_layout.html:47
+#: .\templates\master_layout.html:55
 msgid "Nutzer anlegen"
 msgstr "Create Users"
 
-#: .\templates\master_layout.html:48
+#: .\templates\master_layout.html:56
 msgid "Aufgabe erstellen"
 msgstr "Create task"
 
-#: .\templates\master_layout.html:53
-msgid "Buchhaltung ▾"
+#: .\templates\master_layout.html:62
+#, fuzzy
+#| msgid "Buchhaltung ▾"
+msgid "Buchhaltung"
 msgstr "Accounting ▾"
 
-#: .\templates\master_layout.html:55
+#: .\templates\master_layout.html:64
 msgid "Hauptbuch"
 msgstr "General ledger"
 
-#: .\templates\master_layout.html:58
+#: .\templates\master_layout.html:67
 msgid "Buchungssätze"
 msgstr "Journal entries"
+
+#: .\templates\master_layout.html:76 .\templates\master_layout.html:78
+msgid "Impressum"
+msgstr "Site notice"
+
+#: .\templates\master_layout.html:79
+msgid "FAQ, ToDo"
+msgstr "FAQ"
+
+#: .\templates\master_layout.html:92
+#, fuzzy
+#| msgid "Sprache ändern"
+msgid "Sprache wählen"
+msgstr "Change language"
+
+#: .\templates\master_layout.html:97
+msgid "Sprache ändern"
+msgstr "Change language"
 
 #: .\users\forms.py:10 .\users\models.py:65
 msgid "Semester"
@@ -1486,59 +1594,59 @@ msgstr "Assign task"
 msgid "Alle Aufgaben mir zuweisen"
 msgstr "Assign all tasks to myself"
 
-#: .\users\templates\users\bulk_student_creation.html:9
+#: .\users\templates\users\bulk_student_creation.html:10
 msgid "Nutzerkonten anlegen"
 msgstr "Create user accounts"
 
-#: .\users\templates\users\bulk_student_creation.html:11
+#: .\users\templates\users\bulk_student_creation.html:12
 msgid "Studiengang bearbeiten"
 msgstr "Modify student program"
 
-#: .\users\templates\users\bulk_student_creation.html:12
+#: .\users\templates\users\bulk_student_creation.html:13
 msgid "Semester bearbeiten"
 msgstr "Modify semesterss"
 
-#: .\users\templates\users\bulk_student_creation.html:18
+#: .\users\templates\users\bulk_student_creation.html:19
 msgid "Anzahl der Studierenden:"
 msgstr "Number of students:"
 
-#: .\users\templates\users\bulk_student_creation.html:42
+#: .\users\templates\users\bulk_student_creation.html:43
 msgid "Namensmodus:"
 msgstr "Custom name:"
 
-#: .\users\templates\users\bulk_student_creation.html:44
+#: .\users\templates\users\bulk_student_creation.html:45
 #: .\users\translations.py:4
 msgid "Automatischer Name"
 msgstr "Automatic name"
 
-#: .\users\templates\users\bulk_student_creation.html:48
+#: .\users\templates\users\bulk_student_creation.html:49
 #: .\users\translations.py:5
 msgid "Individueller Name:"
 msgstr "Custom name:"
 
-#: .\users\templates\users\bulk_student_creation.html:52
+#: .\users\templates\users\bulk_student_creation.html:53
 msgid "Studierende anlegen"
 msgstr "Create student program"
 
-#: .\users\templates\users\bulk_student_creation.html:56
+#: .\users\templates\users\bulk_student_creation.html:57
 msgid "Erstellte Studierende"
 msgstr "Created students:"
 
-#: .\users\templates\users\bulk_student_creation.html:59
-#: .\users\templates\users\bulk_student_creation.html:76
+#: .\users\templates\users\bulk_student_creation.html:60
+#: .\users\templates\users\bulk_student_creation.html:77
 msgid "Benutzername"
 msgstr "Username"
 
-#: .\users\templates\users\bulk_student_creation.html:60
+#: .\users\templates\users\bulk_student_creation.html:61
 msgid "Passwort"
 msgstr "Password"
 
-#: .\users\templates\users\bulk_student_creation.html:69
-#: .\users\templates\users\bulk_student_creation.html:84
+#: .\users\templates\users\bulk_student_creation.html:70
+#: .\users\templates\users\bulk_student_creation.html:85
 msgid "Hinweis:"
 msgstr "Notice:"
 
-#: .\users\templates\users\bulk_student_creation.html:69
+#: .\users\templates\users\bulk_student_creation.html:70
 msgid ""
 " Die Passwörter entsprechen den Benutzernamen. Die Studierenden sollten "
 "diese bei der ersten Anmeldung ändern."
@@ -1546,11 +1654,11 @@ msgstr ""
 "Passwords and usernames are the same. Students should change their passwords "
 "after the first login. "
 
-#: .\users\templates\users\bulk_student_creation.html:73
+#: .\users\templates\users\bulk_student_creation.html:74
 msgid "Bereits existierende Studierende"
 msgstr "Already existing students"
 
-#: .\users\templates\users\bulk_student_creation.html:84
+#: .\users\templates\users\bulk_student_creation.html:85
 msgid ""
 "Diese Studierenden existierten bereits und wurden nicht erneut angelegt."
 msgstr "These students already exists and no new accounts were created."
@@ -1563,7 +1671,7 @@ msgstr "Login as a User"
 msgid "Login"
 msgstr "Login"
 
-#: .\users\templates\users\login.html:41
+#: .\users\templates\users\login.html:43
 msgid "Einloggen"
 msgstr "Login"
 
@@ -1596,11 +1704,11 @@ msgstr "Save display name"
 msgid "Neues Passwort (optional)"
 msgstr "New password (optional)"
 
-#: .\users\templates\users\update_profile.html:32
+#: .\users\templates\users\update_profile.html:35
 msgid "Passwort bestätigen:"
 msgstr "Confirm password"
 
-#: .\users\templates\users\update_profile.html:35
+#: .\users\templates\users\update_profile.html:39
 msgid "Passwort speichern"
 msgstr "Save password"
 
@@ -1634,38 +1742,51 @@ msgstr "The following names were already taken: %(namen)s"
 msgid "%(anzahl)d Studierende erfolgreich erstellt."
 msgstr "%(anzahl)d students successfully created"
 
-#: .\users\views.py:288
-#, python-brace-format
-msgid "Aufgabe {id}"
-msgstr "Tasks {id}"
-
-#: .\users\views.py:291
-msgid "bereits zugewiesen"
-msgstr "already assigned"
-
-#: .\users\views.py:300
+#: .\users\views.py:295
 msgid "Aufgaben erfolgreich zugewiesen."
 msgstr "Tasks successfully assigned"
 
-#: .\users\views.py:342
+#: .\users\views.py:337
 msgid "Alle Aufgaben wurden dir erfolgreich zugewiesen."
 msgstr "Assign all tasks to myself"
 
-#: .\users\views.py:369
+#: .\users\views.py:364
 msgid "Passwörter stimmen nicht überein."
 msgstr "Passwords are incorrect"
 
-#: .\users\views.py:374
+#: .\users\views.py:369
 msgid "Profil erfolgreich aktualisiert."
 msgstr "Profile update successfull"
 
-#: .\users\views.py:385
+#: .\users\views.py:380
 msgid "Keine Änderungen vorgenommen."
 msgstr "No Changes submitted"
 
-#: .\users\views.py:530
+#: .\users\views.py:525
 msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
 msgstr "The organizational task has been marked as completed."
+
+#~ msgid "Rechnung Nr."
+#~ msgstr "Invoice No."
+
+#~ msgid "Lösung falsch"
+#~ msgstr "Incorrect solution"
+
+#~ msgid "Sehr geehrtes SecureNet Team"
+#~ msgstr "Dear SecureNet Team"
+
+#~ msgid "Meine Rechnungen"
+#~ msgstr "My invoices"
+
+#~ msgid "Rechnungsnr."
+#~ msgstr "Invoice no."
+
+#, python-brace-format
+#~ msgid "Aufgabe {id}"
+#~ msgstr "Tasks {id}"
+
+#~ msgid "bereits zugewiesen"
+#~ msgstr "already assigned"
 
 #~ msgid "Deutsch"
 #~ msgstr "German"
@@ -1675,6 +1796,3 @@ msgstr "The organizational task has been marked as completed."
 
 #~ msgid "Willkommen bei SecureNet"
 #~ msgstr "Welcome to SecureNet"
-
-#~ msgid "Sprache ändern"
-#~ msgstr "Change language"

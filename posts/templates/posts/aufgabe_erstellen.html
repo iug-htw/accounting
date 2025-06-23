@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="aufgabe-erstellen-page">
     <h1>{% trans "Neue Aufgabe erstellen"%}</h1>
     <div class="link-buttons">
     <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">{% trans "Unternehmen/Fallstudien verwalten"%}</a>
@@ -51,6 +52,7 @@
         <br><br>
         <button type="submit">{% trans "Speichern"%}</button>
     </form>
+</div>
 <script>
     function addFieldGroup() {
         let container = document.getElementById('fields-container');

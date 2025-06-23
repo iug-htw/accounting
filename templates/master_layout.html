@@ -27,7 +27,12 @@
             <!-- Navigation Bar -->
             <nav class="navigation-bar">
                     <a href="{% url 'frontpage' %}" class="nav-element">{% trans "Home"%}</a>
-                    <a href="{% url 'posts:posteingang' %}" class="nav-element">{% trans "Posteingang"%}</a>
+                    <a href="{% url 'posts:posteingang' %}" class="nav-element" style="position: relative;">
+                        {% trans "Posteingang" %}
+                        {% if unread_mail_count > 0 %}
+                            <span class="mail-badge">{{ unread_mail_count }}</span>
+                        {% endif %}
+                    </a>
                     <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">{% trans "Rechnungen"%}</a>
                     {% if user.is_authenticated %}
                         <div class="nav-dropdown">
@@ -42,15 +47,19 @@
                         </div>
                         
                         {% if request.user.role == 'teacher' %}
-                            <a class = "nav-element" href="{% url 'posts:aufgaben_verwalten'%}">{% trans "Aufgabenliste"%}</a>
-                            <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">{% trans "Aufgaben zuweisen"%}</a>
-                            <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">{% trans "Nutzer anlegen"%}</a>
-                            <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">{% trans "Aufgabe erstellen"%}</a>
-                            
+                            <div class="nav-dropdown">
+                                <a href="#" class="nav-element dropdown-toggle">{% trans "Verwaltung"%}▾</a>
+                                <div class="dropdown-content">
+                                    <a class = "nav-element" href="{% url 'posts:aufgaben_verwalten'%}">{% trans "Aufgabenliste"%}</a>
+                                    <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">{% trans "Aufgaben zuweisen"%}</a>
+                                    <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">{% trans "Nutzer anlegen"%}</a>
+                                    <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">{% trans "Aufgabe erstellen"%}</a>
+                                </div>
+                            </div>
                         {% endif %}
                         
                         <div class="nav-dropdown">
-                            <a href="#" class="nav-element dropdown-toggle">{% trans "Buchhaltung ▾"%}</a>
+                            <a href="#" class="nav-element dropdown-toggle">{% trans "Buchhaltung"%}▾</a>
                             <div class="dropdown-content">
                                 <a href="{% url 'posts:hauptbuch' %}">{% trans "Hauptbuch"%}</a>
                                 <a href="{% url 'posts:guv_uebersicht' %}">{% trans "GuV"%}</a>
@@ -63,7 +72,13 @@
                             <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">Aufgabe erstellen</a>
                         {% endif %}
                         -->
-                    <a href="https://projekte.htw-berlin.de/hochschule/curriculum-innovation-hub/studieren-in-individuellem-tempo/" class="nav-element">{% trans "Impressum"%}</a>
+                    <div class="nav-dropdown">
+                        <a href="#" class="nav-element dropdown-toggle">{% trans "Impressum"%}▾</a>
+                        <div class="dropdown-content">
+                            <a href="https://projekte.htw-berlin.de/hochschule/curriculum-innovation-hub/studieren-in-individuellem-tempo/" class="nav-element">{% trans "Impressum"%}</a>
+                            <a href=#>{% trans "FAQ, ToDo"%}</a>
+                        </div>
+                    </div>
                     <form class="logout-form" action="{% url 'users:logout' %}" method="post">
                         {% csrf_token %}
                         <button class="logout-button">Logout</button>
@@ -74,12 +89,12 @@
                     
                     <form class="language-form" action="{% url 'set_language' %}" method="post">
                         {% csrf_token %}
-                        <label for="language-select">Sprache wählen:</label>
+                        <label for="language-select">{% trans "Sprache wählen"%}:</label>
                         <select name="language" id="language-select">
                             <option value="de" {% if LANGUAGE_CODE == 'de' %}selected{% endif %}>Deutsch</option>
                             <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
                         </select>
-                        <button type="submit">Sprache ändern</button>
+                        <button class="language-submit-button" type="submit">{% trans "Sprache ändern"%}</button>
                     </form>
 
                     

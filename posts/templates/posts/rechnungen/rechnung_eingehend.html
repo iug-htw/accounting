@@ -5,42 +5,58 @@
 {% load i18n %}
 {% block content %}
 <div class="invoice-box">
-        <div class="invoice-header" style="margin-top: 20px;">
-            <p><strong>{% trans "Datum:"%}</strong> {{ datum|date:"d.m.Y" }}</p>
-            {% if aufgabe.rechnungstyp != "non" %}
-                <p><strong>{% trans "Zahlungsbeleg Nr.:"%}</strong> {{ rechnungsnummer|default:_("Keine Nummer angegeben") }}</p>
-            {% endif %}
-        </div>
-    
-        <div class="invoice-description" style="margin-top: 20px;">
-                <h3>{% trans "Geschäftsvorfall"%}</h3>
-            <br><br>
-                <p>
-                    {% trans "Sehr geehrte Buchhaltung,"%} 
-                <br><br>
-                {{ beschreibung|linebreaks }}<br><br>
-            </p>
-        </div>
-        <div class="invoice-amount" style="margin-top: 20px;">
-            {% if aufgabe.fragentyp_id == 10 %}
-                <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rechnungsbetrag|mul:1.05|floatformat:2 }} EUR {%trans "(Betrag ohne Rabatt)"%}</p>
-            {% elif aufgabe.fragentyp_id == 13%}
-                <p><strong>{% trans "Anschaffungskosten (Netto):"%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
-            {% else %}
-            <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|floatformat:2 }} EUR {% if aufgabe.umsatzsteuerfrei == 1 %} {%trans "(frei von Ust.)"%} {%else%} {% trans "(inklusive 19,00% USt.)"%} {%endif%}</p>
-            {% endif %}
-        </div>
-        {% if zahlweise and aufgabe.rechnungstyp != "non" %}
-        <div class="payment-info" style="margin-top: 20px;">
-            <p><strong>{% trans "Zahlungsweise:"%}</strong> {{ zahlweise|default:_("Keine Zahlungsart angegeben") }}</p>
-        </div>
-        {%endif%}
-        <div class="invoice-footer" style="margin-top: 40px;">
-            <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
-                <p>{{ nutzer_aufgabe.absender.name }}</p>
-                <p><strong>{% trans "Kontakt:"%}</strong><br>{{ nutzer_aufgabe.absender.email|linebreaks }}</p>
-            <br>
-        </div>
+    <div class="client-address" style="text-align: right;">
+        <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
     </div>
+    <div class="company-address">
+            {% if aufgabe.rechnungstyp != "non" %}
+                <strong>{{ nutzer_aufgabe.absender.name }}</strong> <br>
+                {{ nutzer_aufgabe.absender.straße }}<br>
+                {{ nutzer_aufgabe.absender.plz }} 
+                {{ nutzer_aufgabe.absender.stadt }}<br>
+                {{ nutzer_aufgabe.absender.email }}<br>
+            {% endif %}
+    </div>
+    <div class="invoice-header" style="margin-top: 20px;">
+        {% if aufgabe.rechnungstyp != "non" %}
+            <p><strong>{% trans "Rechnung Nr.:"%}</strong> {{ rechnungsnummer|default:_("Keine Nummer angegeben") }}</p>
+        {% endif %}
+        {% if aufgabe.hat_leistungszeitraum == 1 %}
+            <p><strong>{% trans "Leistungszeitraum"%}: </strong> {{leistungszeitraum_anfang |date:"d.m.Y"}} - {{leistungszeitraum_ende |date:"d.m.Y"}}</p>
+        {% else %}
+            <p><strong>{% trans "Datum"%}: </strong> {{datum |date:"d.m.Y"}}</p>
+        {% endif %}
+    </div>
+    
+    <div class="invoice-description" style="margin-top: 20px;">
+            <h3>{% trans "Geschäftsvorfall"%}</h3>
+        <br><br>
+            <p>
+                {% trans "Sehr geehrte Buchhaltung,"%} 
+            <br><br>
+            {{ beschreibung|linebreaks }}<br><br>
+        </p>
+    </div>
+    <div class="invoice-amount" style="margin-top: 20px;">
+        {% if aufgabe.fragentyp_id == 10 %}
+            <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rechnungsbetrag|mul:1.05|floatformat:2 }} EUR {%trans "(Betrag ohne Rabatt)"%}</p>
+        {% elif aufgabe.fragentyp_id == 13%}
+            <p><strong>{% trans "Anschaffungskosten (Netto):"%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
+        {% else %}
+        <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|floatformat:2 }} EUR {% if aufgabe.umsatzsteuerfrei == 1 %} {%trans "(frei von Ust.)"%} {%else%} {% trans "(inklusive 19,00% Umsatzsteuer)" %} {%endif%}</p>
+        {% endif %}
+    </div>
+    {% if zahlweise and aufgabe.rechnungstyp != "non" %}
+    <div class="payment-info" style="margin-top: 20px;">
+        <p><strong>{% trans "Zahlungsweise:"%}</strong> {{ zahlweise|default:_("Keine Zahlungsart angegeben") }}</p>
+    </div>
+    {%endif%}
+    <div class="invoice-footer" style="margin-top: 40px;">
+        <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
+            <p>{{ nutzer_aufgabe.absender.name }}</p>
+            <p><strong>{% trans "Kontakt:"%}</strong><br>{{ nutzer_aufgabe.absender.email|linebreaks }}</p>
+        <br>
+    </div>
+</div>
 {% endblock %}
 

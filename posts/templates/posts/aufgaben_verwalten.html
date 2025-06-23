@@ -8,51 +8,59 @@
 {% block content %}
 <h1>{% trans "Aufgabenverwaltung"%}</h1>
 
-{% if aufgaben %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>{% trans "ID"%}</th>
-                <th>{% trans "Fragentyp"%}</th>
-                <th>{% trans "Beschreibung"%}</th>
-                <th>{% trans "Bearbeiten"%}</th>
-                <th>{% trans "Zur Rechnung"%}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for aufgabe in aufgaben %}
-                <tr>
-                    <td>{{ aufgabe.id }}</td>
-                    <td>{{ aufgabe.fragentyp_text }}</td>
-                    <td>{{ aufgabe.beschreibung|default:"Keine Beschreibung" }}</td>
-                    <td>
-                        <a href="{% url 'posts:aufgabe_bearbeiten' aufgabe.id %}" class="btn">
-                           {% trans "Aufgabe bearbeiten"%}
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{% url 'posts:rechnung_detail' aufgabe.id %}" class="btn">
-                            <p>{% trans "Link"%}</p>
-                        </a>
-                    </td>
-                    
-                    {% if aufgabe.ersteller == request.user.id or request.user.is_superuser %}
-                    <td>
-                        <a href="{% url 'posts:aufgabe_loeschen' aufgabe.id %}" 
-                           class="btn btn-danger" 
-                           onclick="return confirm('Soll diese Aufgabe wirklich gelöscht werden?');">
-                           {% trans "Löschen"%}
-                        </a>
-                    </td>
-                    {% endif %}
-                
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% if aufgaben_nach_unternehmen %}
+    {% for unternehmen, aufgaben in aufgaben_nach_unternehmen.items %}
+        <button class="toggle-button" onclick="toggleTable('table-{{ unternehmen.id }}')">
+            {{ unternehmen.name }} einklappen
+        </button>
+        <div id="table-{{ unternehmen.id }}" class="aufgaben-tabelle">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "ID" %}</th>
+                        <th>{% trans "Fragentyp" %}</th>
+                        <th>{% trans "Beschreibung" %}</th>
+                        <th>{% trans "Bearbeiten" %}</th>
+                        <th>{% trans "Zur Rechnung" %}</th>
+                        <th>{% trans "Löschen" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aufgabe in aufgaben %}
+                        <tr>
+                            <td>{{ aufgabe.id }}</td>
+                            <td>{{ aufgabe.fragentyp_text }}</td>
+                            <td>{{ aufgabe.beschreibung|default:"Keine Beschreibung" }}</td>
+                            <td>
+                                <a href="{% url 'posts:aufgabe_bearbeiten' aufgabe.id %}" class="btn">{% trans "Bearbeiten" %}</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'posts:rechnung_detail' aufgabe.id %}" class="btn">{% trans "Link" %}</a>
+                            </td>
+                            {% if aufgabe.ersteller == request.user.id or request.user.is_superuser %}
+                            <td>
+                                <a href="{% url 'posts:aufgabe_loeschen' aufgabe.id %}" class="btn btn-danger"
+                                   onclick="return confirm('Soll diese Aufgabe wirklich gelöscht werden?');">
+                                   {% trans "Löschen" %}
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endfor %}
 {% else %}
-    <p>{% trans "Keine Aufgaben vorhanden."%}</p>
+    <p>{% trans "Keine Aufgaben vorhanden." %}</p>
 {% endif %}
 
-<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">{% trans "Neue Aufgabe erstellen"%}</a>
+<a href="{% url 'posts:aufgabe_erstellen' %}" class="btn btn-secondary">{% trans "Neue Aufgabe erstellen" %}</a>
+
+<script>
+    function toggleTable(id) {
+        var elem = document.getElementById(id);
+        elem.style.display = (elem.style.display === 'none') ? 'block' : 'none';
+    }
+</script>
 {% endblock %}

@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="nutzer-erstellen-page">
 <h1>{% trans "Nutzerkonten anlegen" %}</h1>
     <div class="nav-container_1">
 <a href="{% url 'users:add_studiengang' %}" class="nav-element_1">{% trans "Studiengang bearbeiten" %}</a>
@@ -83,7 +84,7 @@
 </table>
 <p><strong>{% trans "Hinweis:" %}</strong> {% trans "Diese Studierenden existierten bereits und wurden nicht erneut angelegt." %}</p>
 {% endif %}
-
+</div>
 <script>
     function toggleNameInput() {
         let nameMode = document.getElementById("name_mode");

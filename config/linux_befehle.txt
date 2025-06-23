@@ -23,6 +23,8 @@ js
 ignore bedingung 
     -i static_root_dev -i admin -i users -i posts -i config -i .env -i templates
 
+python manage.py compilemessages
+
 python manage.py collectstatic --clear --noinput
 
 Pull
@@ -33,38 +35,4 @@ Neustart der VM
 sudo systemctl restart gunicorn
 sudo systemctl restart nginx
 
---05
-die TechParts GmbH hat den Zahlungseingang für die gekauften Waren in Höhe des unten beigefügten Rechnungsbetrages bestätigt. Der Rechnungsbetrag ist Umsatzsteuerfrei. Die Zahlung erfolgte per Überweisung. Bitte buchen Sie diesen Geschäftsvorgang ordnungsgerecht. 
-
---08
-gestern hat ein Gesellschafter eine Privateinlage auf das Geschäftskonto geleistet. Diese Einzahlung dient der finanziellen Unterstützung des Unternehmens und stärkt die Liquidität für zukünftige Geschäftsaktivitäten.
-
---09 
-für den kurzfristigen Erwerb von Büromaterialien wurde ein Betrag aus der betrieblichen Kasse entnommen, um die Zahlung in bar abzuwickeln.
-Der ausgezahlte Betrag ist umsatzsteuerfrei.
-
-Bitte buchen Sie den beigefügten Geschäftsvorfall ordnungsgemäß.
-----------------
-Ab hier Aufgabe
-----------------
---9 ToDO
-
---10
-Interner Vorgang!
-
-für die Ausgangsrechnung an die CyberShield AG ist der Zahlungseingang erfolgt. Die Kundin hat fristgerecht bezahlt und dabei den vereinbarten Skonto von 3 % auf den Netto-Rechnungsbetrag in Anspruch genommen.
-
-Bitte buchen Sie den Zahlungseingang unter Berücksichtigung des gewährten Skontos und der entsprechenden Umsatzsteuerkorrektur.
-
---11
-Eingehende Rechnung!
-Eingehende Rechnung: {% if aufgabe.fragentyp_id == 10 %} {%trans "(Betrag ohne Rabatt)"%} {%endif%}
-Für den Kauf von fünf Hochsicherheits-Firewalls berechnen wir Ihnen folgenden Betrag.
-Im Rahmen unserer aktuellen Sonderaktion gewähren wir einen Rabatt in Höhe von 5 % auf den Nettobetrag. Die Umsatzsteuer (19 %) wurde auf den reduzierten Nettobetrag angewendet.
---12
-für die durchgeführte IT-Sicherheitsberatung bei der DataShield AG stellen wir Ihnen hiermit eine Rechnung über den unten aufgeführten Betrag aus.
-
-Im Rahmen unseres bestehenden Vertrags haben wir Ihnen einen Rabatt von 5 % auf den regulären Nettobetrag gewährt. Die Umsatzsteuer in Höhe von 19 % wurde auf den reduzierten Nettobetrag berechnet.
-Bitte überweisen Sie den Rechnungsbetrag innerhalb der vereinbarten Zahlungsfrist auf das angegebene Geschäftskonto.
-
-Bei Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
+Settings.py ändern!

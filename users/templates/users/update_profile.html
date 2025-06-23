@@ -23,18 +23,23 @@
         </button>
     </div>
     <br><br>
-    <div>
-        <label for="password">{% trans "Neues Passwort (optional)"%}:</label>
-        <input type="password" name="password">
+    <div style="position: relative;">
+        <label for="password">{% trans "Neues Passwort (optional)" %}:</label>
+        <input type="password" name="password" id="password">
+        <button type="button" onclick="togglePassword('password')" style="position: absolute; right: 10px; top: 33px;">👁</button>
     </div>
-    
-    <div>
-        <label for="password_confirm">{% trans "Passwort bestätigen:"%}</label>
-        <input type="password" name="password_confirm">
+
+    <br>
+
+    <div style="position: relative;">
+        <label for="password_confirm">{% trans "Passwort bestätigen:" %}</label>
+        <input type="password" name="password_confirm" id="password_confirm">
+        <button type="button" onclick="togglePassword('password_confirm')" style="position: absolute; right: 10px; top: 33px;">👁</button>
         <button type="submit" name="save_password">
             {% trans "Passwort speichern" %}
         </button>
     </div>
+
 </form>
 
 <script>
@@ -52,5 +57,13 @@
         box.innerText = message;
         box.style.display = 'block';
     }
+function togglePassword(id) {
+    const input = document.getElementById(id);
+    if (input && input.type === "password") {
+        input.type = "text";
+    } else if (input) {
+        input.type = "password";
+    }
+}
 </script>
 {% endblock %}

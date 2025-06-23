@@ -1,5 +1,5 @@
 /* === GRUNDLAYOUT === */
-body {
+.aufgabe-erstellen-page body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f8;
     margin: 0;
@@ -7,7 +7,7 @@ body {
     color: #222;
 }
 
-h1, h2, .pcenter {
+.aufgabe-erstellen-page h1, .aufgabe-erstellen-page h2, .pcenter {
     text-align: center;
     margin-bottom: 1.5rem;
     color: #120639;
@@ -58,28 +58,8 @@ h1, h2, .pcenter {
     transform: translateY(-1px);
 }
 
-
-
-button[type="button"],
-button[type="submit"] {
-    margin-top: 1rem;
-    padding: 10px 20px;
-    background-color: #5cbad3;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 15px;
-}
-
-button[type="button"]:hover,
-button[type="submit"]:hover {
-    background-color: #8cd0dd;
-}
-
 /* === FORMULAR === */
-form {
+.aufgabe-erstellen-page form {
     max-width: 900px;
     margin: 0 auto;
     background: #fff;
@@ -101,7 +81,7 @@ form {
 }
 
 /* === FORM ELEMENTE === */
-label {
+.aufgabe-erstellen-page label {
     font-weight: bold;
     margin-bottom: 0.3rem;
     color: #333;
@@ -110,10 +90,10 @@ label {
 }
 
 /* Einheitliche Eingabefelder */
-input[type="text"],
-input[type="number"],
-select,
-textarea {
+.aufgabe-erstellen-page input[type="text"],
+.aufgabe-erstellen-page input[type="number"],
+.aufgabe-erstellen-page select,
+.aufgabe-erstellen-page textarea {
     width: 100%;
     padding: 0.7rem;
     font-size: 14px;

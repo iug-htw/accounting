@@ -58,7 +58,8 @@
     <div class="right-section_rechnung">
        <!-- 🔘 Toggle-Button für rechte Seite -->
         <h2>{% trans "Buchungs-Navigation"%}</h2>
-        <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">{% trans "Buchungen anzeigen/verstecken"%} 💡</button>
+        {%trans "Hinweis: Dieses Menü kann geöffnet werden, um die alten Buchungen und Feedback zu den Buchungen anzuzeigen"%}
+        <button id="toggle-buchung-ansicht" class="btn-toggle_rechnung">{% trans "Buchungen/Feedback anzeigen"%}</button>
 
         <div id="buchungen-ansicht" class="buchungen-ansicht" style="display: none;">
 
@@ -77,7 +78,7 @@
                         {% elif item.buchung.korrekturbuchung %}
                             🔁 {% trans "Korrekturbuchung"%}
                         {% else %}
-                            ❌ {% trans "Lösung falsch"%}
+                            ❌ {% trans "Lösung falsch. Aufklappen, um Feedback anzuzeigen"%}
                         {% endif %}
                     </span>
             
@@ -272,6 +273,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
 });
 
+const showText = "{{ _('📥 Buchungs-Navigation einblenden') }}";
+const hideText = "{{ _('📄 Buchungs-Navigation ausblenden') }}";
+
 document.addEventListener("DOMContentLoaded", function () {
     // Zustand der Buchungsansicht wiederherstellen
     const buchungenAnsicht = document.getElementById("buchungen-ansicht");
@@ -294,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (localStorage.getItem("rightSectionHidden") === "true") {
         rightSection.classList.add("right-section-hidden");
         contentWrapper.classList.add("hide-right");
-        toggleRightBtn.textContent = "{{ _('📥 Buchungs-Navigation einblenden') }}";
+        toggleRightBtn.textContent = showText;
     }
 
     toggleRightBtn.addEventListener("click", () => {
@@ -305,8 +309,8 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("rightSectionHidden", isNowHidden.toString());
 
         toggleRightBtn.textContent = isNowHidden
-            ? "{{ _("📥 Buchungs-Navigation einblenden")}}"
-            : "{{ _("📄 Buchungs-Navigation ausblenden")}}";
+            ? showText
+            : hideText;
     });
 
     // === 4. Scrollposition & Ansicht beim Submit speichern ===

@@ -4,6 +4,7 @@ body {
     padding: 0;
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
+    overflow-y: scroll;
 }
 
 .page-container {
@@ -239,7 +240,7 @@ body {
     font-size: 0.85rem;
 }
 
-.language-form button {
+.language-submit-button {
     padding: 0.3rem 0.6rem;
     background-color: #57a42d;
     color: white;
@@ -250,6 +251,20 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.language-form button:hover {
+.language-submit-button:hover {
     background-color: #3d7d1f;
+}
+
+.mail-badge {
+    position: absolute;
+    top: -8px;
+    right: -5px;
+    background-color: orange;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    line-height: 1;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
