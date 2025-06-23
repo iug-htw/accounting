@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-23 16:49+0200\n"
+"POT-Creation-Date: 2025-06-23 17:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -537,6 +537,11 @@ msgstr "Link"
 msgid "Keine Aufgaben vorhanden."
 msgstr "No tasks available"
 
+#: .\posts\templates\posts\bilanz.html:11
+#: .\posts\templates\posts\bilanz.html:66 .\templates\master_layout.html:66
+msgid "Bilanz"
+msgstr "Balance sheet"
+
 #: .\posts\templates\posts\bilanz.html:12
 msgid ""
 "Hier können alle Konten abgeschlossen werden, um die Bilanz aufzustellen. "
@@ -580,10 +585,6 @@ msgstr "Loss"
 #: .\posts\templates\posts\bilanz.html:31 .\posts\templates\posts\guv.html:29
 msgid "Konto abschließen"
 msgstr "Close account"
-
-#: .\posts\templates\posts\bilanz.html:66 .\templates\master_layout.html:66
-msgid "Bilanz"
-msgstr "Balance sheet"
 
 #: .\posts\templates\posts\bilanz.html:86
 #: .\posts\templates\posts\bilanz.html:88 .\posts\templates\posts\guv.html:85
@@ -1107,6 +1108,8 @@ msgstr "(VAT-exempt)"
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:47
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:46
 #: .\posts\templates\posts\rechnungen\rechnung_intern.html:39
+#, fuzzy, python-format
+#| msgid "(inklusive 19,00%% Umsatzsteuer)"
 msgid "(inklusive 19,00%% Umsatzsteuer)"
 msgstr "(including 19.00% VAT)"
 
@@ -1442,10 +1445,8 @@ msgid "Handbuch Lehrende"
 msgstr "User guide teachers"
 
 #: .\templates\master_layout.html:51
-#, fuzzy
-#| msgid "Kontenverwaltung"
 msgid "Verwaltung"
-msgstr "Manage accounts"
+msgstr "Management"
 
 #: .\templates\master_layout.html:53
 msgid "Aufgabenliste"
