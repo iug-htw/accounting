@@ -223,6 +223,8 @@ class Kontenplan(models.Model):
     def __str__(self):
         if self.id == 1:
             return "SecureNet"
+        if self.id == 2:
+            return "SecureNet_en"
         return gettext("Kontenplan %(nutzer)s (%(id)s)") % {
             "nutzer": self.nutzer.username,
             "id": self.nutzer.id
