@@ -29,8 +29,8 @@
     margin-bottom: 0.5rem;
 }
 /* === Karten-Grundlayout für jede Sektion === */
-.zugewiesen-container,
-.card-section {
+.aufgabe-zuweisen-page .zugewiesen-container,
+.aufgabe-zuweisen-page .card-section {
     max-width: 900px;
     margin: 0 auto 2rem auto;
     padding: 1.5rem 2rem;
@@ -42,14 +42,14 @@
 }
 
 /* === Aufgabenübersicht Inhalt === */
-.zugewiesen-container p {
+.aufgabe-zuweisen-page .zugewiesen-container p {
     margin: 0.2rem 0;
     line-height: 1.5;
     font-size: 15px;
 }
 
 /* === Checkbox-Gruppen === */
-.card-section div {
+.aufgabe-zuweisen-page .card-section div {
     margin-bottom: 0.8rem;
     display: flex;
     align-items: center;
@@ -110,7 +110,7 @@
     background-color: #3c0f79;
 }
 /* === Button-Gruppe (Zuweisen + Alle Aufgaben) === */
-.button-row {
+.aufgabe-zuweisen-page .button-row {
     display: flex;
     justify-content: flex-start;
     gap: 1rem;
@@ -118,8 +118,8 @@
 }
 
 /* === Einheitliches Button Design === */
-.btn-primary,
-.btn-secondary {
+.aufgabe-zuweisen-page .btn-primary,
+.aufgabe-zuweisen-page .btn-secondary {
     padding: 10px 24px;
     font-size: 15px;
     border: none;
@@ -134,13 +134,13 @@
     text-align: center;
 }
 
-.btn-primary:hover,
-.btn-secondary:hover {
+.aufgabe-zuweisen-page .btn-primary:hover,
+.aufgabe-zuweisen-page .btn-secondary:hover {
     background-color: #3c0f79;
 }
 
 /* === Button Container (nebeneinander & gleichmäßig verteilt) === */
-.button-row {
+.aufgabe-zuweisen-page .button-row {
     display: flex;
     justify-content: space-between;
     margin-top: 2rem;
@@ -151,7 +151,7 @@
 }
 
 
-.button-row button {
+.aufgabe-zuweisen-page .button-row button {
     flex: 0 0 auto;
 }
 
@@ -160,21 +160,21 @@
 
 /* === Responsiveness === */
 @media (max-width: 768px) {
-    h1 {
+    .aufgabe-zuweisen-page h1 {
         font-size: 24px;
     }
 
-    h2 {
+    .aufgabe-zuweisen-page h2 {
         font-size: 18px;
     }
 
-    .zugewiesen-container,
-    .card-section {
+    .aufgabe-zuweisen-page .zugewiesen-container,
+    .aufgabe-zuweisen-page .card-section {
         padding: 1rem;
         margin: 1rem auto;
     }
 
-    label {
+    .aufgabe-zuweisen-page label {
         font-size: 14px;
     }
 }

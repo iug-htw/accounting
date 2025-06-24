@@ -485,7 +485,7 @@ def send_willkommen_mail(user):
     ) 
 
 def sende_orga_mail_wenn_noetig(student):
-    if not student.unternehmen or student.unternehmen.id != 1:
+    if student.unternehmen.name not in  ('SecureNet', 'SecureNet_en'):
         return  # Nur für Unternehmen mit ID 1
 
     bereits_geschickt = Mail.objects.filter(

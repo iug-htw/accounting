@@ -223,7 +223,7 @@ msgstr "Correct"
 
 #: .\posts\models.py:94
 msgid "Soll ist falsch"
-msgstr "Dedit is incorrect"
+msgstr "Debit is incorrect"
 
 #: .\posts\models.py:95
 msgid "Haben ist falsch"
@@ -468,7 +468,7 @@ msgstr "Debit/Crebit"
 #: .\posts\templates\posts\guv.html:70
 #: .\posts\templates\posts\hauptbuch.html:38
 msgid "Soll"
-msgstr "Dedit"
+msgstr "Debit"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:42
 #: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:32
@@ -513,7 +513,7 @@ msgstr "ID"
 #: .\posts\templates\posts\aufgaben_verwalten.html:35
 #: .\posts\templates\posts\konten_verwalten.html:87
 msgid "Bearbeiten"
-msgstr "Processed"
+msgstr "Modify"
 
 #: .\posts\templates\posts\aufgaben_verwalten.html:24
 msgid "Zur Rechnung"
@@ -910,7 +910,7 @@ msgstr "Perform adjustment entry"
 #: .\posts\templates\posts\rechnung.html:98
 #: .\posts\templates\posts\rechnung.html:161
 msgid "Soll-Konten:"
-msgstr "Dedit/Credit"
+msgstr "Debit/Credit"
 
 #: .\posts\templates\posts\rechnung.html:103
 #: .\posts\templates\posts\rechnung.html:171
