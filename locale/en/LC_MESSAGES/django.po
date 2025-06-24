@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-23 17:00+0200\n"
+"POT-Creation-Date: 2025-06-24 18:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -177,7 +177,7 @@ msgstr "Task info"
 msgid "Aufgabe"
 msgstr "Task"
 
-#: .\posts\models.py:80 .\posts\models.py:233
+#: .\posts\models.py:80 .\posts\models.py:235
 #: .\posts\templates\posts\bilanz.html:75
 #: .\posts\templates\posts\bilanz.html:77 .\posts\templates\posts\guv.html:74
 #: .\posts\templates\posts\guv.html:76
@@ -188,7 +188,7 @@ msgstr "Account"
 msgid "Soll/Haben"
 msgstr "Credit/Debit"
 
-#: .\posts\models.py:82 .\posts\models.py:234
+#: .\posts\models.py:82 .\posts\models.py:236
 #: .\posts\templates\posts\bilanz.html:76
 #: .\posts\templates\posts\bilanz.html:78 .\posts\templates\posts\guv.html:75
 #: .\posts\templates\posts\guv.html:77
@@ -238,7 +238,7 @@ msgid "Buchungs ID"
 msgstr "Entry ID"
 
 #: .\posts\models.py:100 .\posts\models.py:139 .\posts\models.py:170
-#: .\posts\models.py:221 .\posts\models.py:232
+#: .\posts\models.py:221 .\posts\models.py:234
 msgid "Nutzer"
 msgstr "User"
 
@@ -404,7 +404,7 @@ msgstr "one"
 msgid "Erstellt von"
 msgstr "Created by"
 
-#: .\posts\models.py:226
+#: .\posts\models.py:228
 #, python-format
 msgid "Kontenplan %(nutzer)s (%(id)s)"
 msgstr "Chart of accounts %(nutzer)s (%(id)s)"
@@ -878,11 +878,9 @@ msgid ""
 "Feedback zu den Buchungen anzuzeigen"
 msgstr ""
 "Note: This menu can be opened to view previous entries and feedback on the "
-"bookings."
+"journal entries."
 
 #: .\posts\templates\posts\rechnung.html:62
-#, fuzzy
-#| msgid "Buchungen anzeigen/verstecken"
 msgid "Buchungen/Feedback anzeigen"
 msgstr "Show entries/feedback"
 
@@ -1071,10 +1069,8 @@ msgid "Rechnung"
 msgstr "Invoice"
 
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:35
-#, fuzzy
-#| msgid "Guten Tag,"
 msgid "Guten Tag"
-msgstr "Good day,"
+msgstr "Hello,"
 
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:43
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:42
@@ -1148,10 +1144,8 @@ msgid "Geschäftsvorfall"
 msgstr "Business transaction"
 
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:35
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:21
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:23
-msgid "Sehr geehrte Buchhaltung,"
-msgstr "Dear Accounting Department,"
+msgid "Sehr geehrte "
+msgstr "Dear "
 
 #: .\posts\templates\posts\rechnungen\rechnung_intern.html:10
 msgid "Datum:"
@@ -1162,6 +1156,11 @@ msgid "Dokument:"
 msgstr "Document:"
 
 #: .\posts\templates\posts\rechnungen\rechnung_intern.html:21
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:23
+msgid "Sehr geehrte Buchhaltung,"
+msgstr "Dear Accounting Department,"
+
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:21
 msgid "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"
 msgstr ""
 "The following business transaction has been received and must be processed:"
@@ -1170,15 +1169,15 @@ msgstr ""
 msgid " "
 msgstr " "
 
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:57
+msgid "Ihre SecureNet GmbH"
+msgstr "Your SecureNet GmbH"
+
 #: .\posts\templates\posts\rechnungsuebersicht.html:9
-#, fuzzy
-#| msgid "Geschäftsvorfall"
 msgid "Meine Geschäftsvorfälle"
-msgstr "Business transaction"
+msgstr "My Business transactions"
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:10
-#, fuzzy
-#| msgid "Alle deine Rechnungen auf einen Blick"
 msgid "Alle deine Geschäftsvorfälle auf einen Blick"
 msgstr "All your invoices at a glance"
 
@@ -1191,10 +1190,8 @@ msgid "Aktion"
 msgstr "Action"
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:37
-#, fuzzy
-#| msgid "Rechnung öffnen →"
 msgid "Dokument öffnen →"
-msgstr "Open invoice →"
+msgstr "Open document →"
 
 #: .\posts\templates\posts\rechnungsuebersicht.html:43
 msgid "Keine Rechnungen gefunden."
@@ -1231,62 +1228,62 @@ msgstr "%(anzahl)d tasks could not be imported: %(fehler)s"
 msgid "Fehlerhafte Eingaben oder keine Datei hochgeladen."
 msgstr "Invalid entries or no file uploaded."
 
-#: .\posts\views.py:699
+#: .\posts\views.py:701
 msgid "Unternehmen erfolgreich hinzugefügt."
 msgstr "Business added successfully."
 
-#: .\posts\views.py:702
+#: .\posts\views.py:704
 msgid "Fehler beim Speichern des Unternehmens."
 msgstr "Error while saving the Business."
 
-#: .\posts\views.py:726 .\users\views.py:125 .\users\views.py:154
+#: .\posts\views.py:728 .\users\views.py:125 .\users\views.py:154
 msgid "Keine Berechtigung zum Löschen."
 msgstr "No permission to delete."
 
-#: .\posts\views.py:728
+#: .\posts\views.py:730
 #, python-format
 msgid "Das Unternehmen '%(name)s' wurde gelöscht."
 msgstr "The Business '%(name)s' has been deleted."
 
-#: .\posts\views.py:738
+#: .\posts\views.py:740
 msgid "Kategorie erfolgreich hinzugefügt."
 msgstr "Successfully created category"
 
-#: .\posts\views.py:741
+#: .\posts\views.py:743
 msgid "Fehler beim Speichern der Kategorie."
 msgstr "Error while saving the category."
 
-#: .\posts\views.py:753
+#: .\posts\views.py:755
 #, python-format
 msgid "Die Kategorie '%(name)s' wurde gelöscht."
 msgstr "The category '%(name)s' has been deleted."
 
-#: .\posts\views.py:828
+#: .\posts\views.py:830
 msgid "Keine Berechtigung zum Bearbeiten."
 msgstr "No permission to edit."
 
-#: .\posts\views.py:839
+#: .\posts\views.py:841
 msgid "Fehler beim Bearbeiten der Details."
 msgstr "Error while editing the details."
 
-#: .\posts\views.py:887
+#: .\posts\views.py:889
 #, python-format
 msgid "Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt."
 msgstr "Adjustment entry in attempt %(versuch)s completed successfully."
 
-#: .\posts\views.py:1002
+#: .\posts\views.py:1004
 msgid "Konto erfolgreich hinzugefügt."
 msgstr "Successfully created account"
 
-#: .\posts\views.py:1005
+#: .\posts\views.py:1007
 msgid "Fehler: Überprüfe deine Eingaben."
 msgstr "Error: Check your entries."
 
-#: .\posts\views.py:1076
+#: .\posts\views.py:1078
 msgid "Konten erfolgreich importiert."
 msgstr "Accounts successfully imported"
 
-#: .\posts\views.py:1428
+#: .\posts\views.py:1430
 msgid "Keine Berechtigung zum Löschen dieser Aufgabe."
 msgstr "No permission to delete this task."
 
@@ -1486,8 +1483,6 @@ msgid "FAQ, ToDo"
 msgstr "FAQ"
 
 #: .\templates\master_layout.html:92
-#, fuzzy
-#| msgid "Sprache ändern"
 msgid "Sprache wählen"
 msgstr "Change language"
 

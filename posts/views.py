@@ -348,11 +348,13 @@ def rechnung_detail_view(request, aufgabe_id):
     datum = nutzer_aufgabe.erstellt_am
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
     id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
+    unternehmen_name = aufgabe.unternehmen_kategorie.name
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
         'rechnungsnummer': aufgabe.rechnungsnummer,
         'datum': datum,
+        'unternehmen_name': unternehmen_name,
         'hat_leistungszeitraum': aufgabe.hat_leistungszeitraum,
         #'anschrift_kunde': aufgabe.anschrift_kunde,
         'eigene_ansicht': aufgabe.eigene_ansicht,

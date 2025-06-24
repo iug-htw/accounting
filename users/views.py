@@ -45,7 +45,7 @@ ORGA_MAILS = [
         "betreff_en": "Planned IT maintenance – approval required",
         "mailtext": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung",
         "mailtext_de": "Guten Tag,\n\nunsere IT plant ein Serverupdate nächste Woche. Bitte genehmigen Sie diese Maßnahme.\n\nIhre IT-Abteilung",
-        "mailtext_en": "Good day,\n\nOur IT department is planning a server update next week. Please approve this measure. Your IT Department\n\nYour IT department",
+        "mailtext_en": "Hello,\n\nOur IT department is planning a server update next week. Please approve this measure.\n\nYour IT department",
     } 
 ]
 
