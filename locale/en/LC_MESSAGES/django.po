@@ -356,11 +356,11 @@ msgstr "Not processed"
 
 #: .\posts\models.py:195 .\posts\templates\posts\guv.html:26
 msgid "Bestandskonto"
-msgstr "Balance sheet account"
+msgstr "Asset account"
 
 #: .\posts\models.py:196 .\posts\templates\posts\guv.html:27
 msgid "Erfolgskonto"
-msgstr "Profit and loss account"
+msgstr "Income account"
 
 #: .\posts\models.py:200 .\posts\templates\posts\bilanz.html:27
 #: .\posts\templates\posts\bilanz.html:71
