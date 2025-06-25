@@ -349,8 +349,10 @@ def rechnung_detail_view(request, aufgabe_id):
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
     id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
     unternehmen_name = aufgabe.unternehmen_kategorie.name
+    mwst = Decimal("1.19")
+    r_faktor = Decimal("0.95")
     rechnungsbetrag = Decimal(round(sum(nutzer_aufgabe.haben_betraege),2))
-    rabatt_betrag = round(((rechnungsbetrag/1.19)/0.95)*1.19,2)
+    rabatt_betrag = round(((rechnungsbetrag/mwst)/r_faktor)*mwst,2)
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
