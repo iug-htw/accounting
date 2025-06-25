@@ -1,6 +1,7 @@
 {% extends 'master_layout.html' %}
 {% load i18n %}
 {% load static%}
+{% load my_filters %}
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/posteingang.css' %}">
 <meta name="csrf-token" content="{{ csrf_token }}">
@@ -19,7 +20,7 @@
 
             <div class="mail-content">
                 {% autoescape off %}
-                <p>{% if LANGUAGE_CODE == "en" and mail.mailtext_en != null %} {{ mail.mailtext_en }} {% elif LANGUAGE_CODE == "de" and mail.mailtext_de != null %} {{ mail.mailtext_de }} {% else %} {{mail.mailtext}} {% endif %}</p>
+                {% if LANGUAGE_CODE == "en" and mail.mailtext_en != null %} {{ mail.mailtext_en|linebreaks }} {% elif LANGUAGE_CODE == "de" and mail.mailtext_de != null %} {{ mail.mailtext_de|linebreaks }} {% else %} {{mail.mailtext|linebreaks}} {% endif %}
                 {% endautoescape %}
                 <br>
                 {% trans "Ihr SecureNet Team"%}
