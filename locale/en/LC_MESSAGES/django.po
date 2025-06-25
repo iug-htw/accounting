@@ -1111,8 +1111,6 @@ msgstr "(VAT-exempt)"
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:47
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:46
 #: .\posts\templates\posts\rechnungen\rechnung_intern.html:39
-#, fuzzy, python-format
-#| msgid "(inklusive 19,00%% Umsatzsteuer)"
 msgid "(inklusive 19,00%% Umsatzsteuer)"
 msgstr "(including 19.00% VAT)"
 
