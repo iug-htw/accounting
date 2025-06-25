@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-25 10:26+0200\n"
+"POT-Creation-Date: 2025-06-25 16:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -744,50 +744,50 @@ msgstr "Save changes"
 msgid "Zurück zur Übersicht"
 msgstr "Back to overview"
 
-#: .\posts\templates\posts\mail_detail.html:10
+#: .\posts\templates\posts\mail_detail.html:11
 msgid "Mail-Details"
 msgstr "Mail-details"
 
-#: .\posts\templates\posts\mail_detail.html:14
+#: .\posts\templates\posts\mail_detail.html:15
 msgid "Von:"
 msgstr "From:"
 
-#: .\posts\templates\posts\mail_detail.html:15
+#: .\posts\templates\posts\mail_detail.html:16
 msgid "Adresse:"
 msgstr "Address:"
 
-#: .\posts\templates\posts\mail_detail.html:16
+#: .\posts\templates\posts\mail_detail.html:17
 msgid "Betreff:"
 msgstr "Subject:"
 
-#: .\posts\templates\posts\mail_detail.html:17
+#: .\posts\templates\posts\mail_detail.html:18
 msgid "Empfangen am:"
 msgstr "Received on"
 
-#: .\posts\templates\posts\mail_detail.html:25
+#: .\posts\templates\posts\mail_detail.html:26
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:55
 #: .\posts\templates\posts\rechnungen\rechnung_intern.html:51
 msgid "Ihr SecureNet Team"
 msgstr "Your SecureNet Team"
 
-#: .\posts\templates\posts\mail_detail.html:30
+#: .\posts\templates\posts\mail_detail.html:31
 msgid "Zur Aufgabe"
 msgstr "To the task"
 
-#: .\posts\templates\posts\mail_detail.html:31
+#: .\posts\templates\posts\mail_detail.html:32
 msgid "Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"
 msgstr "Please update your display name & password"
 
-#: .\posts\templates\posts\mail_detail.html:32
+#: .\posts\templates\posts\mail_detail.html:33
 #: .\users\templates\users\update_profile.html:9
 msgid "Profil aktualisieren"
 msgstr "Update Profile"
 
-#: .\posts\templates\posts\mail_detail.html:37
+#: .\posts\templates\posts\mail_detail.html:38
 msgid "Aufgabe delegieren"
 msgstr "Delegate task"
 
-#: .\posts\templates\posts\mail_detail.html:41
+#: .\posts\templates\posts\mail_detail.html:42
 msgid "Zurück zum Posteingang"
 msgstr "Back to inbox"
 
@@ -1086,8 +1086,9 @@ msgstr "Amount (gross):"
 
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:43
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:42
-msgid "(Betrag ohne Rabatt)"
-msgstr "(Amount without discount)"
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:32
+msgid "(Rechnungsbetrag vor Rabatt)"
+msgstr "(Amount before dicount)"
 
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:45
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:44
@@ -1229,62 +1230,62 @@ msgstr "%(anzahl)d tasks could not be imported: %(fehler)s"
 msgid "Fehlerhafte Eingaben oder keine Datei hochgeladen."
 msgstr "Invalid entries or no file uploaded."
 
-#: .\posts\views.py:701
+#: .\posts\views.py:706
 msgid "Unternehmen erfolgreich hinzugefügt."
 msgstr "Business added successfully."
 
-#: .\posts\views.py:704
+#: .\posts\views.py:709
 msgid "Fehler beim Speichern des Unternehmens."
 msgstr "Error while saving the Business."
 
-#: .\posts\views.py:728 .\users\views.py:125 .\users\views.py:154
+#: .\posts\views.py:733 .\users\views.py:125 .\users\views.py:154
 msgid "Keine Berechtigung zum Löschen."
 msgstr "No permission to delete."
 
-#: .\posts\views.py:730
+#: .\posts\views.py:735
 #, python-format
 msgid "Das Unternehmen '%(name)s' wurde gelöscht."
 msgstr "The Business '%(name)s' has been deleted."
 
-#: .\posts\views.py:740
+#: .\posts\views.py:745
 msgid "Kategorie erfolgreich hinzugefügt."
 msgstr "Successfully created category"
 
-#: .\posts\views.py:743
+#: .\posts\views.py:748
 msgid "Fehler beim Speichern der Kategorie."
 msgstr "Error while saving the category."
 
-#: .\posts\views.py:755
+#: .\posts\views.py:760
 #, python-format
 msgid "Die Kategorie '%(name)s' wurde gelöscht."
 msgstr "The category '%(name)s' has been deleted."
 
-#: .\posts\views.py:830
+#: .\posts\views.py:835
 msgid "Keine Berechtigung zum Bearbeiten."
 msgstr "No permission to edit."
 
-#: .\posts\views.py:841
+#: .\posts\views.py:846
 msgid "Fehler beim Bearbeiten der Details."
 msgstr "Error while editing the details."
 
-#: .\posts\views.py:889
+#: .\posts\views.py:894
 #, python-format
 msgid "Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt."
 msgstr "Adjustment entry in attempt %(versuch)s completed successfully."
 
-#: .\posts\views.py:1004
+#: .\posts\views.py:1009
 msgid "Konto erfolgreich hinzugefügt."
 msgstr "Successfully created account"
 
-#: .\posts\views.py:1007
+#: .\posts\views.py:1012
 msgid "Fehler: Überprüfe deine Eingaben."
 msgstr "Error: Check your entries."
 
-#: .\posts\views.py:1078
+#: .\posts\views.py:1083
 msgid "Konten erfolgreich importiert."
 msgstr "Accounts successfully imported"
 
-#: .\posts\views.py:1430
+#: .\posts\views.py:1435
 msgid "Keine Berechtigung zum Löschen dieser Aufgabe."
 msgstr "No permission to delete this task."
 
@@ -1760,6 +1761,9 @@ msgstr "No Changes submitted"
 #: .\users\views.py:525
 msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
 msgstr "The organizational task has been marked as completed."
+
+#~ msgid "(Betrag ohne Rabatt)"
+#~ msgstr "(Amount without discount)"
 
 #~ msgid "Rechnung Nr."
 #~ msgstr "Invoice No."
