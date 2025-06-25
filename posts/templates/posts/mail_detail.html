@@ -21,6 +21,8 @@
                 {% autoescape off %}
                 <p>{% if LANGUAGE_CODE == "en" and mail.mailtext_en != null %} {{ mail.mailtext_en }} {% elif LANGUAGE_CODE == "de" and mail.mailtext_de != null %} {{ mail.mailtext_de }} {% else %} {{mail.mailtext}} {% endif %}</p>
                 {% endautoescape %}
+                <br>
+                {% trans "Ihr SecureNet Team"%}
             </div>
 
             <div class="mail-footer">
@@ -29,9 +31,11 @@
                 {% elif mail.betreff == _("Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort")%}
                     <a href="{{ aufgabe_link }}" class="btn btn-primary">{% trans "Profil aktualisieren"%}</a>
                 {% else %}
-                    <form method="POST" action="{% url 'users:orga_mail_bestätigen' mail.id %}">
+                    <form id="delegieren-form" method="POST" action="{% url 'users:orga_mail_bestätigen' mail.id %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">{% trans "Aufgabe delegieren"%}</button>
+                        <a href="#" class="btn btn-primary" onclick="document.getElementById('delegieren-form').submit(); return false;">
+                            {% trans "Aufgabe delegieren" %}
+                        </a>
                     </form>
                 {% endif %}
                 <a href="{% url 'posts:posteingang' %}" class="btn btn-secondary">{% trans "Zurück zum Posteingang"%}</a>

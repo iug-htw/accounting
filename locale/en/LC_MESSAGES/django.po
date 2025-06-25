@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-24 18:41+0200\n"
+"POT-Creation-Date: 2025-06-25 10:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -764,24 +764,30 @@ msgstr "Subject:"
 msgid "Empfangen am:"
 msgstr "Received on"
 
-#: .\posts\templates\posts\mail_detail.html:28
+#: .\posts\templates\posts\mail_detail.html:25
+#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:55
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:51
+msgid "Ihr SecureNet Team"
+msgstr "Your SecureNet Team"
+
+#: .\posts\templates\posts\mail_detail.html:30
 msgid "Zur Aufgabe"
 msgstr "To the task"
 
-#: .\posts\templates\posts\mail_detail.html:29
+#: .\posts\templates\posts\mail_detail.html:31
 msgid "Bitte aktualisieren Sie Ihren Anzeigenamen & Ihr Passwort"
 msgstr "Please update your display name & password"
 
-#: .\posts\templates\posts\mail_detail.html:30
+#: .\posts\templates\posts\mail_detail.html:32
 #: .\users\templates\users\update_profile.html:9
 msgid "Profil aktualisieren"
 msgstr "Update Profile"
 
-#: .\posts\templates\posts\mail_detail.html:34
+#: .\posts\templates\posts\mail_detail.html:37
 msgid "Aufgabe delegieren"
 msgstr "Delegate task"
 
-#: .\posts\templates\posts\mail_detail.html:37
+#: .\posts\templates\posts\mail_detail.html:41
 msgid "Zurück zum Posteingang"
 msgstr "Back to inbox"
 
@@ -1120,11 +1126,6 @@ msgstr "Payment method:"
 #: .\posts\templates\posts\rechnungen\rechnung_intern.html:45
 msgid "Keine Zahlungsart angegeben"
 msgstr "No payment method specified"
-
-#: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:55
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:51
-msgid "Ihr SecureNet Team"
-msgstr "Your SecureNet Team"
 
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:56
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:57
