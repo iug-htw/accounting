@@ -23,31 +23,31 @@
         </div>
     {% endif %}
     <!--
-    {% if user.is_authenticated and nutzer_aufgabe %}
-    <p><strong>Zufällig generierte Werte:</strong></p>
-    <ul>
-        <li><strong>Soll-Konten:</strong>
-            <ul>
-                {% for i in nutzer_aufgabe.soll_konten %}
-                    <li>
-                        {{ i }}: {{ nutzer_aufgabe.soll_betraege|index:forloop.counter0 }} €
-                    </li>
-                {% endfor %}
-            </ul>
-        </li>
+{% if user.is_authenticated and nutzer_aufgabe %}
+  <p><strong>Zufällig generierte Werte:</strong></p>
+  <ul>
+    <li><strong>Soll-Konten:</strong>
+      <ul>
+        {% for id in nutzer_aufgabe.soll_konten %}
+          <li>
+            {{ konten_namen|get_konto:id }}: {{ nutzer_aufgabe.soll_betraege|index:forloop.counter0 }} €
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+    <li><strong>Haben-Konten:</strong>
+      <ul>
+        {% for id in nutzer_aufgabe.haben_konten %}
+          <li>
+            {{ konten_namen|get_konto:id }}: {{ nutzer_aufgabe.haben_betraege|index:forloop.counter0 }} €
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+  </ul>
+{% endif %}
+-->
 
-        <li><strong>Haben-Konten:</strong>
-            <ul>
-                {% for i in nutzer_aufgabe.haben_konten %}
-                    <li>
-                        {{ i }}: {{ nutzer_aufgabe.haben_betraege|index:forloop.counter0 }} €
-                    </li>
-                {% endfor %}
-            </ul>
-        </li>
-    </ul>
-    {% endif %}
-    -->
 <div class="content-wrapper_rechnung">
     <!-- Linker Bereich: Fiktive Rechnung -->
     <div class="left-section_rechnung">
