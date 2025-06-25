@@ -349,6 +349,8 @@ def rechnung_detail_view(request, aufgabe_id):
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
     id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
     unternehmen_name = aufgabe.unternehmen_kategorie.name
+    rechnungsbetrag = Decimal(round(sum(nutzer_aufgabe.haben_betraege),2))
+    rabatt_betrag = round(((rechnungsbetrag/1.19)/0.95)*1.19,2)
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
@@ -361,7 +363,8 @@ def rechnung_detail_view(request, aufgabe_id):
         'leistungszeitraum_anfang': nutzer_aufgabe.leistungszeitraum_anfang,
         'leistungszeitraum_ende': nutzer_aufgabe.leistungszeitraum_ende,
         'beschreibung': aufgabe.beschreibung,
-        'rechnungsbetrag': Decimal(sum(nutzer_aufgabe.haben_betraege)),
+        'rechnungsbetrag': rechnungsbetrag,
+        'rabatt_betrag': rabatt_betrag,
         'zahlweise': aufgabe.zahlweise,
         'verabschiedung': aufgabe.verabschiedung,
         'kontakt': aufgabe.kontakt,
