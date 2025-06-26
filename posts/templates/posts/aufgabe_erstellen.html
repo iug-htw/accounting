@@ -54,6 +54,14 @@
     </form>
 </div>
 <script>
+    const gettexts = {
+        konto: "{{ _('Konto') }}",
+        soll_haben: "{{ _('Soll/Haben') }}",
+        soll: "{{ _('Soll') }}",
+        haben: "{{ _('Haben') }}",
+        betrag: "{{ _('Betrag') }}",
+        warnung: "{{ _('Bitte geben Sie mindestens einen Betrag ein.') }}"
+    };
     function addFieldGroup() {
         let container = document.getElementById('fields-container');
         let newFieldGroup = document.createElement('div');
@@ -64,18 +72,18 @@
             {% endfor %}
         `;
         newFieldGroup.innerHTML = `
-            <label>${gettext("Konto:")}</label>
+            <label>${gettexts.konto}</label>
             <select name="konto_id[]" class="konto-select" required>
             {% for konto in konten %}
                 <option value="{{ konto.id }}">{{ konto.name }}</option>
             {% endfor %}
             </select>
-            <label>${gettext("Soll/Haben:")}</label>
+            <label>${gettexts.soll_haben}</label>
             <select name="soll_haben[]" required>
-                <option value="Soll">${gettext("Soll")}</option>
-                <option value="Haben">${gettext("Haben")}</option>
+                <option value="Soll">${gettexts.soll}</option>
+                <option value="Haben">${gettexts.haben}</option>
             </select>
-            <input type="number" step="0.0000001" placeholder="${gettext("Betrag")}" name="betrag[]" class="betrag">
+            <input type="number" step="0.0000001" placeholder=${gettexts.betrag} name="betrag[]" class="betrag">
         `;
         container.appendChild(newFieldGroup);
     }
@@ -138,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!mindestensEinsAusgefüllt) {
             event.preventDefault();
-            alert('Bitte geben Sie mindestens einen Betrag ein.');
+            alert(gettexts.warnung);
         }
     });
 });

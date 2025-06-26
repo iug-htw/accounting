@@ -602,11 +602,10 @@ def freie_buchung(request):
     unternehmen = getattr(user, "unternehmen", None)
     kontenplan = getattr(unternehmen, "kontenplan", None)
     if request.method == "POST":
-        # Wrapping-Logik wiederverwenden:
         handle_nutzer_buchung(request, aufgabe=None, ist_frei=True)
         return redirect('frontpage')
-
-    konten = Konto.objects.filter(kontenplan=kontenplan)
+    guv_konto = ermittle_guv_konto(request).name
+    konten = Konto.objects.filter(kontenplan=kontenplan).exclude(name=guv_konto).order_by('kontonummer', 'name')
     context = {
         'konten': konten,
         'kontenplan_id': kontenplan.id,
@@ -1568,7 +1567,9 @@ def ollama_threading(buchung, nutzer_aufgabe, beschreibung):
 @login_required
 @require_GET
 def tkonto_vorschau(request):
-    aufgabe_id = request.GET.get('aufgabe_id')
+    aufgabe_id = None
+    if request.GET.get('aufgabe_id'):
+        aufgabe_id = request.GET.get('aufgabe_id')
     soll_konten = json.loads(request.GET.get('soll_konten', '[]'))
     soll_betraege = json.loads(request.GET.get('soll_betraege', '[]'))
     haben_konten = json.loads(request.GET.get('haben_konten', '[]'))
@@ -1617,10 +1618,10 @@ def tkonto_vorschau(request):
     # Aktuelle Eingaben ergänzen
     for konto_id, betrag in zip(soll_konten, soll_betraege):
         konto = t_konten.setdefault(konto_id, {"name": id_to_name.get(str(konto_id), f"Konto {konto_id}"), "soll": [], "haben": []})
-        konto["soll"].append(f"{betrag} € (aktuell)")
+        konto["soll"].append(f"{betrag} € {_('(aktuell)')}")
 
     for konto_id, betrag in zip(haben_konten, haben_betraege):
         konto = t_konten.setdefault(konto_id, {"name": id_to_name.get(str(konto_id), f"Konto {konto_id}"), "soll": [], "haben": []})
-        konto["haben"].append(f"{betrag} € (aktuell)")
+        konto["haben"].append(f"{betrag} € {_('(aktuell)')}")
     
     return JsonResponse({"konten": list(t_konten.values())})
