@@ -11,7 +11,7 @@ from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required, admin_required, student_required
 from posts.models import Mail, NutzerAufgabe, Absender, Unternehmen
 from django.contrib import messages
-from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail
+from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail,generate_user_anfangsbestaende
 from posts.views import Aufgabe_neu
 from django.core.mail import send_mail
 from django.conf import settings
@@ -195,6 +195,7 @@ def bulk_student_creation(request):
             student.set_password(student_name)  # Passwort richtig hashen
             student.save()
             send_willkommen_mail(student)
+            generate_user_anfangsbestaende(student)
             send_profile_update_mail(student, request)
             neue_studierende.append(student)
 

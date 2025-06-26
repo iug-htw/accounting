@@ -14,7 +14,7 @@ from django.core.mail import send_mail
 from django.db.models import Count, Q, F
 from django.contrib.auth import get_user_model
 from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
-from decimal import Decimal  
+from decimal import Decimal, ROUND_HALF_UP
 from collections import defaultdict
 from django.utils.html import format_html
 from django.views.decorators.http import require_GET
@@ -305,10 +305,11 @@ def rechnung_detail_view(request, aufgabe_id):
     #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
-    konten = Konto.objects.exclude(name="GuV").order_by('kontonummer', 'name')
+    guv_konto = ermittle_guv_konto(request).name
+    konten = Konto.objects.exclude(name=guv_konto).order_by('kontonummer', 'name')
 
     if request.method == 'POST':
-        buchung = handle_nutzer_buchung(request, aufgabe)
+        buchung = handle_nutzer_buchung(request, aufgabe, ist_frei=False)
         if not is_buchung_korrekt(buchung, nutzer_aufgabe):
             send_korrektur_mail(request.user, aufgabe, request)
         return redirect('frontpage')
@@ -471,9 +472,7 @@ def erlaubte_konten(ids):
                         erlaubte_ids.add(bilanz_konto.id)  # Konto mit Bilanzposition als Kontonummer
         return set(str(eid) for eid in erlaubte_ids)
 
-def handle_nutzer_buchung(request, aufgabe):
-    letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
-    neuer_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
+def handle_nutzer_buchung(request, aufgabe, ist_frei):
 
     soll_konto_ids = request.POST.getlist('soll_konto[]')
     haben_konto_ids = request.POST.getlist('haben_konto[]')
@@ -506,6 +505,14 @@ def handle_nutzer_buchung(request, aufgabe):
 
     ersetzte_soll_konten = ersetze_konto_durch_bilanzpositionskonto(soll_konto_ids)
     ersetzte_haben_konten = ersetze_konto_durch_bilanzpositionskonto(haben_konto_ids)
+    if ist_frei:
+        status = 'offen'
+        aufgabe=None
+        neuer_versuch = 0
+    else:
+        status='bearbeitet'
+        letzte_buchung = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('-versuch').first()
+        neuer_versuch = (letzte_buchung.versuch + 1) if letzte_buchung else 1
     # Buchung erstellen
     buchung = Buchung.objects.create(
         aufgabe=aufgabe,
@@ -516,76 +523,96 @@ def handle_nutzer_buchung(request, aufgabe):
         antwort_betrag_haben=json.dumps(haben_betraege),
         original_konten_soll=json.dumps(original_soll_konten),
         original_konten_haben=json.dumps(original_haben_konten),
-        status='bearbeitet',
+        status=status,
         versuch=neuer_versuch
     )
+    if not ist_frei:
+        # Nutzeraufgabe laden
+        nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
 
-    # Nutzeraufgabe laden
-    nutzer_aufgabe = NutzerAufgabe.objects.get(aufgabe=aufgabe, nutzer=request.user)
+        # JSON-Daten der Buchung laden
+        soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
+        haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
+        betraege_soll_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_soll)]
+        betraege_haben_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_haben)]
 
-    # JSON-Daten der Buchung laden
-    soll_konten_nutzer = json.loads(buchung.antwort_konten_soll)
-    haben_konten_nutzer = json.loads(buchung.antwort_konten_haben)
-    betraege_soll_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_soll)]
-    betraege_haben_nutzer = [round(float(betrag), 2) for betrag in json.loads(buchung.antwort_betrag_haben)]
+        # Erwartete Werte laden
+        soll_konten_aufgabe = nutzer_aufgabe.soll_konten
+        haben_konten_aufgabe = nutzer_aufgabe.haben_konten
+        soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
+        haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
 
-    # Erwartete Werte laden
-    soll_konten_aufgabe = nutzer_aufgabe.soll_konten
-    haben_konten_aufgabe = nutzer_aufgabe.haben_konten
-    soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
-    haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
+        erlaubte_soll_konten = erlaubte_konten(soll_konten_aufgabe)
+        erlaubte_haben_konten = erlaubte_konten(haben_konten_aufgabe)
 
-    erlaubte_soll_konten = erlaubte_konten(soll_konten_aufgabe)
-    erlaubte_haben_konten = erlaubte_konten(haben_konten_aufgabe)
+        # Neue Konto-Status-Logik
+        soll_konten_ok = set(soll_konten_nutzer).issubset(erlaubte_soll_konten) and len(soll_konten_nutzer) == len(soll_konten_aufgabe)
+        haben_konten_ok = set(haben_konten_nutzer).issubset(erlaubte_haben_konten) and len(haben_konten_nutzer) == len(haben_konten_aufgabe)
 
-    # Neue Konto-Status-Logik
-    soll_konten_ok = set(soll_konten_nutzer).issubset(erlaubte_soll_konten) and len(soll_konten_nutzer) == len(soll_konten_aufgabe)
-    haben_konten_ok = set(haben_konten_nutzer).issubset(erlaubte_haben_konten) and len(haben_konten_nutzer) == len(haben_konten_aufgabe)
+        if not soll_konten_ok and not haben_konten_ok:
+            konto_status = 3
+        elif not soll_konten_ok:
+            konto_status = 1
+        elif not haben_konten_ok:
+            konto_status = 2
+        else:
+            konto_status = 0
 
-    if not soll_konten_ok and not haben_konten_ok:
-        konto_status = 3
-    elif not soll_konten_ok:
-        konto_status = 1
-    elif not haben_konten_ok:
-        konto_status = 2
-    else:
-        konto_status = 0
+        # Fehlerstatus für Beträge setzen
+        if sum(betraege_soll_nutzer) != sum(soll_betraege_aufgabe) and sum(betraege_haben_nutzer) != sum(haben_betraege_aufgabe):
+            betrag_status = 3  # Beide falsch
+        elif sum(betraege_soll_nutzer) != sum(soll_betraege_aufgabe):
+            betrag_status = 1  # Soll falsch
+        elif sum(betraege_haben_nutzer) != sum(haben_betraege_aufgabe):
+            betrag_status = 2  # Haben falsch
+        else:
+            betrag_status = 0  # Beide korrekt
 
-    # Fehlerstatus für Beträge setzen
-    if sum(betraege_soll_nutzer) != sum(soll_betraege_aufgabe) and sum(betraege_haben_nutzer) != sum(haben_betraege_aufgabe):
-        betrag_status = 3  # Beide falsch
-    elif sum(betraege_soll_nutzer) != sum(soll_betraege_aufgabe):
-        betrag_status = 1  # Soll falsch
-    elif sum(betraege_haben_nutzer) != sum(haben_betraege_aufgabe):
-        betrag_status = 2  # Haben falsch
-    else:
-        betrag_status = 0  # Beide korrekt
+        # Summe Soll = Summe Haben prüfen
+        summe_soll_nutzer = round(sum(betraege_soll_nutzer),2)
+        summe_haben_nutzer = round(sum(betraege_haben_nutzer),2)
+        summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
 
-    # Summe Soll = Summe Haben prüfen
-    summe_soll_nutzer = round(sum(betraege_soll_nutzer),2)
-    summe_haben_nutzer = round(sum(betraege_haben_nutzer),2)
-    summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
+        # Speichern der Fehlerstatus in der Datenbank
+        buchung.konto_korrekt = konto_status
+        buchung.betrag_korrekt = betrag_status
+        buchung.save()
 
-    # Speichern der Fehlerstatus in der Datenbank
-    buchung.konto_korrekt = konto_status
-    buchung.betrag_korrekt = betrag_status
-    buchung.save()
+        # Neue Bedingung für die Aufgabe als korrekt
+        if konto_status == 0 and betrag_status == 0 and summe_korrekt:
+            buchung.status = "korrekt"
+            nutzer_aufgabe.bearbeitungsstand = "korrekt"
+        else:
+            buchung.status = "bearbeitet"
+            nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
-    # Neue Bedingung für die Aufgabe als korrekt
-    if konto_status == 0 and betrag_status == 0 and summe_korrekt:
-        buchung.status = "korrekt"
-        nutzer_aufgabe.bearbeitungsstand = "korrekt"
-    else:
-        buchung.status = "bearbeitet"
-        nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
+        if (buchung.versuch == 3) and buchung.status != "korrekt":
+            threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
 
-    if (buchung.versuch == 3) and buchung.status != "korrekt":
-        threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
-
-    buchung.save()
-    nutzer_aufgabe.save()
-
+        buchung.save()
+        nutzer_aufgabe.save()
+    #else:
+        # Nur speichern, ohne Validierung
+        #buchung.save()
     return buchung
+
+@login_required
+def freie_buchung(request):
+    user = request.user
+    unternehmen = getattr(user, "unternehmen", None)
+    kontenplan = getattr(unternehmen, "kontenplan", None)
+    if request.method == "POST":
+        # Wrapping-Logik wiederverwenden:
+        handle_nutzer_buchung(request, aufgabe=None, ist_frei=True)
+        return redirect('frontpage')
+
+    konten = Konto.objects.filter(kontenplan=kontenplan)
+    context = {
+        'konten': konten,
+        'kontenplan_id': kontenplan.id,
+        'block_buchung': False,
+    }
+    return render(request, 'posts/freie_buchung.html', context)
 
 def generiere_zufaellige_werte(aufgabe, versuch=0):
     
@@ -764,7 +791,6 @@ def aufgabenkategorie_loeschen(request, kategorie_id):
 def hauptbuch_view(request):
     user = request.user
     # Falls noch keine anfangsbestaende existieren, generiere sie
-    generate_user_anfangsbestaende(user)
     unternehmen = user.unternehmen
     if not unternehmen or not unternehmen.kontenplan:
         konten = Konto.objects.none()
@@ -778,7 +804,11 @@ def hauptbuch_view(request):
     buchungen = Buchung.objects.filter(nutzer=user)
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
     t_konten = build_t_konten(buchungen, anfangsbestaende)
-    aufgaben_ids = sorted({f"{buchung.aufgabe.id} {buchung.versuch})" for buchung in buchungen})
+    aufgaben_ids = sorted({
+        f"{buchung.aufgabe.id} {buchung.versuch})" if buchung.aufgabe
+        else f"{_('Freie Buchung')} ({buchung.versuch})"
+        for buchung in buchungen
+    })
 
     return render(request, "posts/hauptbuch.html", {
         "t_konten": t_konten,
@@ -804,16 +834,19 @@ def build_t_konten(buchungen, anfangsbestände):
             t_konten[konto_id]["soll"].append(("EBK", bestand.betrag, "#D3D3D3"))
         elif bestand.konto.unterkategorie == "Passiva":  # EBK für Passivkonten auf Haben-Seite
             t_konten[konto_id]["haben"].append(("EBK", bestand.betrag, "#D3D3D3"))
-
+        
     # Bestehende Buchungen hinzufügen (Originalfunktion bleibt erhalten)
     for buchung in buchungen:
-        aufgabe_id_mit_versuch = f"{buchung.aufgabe.id} {buchung.versuch})"
+        if buchung.aufgabe: 
+            aufgabe_id_mit_versuch = f"{buchung.aufgabe.id} {buchung.versuch})"
 
-        if buchung.aufgabe.id not in aufgabe_farben:
-            aufgabe_farben[buchung.aufgabe.id] = generate_color(buchung.aufgabe.id)
+            if buchung.aufgabe.id not in aufgabe_farben:
+                aufgabe_farben[buchung.aufgabe.id] = generate_color(buchung.aufgabe.id)
 
-        farbe = aufgabe_farben[buchung.aufgabe.id]
-
+            farbe = aufgabe_farben[buchung.aufgabe.id]
+        else:
+            aufgabe_id_mit_versuch = f"Freie Buchung {buchung.versuch})"
+            farbe = "#999999"
         soll_konten = safe_parse(buchung.antwort_konten_soll or "[]")
         haben_konten = safe_parse(buchung.antwort_konten_haben or "[]")
         soll_betraege = safe_parse(buchung.antwort_betrag_soll or "[]")
@@ -1120,7 +1153,7 @@ def nutzer_fortschritt(request):
     gesamt_aufgaben = NutzerAufgabe.objects.filter(nutzer=request.user).count()
     # Bearbeitungsstand der Aufgaben berechnen
     offen = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="offen").count()
-    bearbeitet = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="bearbeitet").count()
+    bearbeitet = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand__in=["bearbeitet","korrekt"]).count()
     korrekt = NutzerAufgabe.objects.filter(nutzer=request.user, bearbeitungsstand="korrekt").count()
     # Sicherstellen, dass keine Division durch 0 stattfindet
     prozent_korrekt = round((korrekt / gesamt_aufgaben) * 100) if gesamt_aufgaben > 0 else 0
@@ -1241,17 +1274,17 @@ def get_student(student_id, lehrer):
 @login_required
 def guv_uebersicht(request):
     # GuV-Konto holen (zur späteren Filterung)
-    guv_konto = Konto.objects.get(name="GuV")
+    guv_konto = ermittle_guv_konto(request)
     # Filtere alle Konten außer GuV
-    konten = Konto.objects.exclude(name="GuV")   
+    konten = Konto.objects.exclude(name=guv_konto.name)
     # Filtere Buchungen ohne GuV (SOLL und HABEN)
     buchungen = Buchung.objects.filter(nutzer=request.user).exclude(
-        antwort_konten_soll__icontains="GuV"
+        antwort_konten_soll__icontains=guv_konto.name
     ).exclude(
-        antwort_konten_haben__icontains="GuV"
+        antwort_konten_haben__icontains=guv_konto.name
     )
     # Anfangsbestände ohne GuV
-    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user).exclude(konto=guv_konto)
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user).exclude(konto=guv_konto.id)
     # Baue T-Konten-Struktur
     t_konten = build_t_konten(buchungen, anfangsbestaende)
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
@@ -1266,46 +1299,35 @@ def guv_uebersicht(request):
         "konto_kategorien": konto_kategorien
     })
 
+
 def generate_user_anfangsbestaende(user):
     if Anfangsbestand.objects.filter(nutzer=user).exists():
-        return  # Bereits vorhanden – nichts tun
+        return  # Bereits vorhanden
 
-    if getattr(user, "unternehmen_id", None) != 1:
-        return  # Nur wenn Unternehmen ID = 1
-    # Definiere relevante Konten
-    relevante_konten_namen = [
-        "Kasse", "Bank", "Forderungen aLuL", "Warenbestand", "Gebäude",
-        "Technische Anlagen und Maschinen", "Büromaterialien", "Verbindlichkeiten aLuL",
-        "Rückstellungen"
-    ]
+    unternehmen = getattr(user, "unternehmen", None)
+    if not unternehmen or not unternehmen.kontenplan:
+        return  # Kein Kontenplan vorhanden
 
-    aktiva_summe = 0
-    passiva_summe = 0
+    kontenplan = unternehmen.kontenplan
 
-    # 🔎 Prüfe, ob Konten existieren
-    for konto_name in relevante_konten_namen:
-        konto = Konto.objects.filter(name=konto_name).first()
-        if not konto:
-            continue  # Überspringe dieses Konto
+    konten_mit_anfangsbestand = Konto.objects.filter(
+        kontenplan=kontenplan,
+        hat_anfangsbestand=True,
+        anfangsbestand_menge__isnull=False
+    )
+
+    # Einmalig zufälligen Faktor bestimmen
+    faktor = round(random.uniform(0.75, 1.25), 2)
+
+    for konto in konten_mit_anfangsbestand:
         if Anfangsbestand.objects.filter(nutzer=user, konto=konto).exists():
-            continue  # Überspringe, falls bereits ein Anfangsbestand existiert
-        betrag = random.randint(5000, 20000)  # Zufallsbetrag
+            continue  # Anfangsbestand schon vorhanden
+
+        basiswert = konto.anfangsbestand_menge
+        betrag = round(Decimal(basiswert) * Decimal(faktor), 2)
+        betrag = float(betrag.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
         Anfangsbestand.objects.create(nutzer=user, konto=konto, betrag=betrag)
-
-        # Aktiva oder Passiva Summe berechnen
-        if konto.unterkategorie == "Aktiva":
-            aktiva_summe += betrag
-        else:
-            passiva_summe += betrag
-
-    # 🔎 Eigenkapital berechnen
-    eigenkapital_konto = Konto.objects.filter(name="Eigenkapital").first()
-    if not eigenkapital_konto:
-        return  # Abbrechen, wenn Eigenkapital-Konto fehlt
-
-    eigenkapital_betrag = aktiva_summe - passiva_summe
-    if not Anfangsbestand.objects.filter(nutzer=user, konto=eigenkapital_konto).exists():
-        Anfangsbestand.objects.create(nutzer=user, konto=eigenkapital_konto, betrag=eigenkapital_betrag)
 
 @login_required
 def speichere_guv_ergebnis(request):
@@ -1316,11 +1338,8 @@ def speichere_guv_ergebnis(request):
             return JsonResponse({"error": "Ungültiger Betrag"}, status=400)
 
         # GuV Konto holen oder erstellen
-        guv_konto, created = Konto.objects.get_or_create(
-            name="GuV",
-            defaults={"kategorie": "Erfolgskonto"}
-        )
-
+        guv_konto = ermittle_guv_konto(request)
+        
         # SBK-Betrag speichern (mit Vorzeichen)
         Anfangsbestand.objects.update_or_create(
             nutzer=request.user,
@@ -1330,6 +1349,19 @@ def speichere_guv_ergebnis(request):
 
         return JsonResponse({"success": True})
     return JsonResponse({"error": "Nur POST erlaubt"}, status=400)
+
+def ermittle_guv_konto(request):
+    """Sucht das GuV-Konto anhand gängiger Begriffe im Kontenplan des Nutzers."""
+    unternehmen = getattr(request.user, "unternehmen", None)
+    if not unternehmen or not unternehmen.kontenplan:
+        return None
+
+    kontenplan = unternehmen.kontenplan
+    suchbegriffe = ["guv", "gewinn", "verlust", "p&l", "profit", "loss", "pl"]
+
+    query = Q(kontenplan=kontenplan) & Q(name__iregex="|".join(suchbegriffe))
+
+    return Konto.objects.filter(query).first()
 
 @login_required
 def bilanz_uebersicht(request):

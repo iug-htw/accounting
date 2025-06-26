@@ -17,6 +17,10 @@
     {{ form.unterkategorie }}
     <label for="id_kontenplan">{% trans "Kontenplan:"%}</label>
     {{ form.kontenplan }}
+    <label for="id_hat_anfangsbestand">{% trans "Hat Anfangsbestand"%}:</label>
+    {{ form.hat_anfangsbestand }}
+    <label for="id_anfangsbestand_menge">{% trans "Anfangsbestand"%}:</label>
+    {{ form.anfangsbestand_menge }}
     <button type="submit">{% trans "Konto hinzufügen"%}</button>
 </form>
 <br><br>
@@ -59,6 +63,7 @@
         <th>{% trans "Kategorie"%}</th>
         <th>{% trans "Unterkategorie"%}</th>
         <th>{% trans "Bilanzposition"%}</th>
+        <th>{% trans "Anfangsbestand"%}</th>
         <th>{% trans "Aktionen"%}</th>
     </tr>
     {% for plan_nr, konten in konten_nach_plan.items %}
@@ -78,10 +83,11 @@
             {% for konto in konten %}
             <tr>
                 <td>{{ konto.name }} </td>
-                <td>{{konto.kontonummer}}</td>
+                <td>{%if konto.kontonummer > 0%} {{konto.kontonummer}} {% else %} - {% endif %}</td></td>
                 <td>{{ konto.kategorie }}</td>
                 <td>{{ konto.unterkategorie }}</td>
-                <td>{{konto.bilanzposition_nummer}}</td>
+                <td>{%if konto.bilanzposition_nummer > 0%} {{konto.bilanzposition_nummer}} {% else %} - {% endif %}</td>
+                <td> {%if konto.anfangsbestand_menge > 0%} {{konto.anfangsbestand_menge}} {% else %} - {% endif %} </td>
                 <td>
                     {% if konto.erstellt_von_id == user.id or user.is_superuser %}
                     <a href="{% url 'posts:konto_bearbeiten' konto.id %}">{% trans "Bearbeiten"%}</a>

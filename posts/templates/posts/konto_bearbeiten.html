@@ -7,7 +7,12 @@
     {% csrf_token %}
     <label for="id_name">{% trans "Kontoname:"%}</label>
     {{ form.name }}
-
+    <label for="id_hat_anfangsbestand">{% trans "Hat Anfangsbestand"%}:</label>
+    {{ form.hat_anfangsbestand }}
+    <div id="anfangsbestand_feld" style="display: none;">
+        <label id = "anfangsbestand_feld" style="display: none;" for="id_anfangsbestand_menge">{% trans "Anfangsbestand (Menge):" %}</label>
+        {{ form.anfangsbestand_menge }}
+    </div>
     <label for="id_kategorie">{% trans "Kategorie:"%}</label>
     {{ form.kategorie }}
 
@@ -46,6 +51,17 @@
         }
     
         kategorieField.addEventListener("change", updateUnterkategorie);
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.querySelector("#id_hat_anfangsbestand");
+        const eingabeFeld = document.querySelector("#anfangsbestand_feld");
+
+        function toggleEingabeFeld() {
+            eingabeFeld.style.display = checkbox.checked ? "block" : "none";
+        }
+
+        checkbox.addEventListener("change", toggleEingabeFeld);
+        toggleEingabeFeld();  // Initialzustand beim Laden
     });
     </script>
     

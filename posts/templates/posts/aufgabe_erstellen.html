@@ -12,7 +12,7 @@
     <div class="link-buttons">
     <a href="{% url 'posts:unternehmen_verwalten' %}" class="btn btn-secondary">{% trans "Unternehmen/Fallstudien verwalten"%}</a>
     <a href="{% url 'posts:aufgabenkategorie_verwalten' %}" class="btn btn-secondary">{% trans "Fragentyp verwalten"%}</a>
-    <a href="{% url 'posts:konten_verwalten' %}" class="btn btn-secondary">Konten verwalten</a>
+    <a href="{% url 'posts:konten_verwalten' %}" class="btn btn-secondary">{% trans "Konten verwalten"%}</a>
     <a href="{% url 'posts:aufgabe_import_form' %}" class="btn btn-info">{% trans "Aufgaben aus Excel importieren"%}</a>
     </div>
     <form method="post">
@@ -24,7 +24,7 @@
             <trix-editor input="aufgabeninfo_input"></trix-editor>
         </div>
         <h2>{% trans "Buchungssätze hinzufügen"%}</h2>
-        <p class="pcenter">{% trans "Bitte zuerst ein Unternehmen auswählen, um die Konten nach dem Kontenplan zu filtern" %}</p>
+        <p class="pcenter">{% trans "Bitte zuerst die Anzahl der Konten für die Aufgabe festlegen. Anschließend kann der Kontenplan gewählt werden, um die Konten nach dem ausgewählten Plan zu filten." %}</p>
         <div id="fields-container">
             <div class="field-group">
                 <!-- Konto Auswahl -->

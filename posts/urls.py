@@ -36,5 +36,5 @@ urlpatterns = [
     path('kontenplan_konten_laden/', views.kontenplan_konten_laden, name='kontenplan_konten_laden'),
     path('tkonto_vorschau/', views.tkonto_vorschau, name='tkonto_vorschau'),
     path('kontenplan_loeschen/<int:pk>/', views.kontenplan_loeschen, name='kontenplan_loeschen'),
-
+    path('freie_buchung/', views.freie_buchung, name="freie_buchung"),
 ]

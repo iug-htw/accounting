@@ -134,7 +134,7 @@ class AufgabeDetailBearbeitenForm(forms.ModelForm):
 class KontoForm(forms.ModelForm):
     class Meta:
         model = Konto
-        fields = ['name', 'kategorie', 'unterkategorie', 'kontenplan','kontonummer', 'bilanzposition_nummer']
+        fields = ['name','hat_anfangsbestand', 'anfangsbestand_menge', 'kategorie', 'unterkategorie', 'kontenplan','kontonummer', 'bilanzposition_nummer']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)

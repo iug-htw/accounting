@@ -7,10 +7,17 @@
 
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <label for="id_name">{% trans "Name"%}:</label>
+    {{ form.name }}
+
+    <label for="id_kontenplan">{% trans "Kontenplan"%}:</label>
+    {{ form.kontenplan }}
+
+    <label for="id_fallstudie">{% trans "Fallstudie"%}:</label>
+    {{ form.fallstudie }} ({%trans "verhindert Randomisierung der Lösungswerte" %})
+    <br><br>
     <button type="submit">{% trans "Unternehmen hinzufügen"%}</button>
 </form>
-
 <h2>{% trans "Bestehende Unternehmen"%}</h2>
 <ul>
     {% for unternehmen in unternehmen %}

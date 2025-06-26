@@ -1,0 +1,74 @@
+{% extends 'master_layout.html' %}
+{% load my_filters %}
+{% load static %}
+{% load i18n %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/rechnung.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+{% block content %}
+
+<form id = "absenden" method="post" action="{% url 'posts:freie_buchung'%}">
+    {% csrf_token %}
+    <div class="inputs-container_rechnung">
+
+        <!-- SOLL-KONTEN -->
+        <div id="soll-container_rechnung">
+            <label><strong>{% trans "Eingaben Soll:"%}</strong></label>
+            <div class="input-group_rechnung">
+                <select name="soll_konto[]" onchange="kontoOderBetragGeaendert(this)">
+                    <option value="">{% trans "Bitte wählen..."%}</option>
+                    {% for konto in konten %}
+                        {% if konto.kontenplan_id == kontenplan_id %}
+                            {% with konto.kontonummer|stringformat:"04d" as nummer %}
+                                <option value="{{ konto.id }}">
+                                    {% if konto.kontonummer %}{{ nummer }} {% endif %}{{ konto.name }}
+                                </option>
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <input type="number" step="0.01" placeholder="{% trans "Betrag eingeben"%}" name="soll_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
+            </div>
+            <button type="button" class="btn-add_rechnung" onclick="addField('soll-container_rechnung')">{% trans "Neues Soll-Feld hinzufügen"%}</button>
+        </div>
+
+        <!-- HABEN-KONTEN -->
+        <div id="haben-container_rechnung">
+            <label><strong>{% trans "Eingaben Haben:"%}</strong></label>
+            <div class="input-group_rechnung">
+                <select name="haben_konto[]" onchange="kontoOderBetragGeaendert(this)">
+                    <option value="">{% trans "Bitte wählen..."%}</option>
+                    {% for konto in konten %}
+                        {% if konto.kontenplan_id == kontenplan_id %}
+                            {% with konto.kontonummer|stringformat:"04d" as nummer %}
+                                <option value="{{ konto.id }}">
+                                    {% if konto.kontonummer %}{{ nummer }} {% endif %}{{ konto.name }}
+                                </option>
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <input type="number" step="0.01" placeholder="{% trans "Betrag eingeben"%}" name="haben_betrag[]" oninput="kontoOderBetragGeaendert(this)" required>
+            </div>
+            <button type="button" class="btn-add_rechnung" onclick="addField('haben-container_rechnung')">{% trans "Neues Haben-Feld hinzufügen"%}</button>
+        </div>
+
+    </div>
+
+    <!-- SUBMIT-BUTTON -->
+    <button id="btn-submit" class="btn-submit_rechnung" onclick="summenCheck(event)">
+        {% trans "Eingaben übermitteln"%}
+    </button>    
+    <br><br>
+    <p>{% trans "Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung erfolgen."%}</p> 
+</form>
+        </div>
+    </div>
+</div>
+<div id="tkonto-vorschau" class="tkonto-grid"></div>
+
+
+{% include "posts/rechnung_js.html" %}
+{% endblock %}

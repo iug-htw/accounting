@@ -16,7 +16,7 @@
         {% for studiengang, aufgaben in studiengaenge.items %}
             <p><strong>{{ studiengang }}:</strong>
                 {% for aufgabe in aufgaben %}
-                    {{ aufgabe.fragentyp_text }}{% if not forloop.last %}, {% endif %}
+                    {{ forloop.counter }}{% if not forloop.last %}, {% endif %}
                 {% endfor %}
             </p>
         {% empty %}
@@ -33,15 +33,21 @@
         <h2>{% trans "Aufgaben auswählen" %}</h2>
         <!-- Pro Fallstudie ein eigener Block -->
         {% for unternehmensname, aufgaben in fallstudien_aufgaben.items %}
-            <h3>{{ unternehmensname }}</h3> <!-- Nur eine kleine Überschrift -->
+            <div class="fallstudien-header">
+                <label class="fallstudie-label">
+                    <h3>{{ unternehmensname }}</h3>
+                    <input type="checkbox" class="checkbox-fallstudie" data-fallstudie="{{ forloop.counter }}">
+                    {% trans "Alle auswählen"%}
+                </label>
+            </div>
             {% for aufgabe in aufgaben %}
-                {% with "aufgabe_"|add:aufgabe.id|stringformat:"s" as input_id %}
-                <div class="aufgaben-eintrag">
-                    <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}" id="{{ input_id }}" class="checkbox-aufgabe">
-                    <label for="{{ input_id }}">{% blocktrans %}Aufgabe: {{ id }} - {{ typ }}{% endblocktrans %}
-                        {% comment %} Kontextuelle Daten direkt anzeigen, weil bereits übersetzt {% endcomment %}
-                        Aufgabe: {{ aufgabe.id }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}</label>
-                </div>
+                {% with forloop.counter as aufgaben_nummer %}
+                    <div class="aufgaben-eintrag" data-fallstudie="{{ forloop.parentloop.counter }}">
+                        <input type="checkbox" name="aufgaben" value="{{ aufgabe.id }}" id="{{ input_id }}" class="checkbox-aufgabe" data-nummer="{{ aufgaben_nummer }}">
+                        <label for="{{ input_id }}">
+                            {% trans "Aufgabe"%}: {{ aufgaben_nummer }} - {{ aufgabe.fragentyp_text|default:"Fehler bei Fragenabruf" }}
+                        </label>
+                    </div>
                 {% endwith %}
             {% endfor %}
         {% endfor %}
@@ -80,5 +86,18 @@
 </div>
 </form>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const masterCheckboxes = document.querySelectorAll(".checkbox-fallstudie");
+
+    masterCheckboxes.forEach(master => {
+        master.addEventListener("change", function () {
+            const gruppe = master.getAttribute("data-fallstudie");
+            const aufgaben = document.querySelectorAll(`.aufgaben-eintrag[data-fallstudie="${gruppe}"] input[type="checkbox"]`);
+            aufgaben.forEach(cb => cb.checked = master.checked);
+        });
+    });
+});
+</script>
 {% endblock %}
 

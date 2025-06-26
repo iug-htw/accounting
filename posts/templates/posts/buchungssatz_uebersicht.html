@@ -11,7 +11,7 @@
 <div class="aufgaben-grid">
 {% for aufgabe, buchungsliste in aufgaben_buchungen.items %}
      <div class="aufgabe-block">
-    <h3>{% trans "Aufgabe"%} {{ aufgabe.id }}: {{ aufgabe.fragentyp_text }}</h3>
+    <h3> {% if aufgabe.id is not null %} {% trans "Aufgabe"%} {{ aufgabe.id }}: {{ aufgabe.fragentyp_text }} {% else %} {%trans "Freie Buchung"%} {% endif %} </h3>
     
         {% for buchung in buchungsliste %}
             <div class="buchung">

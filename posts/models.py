@@ -55,7 +55,7 @@ class Aufgabe_neu(models.Model):
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Ein allgemeines Feedback für eine falsche Lösung hinsichtlich des Betrages.", verbose_name=_("Feedback Betrag falsch"))
     immer_feedback = models.BooleanField(null=True, blank=True, verbose_name=_("immer Feedback"))
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
-    umsatzsteuerfrei = models.BooleanField(null=True, blank=True, default=0)
+    umsatzsteuerfrei = models.BooleanField(null=True, blank=True, default=0,help_text="Zeigt im Dokument an, dass der Betrag steuerfrei ist.")
     eigene_ansicht = models.TextField(blank=True, null=True, default='SecureNet\nTreskowallee 8\n10318 Berlin',help_text="Angezeigter Text in der Mail, welche für die Nutzer verschickt wird. Zeigt die Addresse des eigenen Unternehmens", verbose_name=_("Eigene Ansicht"))
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001', verbose_name=_("Rechnungsnummer"))
     datum = models.DateField(blank=True, null=True, auto_now_add=True, verbose_name=_("Datum"))
@@ -70,7 +70,7 @@ class Aufgabe_neu(models.Model):
     beschreibung_en = models.TextField(blank=True, null=True, default='No further details.', verbose_name=_("Beschreibung"))
     rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern', verbose_name=_("Rechnungstyp"))
     aufgabeninfo = models.TextField(null=True, blank=True, help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt).", verbose_name=_("Aufgabeninfo"))
-    hat_leistungszeitraum = models.BooleanField(null=True, blank=True, default=0)
+    hat_leistungszeitraum = models.BooleanField(null=True, blank=True, default=0,help_text="Zeigt im Dokument den Leistungszeitraum an.",verbose_name=_("Hat Leistungszeitraum"))
 
     def __str__(self):
         return f"({self.fragentyp})"
@@ -96,10 +96,10 @@ class Buchung(models.Model):
         (3, _("Beide sind falsch")),
     ]
     buchung_id = models.AutoField(primary_key=True, verbose_name=_("Buchungs ID"))
-    aufgabe = models.ForeignKey('Aufgabe_neu', on_delete=models.CASCADE, verbose_name=_("Aufgabe"))
+    aufgabe = models.ForeignKey('Aufgabe_neu',null = True, on_delete=models.CASCADE, verbose_name=_("Aufgabe"))
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("Nutzer"))
     ersteller = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='ersteller', verbose_name=_("Ersteller"))
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offen', verbose_name=_("Status"))
+    status = models.CharField(max_length=20,null=True, choices=STATUS_CHOICES, default='offen', verbose_name=_("Status"))
     freischaltung = models.DateField(null=True, blank=True, verbose_name=_("Freischaltung"))
     versuch = models.PositiveIntegerField(default=1, verbose_name=_("Versuch"))  # Zählt die Versuche
     abgeschlossen_datum = models.DateField(null=True, blank=True, verbose_name=_("Abgeschlossen Datum"))
@@ -209,6 +209,8 @@ class Konto(models.Model):
     kontonummer = models.IntegerField(null=True, blank=True, verbose_name=_("Kontonummer"))
     bilanzposition_nummer = models.IntegerField(null=True, blank=True, verbose_name=_("Bilanzposition Nummer"))
     eins = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True, verbose_name=_("eins"))
+    hat_anfangsbestand = models.BooleanField(default=False)
+    anfangsbestand_menge = models.IntegerField(null=True, blank=True)
     erstellt_von = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True,
         on_delete=models.SET_NULL, help_text="Nutzer, der das Konto erstellt hat", verbose_name=_("Erstellt von")
