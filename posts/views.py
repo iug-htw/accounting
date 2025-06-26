@@ -845,7 +845,7 @@ def build_t_konten(buchungen, anfangsbestände):
 
             farbe = aufgabe_farben[buchung.aufgabe.id]
         else:
-            aufgabe_id_mit_versuch = f"Freie Buchung {buchung.versuch})"
+            aufgabe_id_mit_versuch = f"{_('Freie Buchung')} {buchung.versuch})"
             farbe = "#999999"
         soll_konten = safe_parse(buchung.antwort_konten_soll or "[]")
         haben_konten = safe_parse(buchung.antwort_konten_haben or "[]")
