@@ -63,7 +63,10 @@ document.addEventListener("DOMContentLoaded", function () {
         window.scrollTo(0, 0);
     }
 });
-
+function toggleZufallsdaten() {
+    const block = document.getElementById("zufallsdaten");
+    block.style.display = block.style.display === "none" ? "block" : "none";
+  }
 function addField(containerId) {
     let container = document.getElementById(containerId);
     let kontenOptions = `
