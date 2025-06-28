@@ -170,7 +170,7 @@ def bulk_student_creation(request):
         existing_users = CustomUser.objects.values_list('username', flat=True)
         fehlgeschlagene_namen = []
         neue_studierende = []
-
+        nutzergruppe = 1 if request.POST.get("nutzergruppe") == "1" else random.randint(1,4)
         for i in range(1, anzahl_studierende + 1):
             if name_mode == "on" and custom_name:
                 student_name = f"{custom_name}{i}"
@@ -189,7 +189,7 @@ def bulk_student_creation(request):
                 semester=Semester.objects.get(name=semester),
                 studiengang=Studiengang.objects.get(name=studiengang),
                 display_name=student_name,
-                nutzergruppe=random.randint(1,4),
+                nutzergruppe=nutzergruppe,
                 unternehmen_id=unternehmen_id
             )
             student.set_password(student_name)  # Passwort richtig hashen

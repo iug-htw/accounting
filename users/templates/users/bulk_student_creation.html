@@ -39,7 +39,12 @@
             <option value="{{ u.id }}">{{ u.name }}</option>
         {% endfor %}
     </select>
-    <!-- Umschalter für Namensvergabe -->
+    <div>
+        <input type="checkbox" id="nutzergruppe_checkbox" name="nutzergruppe" value="1">
+        <label for="nutzergruppe_checkbox">{% trans "Immer KI Feedback generieren" %}</label>
+    </div>
+        <!-- Umschalter für Namensvergabe -->
+    
     <label for="name_mode">{% trans "Namensmodus:" %}</label>
     <input type="checkbox" id="name_mode" name="name_mode" onchange="toggleNameInput()">
     <span id="name_mode_label">{% trans "Automatischer Name" %}</span>
