@@ -8,9 +8,9 @@
     <div class="client-address" style="text-align: right;">
         <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
     </div>
-    {% include "posts\rechnungen\company_address.html"%}
+    {% include "posts/rechnungen/company_address.html"%}
 
-    {% include "posts\rechnungen\rechnungsnummer.html"%}
+    {% include "posts/rechnungen/rechnungsnummer.html"%}
     
     <div class="invoice-description" style="margin-top: 20px;">
             <h3>{% trans "Geschäftsvorfall"%}</h3>
@@ -22,8 +22,8 @@
         </p>
     </div>
 
-    {% include "posts\rechnungen\betrag.html"%}
-    
+    {% include "posts/rechnungen/betrag.html"%}
+
     <div class="invoice-footer" style="margin-top: 40px;">
         <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
             <p>{{ nutzer_aufgabe.absender.name }}</p>
