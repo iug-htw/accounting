@@ -2,10 +2,9 @@
 {% load i18n %}
 <div class="company-address">
     {% if aufgabe.rechnungstyp != "non" %}
-        <strong>{{ nutzer_aufgabe.absender.name }}</strong>
-        {{ nutzer_aufgabe.absender.straße|linebreaks }}
-        {{ nutzer_aufgabe.absender.stadt }}
-        {{ nutzer_aufgabe.absender.plz }} 
-        {{ nutzer_aufgabe.absender.email|linebreaks }}
+        <strong>{{ nutzer_aufgabe.absender.name }}</strong> <br>
+        {{ nutzer_aufgabe.absender.straße }}<br>
+        {{ nutzer_aufgabe.absender.plz }} {{ nutzer_aufgabe.absender.stadt }}<br>
+        {{ nutzer_aufgabe.absender.email }}<br>
     {% endif %}
 </div>

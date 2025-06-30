@@ -3,7 +3,7 @@
 {% load my_filters %}
 <div class="invoice-amount" style="margin-top: 20px;">
     {% if aufgabe.fragentyp_id == 10 %}
-        <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rabatt_betrag|floatformat:2 }} EUR {%trans "(Rechnungsbetrag vor Rabatt)"%}</p>
+        <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rabatt_betrag|floatformat:2 }} EUR {%trans "(vor Rabatt)"%}</p>
     {% elif aufgabe.fragentyp_id == 13%}
         <p><strong>{% trans "Anschaffungskosten: "%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
     {% elif aufgabe.fragentyp_id != 10 and aufgabe.fragentyp_id != 13 and aufgabe.umsatzsteuerfrei == 1 %}
