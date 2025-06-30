@@ -349,7 +349,7 @@ def rechnung_detail_view(request, aufgabe_id):
     datum = nutzer_aufgabe.erstellt_am
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
     id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
-    unternehmen_name = aufgabe.unternehmen_kategorie.name
+    unternehmen_name = aufgabe.unternehmen_kategorie.anzeigename
     mwst = Decimal("1.19")
     r_faktor = Decimal("0.95")
     rechnungsbetrag = Decimal(round(sum(nutzer_aufgabe.haben_betraege),2))
