@@ -1,0 +1,12 @@
+{% load static %}
+{% load i18n %}
+<div class="invoice-header" style="margin-top: 20px;">
+    {% if aufgabe.rechnungstyp != "non" %}
+        <p><strong>{% trans "Rechnung Nr.:"%}</strong> {{ rechnungsnummer|default:_("Keine Nummer angegeben") }}</p>
+    {% endif %}
+    {% if aufgabe.hat_leistungszeitraum == 1 %}
+        <p><strong>{% trans "Leistungszeitraum"%}: </strong> {{leistungszeitraum_anfang |date:"d.m.Y"}} - {{leistungszeitraum_ende |date:"d.m.Y"}}</p>
+    {% else %}
+        <p><strong>{% trans "Leistungszeitpunkt"%}: </strong> {{datum |date:"d.m.Y"}}</p>
+    {% endif %}
+</div>

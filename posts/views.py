@@ -353,6 +353,8 @@ def rechnung_detail_view(request, aufgabe_id):
     mwst = Decimal("1.19")
     r_faktor = Decimal("0.95")
     rechnungsbetrag = Decimal(round(sum(nutzer_aufgabe.haben_betraege),2))
+    betrag_netto = round(rechnungsbetrag/mwst,2)
+    betrag_steuer = rechnungsbetrag - betrag_netto
     rabatt_betrag = round(((rechnungsbetrag/mwst)/r_faktor)*mwst,2)
     # Kontext mit allen notwendigen Daten
     context = {
@@ -361,6 +363,8 @@ def rechnung_detail_view(request, aufgabe_id):
         'datum': datum,
         'unternehmen_name': unternehmen_name,
         'hat_leistungszeitraum': aufgabe.hat_leistungszeitraum,
+        'betrag_steuer': betrag_steuer,
+        'betrag_netto': betrag_netto,
         #'anschrift_kunde': aufgabe.anschrift_kunde,
         'eigene_ansicht': aufgabe.eigene_ansicht,
         'leistungszeitraum_anfang': nutzer_aufgabe.leistungszeitraum_anfang,

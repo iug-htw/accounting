@@ -1,0 +1,11 @@
+{% load static %}
+{% load i18n %}
+<div class="company-address">
+    {% if aufgabe.rechnungstyp != "non" %}
+        <strong>{{ nutzer_aufgabe.absender.name }}</strong>
+        {{ nutzer_aufgabe.absender.straße|linebreaks }}
+        {{ nutzer_aufgabe.absender.stadt }}
+        {{ nutzer_aufgabe.absender.plz }} 
+        {{ nutzer_aufgabe.absender.email|linebreaks }}
+    {% endif %}
+</div>

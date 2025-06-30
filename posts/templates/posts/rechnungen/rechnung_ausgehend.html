@@ -5,28 +5,13 @@
 {% load i18n %}
 {% block content %}
 <div class="invoice-box">
-        <div class="company-address">
-            {% if aufgabe.rechnungstyp != "non" %}
-                <strong>{{ nutzer_aufgabe.absender.name }}</strong>
-                {{ nutzer_aufgabe.absender.straße|linebreaks }}
-                {{ nutzer_aufgabe.absender.stadt }}
-                {{ nutzer_aufgabe.absender.plz }} 
-                {{ nutzer_aufgabe.absender.email|linebreaks }}
-            {% endif %}
-        </div>
+        {% include "posts\rechnungen\company_address.html"%}
     
         <div class="client-address" style="text-align: right;">
             <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
         </div>
     
-        <div class="invoice-header" style="margin-top: 20px;">
-            <p><strong>{% trans "Rechnung Nr.:"%}</strong> {{ rechnungsnummer }}</p>
-            {% if aufgabe.hat_leistungszeitraum == 1 %}
-                <p><strong>{% trans "Leistungszeitraum"%}: </strong> {{leistungszeitraum_anfang |date:"d.m.Y"}} - {{leistungszeitraum_ende |date:"d.m.Y"}}</p>
-            {% else %}
-                <p><strong>{% trans "Datum"%}: </strong> {{datum |date:"d.m.Y"}}</p>
-            {% endif %}
-        </div>
+        {% include "posts\rechnungen\rechnungsnummer.html"%}
     
         <div class="invoice-description" style="margin-top: 20px;">
                 <h3>{% trans "Rechnung"%}</h3>
@@ -38,18 +23,8 @@
             </p>
         </div>
     
-        <div class="invoice-amount" style="margin-top: 20px;">
-            {% if aufgabe.fragentyp_id == 10 %}
-                <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rabatt_betrag|floatformat:2 }} EUR {%trans "(Rechnungsbetrag vor Rabatt)"%}</p>
-            {% elif aufgabe.fragentyp_id == 13%}
-                <p><strong>{% trans "Anschaffungskosten (Netto):"%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
-            {% else %}
-            <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|floatformat:2 }} EUR {% if aufgabe.umsatzsteuerfrei == 1 %} {%trans "(frei von Ust.)"%} {%else%} {% trans "(inklusive 19,00% Umsatzsteuer)" %} {%endif%}</p>
-            {% endif %}
-        </div>
-        <div class="payment-info" style="margin-top: 20px;">
-            <p><strong>{% trans "Zahlungsweise:"%}</strong> {{ zahlweise|default:_("Keine Zahlungsart angegeben") }}</p>
-        </div>
+        {% include "posts\rechnungen\betrag.html"%}
+        
         <div class="invoice-footer" style="margin-top: 40px;">
             <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
                 <p>{% trans "Ihr SecureNet Team"%} </p>
