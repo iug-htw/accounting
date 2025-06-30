@@ -1477,6 +1477,7 @@ OLLAMA_API_URL = config('OLLAMA_SERVER')
 @admin_required
 @csrf_exempt
 def ollama_prompt_view(request):
+    print(f"📥 Anfrage erhalten: {request.method}")
     if request.method == 'POST':
         try:
             body = request.body.decode('utf-8')
@@ -1488,17 +1489,22 @@ def ollama_prompt_view(request):
                 content_type='text/event-stream'
             )
         payload = {
-            "model": "llama3.3:70b",
+            "model": "llama3:8b",
             "prompt": prompt,
             "stream": True
         }
+        print(f"📦 Empfangenes JSON: {parsed}")
+        print(f"📝 Verwendeter Prompt: {prompt[:100]}...")
         def stream_antwort():
             try:
-                with requests.post(OLLAMA_API_URL, json=payload, stream=True, timeout=30) as response:
+                print(f"🌐 Ziel-URL für Ollama: {OLLAMA_API_URL}")
+                with requests.post(OLLAMA_API_URL, json=payload, stream=True, timeout=60) as response:
                     if response.status_code != 200:
                         yield f"event: error\ndata: Fehler von Ollama (Status {response.status_code})\n\n"
                         return
+                    print(f"📬 Ollama-Antwortcode: {response.status_code}")
                     for line in response.iter_lines(decode_unicode=True):
+                        print(f"📨 Antwort-Zeile von Ollama: {line}")
                         if line:
                             try:
                                 data = json.loads(line)
@@ -1506,6 +1512,7 @@ def ollama_prompt_view(request):
                                 yield f"data: {text}\n\n"
                             except json.JSONDecodeError as e:
                                 yield f"event: error\ndata: JSON-Fehler: {str(e)}\n\n"
+                                print(f"❌ Fehler beim Streamen: {str(e)}")
             except Exception as e:
                 yield f"event: error\ndata: Ausnahme beim Streaming: {str(e)}\n\n"
         return StreamingHttpResponse(stream_antwort(), content_type='text/event-stream')
@@ -1547,7 +1554,7 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
     if sprache != 0:
         prompt = prompt + " Schreibe die antwort auf englisch!"
     ollama_payload = {
-        "model": "llama3.3:70b",
+        "model": "llama3:8b",
         "prompt": prompt,
         "stream": False
     }
@@ -1556,7 +1563,7 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
         response = requests.post(
             OLLAMA_API_URL,
             json=ollama_payload,
-            timeout=(5, 60)
+            timeout=(5, 180)
         )
         antwort = response.json().get("response", "")
         return antwort.strip()

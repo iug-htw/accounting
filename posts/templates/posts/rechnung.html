@@ -24,6 +24,10 @@
     {% endif %}
     
 {% if user.is_authenticated and nutzer_aufgabe %}
+  <button type="button" onclick="toggleZufallsdaten()">
+    {% trans "Lösungen anzeigen"%}
+  </button>
+  <div id="zufallsdaten" style="display: none;">
   <p><strong>Zufällig generierte Werte:</strong></p>
   <ul>
     <li><strong>Soll-Konten:</strong>
@@ -45,6 +49,7 @@
       </ul>
     </li>
   </ul>
+</div>
 {% endif %}
 
 
