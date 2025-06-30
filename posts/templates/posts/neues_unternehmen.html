@@ -9,7 +9,8 @@
     {% csrf_token %}
     <label for="id_name">{% trans "Name"%}:</label>
     {{ form.name }}
-
+    <label for="id_anzeigename">{% trans "Anzeigename"%}:</label>
+    {{ form.anzeigename }}
     <label for="id_kontenplan">{% trans "Kontenplan"%}:</label>
     {{ form.kontenplan }}
 

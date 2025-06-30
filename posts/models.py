@@ -10,6 +10,7 @@ import random
 
 class Unternehmen(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
+    anzeigename = models.CharField(max_length=100, null = True, blank=True, default="SecureNet")
     kontenplan = models.ForeignKey('Kontenplan', on_delete=models.CASCADE, verbose_name=_("kontenplan"))
     fallstudie = models.BooleanField(default=0, verbose_name=_("Fallstudie"))
     ersteller = models.IntegerField(null=True, blank=True, verbose_name=_("Ersteller"))

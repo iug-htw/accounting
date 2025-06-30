@@ -1116,7 +1116,7 @@ msgstr "Amount (gross):"
 
 #: .\posts\templates\posts\rechnungen\betrag.html:6
 msgid "(Rechnungsbetrag vor Rabatt)"
-msgstr "(Amount before dicount)"
+msgstr "(Amount before dicounts)"
 
 #: .\posts\templates\posts\rechnungen\betrag.html:8
 msgid "Anschaffungskosten (Netto):"

@@ -68,7 +68,7 @@ class BuchungForm(forms.ModelForm):
 class UnternehmenForm(forms.ModelForm):
     class Meta:
         model = Unternehmen
-        fields = ['name','kontenplan','fallstudie']
+        fields = ['name','anzeigename','kontenplan','fallstudie']
 
 class AufgabenkategorieForm(forms.ModelForm):
     class Meta:
