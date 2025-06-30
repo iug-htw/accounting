@@ -14,7 +14,7 @@
         <p><strong>{% trans "Betrag Netto" %}</strong>: {{ betrag_netto|floatformat:2 }} EUR
         <br>
         <strong>{%trans "Mehrwertsteuer"%}</strong> (19%): {{ betrag_steuer|floatformat:2 }} EUR
-        </p><br>
+        </p>
         <strong>{%trans "Gesamtbetrag"%}</strong>: {{ rechnungsbetrag|floatformat:2 }} EUR
         </p>
     {% endif %}
