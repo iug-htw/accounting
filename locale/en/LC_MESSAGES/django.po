@@ -1124,7 +1124,7 @@ msgstr "Amount (gross):"
 
 #: .\posts\templates\posts\rechnungen\betrag.html:6
 msgid "(vor Rabatt)"
-msgstr "(´without discounts)"
+msgstr "(without discounts)"
 
 #: .\posts\templates\posts\rechnungen\betrag.html:8
 msgid "Anschaffungskosten: "
