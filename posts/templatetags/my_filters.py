@@ -1,6 +1,7 @@
 from django import template
 import locale
 from decimal import Decimal
+from django.utils import translation
 
 register = template.Library()
 
@@ -32,6 +33,19 @@ def german_format(value):
         return "{:,.2f}".format(abs(float(value))).replace(",", "X").replace(".", ",").replace("X", ".")
     except (ValueError, TypeError):
         return value
+
+@register.filter
+def localized_format(value):
+    try:
+        lang = translation.get_language()
+        number = abs(float(value))
+        if lang == 'de':
+            return "{:,.2f}".format(number).replace(",", "X").replace(".", ",").replace("X", ".")
+        else:
+            return "{:,.2f}".format(number)
+    except (ValueError, TypeError):
+        return value
+
 @register.filter
 def mul(value, arg):
     """Multipliziert den Wert mit dem Argument."""

@@ -48,7 +48,7 @@
                                 <td class="konto-name">
                                     {% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}
                                 </td>
-                                <td class="betrag">{{ betrag|german_format }}</td>
+                                <td class="betrag">{{ betrag|localized_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -60,7 +60,7 @@
                                 <td class="konto-name">
                                     {% if aufgabe_id == "EBK" %}📌 EBK{% else %}{{ aufgabe_id }}{% endif %}
                                 </td>
-                                <td class="betrag">{{ betrag|german_format }}</td>
+                                <td class="betrag">{{ betrag|localized_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>

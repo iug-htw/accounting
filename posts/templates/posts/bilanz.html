@@ -40,7 +40,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td class="betrag" data-value="{{ betrag }}">{{ betrag|german_format }}</td>
+                                <td class="betrag" data-value="{{ betrag }}">{{ betrag|localized_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -50,7 +50,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td class="betrag" data-value="{{ betrag }}">{{ betrag|german_format }}</td>
+                                <td class="betrag" data-value="{{ betrag }}">{{ betrag|localized_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -84,9 +84,9 @@
                     <tfoot>
                         <tr>
                             <td>{% trans "Summe"%}</td>
-                            <td id="summe-aktiv">{{summe|german_format}}</td>
+                            <td id="summe-aktiv">{{summe|localized_format}}</td>
                             <td>{% trans "Summe"%}</td>
-                            <td id="summe-passiv">{{summe|german_format}}</td>
+                            <td id="summe-passiv">{{summe|localized_format}}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -132,19 +132,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // **Differenz auf der kleineren Seite unter der ersten leeren Zeile hinzufügen**
             let differenzZeile = document.createElement("tr");
-            if (sollSumme > habenSumme) {
-                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
-                habenTabelle.appendChild(differenzZeile);
-            } else {
-                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
-                sollTabelle.appendChild(differenzZeile);
-            }
+                if (sollSumme > habenSumme) {
+                    differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
+                    habenTabelle.appendChild(differenzZeile);
+                } else {
+                    differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
+                    sollTabelle.appendChild(differenzZeile);
+                }
+
 
             // **Summenzeile auf der größeren Seite hinzufügen**
             let summenZeile = document.createElement("tr");
             summenZeile.style.fontWeight = "bold";
-            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
-
+            const maxSumme = Math.max(sollSumme, habenSumme);
+            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${maxSumme}">${formatNumber(maxSumme)}</td>`;
             sollTabelle.appendChild(summenZeile.cloneNode(true)); 
             habenTabelle.appendChild(summenZeile);
 
@@ -218,14 +219,14 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (bilanzZeilen[i].cells[0].innerText.trim() === "") {
                             bilanzZeilen[i].cells[0].innerText = kontoName;
                             bilanzZeilen[i].cells[1].setAttribute("data-value", differenz);
-                            bilanzZeilen[i].cells[1].innerText = differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            bilanzZeilen[i].cells[1].innerText = formatNumber(differenz);
                             break;
                         }
                     }
                 } else {
                     // Neue Zeile hinzufügen
                     let neueZeile = document.createElement("tr");
-                    neueZeile.innerHTML = `<td>${kontoName}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
+                    neueZeile.innerHTML = `<td>${kontoName}</td><td data-value="${differenz}">${formatNumber(differenz)}</td><td></td><td></td>`;
                     bilanzBody.appendChild(neueZeile);
                 }
             }
@@ -239,14 +240,14 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (bilanzZeilen[i].cells[2].innerText.trim() === "") {
                             bilanzZeilen[i].cells[2].innerText = kontoName;
                             bilanzZeilen[i].cells[3].setAttribute("data-value", differenz);
-                            bilanzZeilen[i].cells[3].innerText = differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            bilanzZeilen[i].cells[3].innerText = formatNumber(differenz);
                             break;
                         }
                     }
                 } else {
                     // Neue Zeile hinzufügen
                     let neueZeile = document.createElement("tr");
-                    neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                    neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
                     bilanzBody.appendChild(neueZeile);
                 }
             }
@@ -255,13 +256,24 @@ document.addEventListener("DOMContentLoaded", function() {
             summeAktivElement.setAttribute("data-value", summeAktiv);
             summePassivElement.setAttribute("data-value", summePassiv);
 
-            summeAktivElement.innerText = summeAktiv.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            summePassivElement.innerText = summePassiv.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            summeAktivElement.innerText = formatNumber(summeAktiv);
+            summePassivElement.innerText = formatNumber(summePassiv);
 
             this.disabled = true;
             this.innerText = gettext("Abgeschlossen");
         }); //passt
     });
 });
+
+function formatNumber(value) {
+    const langAttr = document.documentElement.getAttribute("lang");
+    console.log("LANG detected:", langAttr);
+    const lang = langAttr || 'de'; // explizit prüfen
+    const locale = lang.startsWith('de') ? 'de-DE' : 'en-US';
+    return value.toLocaleString(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
 </script>
 {% endblock %}

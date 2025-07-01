@@ -3,19 +3,19 @@
 {% load my_filters %}
 <div class="invoice-amount" style="margin-top: 20px;">
     {% if aufgabe.fragentyp_id == 10 %}
-        <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rabatt_betrag|floatformat:2 }} EUR {%trans "(vor Rabatt)"%}</p>
+        <p><strong>{% trans "Betrag (Brutto):"%}</strong> {{ rabatt_betrag|localized_format  }} EUR {%trans "(vor Rabatt)"%}</p>
     {% elif aufgabe.fragentyp_id == 13%}
-        <p><strong>{% trans "Anschaffungskosten: "%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|floatformat:2 }}</p>
+        <p><strong>{% trans "Anschaffungskosten: "%}</strong> {{ rechnungsbetrag|mul:aufgabe.nutzungsdauer|localized_format }}</p>
     {% elif aufgabe.fragentyp_id != 10 and aufgabe.fragentyp_id != 13 and aufgabe.umsatzsteuerfrei == 1 %}
-        <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|floatformat:2 }} EUR {%trans "(frei von Ust.)"%} </p>
+        <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|localized_format  }} EUR {%trans "(frei von Ust.)"%} </p>
     {% elif aufgabe.fragentyp_id == 15 %} 
-        <p><strong> {% trans "Betrag:"%} </strong> {{ rechnungsbetrag|floatformat:2 }} EUR {% trans " " %}</p>
+        <p><strong> {% trans "Betrag:"%} </strong> {{ rechnungsbetrag|localized_format  }} EUR {% trans " " %}</p>
     {%else%} 
-        <p><strong>{% trans "Betrag Netto" %}</strong>: {{ betrag_netto|floatformat:2 }} EUR
+        <p><strong>{% trans "Betrag Netto" %}</strong>: {{ betrag_netto|localized_format  }} EUR
         <br>
-        <strong>{%trans "Mehrwertsteuer"%}</strong> (19%): {{ betrag_steuer|floatformat:2 }} EUR
+        <strong>{%trans "Mehrwertsteuer"%}</strong> (19%): {{ betrag_steuer|localized_format  }} EUR
         </p>
-        <strong>{%trans "Gesamtbetrag"%}</strong>: {{ rechnungsbetrag|floatformat:2 }} EUR
+        <strong>{%trans "Gesamtbetrag"%}</strong>: {{ rechnungsbetrag|localized_format  }} EUR
         </p>
     {% endif %}
 </div>

@@ -38,7 +38,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.soll %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td data-value="{{ betrag }}">{{ betrag|german_format }}</td>
+                                <td data-value="{{ betrag }}">{{ betrag|localized_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -48,7 +48,7 @@
                             {% for aufgabe_id, betrag, farbe in daten.haben %}
                             <tr style="background-color: {{ farbe }};">
                                 <td>{{ aufgabe_id }}</td>
-                                <td data-value="{{ betrag }}">{{ betrag|german_format }}</td>
+                                <td data-value="{{ betrag }}">{{ betrag|localized_format }}</td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -83,9 +83,9 @@
                 <tfoot>
                     <tr>
                         <td>{% trans "Summe"%}</td>
-                        <td id="summe-soll">0.00</td>
+                        <td id="summe-soll"></td>
                         <td>{% trans "Summe"%}</td>
-                        <td id="summe-haben">0.00</td>
+                        <td id="summe-haben"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -156,20 +156,20 @@ document.addEventListener("DOMContentLoaded", function () {
             // Differenz (SBK) auf der kleineren Seite einfügen
             let differenzZeile = document.createElement("tr");
             if (sollSumme > habenSumme) {
-                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
                 habenTabelle.appendChild(differenzZeile);
             } else {
-                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
                 sollTabelle.appendChild(differenzZeile);
             }
 
             // Summenzeile einfügen
             let summenZeile = document.createElement("tr");
             summenZeile.style.fontWeight = "bold";
-            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${Math.max(sollSumme, habenSumme)}">${Math.max(sollSumme, habenSumme).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+            const maxSumme = Math.max(sollSumme, habenSumme);
+            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${maxSumme}">${formatNumber(maxSumme)}</td>`;
             sollTabelle.appendChild(summenZeile.cloneNode(true));
             habenTabelle.appendChild(summenZeile);
-
             this.disabled = true;
             this.innerText = gettext("Abgeschlossen");
         });
@@ -227,12 +227,12 @@ document.addEventListener("DOMContentLoaded", function () {
               for (let row of guvBody.querySelectorAll("tr")) {
                   if (sbkSeite === "Soll" && !row.cells[0].innerText.trim()) {
                       row.cells[0].innerText = kontoName;
-                      row.cells[1].innerText = sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                      row.cells[1].innerText = formatNumber(sbkBetrag);
                       zeileGefunden = true;
                       break;
                   } else if (sbkSeite === "Haben" && !row.cells[2].innerText.trim()) {
                       row.cells[2].innerText = kontoName;
-                      row.cells[3].innerText = sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                      row.cells[3].innerText = formatNumber(sbkBetrag);
                       zeileGefunden = true;
                       break;
                   }
@@ -241,9 +241,9 @@ document.addEventListener("DOMContentLoaded", function () {
               if (!zeileGefunden) {
                   let neueZeile = document.createElement("tr");
                   if (sbkSeite === "Soll") {
-                      neueZeile.innerHTML = `<td>${kontoName}</td><td>${sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
+                      neueZeile.innerHTML = `<td>${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td><td></td><td></td>`;
                   } else if (sbkSeite === "Haben") {
-                      neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td>${sbkBetrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                      neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td>`;
                   }
                   guvBody.appendChild(neueZeile);
               }
@@ -254,9 +254,17 @@ document.addEventListener("DOMContentLoaded", function () {
       function insertSBKRow() {
           let sollGesamt = 0, habenGesamt = 0;
           guvBody.querySelectorAll("tr").forEach(row => {
-              sollGesamt += parseFloat(row.cells[1]?.dataset?.value || row.cells[1]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
-              habenGesamt += parseFloat(row.cells[3]?.dataset?.value || row.cells[3]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
-          });
+            const kontoSoll = row.cells[0]?.innerText.trim();
+            const kontoHaben = row.cells[2]?.innerText.trim();
+
+            if (kontoSoll !== "SBK") {
+                sollGesamt += parseFloat(row.cells[1]?.dataset?.value) || parseLocalizedNumber(row.cells[1]?.innerText || '');
+            }
+
+            if (kontoHaben !== "SBK") {
+                habenGesamt += parseFloat(row.cells[3]?.dataset?.value) || parseLocalizedNumber(row.cells[3]?.innerText || '');
+            }
+        });
       
           let differenz = Math.abs(sollGesamt - habenGesamt);
       
@@ -265,10 +273,11 @@ document.addEventListener("DOMContentLoaded", function () {
       
           // Schreibe den SBK-Wert auf die kleinere Seite
           if (sollGesamt < habenGesamt) {
-              neueSBKZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td></td><td></td>`;
-          } else {
-              neueSBKZeile.innerHTML = `<td></td><td></td><td>${gettext("SBK")}</td><td data-value="${differenz}">${differenz.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
-          }
+                neueSBKZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td><td></td><td></td>`;
+            } else {
+                neueSBKZeile.innerHTML = `<td></td><td></td><td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
+            }
+
       
           guvBody.appendChild(neueSBKZeile);
       
@@ -299,17 +308,19 @@ document.addEventListener("DOMContentLoaded", function () {
   function aktualisiereGuVSumme() {
       let sollGesamt = 0, habenGesamt = 0;
       guvBody.querySelectorAll("tr").forEach(row => {
-          sollGesamt += parseFloat(row.cells[1]?.dataset?.value || row.cells[1]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
-          habenGesamt += parseFloat(row.cells[3]?.dataset?.value || row.cells[3]?.innerText.replace(/\./g, '').replace(',', '.')) || 0;
+          sollGesamt += parseFloat(row.cells[1]?.dataset?.value) || parseLocalizedNumber(row.cells[1]?.innerText || '');
+          habenGesamt += parseFloat(row.cells[3]?.dataset?.value) || parseLocalizedNumber(row.cells[3]?.innerText || '');
       });
       const summeSollElement = document.getElementById("summe-soll");
       const summeHabenElement = document.getElementById("summe-haben");
+      const sprache = document.documentElement.lang;
       if (summeSollElement) {
-          summeSollElement.innerText = sollGesamt.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      }
-      if (summeHabenElement) {
-          summeHabenElement.innerText = habenGesamt.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      }
+            summeSollElement.innerText = formatNumber(sollGesamt);
+        }
+        if (summeHabenElement) {
+            summeHabenElement.innerText = formatNumber(habenGesamt);
+        }
+
   }
   
   let abschlussV2Btn = document.getElementById("abschluss-v2-btn");
@@ -327,5 +338,22 @@ document.addEventListener("DOMContentLoaded", function () {
   
     
 });
+function formatNumber(value) {
+    const lang = document.documentElement.lang || 'de';  // 'de' oder 'en'
+    const locale = lang === 'de' ? 'de-DE' : 'en-US';
+    return value.toLocaleString(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+function parseLocalizedNumber(text) {
+    const lang = document.documentElement.lang || 'de';
+    if (lang === 'de') {
+        return parseFloat(text.replace(/\./g, '').replace(',', '.')) || 0;
+    } else {
+        return parseFloat(text.replace(/,/g, '')) || 0;
+    }
+}
+
 </script>
 {% endblock %}
