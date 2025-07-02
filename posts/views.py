@@ -1489,7 +1489,7 @@ def ollama_prompt_view(request):
                 content_type='text/event-stream'
             )
         payload = {
-            "model": "llama3:8b",
+            "model": "llama3.3:70b",
             "prompt": prompt,
             "stream": True
         }
@@ -1498,7 +1498,7 @@ def ollama_prompt_view(request):
         def stream_antwort():
             try:
                 print(f"🌐 Ziel-URL für Ollama: {OLLAMA_API_URL}")
-                with requests.post(OLLAMA_API_URL, json=payload, stream=True, timeout=60) as response:
+                with requests.post(OLLAMA_API_URL, json=payload, stream=True, timeout=120) as response:
                     if response.status_code != 200:
                         yield f"event: error\ndata: Fehler von Ollama (Status {response.status_code})\n\n"
                         return
@@ -1547,18 +1547,23 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
         f"Du bist ein Tutor für Buchhaltung. Deine Aufgabe ist es, didaktisches Feedback auf fehlerhafte Buchungssätze zu geben. Das Feedback soll maximal drei Sätze lang sein.Verwende keine IDs, sondern nur Kontonamen und Beträge. Vermeide es, die richtige Lösung vollständig zu nennen, vor allem den vollständigen Namen der richtigen Konten.\n\n"
         f"Sachverhalt: \n{beschreibung}\n"
         f"Nutzereingabe:\nSoll: {nutzer_soll}, Haben: {nutzer_haben}\n"
-        f"Richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}"
+        f"Richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}\n"
         f"Falls die gewählten Konten nicht korrekt sind, erläutere kurz, warum sie nicht passend sind, und gib einen Hinweis, welches Konto oder welche Konten stattdessen in diesem Fall sinnvoll wären. Wenn die Anzahl der Konten nicht übereinstimmt, soll ebenfalls ein zusätzlicher Hinweis gegeben werden. Unstimmige Beträge: Falls die Beträge nicht korrekt sind, weise darauf hin, dass die Summe nicht dem Rechnungsbetrag entspricht, und gib einen Tipp, wie sich der korrekte Betrag zusammensetzt. Falls nur eines der beiden fehlerhaft ist, nenne nur den entsprechenden Punkt. Falls beides falsch ist, gehe auf beide Punkte ein. Vermeide es, die richtige Lösung explizit zu nennen, sondern leite den Nutzer mit Hinweisen zur richtigen Lösung. Gib mir nur das Feedback zurück."
     )
     sprache = nutzeraufgabe.aufgabe.unternehmen_kategorie.kontenplan.sprache
     if sprache != 0:
         prompt = prompt + " Schreibe die antwort auf englisch!"
     ollama_payload = {
-        "model": "llama3:8b",
+        "model": "llama3.3:70b",
         "prompt": prompt,
         "stream": False
     }
-
+    print("📄 Beschreibung:\n", beschreibung)
+    print("👤 Nutzereingabe – Soll:", nutzer_soll)
+    print("👤 Nutzereingabe – Haben:", nutzer_haben)
+    print("✅ Richtige Lösung – Soll:", korrekt_soll)
+    print("✅ Richtige Lösung – Haben:", korrekt_haben)
+    print("🧠 Finaler Prompt für Ollama:\n", prompt[:1000])  # bei Bedarf kürzen
     try:
         response = requests.post(
             OLLAMA_API_URL,
@@ -1636,3 +1641,6 @@ def tkonto_vorschau(request):
         konto["haben"].append(f"{betrag} € {_('(aktuell)')}")
     
     return JsonResponse({"konten": list(t_konten.values())})
+
+def faq_view(request):
+    return render(request, 'posts/faq.html')

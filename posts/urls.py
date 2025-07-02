@@ -37,4 +37,5 @@ urlpatterns = [
     path('tkonto_vorschau/', views.tkonto_vorschau, name='tkonto_vorschau'),
     path('kontenplan_loeschen/<int:pk>/', views.kontenplan_loeschen, name='kontenplan_loeschen'),
     path('freie_buchung/', views.freie_buchung, name="freie_buchung"),
+    path('faq/', views.faq_view, name="faq"),
 ]

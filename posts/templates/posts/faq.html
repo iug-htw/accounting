@@ -1,0 +1,310 @@
+{% extends 'master_layout.html' %}
+{% load my_filters %}
+{% load i18n %}
+{% load static %}
+
+{% block css %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<style>
+    .faq-item {
+        margin-bottom: 1em;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 0.5em;
+        background-color: #f9f9f9;
+    }
+
+    .faq-question {
+        cursor: pointer;
+        font-weight: bold;
+        padding: 0.5em;
+    }
+
+    .faq-answer {
+        display: none;
+        padding: 1em 0;
+    }
+
+    .faq-flex-container {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 2%;
+        justify-content: space-between;
+    }
+
+    .faq-text, .faq-gif {
+        width: 49%;
+        box-sizing: border-box;
+    }
+
+    .faq-gif {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .faq-gif img {
+        width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        border: 1px solid #ccc;
+    }
+
+    @media (max-width: 768px) {
+        .faq-flex-container {
+            flex-wrap: wrap;
+        }
+
+        .faq-text, .faq-gif {
+            width: 100%;
+        }
+    }
+    .gif-wrapper {
+    text-align: center;
+    width: 100%;
+    }
+    .gif-caption {
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans "FAQ"%}</h1>
+<h2>{% trans "Hier finden Sie relevante Informationen zu dieser Website und für die Bearbeitung der Aufgaben"%}</h2>
+<p> {% trans "Bei Fragen: felix.bartl@htw-berlin.de"%}
+<div class="faq-item">
+    <div class="faq-question">Allgemein</div>
+    <div class="faq-answer">
+        <p>{%trans "Willkommen bei SecureNet"%} 
+        <br><br>
+        {% trans "Buchhaltung ist kompliziert. Und vor allem Buchungssätze sind nicht immer leicht aufzustellen. Aus dem Grund wurde diese Website erstellt; für das Üben von Buchungssätzen. "%}<br>
+        {% trans "Um Buchhaltung anschaulich zu gestalten seid Ihr die Gründer eines Startups. Verschiedene Geschäftsvorfälle treten hier regelmäßig ein und diese müssen richtig verbucht werden. Die Geschäftsvorfälle kommen dabei über den Posteingang rein und können dann in der Rechnungsübersicht bearbeitet werden. Die hier durchgeführten Buchungen werden dann in das Hauptbuch eingetragen"%}.
+        <br><br>
+        <strong>{%trans "Wichtig"%}</strong>: {% trans "Auch falsche Buchungen werden in das Hauptbuch eingetragen"%}. 
+        <br><br>
+        {% trans "Sollte also die Frage aufkommen, wie sich"%} <i>{% trans "falsche"%}</i> {%trans "Buchungen auf den Gewinn oder die Bilanz auswirken, kann genau das hier getestet werden"%}. 
+        <br><br>
+        {% trans "Viel Erfolg mit Ihrem Unternehmen und beim Aufstellen der Buchungssätze"%}!
+        </p>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Posteingang"%}</div>
+    <div class="faq-answer">
+        <p>{% trans "Sobald ein Geschäftsvorfall eintrifft, wird dieser im Postfach angezeigt. Hier liegen alle eingegangenen Mails vor, welche dich zu dem entsprechenden Geschäftsvorfall weiterleiten. Die Statusanzeige gibt hierbei an, ob ein Maile bearbeitet wurde. Zu den buchbaren Geschäftsvorfälle gibt es auch Mails, welche unterschiedliche Vorfälle im Unternehmen abbilden. Diese sind schnell erledigt, da sich die entsprechende Abteilung im Unternehmen darum kümmern soll"%}. 
+        <br><br>
+        {% trans "Darüber hinaus liegen alle zu buchenden Geschäftsvorfälle in der Rechnungsübersicht vor. Hier kann der Bearbeitungsstand pro Geschäftsvorfall besser nachvollzogen werden"%}.</p>
+        <br>
+        <a href="{% url 'posts:posteingang' %}">{% trans "Zum Posteingang"%}</a>
+        <br><br>
+        <a href="{% url 'posts:rechnungsuebersicht' %}">{% trans "Zur Rechnungsübersicht"%}</a>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Wie wird gebucht"%}?</div>
+        <div class="faq-answer">
+            <div class = "faq-flex-container">
+                <div class ="faq-text">
+                    <p>
+                        {% trans "Die Rechnungsübersicht besteht aus zwei Teilen: dem Geschäftsvorfall und der Buchungsmaske." %}
+                        <br><br>
+
+                        <strong>{% trans "Geschäftsvorfall" %}</strong>
+                        <br>
+                        {% trans "Die Geschäftsvorfälle sind wie Rechnungen bzw. interne Dokumente aufgebaut. Sie bestehen aus:" %}
+                        <ul>
+                            <li>{% trans "Dokumentenkopf (Datum, Dokumentennummer, ggf. Adressen)" %}</li>
+                            <li>{% trans "Beschreibung (Erklärung, worum es sich bei diesem Vorfall handelt)" %}</li>
+                            <li>{% trans "Rechnungsbetrag (ggf. mit Steuer)" %}</li>
+                            <li>{% trans "ggf. Zahlweise (sofern vorhanden)" %}</li>
+                            <li>{% trans "Dokumentenfuß (kurze Verabschiedung)" %}</li>
+                        </ul>
+                        <br>
+                        {% trans "Hier sind alle Informationen enthalten, um den Buchungssatz für diesen Geschäftsvorfall aufzustellen." %}
+                        <br><br>
+
+                        <strong>{% trans "Buchungsmaske" %}</strong>
+                        <br>
+                        {% trans "Die Buchungsmaske besteht aus:" %}
+                        <ul>
+                            <li>{% trans "Übersicht zu den letzten Buchungen zu diesem Geschäftsvorfall (wird im Punkt 'Feedback' genauer beschrieben)" %}</li>
+                            <li>{% trans "Eingabemaske für Soll (Betrag und Konten)" %}</li>
+                            <li>{% trans "Eingabemaske für Haben (Betrag und Konten)" %}</li>
+                            <li>{% trans "Button zum Abschicken des Buchungssatzes" %}</li>
+                        </ul>
+                        <br>
+                        {% trans "Falls mehrere Konten für Soll oder Haben notwendig sind, können diese über die Buttons 'Neues Soll- (bzw. Haben-)Feld hinzufügen' ergänzt werden." %}
+                        <br><br>
+                        <strong>{% trans "Wichtig: Die Beträge für Soll und Haben müssen gleich sein, sonst kann der Buchungssatz nicht abgeschickt werden." %}</strong>
+                        <br><br>
+                        {% trans "Falls die Buchung erfolgreich abgeschickt wurde, findet eine Weiterleitung zur Startseite statt und die nächste Aufgabe kann bearbeitet werden." %}
+                        <br><br>
+                        <strong>{% trans "Hinweis" %}</strong>: 
+                        {% trans "Falls die Lehrperson Hinweise für die Aufgabe hinterlassen hat, ist oben ein Button 'Weitere Informationen anzeigen' sichtbar, der diese Informationen ein- bzw. ausblenden kann." %}
+                    </p>
+                </div>
+                <div class="faq-gif">
+                    <div class="gif-wrapper">
+                        <p class="gif-caption">{% trans "Beispielhafte Durchführung einer Buchung" %}</p>
+                        <img src="/media/buchung.gif" alt="{% trans 'Demonstration der Buchungsmaske' %}">
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Ich habe einen Buchungssatz aufgestellt, und jetzt?" %}</div>
+    <div class="faq-answer">
+        <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Nachdem ein Buchungssatz aufgestellt wurde, wirst du zurück zur Startseite geleitet. Die übermittelte Lösung kann richtig oder falsch sein." %}
+                    <br><br>
+                    <strong>{% trans "Richtig:" %}</strong>
+                    <br>
+                    {% trans "Die Aufgabe ist abgeschlossen, und die nächste Aufgabe kann bearbeitet werden." %}
+                    <br><br>
+                    <strong>{% trans "Falsch:" %}</strong>
+                    <br>
+                    {% trans "Bei einer falschen Antwort wirst du (über das Postfach) dazu aufgefordert, eine Korrekturbuchung durchzuführen. Die Korrekturbuchung entspricht einer Spiegelung der fehlerhaften Buchung – so wie es auch in realen Unternehmen üblich ist." %}
+                    <br><br>
+                    {% trans "Beispiel:" %}
+                    <br><br>
+                    {% trans "Deine Eingaben waren:" %}
+                    <br><br>
+                    <i>{% trans "Bank 500 € an Forderungen aLuL 500 €" %}</i>
+                    <br><br>
+                    {% trans "Dann wäre die Korrekturbuchung:" %}
+                    <br><br>
+                    <i>{% trans "Forderungen aLuL 500 € an Bank 500 €" %}</i>
+                    <br><br>
+                    {% trans "Um die Korrekturbuchung durchzuführen, musst du in der Rechnungsansicht auf den Button" %} <i>{% trans "Buchungen/Feedback anzeigen" %}</i> {% trans "klicken. Dort werden dir alle bisherigen Buchungen zu dieser Aufgabe angezeigt." %}
+                    <br><br>
+                    {% trans "Wenn der letzte Versuch falsch war, erscheint ein Button zur Korrekturbuchung." %}
+                    <br><br>
+                    {% trans "Für die Korrekturbuchung sind insgesamt drei Klicks notwendig:" %}
+                    <ul>
+                        <li>{% trans "Korrekturbuchung vorschlagen (automatisches Ausfüllen der Buchungsmaske)" %}</li>
+                        <li>{% trans "Korrekturbuchung durchführen" %}</li>
+                        <li>{% trans "Korrekturbuchung bestätigen (letzte Sicherheitsabfrage)" %}</li>
+                    </ul>
+                    <br>
+                    {% trans "Nach Durchführung der Korrekturbuchung kannst du wieder wie gewohnt buchen und die " %} <strong>{% trans "Korrekturbuchung im Hauptbuch"%}</strong> {%trans "ansehen." %}
+                </p>
+            </div>
+            <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Beispielhafte Durchführung einer Korrekturbuchung" %}</p>
+                    <img src="/media/korrekturbuchung.gif" alt="{% trans 'Demonstration der Korrekturbuchung' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Feedback"%}</div>
+    <div class="faq-answer">
+        <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Falls eine Aufgabe falsch beantwortet wurde, kann Feedback zur eingegebenen Lösung angezeigt werden. Das Feedback ist dabei dreistufig aufgebaut:" %}
+                </p>
+
+                <ul>
+                    <li>{% trans "1. Stufe: Konto oder Betrag für Soll bzw. Haben (z. B. Konto im Soll falsch)" %}</li>
+                    <li>{% trans "2. Stufe: Detailliertes Feedback (kurzer Informationstext zur Aufgabe)" %}</li>
+                    <li>{% trans "3. Stufe: Richtige Lösung" %}</li>
+                </ul>
+
+                <p>
+                    {% trans "Um das Feedback einzusehen, musst du in der Rechnungsübersicht auf den Button" %} <i>{% trans "Buchungen/Feedback anzeigen" %}</i> {% trans "klicken. Dort wird dir deine Lösung zusammen mit dem entsprechenden Feedback angezeigt (siehe GIF)." %}
+                </p>
+
+            </div>
+            <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Anzeigen von Feedback" %}</p>
+                    <img src="/media/feedback.gif" alt="{% trans 'Anzeigen von Feedback' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Hauptbuch und freie Buchungen"%}</div>
+    <div class="faq-answer">
+        <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Das Hauptbuch dient dazu, dass du dir jede Buchung sowie Korrekturbuchungen und Anfangsbestände ansehen und nachvollziehen kannst. Hier werden die Beträge der Buchungen in den T-Konten dargestellt." %}
+                    <br><br>
+                    {% trans "Falls du untersuchen möchtest, wie sich bestimmte Buchungen auf die Konten auswirken, kannst du alternativ zu den Aufgaben auch freie Buchungen durchführen. Hier kannst du aufgabenunabhängig Buchungssätze generieren und sehen, wie sich diese auf dein Unternehmen auswirken. Klicke dafür auf den folgenden Link." %}
+                    <br><br>
+                    <strong>{% trans "Vorsicht!" %}</strong>
+                    {% trans "Um diese eigenen Buchungen auszugleichen, musst du manuell Korrekturbuchungen aufstellen. Andernfalls wirkt sich dies auf die GuV oder die Bilanz aus." %}
+                </p>
+                <br><br>
+                <a href="{% url 'posts:hauptbuch' %}">{% trans "Zum Hauptbuch"%}</a>
+                <br><br>
+                <a href="{% url 'posts:freie_buchung' %}">{% trans "Frei buchen"%}</a>
+                </div>
+            <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Hauptbuch" %}</p>
+                    <img src="/media/hauptbuch.png" alt="{% trans 'Ansicht Hauptbuch' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Wie stelle ich eine GuV/Bilanz auf"%}?</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Wenn alle Geschäftsvorfälle bearbeitet wurden (oder auch zwischendurch), kann die GuV bzw. die Bilanz aufgestellt werden." %}
+                    <br><br>
+
+                    <strong>{% trans "GuV" %}</strong>
+                    <br>
+                    {% trans "Jedes Konto kann entweder als Bestandskonto oder als Aufwandskonto markiert werden. Nach der Auswahl kann das Konto abgeschlossen werden. Hier können nur Aufwandskonten abgeschlossen werden. Für Bestandskonten erscheint eine Rückmeldung, dass diese hier nicht abgeschlossen werden können." %}
+                    <br><br>
+                    {% trans "Nachdem ein Aufwandskonto abgeschlossen wurde, wird es unten dynamisch in das GuV-Konto übernommen. Wenn alle Konten zugeordnet wurden, kann das GuV-Konto abgeschlossen werden. Dieses wird dann für die Bilanz zur Verfügung gestellt. Das GuV-Konto kann ganz unten auf der Seite über den Button" %} <i>{% trans "GuV-Konto abschließen" %}</i> {% trans "abgeschlossen werden." %}
+                    <br><br>
+
+                    <strong>{% trans "Bilanz" %}</strong>
+                    <br>
+                    {% trans "Analog zur GuV müssen hier die Konten den Bereichen Aktiva oder Passiva zugeordnet werden. Nach der Zuteilung und dem Abschluss eines Kontos wird es dynamisch in die Bilanz übernommen." %}
+                    <br><br>
+                    <strong>{% trans "Wichtig" %}</strong>: {% trans "Die Bilanz wird nicht gespeichert. Sie dient lediglich als Kontrolle und zum besseren Verständnis." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "GuV und Bilanz" %}</p>
+                    <img src="/media/guv_bilanz.gif" alt="{% trans 'GuV und Bilanz aufstellen' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.faq-question').forEach(item => {
+        item.addEventListener('click', () => {
+            const answer = item.nextElementSibling;
+            answer.style.display = (answer.style.display === 'block') ? 'none' : 'block';
+        });
+    });
+</script>
+{% endblock %}
