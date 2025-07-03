@@ -644,6 +644,10 @@ msgstr "Here you will find relevant information about this website and for compl
 msgid "Bei Fragen: felix.bartl@htw-berlin.de"
 msgstr "If you have any questions: felix.bartl@htw-berlin.de"
 
+#: .\posts\templates\posts\faq.html:78
+msgid "Allgemein"
+msgstr "General"
+
 #: .\posts\templates\posts\faq.html:80
 msgid "Willkommen bei SecureNet"
 msgstr "Welcome to SecureNet"
@@ -725,13 +729,13 @@ msgstr "Journal entry overview"
 
 #: .\posts\templates\posts\faq.html:108
 msgid "Wie wird gebucht"
-msgstr ""
+msgstr "How to create journal entries"
 
 #: .\posts\templates\posts\faq.html:113
 msgid ""
 "Die Rechnungsübersicht besteht aus zwei Teilen: dem Geschäftsvorfall und der "
 "Buchungsmaske."
-msgstr ""
+msgstr "The invoice overview consists of two parts: the business transaction and the journal entrie form."
 
 #: .\posts\templates\posts\faq.html:116
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:16
@@ -743,15 +747,15 @@ msgstr "Business transaction"
 msgid ""
 "Die Geschäftsvorfälle sind wie Rechnungen bzw. interne Dokumente aufgebaut. "
 "Sie bestehen aus:"
-msgstr ""
+msgstr "The business transactions are structured like invoices or internal documents. They consist of:"
 
 #: .\posts\templates\posts\faq.html:120
 msgid "Dokumentenkopf (Datum, Dokumentennummer, ggf. Adressen)"
-msgstr ""
+msgstr "Document header (date, document number, addresses if applicable)"
 
 #: .\posts\templates\posts\faq.html:121
 msgid "Beschreibung (Erklärung, worum es sich bei diesem Vorfall handelt)"
-msgstr ""
+msgstr "Description (explanation of what the transaction is about)"
 
 #: .\posts\templates\posts\faq.html:122
 msgid "Rechnungsbetrag (ggf. mit Steuer)"
@@ -759,17 +763,17 @@ msgstr "Amount (may contain VAT)"
 
 #: .\posts\templates\posts\faq.html:123
 msgid "ggf. Zahlweise (sofern vorhanden)"
-msgstr ""
+msgstr "if applicable, method of payment (if available)"
 
 #: .\posts\templates\posts\faq.html:124
 msgid "Dokumentenfuß (kurze Verabschiedung)"
-msgstr ""
+msgstr "Document footer (brief closing)"
 
 #: .\posts\templates\posts\faq.html:127
 msgid ""
 "Hier sind alle Informationen enthalten, um den Buchungssatz für diesen "
 "Geschäftsvorfall aufzustellen."
-msgstr ""
+msgstr "All the information needed to create the journal entry for this transaction is provided here."
 
 #: .\posts\templates\posts\faq.html:130
 msgid "Buchungsmaske"
@@ -777,43 +781,43 @@ msgstr "Journal entries overlay"
 
 #: .\posts\templates\posts\faq.html:132
 msgid "Die Buchungsmaske besteht aus:"
-msgstr ""
+msgstr "The journal entrie form contains:"
 
 #: .\posts\templates\posts\faq.html:134
 msgid ""
 "Übersicht zu den letzten Buchungen zu diesem Geschäftsvorfall (wird im Punkt "
 "'Feedback' genauer beschrieben)"
-msgstr ""
+msgstr "Overview for the previous entries regarding this business case (will be explained further under 'Feedback')"
 
 #: .\posts\templates\posts\faq.html:135
 msgid "Eingabemaske für Soll (Betrag und Konten)"
-msgstr ""
+msgstr "Input form for Debit (amount and accounts)"
 
 #: .\posts\templates\posts\faq.html:136
 msgid "Eingabemaske für Haben (Betrag und Konten)"
-msgstr ""
+msgstr "Input form for Credit (amount and accounts)"
 
 #: .\posts\templates\posts\faq.html:137
 msgid "Button zum Abschicken des Buchungssatzes"
-msgstr ""
+msgstr "Button to send the journal entry"
 
 #: .\posts\templates\posts\faq.html:140
 msgid ""
 "Falls mehrere Konten für Soll oder Haben notwendig sind, können diese über "
 "die Buttons 'Neues Soll- (bzw. Haben-)Feld hinzufügen' ergänzt werden."
-msgstr ""
+msgstr "If multiple accounts are needed for debit or credit, they can be added using the 'Add new debit (or credit) field' buttons."
 
 #: .\posts\templates\posts\faq.html:142
 msgid ""
 "Wichtig: Die Beträge für Soll und Haben müssen gleich sein, sonst kann der "
 "Buchungssatz nicht abgeschickt werden."
-msgstr ""
+msgstr "Important: The debit and credit amounts must be equal; otherwise, the journal entry cannot be submitted."
 
 #: .\posts\templates\posts\faq.html:144
 msgid ""
 "Falls die Buchung erfolgreich abgeschickt wurde, findet eine Weiterleitung "
 "zur Startseite statt und die nächste Aufgabe kann bearbeitet werden."
-msgstr ""
+msgstr "If the entry was successfully submitted, you will be redirected to the homepage and can proceed with the next task."
 
 #: .\posts\templates\posts\faq.html:146
 msgid "Hinweis"
@@ -824,15 +828,15 @@ msgid ""
 "Falls die Lehrperson Hinweise für die Aufgabe hinterlassen hat, ist oben ein "
 "Button 'Weitere Informationen anzeigen' sichtbar, der diese Informationen "
 "ein- bzw. ausblenden kann."
-msgstr ""
+msgstr "If the instructor has left any notes for the task, a 'Show more information' button will appear at the top, which can be used to show or hide this information."
 
 #: .\posts\templates\posts\faq.html:152
 msgid "Beispielhafte Durchführung einer Buchung"
-msgstr ""
+msgstr "Example of how to complete an entry"
 
 #: .\posts\templates\posts\faq.html:153
 msgid "Demonstration der Buchungsmaske"
-msgstr ""
+msgstr "Demonstration of journal entry form"
 
 #: .\posts\templates\posts\faq.html:161
 msgid "Ich habe einen Buchungssatz aufgestellt, und jetzt?"
@@ -842,7 +846,7 @@ msgstr "I created a custom journal entry, and now?"
 msgid ""
 "Nachdem ein Buchungssatz aufgestellt wurde, wirst du zurück zur Startseite "
 "geleitet. Die übermittelte Lösung kann richtig oder falsch sein."
-msgstr ""
+msgstr "After a journal entry has been created, you will be redirected to the homepage. The submitted solution may be correct or incorrect."
 
 #: .\posts\templates\posts\faq.html:168
 msgid "Richtig:"
@@ -852,11 +856,11 @@ msgstr "Correct:"
 msgid ""
 "Die Aufgabe ist abgeschlossen, und die nächste Aufgabe kann bearbeitet "
 "werden."
-msgstr ""
+msgstr "The task is complete, and the next one can be worked on."
 
 #: .\posts\templates\posts\faq.html:172
 msgid "Falsch:"
-msgstr ""
+msgstr "Wrong:"
 
 #: .\posts\templates\posts\faq.html:174
 msgid ""
@@ -864,11 +868,11 @@ msgid ""
 "eine Korrekturbuchung durchzuführen. Die Korrekturbuchung entspricht einer "
 "Spiegelung der fehlerhaften Buchung – so wie es auch in realen Unternehmen "
 "üblich ist."
-msgstr ""
+msgstr "If your answer is incorrect, you will be prompted (via the inbox) to make a correction entry. The correction entry mirrors the incorrect one – just as it is done in real companies."
 
 #: .\posts\templates\posts\faq.html:176
 msgid "Beispiel:"
-msgstr ""
+msgstr "Example:"
 
 #: .\posts\templates\posts\faq.html:178
 msgid "Deine Eingaben waren:"
@@ -876,7 +880,7 @@ msgstr "Your input was:"
 
 #: .\posts\templates\posts\faq.html:180
 msgid "Bank 500 € an Forderungen aLuL 500 €"
-msgstr ""
+msgstr "Bank €500 to Accounts Receivable €500"
 
 #: .\posts\templates\posts\faq.html:182
 msgid "Dann wäre die Korrekturbuchung:"
@@ -884,13 +888,13 @@ msgstr "This should be the adjustment entry:"
 
 #: .\posts\templates\posts\faq.html:184
 msgid "Forderungen aLuL 500 € an Bank 500 €"
-msgstr ""
+msgstr "Accounts Receivable €500 to Bank €500"
 
 #: .\posts\templates\posts\faq.html:186
 msgid ""
 "Um die Korrekturbuchung durchzuführen, musst du in der Rechnungsansicht auf "
 "den Button"
-msgstr ""
+msgstr "To make the correction entry, you need to click the button in the invoice view"
 
 #: .\posts\templates\posts\faq.html:186 .\posts\templates\posts\faq.html:227
 #: .\posts\templates\posts\rechnung.html:68
@@ -901,22 +905,22 @@ msgstr "Show entries/feedback"
 msgid ""
 "klicken. Dort werden dir alle bisherigen Buchungen zu dieser Aufgabe "
 "angezeigt."
-msgstr ""
+msgstr "click there. All previous entries for this task will be displayed."
 
 #: .\posts\templates\posts\faq.html:188
 msgid ""
 "Wenn der letzte Versuch falsch war, erscheint ein Button zur "
 "Korrekturbuchung."
-msgstr ""
+msgstr "If the last attempt was incorrect, a button for the correction entry will appear."
 
 #: .\posts\templates\posts\faq.html:190
 msgid "Für die Korrekturbuchung sind insgesamt drei Klicks notwendig:"
-msgstr ""
+msgstr "A total of three clicks are required to complete the correction entry:"
 
 #: .\posts\templates\posts\faq.html:192
 msgid ""
 "Korrekturbuchung vorschlagen (automatisches Ausfüllen der Buchungsmaske)"
-msgstr ""
+msgstr "Suggest correction entry (automatically fills in the booking form)"
 
 #: .\posts\templates\posts\faq.html:193
 #: .\posts\templates\posts\rechnung.html:97
@@ -931,7 +935,7 @@ msgstr "Confirm adjustment entry (last confirmation)"
 msgid ""
 "Nach Durchführung der Korrekturbuchung kannst du wieder wie gewohnt buchen "
 "und die "
-msgstr ""
+msgstr "After completing the correction entry, you can continue booking as usual and "
 
 #: .\posts\templates\posts\faq.html:197
 msgid "Korrekturbuchung im Hauptbuch"
@@ -939,11 +943,11 @@ msgstr "Adjustment entry in general ledger"
 
 #: .\posts\templates\posts\faq.html:197
 msgid "ansehen."
-msgstr ""
+msgstr "view."
 
 #: .\posts\templates\posts\faq.html:202
 msgid "Beispielhafte Durchführung einer Korrekturbuchung"
-msgstr ""
+msgstr "Example of how to complete a correction entry"
 
 #: .\posts\templates\posts\faq.html:203
 msgid "Demonstration der Korrekturbuchung"
@@ -958,31 +962,31 @@ msgstr "Feedback"
 msgid ""
 "Falls eine Aufgabe falsch beantwortet wurde, kann Feedback zur eingegebenen "
 "Lösung angezeigt werden. Das Feedback ist dabei dreistufig aufgebaut:"
-msgstr ""
+msgstr "If a task was answered incorrectly, feedback on the submitted solution may be displayed. The feedback is structured in three levels:"
 
 #: .\posts\templates\posts\faq.html:221
 msgid ""
 "1. Stufe: Konto oder Betrag für Soll bzw. Haben (z. B. Konto im Soll falsch)"
-msgstr ""
+msgstr "1st Level: Account or amount for debit or credit (e.g., incorrect account in debit)"
 
 #: .\posts\templates\posts\faq.html:222
 msgid "2. Stufe: Detailliertes Feedback (kurzer Informationstext zur Aufgabe)"
-msgstr ""
+msgstr "2nd Level: Detailed feedback (short informational text about the task)"
 
 #: .\posts\templates\posts\faq.html:223
 msgid "3. Stufe: Richtige Lösung"
-msgstr "3. level: Correct solution"
+msgstr "3rd level: Correct solution"
 
 #: .\posts\templates\posts\faq.html:227
 msgid ""
 "Um das Feedback einzusehen, musst du in der Rechnungsübersicht auf den Button"
-msgstr ""
+msgstr "To view the feedback, you need to click the button in the invoice overview"
 
 #: .\posts\templates\posts\faq.html:227
 msgid ""
 "klicken. Dort wird dir deine Lösung zusammen mit dem entsprechenden Feedback "
 "angezeigt (siehe GIF)."
-msgstr ""
+msgstr "click there. Your solution will be displayed along with the corresponding feedback (see GIF)."
 
 #: .\posts\templates\posts\faq.html:233 .\posts\templates\posts\faq.html:234
 msgid "Anzeigen von Feedback"
@@ -990,14 +994,14 @@ msgstr "Show feedback"
 
 #: .\posts\templates\posts\faq.html:242
 msgid "Hauptbuch und freie Buchungen"
-msgstr ""
+msgstr "General ledger and custom entries"
 
 #: .\posts\templates\posts\faq.html:247
 msgid ""
 "Das Hauptbuch dient dazu, dass du dir jede Buchung sowie Korrekturbuchungen "
 "und Anfangsbestände ansehen und nachvollziehen kannst. Hier werden die "
 "Beträge der Buchungen in den T-Konten dargestellt."
-msgstr ""
+msgstr "The general ledger allows you to view and trace every entry, including correction entries and opening balances. Here, the amounts are displayed in T-accounts."
 
 #: .\posts\templates\posts\faq.html:249
 msgid ""
@@ -1006,7 +1010,7 @@ msgid ""
 "durchführen. Hier kannst du aufgabenunabhängig Buchungssätze generieren und "
 "sehen, wie sich diese auf dein Unternehmen auswirken. Klicke dafür auf den "
 "folgenden Link."
-msgstr ""
+msgstr "If you want to explore how specific entries affect the accounts, you can also make free entries instead of working on tasks. Here, you can generate journal entries independently of any assignment and see how they impact your company. Click the following link to get started."
 
 #: .\posts\templates\posts\faq.html:251
 msgid "Vorsicht!"
@@ -1017,7 +1021,7 @@ msgid ""
 "Um diese eigenen Buchungen auszugleichen, musst du manuell "
 "Korrekturbuchungen aufstellen. Andernfalls wirkt sich dies auf die GuV oder "
 "die Bilanz aus."
-msgstr ""
+msgstr "To offset these custom entries, you need to manually create correction entries. Otherwise, they will affect the income statement or the balance sheet."
 
 #: .\posts\templates\posts\faq.html:255
 msgid "Zum Hauptbuch"
@@ -1037,13 +1041,13 @@ msgstr "General ledger view"
 
 #: .\posts\templates\posts\faq.html:270
 msgid "Wie stelle ich eine GuV/Bilanz auf"
-msgstr ""
+msgstr "How do I prepare an income statement/balance sheet?"
 
 #: .\posts\templates\posts\faq.html:275
 msgid ""
 "Wenn alle Geschäftsvorfälle bearbeitet wurden (oder auch zwischendurch), "
 "kann die GuV bzw. die Bilanz aufgestellt werden."
-msgstr ""
+msgstr "Once all business transactions have been processed (or even in between), the income statement and balance sheet can be prepared."
 
 #: .\posts\templates\posts\faq.html:278 .\posts\templates\posts\guv.html:65
 #: .\templates\master_layout.html:65
@@ -1056,7 +1060,7 @@ msgid ""
 "werden. Nach der Auswahl kann das Konto abgeschlossen werden. Hier können "
 "nur Aufwandskonten abgeschlossen werden. Für Bestandskonten erscheint eine "
 "Rückmeldung, dass diese hier nicht abgeschlossen werden können."
-msgstr ""
+msgstr "Each account can be marked as either a balance sheet account or an expense account. Once selected, the account can be closed. Only expense accounts can be closed here. For balance sheet accounts, a message will appear indicating that they cannot be closed in this section."
 
 #: .\posts\templates\posts\faq.html:282
 msgid ""
@@ -1064,7 +1068,7 @@ msgid ""
 "das GuV-Konto übernommen. Wenn alle Konten zugeordnet wurden, kann das GuV-"
 "Konto abgeschlossen werden. Dieses wird dann für die Bilanz zur Verfügung "
 "gestellt. Das GuV-Konto kann ganz unten auf der Seite über den Button"
-msgstr ""
+msgstr "Once an expense account has been closed, it is dynamically transferred to the income statement account below. When all accounts have been assigned, the income statement account can be closed. It will then be available for the balance sheet. The income statement account can be closed at the bottom of the page using the button"
 
 #: .\posts\templates\posts\faq.html:282
 msgid "GuV-Konto abschließen"
@@ -1079,7 +1083,7 @@ msgid ""
 "Analog zur GuV müssen hier die Konten den Bereichen Aktiva oder Passiva "
 "zugeordnet werden. Nach der Zuteilung und dem Abschluss eines Kontos wird es "
 "dynamisch in die Bilanz übernommen."
-msgstr ""
+msgstr "Just like in the income statement, the accounts must be assigned to either assets or liabilities. Once an account is assigned and closed, it is dynamically transferred to the balance sheet."
 
 #: .\posts\templates\posts\faq.html:289
 msgid ""
@@ -1095,20 +1099,20 @@ msgstr "P&L and Balance Sheet"
 
 #: .\posts\templates\posts\faq.html:295
 msgid "GuV und Bilanz aufstellen"
-msgstr ""
+msgstr "Prepare income statement and balance sheet"
 
 #: .\posts\templates\posts\freie_buchung.html:11
 msgid ""
 "Diese Übersicht steht für die freie Erstellung von Buchungssätzen zur "
 "Verfügung. Hier können frei Buchungssätze erstellt werden, unabhängig von "
 "Geschäftsvorfällen."
-msgstr ""
+msgstr "This overview is available for the free creation of journal entries. Here, entries can be created independently of business transactions."
 
 #: .\posts\templates\posts\freie_buchung.html:13
 msgid ""
 "Jeder hier aufgestellte Buchungssatz wird in das Hauptbuch geschrieben und "
 "wirkt sich ebenfalls auf die GuV bzw. Bilanz aus"
-msgstr ""
+msgstr "Every journal entry created here is recorded in the general ledger and also affects the income statement and balance sheet."
 
 #: .\posts\templates\posts\freie_buchung.html:21
 #: .\posts\templates\posts\rechnung.html:214
