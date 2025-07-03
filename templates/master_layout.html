@@ -92,14 +92,10 @@
                         <a class = "nav-element" href="{% url 'users:login' %}">Login</a>
                     {% endif %}
                     
-                    <form class="language-form" action="{% url 'set_language' %}" method="post">
+                    <form class="language-form" action="{% url 'set_language' %}" method="post" style="display: flex; align-items: center; gap: 0.5em;">
                         {% csrf_token %}
-                        <label for="language-select">{% trans "Sprache wählen"%}:</label>
-                        <select name="language" id="language-select">
-                            <option value="de" {% if LANGUAGE_CODE == 'de' %}selected{% endif %}>Deutsch</option>
-                            <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
-                        </select>
-                        <button class="language-submit-button" type="submit">{% trans "Sprache ändern"%}</button>
+                        <button type="submit" name="language" value="de" class="language-button" {% if LANGUAGE_CODE == 'de' %}style="outline: 2px solid black;"{% endif %}>🇩🇪</button>
+                        <button type="submit" name="language" value="en" class="language-button" {% if LANGUAGE_CODE == 'en' %}style="outline: 2px solid black;"{% endif %}>🇬🇧</button>
                     </form>
 
                     
