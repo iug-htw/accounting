@@ -47,11 +47,11 @@
     
     <label for="name_mode">{% trans "Namensmodus:" %}</label>
     <input type="checkbox" id="name_mode" name="name_mode" onchange="toggleNameInput()">
-    <span id="name_mode_label">{% trans "Automatischer Name" %}</span>
+    <span id="name_mode_label">{% trans "Automatischer Name (Name wird aktuell automatisch vergeben)" %}</span>
 
     <!-- Eingabefeld für individuellen Namen (Standardmäßig versteckt) -->
     <div id="custom_name_field" style="display: none;">
-        <label for="custom_name">{% trans "Individueller Name:" %}</label>
+        <label for="custom_name">{% trans "Individueller Name: (bitte Namen für Nutzer eingeben)" %}</label>
         <input type="text" id="custom_name" name="custom_name">
     </div>
 

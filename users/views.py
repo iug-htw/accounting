@@ -408,7 +408,7 @@ def send_profile_update_mail(user, request):
 
         <p><a href="{update_profile_url}">Update profile</a></p>
 
-        <p>Thank your!</p>
+        <p>Thank you!</p>
         """.format(username=user.username, update_profile_url=update_profile_url)
     Mail.objects.create(
         nutzer=user,
@@ -430,12 +430,14 @@ def send_willkommen_mail(user):
         dokumentation_link = "http://localhost:8000/media/nutzerdokumentation.pdf"
     else:
         dokumentation_link = "https://train.f4.htw-berlin.de/media/nutzerdokumentation.pdf"
+
     absender, _ = Absender.objects.get_or_create(
             name="SecureNet", email="info@securenet.de",
             straße="Treskowallee 8", stadt="Berlin", plz="10318"
         )
     betreff="Willkommen bei SecureNet"
     betreff_en="Welcome to SecureNet"
+    faq_url = reverse('posts:faq')
     mailtext="""
         Hallo, <br>
 
@@ -447,13 +449,14 @@ def send_willkommen_mail(user):
 
         Für eine Einführung in dein Unternehmen, kannst du gerne hier die Nutzerdokumentation einsehen: <br>
         <p><a href="{dokumentation_link}" target="_blank"> Nutzerdokumentation </a></p>
+        <p>Weitere Informationen findest du auch in der <a href="{faq_url}">FAQ</a>.</p>
         <br><br>
         Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung. <br>
 
 
         Viel Erfolg bei SecureNet!
         Dein SecureNet-Team
-        """.format(dokumentation_link=dokumentation_link)
+        """.format(dokumentation_link=dokumentation_link,faq_url=faq_url)
     mailtext_en = """
         Hello, <br>
 
@@ -465,12 +468,13 @@ def send_willkommen_mail(user):
 
         For an introduction to your company, feel free to check the user documentation here: <br>
         <p><a href="{dokumentation_link}" target="_blank"> User Documentation </a></p>
+        <p>Further information can be found in the <a href="{faq_url}">FAQ</a>.</p>
         <br><br>
         Start now and make sure your finances stay on track! If you have any questions or uncertainties, your inbox is your central point of contact. <br>
 
         Wishing you success at SecureNet!  
         Your SecureNet Team
-        """.format(dokumentation_link=dokumentation_link)
+        """.format(dokumentation_link=dokumentation_link,faq_url=faq_url)
     Mail.objects.create(
         nutzer=user,
         aufgabe=None,  # Diese Mail ist nicht auf eine Aufgabe bezogen

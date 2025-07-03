@@ -605,11 +605,12 @@ def freie_buchung(request):
     user = request.user
     unternehmen = getattr(user, "unternehmen", None)
     kontenplan = getattr(unternehmen, "kontenplan", None)
+    if request.user.role == 'teacher':
+        kontenplan = Kontenplan.objects.get(id=1)
     if request.method == "POST":
         handle_nutzer_buchung(request, aufgabe=None, ist_frei=True)
         return redirect('frontpage')
-    guv_konto = ermittle_guv_konto(request).name
-    konten = Konto.objects.filter(kontenplan=kontenplan).exclude(name=guv_konto).order_by('kontonummer', 'name')
+    konten = Konto.objects.filter(kontenplan=kontenplan).order_by('kontonummer', 'name')
     context = {
         'konten': konten,
         'kontenplan_id': kontenplan.id,

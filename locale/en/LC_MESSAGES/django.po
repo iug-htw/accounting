@@ -628,7 +628,7 @@ msgstr "Custom Journal Entry"
 
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:29
 msgid "an"
-msgstr ""
+msgstr " "
 
 #: .\posts\templates\posts\faq.html:74 .\templates\master_layout.html:82
 msgid "FAQ"

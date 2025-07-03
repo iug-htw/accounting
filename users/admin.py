@@ -33,7 +33,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2', 'role', 'professor','nutzergruppe','semester','studiengang'),  # Hinzufügen von Rolle und Professor
+            'fields': ('username', 'password1', 'password2', 'role', 'unternehmen','professor','nutzergruppe','semester','studiengang'),  # Hinzufügen von Rolle und Professor
         }),
     )
 
