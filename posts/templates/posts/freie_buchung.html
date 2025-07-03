@@ -8,11 +8,14 @@
 <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 {% block content %}
-
+<p> {% trans "Diese Übersicht steht für die freie Erstellung von Buchungssätzen zur Verfügung. Hier können frei Buchungssätze erstellt werden, unabhängig von Geschäftsvorfällen."%} 
+    <br><br>
+    <strong> {%trans "Jeder hier aufgestellte Buchungssatz wird in das Hauptbuch geschrieben und wirkt sich ebenfalls auf die GuV bzw. Bilanz aus" %} </strong>
+</p>
 <form id = "absenden" method="post" action="{% url 'posts:freie_buchung'%}">
     {% csrf_token %}
     <div class="inputs-container_rechnung">
-
+        
         <!-- SOLL-KONTEN -->
         <div id="soll-container_rechnung">
             <label><strong>{% trans "Eingaben Soll:"%}</strong></label>
@@ -61,8 +64,6 @@
     <button id="btn-submit" class="btn-submit_rechnung" onclick="summenCheck(event)">
         {% trans "Eingaben übermitteln"%}
     </button>    
-    <br><br>
-    <p>{% trans "Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung erfolgen."%}</p> 
 </form>
         </div>
     </div>
