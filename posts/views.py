@@ -300,9 +300,6 @@ def rechnung_detail_view(request, aufgabe_id):
     .values_list("kontenplan_id", flat=True)
     .first()
     )
-    #print(f"nutzeraufgabe:{nutzer_aufgabe}")
-    #print(f"nutzeraufgabe:{type(aufgabe.rechnungsbetrag)}")
-    #print(f"nutzeraufgabe:{type(Decimal(sum(nutzer_aufgabe.haben_betraege)))}")
     buchungen = Buchung.objects.filter(aufgabe=aufgabe, nutzer=request.user).order_by('buchung_id')
     next_aufgabe = Aufgabe_neu.objects.filter(id__gt=aufgabe_id).order_by('id').first()
     guv_konto = ermittle_guv_konto(request).name
@@ -346,6 +343,9 @@ def rechnung_detail_view(request, aufgabe_id):
         'intern': 'posts/rechnungen/rechnung_intern.html',
         'non': 'posts/rechnungen/rechnung_intern.html'
     }
+    is_lehrkraft = 0
+    if request.user.role == 'teacher' or request.user.is_superuser:
+        is_lehrkraft = 1
     datum = nutzer_aufgabe.erstellt_am
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
     id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
@@ -360,12 +360,12 @@ def rechnung_detail_view(request, aufgabe_id):
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
         'rechnungsnummer': aufgabe.rechnungsnummer,
+        'is_lehrkraft': is_lehrkraft,
         'datum': datum,
         'unternehmen_name': unternehmen_name,
         'hat_leistungszeitraum': aufgabe.hat_leistungszeitraum,
         'betrag_steuer': betrag_steuer,
         'betrag_netto': betrag_netto,
-        #'anschrift_kunde': aufgabe.anschrift_kunde,
         'eigene_ansicht': aufgabe.eigene_ansicht,
         'leistungszeitraum_anfang': nutzer_aufgabe.leistungszeitraum_anfang,
         'leistungszeitraum_ende': nutzer_aufgabe.leistungszeitraum_ende,

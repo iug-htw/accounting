@@ -11,9 +11,9 @@
     {% elif aufgabe.fragentyp_id == 15 %} 
         <p><strong> {% trans "Betrag:"%} </strong> {{ rechnungsbetrag|localized_format  }} EUR {% trans " " %}</p>
     {%else%} 
-        <p><strong>{% trans "Betrag Netto" %}</strong>: {{ betrag_netto|localized_format  }} EUR
+        <p><strong>{% trans "Betrag netto" %}</strong>: {{ betrag_netto|localized_format  }} EUR
         <br>
-        <strong>{%trans "Mehrwertsteuer"%}</strong> (19%): {{ betrag_steuer|localized_format  }} EUR
+        <strong>{%trans "Umsatzsteuer"%}</strong> (19%): {{ betrag_steuer|localized_format  }} EUR
         </p>
         <strong>{%trans "Gesamtbetrag"%}</strong>: {{ rechnungsbetrag|localized_format  }} EUR
         </p>

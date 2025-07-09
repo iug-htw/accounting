@@ -23,8 +23,7 @@
         </div>
     {% endif %}
 
-<!--
-{% if user.is_authenticated and nutzer_aufgabe %}
+{% if is_lehrkraft == 1 %}
   <button type="button" onclick="toggleZufallsdaten()">
     {% trans "Lösungen anzeigen"%}
   </button>
@@ -52,7 +51,7 @@
   </ul>
 </div>
 {% endif %}
--->
+
 
 <div class="content-wrapper_rechnung">
     <!-- Linker Bereich: Fiktive Rechnung -->
