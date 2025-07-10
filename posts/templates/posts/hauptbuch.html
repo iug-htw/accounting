@@ -26,13 +26,12 @@
     </select>
     -->
 </form>
-
+ 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
     <div class="konto" data-kontoname="{{ daten.name }}">
         <h2>{{ daten.name }}</h2>
         <table class="hauptbuch-tabelle">
-            <!-- Die Überschrift (Soll/Haben) wird jetzt Teil der Haupttabelle -->
             <thead>
                 <tr>
                     <th class="soll">{% trans "Soll"%}</th>

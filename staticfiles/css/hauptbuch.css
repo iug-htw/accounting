@@ -83,8 +83,6 @@
 .betrag {
     text-align: right;
     padding-right: 10px;
-
-
 }
 
 /* Soll & Haben richtig über der Tabelle platzieren */
@@ -93,19 +91,17 @@
     top: -34px; /* Platziert sie leicht über der Tabelle */
     font-weight: bold;
     padding: 5px 10px;
+    pointer-events: none;
 }
 
 .soll {
     text-align: left;
     padding-left: 3rem;
-
-
 }
 
 .haben {
     text-align: right;
     padding-right: 3rem;
-
 }
 
 
@@ -113,7 +109,6 @@
 .soll-haben-tabelle td:first-child {
     text-align: left;
     padding-left: 10px;
-
 }
 
 /* Betrag rechtsbündig */
@@ -194,7 +189,10 @@ table.t-konto th {
 }
 
 /* Vertikale Trennung in der Mitte */
-table.t-konto td:nth-child(2),
-table.t-konto th:nth-child(2) {
+table.t-konto td:nth-child(2) {
     border-right: 2px solid black;
+}
+
+.rechts {
+    text-align: right !important;
 }

@@ -28,16 +28,11 @@ urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     path('admin_iug/', admin.site.urls),
-    
-    path('vorlage/', views.vorlage, name = 'vorlage'),
-    #path('buchungsaufgabe/', views.buchungsaufgabe, name = 'buchungsaufgabe'),
     path('', views.index, name = 'index'),
     path('posts/', include('posts.urls')),
     path('users/', include('users.urls')),
-    path('frontpage2/', views.frontpage2, name = 'frontpage2' ),
     path('frontpage/', views.frontpage, name = 'frontpage' ),
     path('i18n/', include('django.conf.urls.i18n')),
     path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
     path('set_language/', set_language, name='set_language'),
 ]
-#urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

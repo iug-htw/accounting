@@ -183,7 +183,6 @@ def bulk_student_creation(request):
             
             student = CustomUser(
                 username=student_name,
-                email=f"{student_name}@example.com",
                 role='student',
                 professor=request.user,
                 semester=Semester.objects.get(name=semester),

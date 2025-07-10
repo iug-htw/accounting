@@ -91,16 +91,20 @@
 {% endif %}
 </div>
 <script>
+    const gettexts = {
+        indi: "{{ _('Individueller Name: (bitte Namen für Nutzer eingeben)') }}",
+        auto: "{{ _('Automatischer Name (Name wird aktuell automatisch vergeben)') }}"
+    };
     function toggleNameInput() {
         let nameMode = document.getElementById("name_mode");
         let nameLabel = document.getElementById("name_mode_label");
         let customNameField = document.getElementById("custom_name_field");
 
         if (nameMode.checked) {
-            nameLabel.innerText = gettext("Individueller Name:");
+            nameLabel.innerText = `${gettexts.indi}`;
             customNameField.style.display = "block";
         } else {
-            nameLabel.innerText = gettext("Automatischer Name");
+            nameLabel.innerText = `${gettexts.auto}`;
             customNameField.style.display = "none";
         }
     }

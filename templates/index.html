@@ -16,14 +16,32 @@
     <!-- Nur für Lehrkräfte die Studierenden anzeigen -->
     {% if user.role == 'teacher' %}
         <h2>{% trans "Ihre Studierenden:"%}</h2>
-        {% if students %}
-            <ul>
-            {% for student in students %}
-                <li>{{ student.username }} - {{ student.email }} {{student.semester}} {{student.studiengang}}</li>
+       {% if grouped_students %}
+            <div>
+            {% for semester, studiengangs in grouped_students.items %}
+                <div style="margin-bottom: 1em;">
+                    <button type="button" onclick="toggleVisibility('semester-{{ forloop.counter }}')"
+                        style="font-weight: bold;">{{ semester }}</button>
+                    <div id="semester-{{ forloop.counter }}" style="display: none; margin-left: 1em;">
+                        {% for studiengang, studenten in studiengangs.items %}
+                            <h4>{{ studiengang }}</h4>
+                            <ul>
+                                {% for student in studenten %}
+                                <li id="studi-{{ student.id }}">
+                                    {{ student.username }} – 
+                                    {% if student.last_login is not null %} {% trans "Login: Ja" %} {% else %} {% trans "Login: Nein" %} {% endif %}
+                                    <span id="progress-text-{{ student.id }}">0%</span>
+                                    <span id="progress-icon-{{ student.id }}"></span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </div>
+                </div>
             {% endfor %}
-            </ul>
+            </div>
         {% else %}
-            <p>{% trans "Sie haben derzeit keine Studierenden unter Ihrer Betreuung."%}</p>
+            <p>{% trans "Sie haben derzeit keine Studierenden unter Ihrer Betreuung." %}</p>
         {% endif %}
     {% elif user.role == 'student' and not user.is_superuser%}
         <p><strong>{% trans "Studiengang:"%}</strong> {{ user.studiengang }}</p>
@@ -35,4 +53,71 @@
             <p>{% trans "Sie haben derzeit keinen zugewiesenen Professor."%}</p>
         {% endif %}
     {% endif %}
+<script>
+function toggleVisibility(id) {
+    const element = document.getElementById(id);
+    if (element.style.display === "none") {
+        element.style.display = "block";
+    } else {
+        element.style.display = "none";
+    }
+}
+
+function ladeAlleStudiFortschritte() {
+    // Suche alle IDs von Studis aus den DOM-Elementen
+    const studis = [...document.querySelectorAll("li[id^='studi-']")];
+    studis.forEach(li => {
+        const id = li.id.replace("studi-", "");
+        ladeEinzelnenStudiFortschritt(id);
+    });
+}
+
+function ladeEinzelnenStudiFortschritt(studentId) {
+    let url = `/posts/lehrer_studi_fortschritt/${studentId}/`;
+    const gettexts = {
+        korrekt: "{{ _('Korrekt') }}",
+        bearbeitet: "{{ _('Bearbeitet') }}"
+    };
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`Fehler beim Abruf für Studi ${studentId}`);
+            return response.json();
+        })
+        .then(data => {
+            let gesamt = data.gesamt_aufgaben || 1;
+            let korrektProzent = berechneProzent(data.korrekt, gesamt);
+            let bearbeitetProzent = berechneProzent(data.bearbeitet, gesamt);
+            let text = `${gettexts.bearbeitet}: ${bearbeitetProzent}%, ${gettexts.korrekt}: ${korrektProzent}%`;
+
+            let span = document.getElementById(`progress-text-${studentId}`);
+            if (span) span.textContent = text;
+            const iconSpan = document.getElementById(`progress-icon-${studentId}`);
+            if (iconSpan) {
+                let symbol = "";
+                if (korrektProzent === 100) {
+                    symbol = "🟢"; 
+                } else if (korrektProzent >= 50) {
+                    symbol = "🟡"; 
+                } else if (korrektProzent > 0) {
+                    symbol = "🔴"; 
+                } else {
+                    symbol = "❌"; 
+                }
+                iconSpan.textContent = symbol;
+            }
+        })
+        .catch(error => {
+            console.error("Fehler beim Einzelabruf:", error);
+        });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    if ("{{ user.role }}" === "teacher") {
+        ladeAlleStudiFortschritte();
+    }
+});
+function berechneProzent(teil, gesamt) {
+    return gesamt > 0 ? Math.round((teil / gesamt) * 100) : 0;
+}
+</script>
 {% endblock %}

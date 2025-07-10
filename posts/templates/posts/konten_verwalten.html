@@ -102,6 +102,12 @@
     {% endfor %}
 </table>
 <script>
+    const gettexts = {
+        aktiva: "{{ _('Aktiva') }}",
+        passiva: "{{ _('Passiva') }}",
+        aufwand: "{{ _('Aufwand') }}",
+        ertrag: "{{ _('Ertrag') }}"
+    };
     document.addEventListener("DOMContentLoaded", function() {
         let kategorieField = document.querySelector("#id_kategorie");
         let unterkategorieField = document.querySelector("#id_unterkategorie");
@@ -112,13 +118,13 @@
             
             if (kategorie === "Bestandskonto") {
                 unterkategorieField.innerHTML = `
-                    <option value="Aktiva">${gettext("Aktiva")}</option>
-                    <option value="Passiva">${gettext("Passiva")}</option>
+                    <option value="Aktiva">${gettexts.aktiva}</option>
+                    <option value="Passiva">${gettexts.passiva}</option>
                 `;
             } else if (kategorie === "Erfolgskonto") {
                 unterkategorieField.innerHTML = `
-                    <option value="Aufwand">${gettext("Aufwand")}</option>
-                    <option value="Ertrag">${gettext("Ertrag")}</option>
+                    <option value="Aufwand">${gettexts.aufwand}</option>
+                    <option value="Ertrag">${gettexts.ertrag}</option>
                 `;
             }
         }

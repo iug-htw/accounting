@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-09 14:47+0200\n"
+"POT-Creation-Date: 2025-07-10 14:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -184,9 +184,6 @@ msgstr "Task"
 
 #: .\posts\models.py:81 .\posts\models.py:238
 #: .\posts\templates\posts\aufgabe_erstellen.html:58
-#: .\posts\templates\posts\bilanz.html:75
-#: .\posts\templates\posts\bilanz.html:77 .\posts\templates\posts\guv.html:74
-#: .\posts\templates\posts\guv.html:76
 msgid "Konto"
 msgstr "Account"
 
@@ -196,9 +193,7 @@ msgstr "Credit/Debit"
 
 #: .\posts\models.py:83 .\posts\models.py:239
 #: .\posts\templates\posts\aufgabe_erstellen.html:62
-#: .\posts\templates\posts\bilanz.html:76
-#: .\posts\templates\posts\bilanz.html:78 .\posts\templates\posts\guv.html:75
-#: .\posts\templates\posts\guv.html:77
+#: .\posts\templates\posts\rechnung_js.html:5
 msgid "Betrag"
 msgstr "Amount"
 
@@ -215,12 +210,13 @@ msgstr "Open"
 #: .\posts\templates\posts\posteingang.html:30
 #: .\posts\templates\posts\rechnungsuebersicht.html:32
 #: .\templates\frontpage.html:41 .\templates\frontpage.html:81
-#: .\templates\frontpage.html:110
+#: .\templates\frontpage.html:110 .\templates\index.html:79
 msgid "Bearbeitet"
 msgstr "Processed"
 
 #: .\posts\models.py:91 .\posts\models.py:135 .\templates\frontpage.html:45
 #: .\templates\frontpage.html:85 .\templates\frontpage.html:114
+#: .\templates\index.html:78
 msgid "Korrekt"
 msgstr "Correct"
 
@@ -372,19 +368,25 @@ msgstr "Income account"
 
 #: .\posts\models.py:201 .\posts\templates\posts\bilanz.html:27
 #: .\posts\templates\posts\bilanz.html:71
+#: .\posts\templates\posts\konten_verwalten.html:106
+#: .\posts\templates\posts\konto_bearbeiten.html:33
 msgid "Aktiva"
 msgstr "Assets"
 
 #: .\posts\models.py:202 .\posts\templates\posts\bilanz.html:28
 #: .\posts\templates\posts\bilanz.html:72
+#: .\posts\templates\posts\konten_verwalten.html:107
+#: .\posts\templates\posts\konto_bearbeiten.html:34
 msgid "Passiva"
 msgstr "Liabilities"
 
-#: .\posts\models.py:203
+#: .\posts\models.py:203 .\posts\templates\posts\konten_verwalten.html:108
+#: .\posts\templates\posts\konto_bearbeiten.html:35
 msgid "Aufwand"
 msgstr "Expense"
 
-#: .\posts\models.py:204
+#: .\posts\models.py:204 .\posts\templates\posts\konten_verwalten.html:109
+#: .\posts\templates\posts\konto_bearbeiten.html:36
 msgid "Ertrag"
 msgstr "Revenue"
 
@@ -482,7 +484,8 @@ msgstr "Debit/Crebit"
 #: .\posts\templates\posts\aufgabe_erstellen.html:60
 #: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:32
 #: .\posts\templates\posts\guv.html:70
-#: .\posts\templates\posts\hauptbuch.html:38
+#: .\posts\templates\posts\hauptbuch.html:37
+#: .\posts\templates\posts\rechnung_js.html:7
 msgid "Soll"
 msgstr "Debit"
 
@@ -490,7 +493,7 @@ msgstr "Debit"
 #: .\posts\templates\posts\aufgabe_erstellen.html:61
 #: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:32
 #: .\posts\templates\posts\guv.html:71
-#: .\posts\templates\posts\hauptbuch.html:39
+#: .\posts\templates\posts\hauptbuch.html:38
 msgid "Haben"
 msgstr "Credit"
 
@@ -556,7 +559,7 @@ msgstr "No tasks available"
 
 #: .\posts\templates\posts\bilanz.html:11
 #: .\posts\templates\posts\bilanz.html:66 .\posts\templates\posts\faq.html:285
-#: .\templates\master_layout.html:66
+#: .\templates\master_layout.html:67
 msgid "Bilanz"
 msgstr "Balance sheet"
 
@@ -589,9 +592,9 @@ msgstr "Category:"
 #: .\posts\templates\posts\guv.html:25
 #: .\posts\templates\posts\rechnung.html:216
 #: .\posts\templates\posts\rechnung.html:237
-#: .\posts\templates\posts\rechnung_js.html:73
-#: .\posts\templates\posts\rechnung_js.html:97
-#: .\posts\templates\posts\rechnung_js.html:344
+#: .\posts\templates\posts\rechnung_js.html:81
+#: .\posts\templates\posts\rechnung_js.html:105
+#: .\posts\templates\posts\rechnung_js.html:352
 msgid "Bitte wählen..."
 msgstr "Please select..."
 
@@ -607,15 +610,24 @@ msgstr "Loss"
 msgid "Konto abschließen"
 msgstr "Close account"
 
-#: .\posts\templates\posts\bilanz.html:86
-#: .\posts\templates\posts\bilanz.html:88 .\posts\templates\posts\guv.html:85
-#: .\posts\templates\posts\guv.html:87
+#: .\posts\templates\posts\bilanz.html:80
+#: .\posts\templates\posts\bilanz.html:82
+#: .\posts\templates\posts\bilanz.html:96 .\posts\templates\posts\guv.html:80
+#: .\posts\templates\posts\guv.html:82 .\posts\templates\posts\guv.html:94
 msgid "Summe"
 msgstr "Total"
 
-#: .\posts\templates\posts\bilanz.html:98
+#: .\posts\templates\posts\bilanz.html:91
 msgid "Alle Konten abschließen"
 msgstr "Close all accounts"
+
+#: .\posts\templates\posts\bilanz.html:95 .\posts\templates\posts\guv.html:93
+msgid "SBK"
+msgstr "CBA"
+
+#: .\posts\templates\posts\bilanz.html:97 .\posts\templates\posts\guv.html:95
+msgid "Abgeschlossen"
+msgstr "Completed"
 
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:10
 msgid "Buchungssatz-Übersicht"
@@ -631,7 +643,7 @@ msgid "an"
 msgstr " "
 
 #: .\posts\templates\posts\faq.html:74 .\templates\frontpage.html:22
-#: .\templates\master_layout.html:82
+#: .\templates\master_layout.html:83
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -1095,7 +1107,7 @@ msgstr "To the general ledger"
 msgid "Frei buchen"
 msgstr "Custom Journal Entry"
 
-#: .\posts\templates\posts\faq.html:261 .\templates\master_layout.html:64
+#: .\posts\templates\posts\faq.html:261 .\templates\master_layout.html:65
 msgid "Hauptbuch"
 msgstr "General ledger"
 
@@ -1116,7 +1128,7 @@ msgstr ""
 "income statement and balance sheet can be prepared."
 
 #: .\posts\templates\posts\faq.html:278 .\posts\templates\posts\guv.html:65
-#: .\templates\master_layout.html:65
+#: .\templates\master_layout.html:66
 msgid "GuV"
 msgstr "P&L"
 
@@ -1205,7 +1217,7 @@ msgstr "Input debit:"
 #: .\posts\templates\posts\freie_buchung.html:56
 #: .\posts\templates\posts\rechnung.html:227
 #: .\posts\templates\posts\rechnung.html:248
-#: .\posts\templates\posts\rechnung_js.html:90
+#: .\posts\templates\posts\rechnung_js.html:98
 msgid "Betrag eingeben"
 msgstr "Insert amount"
 
@@ -1255,7 +1267,7 @@ msgstr ""
 msgid "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."
 msgstr "The P&L account is closed at the bottom of the page using the button."
 
-#: .\posts\templates\posts\guv.html:95
+#: .\posts\templates\posts\guv.html:90
 msgid "GuV Konto abschließen v2"
 msgstr "Close P&L account v2"
 
@@ -1280,6 +1292,7 @@ msgid "Filter nach Aufgabe:"
 msgstr "Filter by task:"
 
 #: .\posts\templates\posts\hauptbuch.html:22
+#: .\templates\prozentStudis_js.html:5
 msgid "Alle Aufgaben"
 msgstr "All tasks"
 
@@ -1638,7 +1651,24 @@ msgstr ""
 msgid "Dokument"
 msgstr "Document"
 
-#: .\posts\templates\posts\rechnung_js.html:10
+#: .\posts\templates\posts\rechnung_js.html:3
+msgid "Soll-Konto"
+msgstr "Debit-Account"
+
+#: .\posts\templates\posts\rechnung_js.html:4
+msgid "Haben-Konto"
+msgstr "Credit-Account"
+
+#: .\posts\templates\posts\rechnung_js.html:6
+msgid ""
+"Konten und Werte werden vertauscht, um die letzte Buchung zu korrigieren"
+msgstr "Accounts and amounts will be interchanged to correct the last journal entry"
+
+#: .\posts\templates\posts\rechnung_js.html:8
+msgid "haben"
+msgstr "Credit"
+
+#: .\posts\templates\posts\rechnung_js.html:18
 msgid ""
 "Die letzte Buchung muss korrigiert werden, bevor neue Buchungen möglich "
 "sind. Gehe dafür auf Buchungen anzeigen/verstecken."
@@ -1646,19 +1676,19 @@ msgstr ""
 "The last transaction need to be adjusted before you can create a new journal "
 "entry"
 
-#: .\posts\templates\posts\rechnung_js.html:15
+#: .\posts\templates\posts\rechnung_js.html:23
 msgid "📥 Buchungs-Navigation einblenden"
 msgstr "Show entry navigation"
 
-#: .\posts\templates\posts\rechnung_js.html:16
+#: .\posts\templates\posts\rechnung_js.html:24
 msgid "📄 Buchungs-Navigation ausblenden"
 msgstr "Hide entry navigation"
 
-#: .\posts\templates\posts\rechnung_js.html:238
+#: .\posts\templates\posts\rechnung_js.html:246
 msgid "⚠️ Beträge dürfen nicht 0 sein!"
 msgstr "Amounts can't be 0!"
 
-#: .\posts\templates\posts\rechnung_js.html:248
+#: .\posts\templates\posts\rechnung_js.html:256
 msgid ""
 "⚠️ Die Summe der Soll-Beträge muss der Summe der Haben-Beträge entsprechen!"
 msgstr "The amounts from the credit and debit side have to be equal!"
@@ -1927,7 +1957,9 @@ msgstr "Get started now and keep your startup's finances on track! 🚀"
 msgid ""
 "Schau nun in den Posteingang, um deine aktuellen Geschäftsvorfälle "
 "einzusehen. Bei Fragen kannst du jederzeit das "
-msgstr "Now check your inbox to view your current business transactions. If you have any questions, you can always contact the "
+msgstr ""
+"Now check your inbox to view your current business transactions. If you have "
+"any questions, you can always contact the "
 
 #: .\templates\frontpage.html:22
 msgid " einsehen"
@@ -1949,7 +1981,7 @@ msgstr "Your progress"
 msgid "Leistungsübersicht Studierende"
 msgstr "Student Performance Overview"
 
-#: .\templates\frontpage.html:57 .\templates\index.html:30
+#: .\templates\frontpage.html:57 .\templates\index.html:48
 #: .\users\templates\users\bulk_student_creation.html:30
 msgid "Semester:"
 msgstr "Semester:"
@@ -1959,7 +1991,7 @@ msgstr "Semester:"
 msgid "Alle"
 msgstr "All"
 
-#: .\templates\frontpage.html:63 .\templates\index.html:29
+#: .\templates\frontpage.html:63 .\templates\index.html:47
 #: .\users\templates\users\bulk_student_creation.html:23
 msgid "Studiengang:"
 msgstr "Study Program:"
@@ -1988,7 +2020,7 @@ msgstr "Student progress:"
 msgid "Studierende:"
 msgstr "List of your students:"
 
-#: .\templates\frontpage.html:104
+#: .\templates\frontpage.html:104 .\templates\prozentStudis_js.html:7
 msgid "Bitte wählen"
 msgstr "Please select"
 
@@ -2016,15 +2048,23 @@ msgstr "Your role:"
 msgid "Ihre Studierenden:"
 msgstr "List of your students:"
 
-#: .\templates\index.html:26
+#: .\templates\index.html:32
+msgid "Login: Ja"
+msgstr "Login: Yes"
+
+#: .\templates\index.html:32
+msgid "Login: Nein"
+msgstr "Login: No"
+
+#: .\templates\index.html:44
 msgid "Sie haben derzeit keine Studierenden unter Ihrer Betreuung."
 msgstr "You currently don't havy any students"
 
-#: .\templates\index.html:31
+#: .\templates\index.html:49
 msgid "Ihr Professor:"
 msgstr "Your teacher"
 
-#: .\templates\index.html:35
+#: .\templates\index.html:53
 msgid "Sie haben derzeit keinen zugewiesenen Professor."
 msgstr "You don't havy any teacher assigned to you"
 
@@ -2053,37 +2093,53 @@ msgid "Verwaltung"
 msgstr "Management"
 
 #: .\templates\master_layout.html:53
+msgid "Meine User"
+msgstr "My User"
+
+#: .\templates\master_layout.html:54
+msgid "Nutzer anlegen"
+msgstr "Create Users"
+
+#: .\templates\master_layout.html:55
 msgid "Aufgabenliste"
 msgstr "List of tasks"
 
-#: .\templates\master_layout.html:54
+#: .\templates\master_layout.html:56
 #: .\users\templates\users\aufgaben_zuweisen.html:9
 msgid "Aufgaben zuweisen"
 msgstr "Assign tasks"
 
-#: .\templates\master_layout.html:55
-msgid "Nutzer anlegen"
-msgstr "Create Users"
-
-#: .\templates\master_layout.html:56
+#: .\templates\master_layout.html:57
 msgid "Aufgabe erstellen"
 msgstr "Create task"
 
-#: .\templates\master_layout.html:62
+#: .\templates\master_layout.html:63
 msgid "Buchhaltung"
 msgstr "Accounting"
 
-#: .\templates\master_layout.html:67
+#: .\templates\master_layout.html:68
 msgid "Buchungssätze"
 msgstr "Journal entries"
 
-#: .\templates\master_layout.html:68
+#: .\templates\master_layout.html:69
 msgid "Freien Buchungssatz erstellen"
 msgstr "Create a custom journal entry"
 
-#: .\templates\master_layout.html:78 .\templates\master_layout.html:80
+#: .\templates\master_layout.html:79 .\templates\master_layout.html:81
 msgid "Impressum"
 msgstr "Site notice"
+
+#: .\templates\prozentStudis_js.html:3
+msgid "Alle Semester"
+msgstr "All Semesters"
+
+#: .\templates\prozentStudis_js.html:4
+msgid "Alle Studiengänge"
+msgstr "All study programs"
+
+#: .\templates\prozentStudis_js.html:6
+msgid "Bitte Studierenden wählen"
+msgstr "Please choose a student"
 
 #: .\users\forms.py:10 .\users\models.py:65
 msgid "Semester"
@@ -2203,10 +2259,12 @@ msgid "Namensmodus:"
 msgstr "Custom name:"
 
 #: .\users\templates\users\bulk_student_creation.html:50
+#: .\users\templates\users\bulk_student_creation.html:96
 msgid "Automatischer Name (Name wird aktuell automatisch vergeben)"
 msgstr "Automatic name (name is currently assigned automatically)"
 
 #: .\users\templates\users\bulk_student_creation.html:54
+#: .\users\templates\users\bulk_student_creation.html:95
 msgid "Individueller Name: (bitte Namen für Nutzer eingeben)"
 msgstr "Custom name: (please enter a name for the user)"
 
@@ -2326,37 +2384,37 @@ msgstr "Successfully created semester"
 msgid "Semester erfolgreich gelöscht."
 msgstr "Successfully deleted semester"
 
-#: .\users\views.py:203
+#: .\users\views.py:202
 #, python-format
 msgid "Folgende Namen sind bereits vergeben: %(namen)s"
 msgstr "The following names were already taken: %(namen)s"
 
-#: .\users\views.py:208
+#: .\users\views.py:207
 #, python-format
 msgid "%(anzahl)d Studierende erfolgreich erstellt."
 msgstr "%(anzahl)d students successfully created"
 
-#: .\users\views.py:296
+#: .\users\views.py:295
 msgid "Aufgaben erfolgreich zugewiesen."
 msgstr "Tasks successfully assigned"
 
-#: .\users\views.py:338
+#: .\users\views.py:337
 msgid "Alle Aufgaben wurden dir erfolgreich zugewiesen."
 msgstr "Assign all tasks to myself"
 
-#: .\users\views.py:365
+#: .\users\views.py:364
 msgid "Passwörter stimmen nicht überein."
 msgstr "Passwords are incorrect"
 
-#: .\users\views.py:370
+#: .\users\views.py:369
 msgid "Profil erfolgreich aktualisiert."
 msgstr "Profile update successfull"
 
-#: .\users\views.py:381
+#: .\users\views.py:380
 msgid "Keine Änderungen vorgenommen."
 msgstr "No Changes submitted"
 
-#: .\users\views.py:530
+#: .\users\views.py:529
 msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
 msgstr "The organizational task has been marked as completed."
 

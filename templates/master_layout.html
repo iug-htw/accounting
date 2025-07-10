@@ -50,9 +50,10 @@
                             <div class="nav-dropdown">
                                 <a href="#" class="nav-element dropdown-toggle">{% trans "Verwaltung"%}▾</a>
                                 <div class="dropdown-content">
+                                    <a class = "nav-element" href="/">{% trans "Meine User"%}</a>
+                                    <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">{% trans "Nutzer anlegen"%}</a>
                                     <a class = "nav-element" href="{% url 'posts:aufgaben_verwalten'%}">{% trans "Aufgabenliste"%}</a>
                                     <a class = "nav-element" href="{% url 'users:aufgaben_zuweisen'%}">{% trans "Aufgaben zuweisen"%}</a>
-                                    <a class = "nav-element" href="{% url 'users:bulk_student_creation'%}">{% trans "Nutzer anlegen"%}</a>
                                     <a href="{% url 'posts:aufgabe_erstellen' %}" class="nav-element">{% trans "Aufgabe erstellen"%}</a>
                                 </div>
                             </div>

@@ -31,7 +31,7 @@
         <button class="konto-abschluss-btn">{% trans "Konto abschließen"%}</button>
         <table>
             <thead>
-                <tr><th>{% trans "Soll"%}</th><th>{% trans "Haben"%}</th></tr>
+                <tr><th class="soll">{% trans "Soll"%}</th><th class="haben">{% trans "Haben"%}</th></tr>
             </thead>
             <tbody>
                 <tr>
@@ -69,13 +69,7 @@
                     <thead>
                         <tr>
                             <th colspan="2">{% trans "Aktiva"%}</th>
-                            <th colspan="2">{% trans "Passiva"%}</th>
-                        </tr>
-                        <tr>
-                            <th>{% trans "Konto"%}</th>
-                            <th>{% trans "Betrag"%}</th>
-                            <th>{% trans "Konto"%}</th>
-                            <th>{% trans "Betrag"%}</th>
+                            <th colspan="2" class = "rechts">{% trans "Passiva"%}</th>
                         </tr>
                     </thead>
                     <tbody id="bilanz-body">
@@ -94,11 +88,14 @@
         </div>
     </section>
 
-
 <button id="abschluss-alle-btn">{% trans "Alle Konten abschließen"%}</button>
 
 <script>
-    //passt
+const gettexts = {
+        sbk: "{{ _('SBK') }}",
+        summe: "{{ _('Summe') }}",
+        abgeschlossen: "{{ _('Abgeschlossen') }}"
+    };
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
         button.addEventListener("click", function() {
@@ -133,10 +130,10 @@ document.addEventListener("DOMContentLoaded", function() {
             // **Differenz auf der kleineren Seite unter der ersten leeren Zeile hinzufügen**
             let differenzZeile = document.createElement("tr");
                 if (sollSumme > habenSumme) {
-                    differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
+                    differenzZeile.innerHTML = `<td>${gettexts.sbk}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
                     habenTabelle.appendChild(differenzZeile);
                 } else {
-                    differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
+                    differenzZeile.innerHTML = `<td>${gettexts.sbk}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
                     sollTabelle.appendChild(differenzZeile);
                 }
 
@@ -145,13 +142,13 @@ document.addEventListener("DOMContentLoaded", function() {
             let summenZeile = document.createElement("tr");
             summenZeile.style.fontWeight = "bold";
             const maxSumme = Math.max(sollSumme, habenSumme);
-            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${maxSumme}">${formatNumber(maxSumme)}</td>`;
+            summenZeile.innerHTML = `<td>${gettexts.summe}</td><td data-value="${maxSumme}">${formatNumber(maxSumme)}</td>`;
             sollTabelle.appendChild(summenZeile.cloneNode(true)); 
             habenTabelle.appendChild(summenZeile);
 
 
             this.disabled = true;
-            this.innerText = gettext("Abgeschlossen");
+            this.innerText = `${gettexts.abgeschlossen}`;
         });
     });
 
@@ -260,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function() {
             summePassivElement.innerText = formatNumber(summePassiv);
 
             this.disabled = true;
-            this.innerText = gettext("Abgeschlossen");
+            this.innerText = `${gettexts.abgeschlossen}`;
         }); //passt
     });
 });

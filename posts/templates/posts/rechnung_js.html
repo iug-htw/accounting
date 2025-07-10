@@ -1,4 +1,12 @@
 <script>
+const gettexts = {
+        skonto: "{{ _('Soll-Konto') }}",
+        hkonto: "{{ _('Haben-Konto') }}",
+        betrag: "{{ _('Betrag') }}",
+        hinweis: "{{ _('Konten und Werte werden vertauscht, um die letzte Buchung zu korrigieren') }}",
+        soll: "{{ _('Soll') }}",
+        haben: "{{ _('haben') }}"
+};
 window.addEventListener('DOMContentLoaded', (event) => {
         const submitButton = document.getElementById('btn-submit');
         const isBlocked = "{{ block_buchung }}" === "True";
@@ -178,9 +186,9 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
         for (let i = 0; i < habenKonten.length; i++) {
             korrekturSollContainer.innerHTML += `
                 <div class = "input-group_rechnung">
-                    <label>${gettext('Soll-Konto')}:</label>
+                    <label>${gettexts.skonto}:</label>
                     <input type="text" value="${idToName[habenKonten[i]] || habenKonten[i]}" readonly>
-                    <label>${gettext('Betrag:')}:</label>
+                    <label>${gettexts.betrag}:</label>
                     <input type="number" step="0.01" value="${betraegeHaben[i]}" readonly>
                 </div>
             `;
@@ -189,9 +197,9 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
         for (let i = 0; i < sollKonten.length; i++) {
             korrekturHabenContainer.innerHTML += `
                 <div class = "input-group_rechnung">
-                    <label>${gettext('Haben-Konto')}:</label>
+                    <label>${gettexts.hkonto}:</label>
                     <input type="text" value="${idToName[sollKonten[i]] || sollKonten[i]}" readonly>
-                    <label>${gettext('Betrag:')}:</label>
+                    <label>${gettexts.betrag}:</label>
                     <input type="number"  step="0.01" value="${betraegeSoll[i]}" readonly>
                 </div>
             `;
@@ -202,7 +210,7 @@ function fillKorrekturbuchung(sollKonten, habenKonten, betraegeSoll, betraegeHab
         if (!document.getElementById('korrektur-hinweis')) {
             const headingNeu = document.createElement('div');
             headingNeu.id = 'korrektur-hinweis';
-            headingNeu.innerHTML = `<h5>${gettext('Konten und Werte werden vertauscht, um die letzte Buchung zu korrigieren')}</h5>`;
+            headingNeu.innerHTML = `<h5>${gettexts.hinweis}</h5>`;
             heading.appendChild(headingNeu);
         }
     }
@@ -315,7 +323,7 @@ function renderTKontoVorschau(data) {
     container.innerHTML = '';
 
     for (const konto of data.konten) {
-        let html = `<div><h3>${konto.name}</h3><table><thead><tr><th>${gettext('Soll')}</th><th>${gettext('Haben')}</th></tr></thead><tbody>`;
+        let html = `<div><h3>${konto.name}</h3><table><thead><tr><th>${gettexts.soll}</th><th>${gettexts.haben}</th></tr></thead><tbody>`;
 
         const maxLen = Math.max(konto.soll.length, konto.haben.length);
         for (let i = 0; i < maxLen; i++) {
