@@ -289,7 +289,7 @@ def aufgaben_zuweisen_view(request):
                 nutzer_aufgabe = speichere_nutzer_aufgabe(student, aufgabe, zufaellige_werte)
                 #print(f"Hier steht der Absender in User{nutzer_aufgabe.absender_id}")
                 naechster_versuch = berechne_naechsten_versuch(student, aufgabe)
-                erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender)
+                erstelle_aufgaben_mail(student, aufgabe, naechster_versuch,nutzer_aufgabe.absender, nutzer_aufgabe.rn_nummer)
                 sende_orga_mail_wenn_noetig(student)
 
         messages.success(request, _("Aufgaben erfolgreich zugewiesen."))

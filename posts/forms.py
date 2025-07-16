@@ -23,6 +23,7 @@ class Aufgabe_neu_Form(forms.ModelForm):
         fields = [
             'kontenplan',
             'unternehmen_kategorie', 
+            'rechnungstyp',
             'fragentyp',
             'unterkategorie',
             'aufgabeninfo',

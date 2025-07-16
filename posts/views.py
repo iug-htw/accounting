@@ -20,6 +20,7 @@ from django.utils.html import format_html
 from django.views.decorators.http import require_GET
 from decouple import config
 from django.utils.translation import gettext as _
+from django.db.models import Max
 #passt
 
 
@@ -308,7 +309,7 @@ def rechnung_detail_view(request, aufgabe_id):
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe, ist_frei=False)
         if not is_buchung_korrekt(buchung, nutzer_aufgabe):
-            send_korrektur_mail(request.user, aufgabe, request)
+            send_korrektur_mail(request.user, nutzer_aufgabe,aufgabe, request)
         return redirect('frontpage')
 
     letzte_buchung = buchungen.last()
@@ -359,7 +360,7 @@ def rechnung_detail_view(request, aufgabe_id):
     # Kontext mit allen notwendigen Daten
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
-        'rechnungsnummer': aufgabe.rechnungsnummer,
+        'rechnungsnummer': nutzer_aufgabe.rn_nummer,
         'is_lehrkraft': is_lehrkraft,
         'datum': datum,
         'unternehmen_name': unternehmen_name,
@@ -666,9 +667,12 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
             'haben_konten': [str(k) for k in zufaellige_werte['haben_konten']],
             'soll_betraege': zufaellige_werte['soll_betraege'],
             'haben_betraege': zufaellige_werte['haben_betraege'],
-            'bearbeitungsstand': 'offen',
+            'bearbeitungsstand': 'offen'
         }
     )
+    if not nutzer_aufgabe.rn_nummer:
+        nutzer_aufgabe.rn_nummer = generiere_rn_nummer(aufgabe, nutzer)
+        nutzer_aufgabe.save(update_fields=["rn_nummer"])
 
     if not nutzer_aufgabe.absender:
         absender_liste = Absender.objects.all()
@@ -683,6 +687,27 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
 
     return nutzer_aufgabe
 
+def generiere_rn_nummer(aufgabe, nutzer):
+    """Generiert eine nutzerbasierte RN-Nummer für ausgehende Rechnungen, sodass diese hochgezählt werden für Rechnungen, die wir ausgestellt haben."""
+    if aufgabe.rechnungstyp == "ausgehend":
+        letzte_rn = NutzerAufgabe.objects.filter(
+            rn_nummer__startswith="RN-",
+            nutzer=nutzer
+        ).aggregate(max_rn=Max("rn_nummer"))["max_rn"]
+
+        if letzte_rn:
+            try:
+                letzte_nummer = int(letzte_rn.replace("RN-", ""))
+            except:
+                letzte_nummer = 0
+        else:
+            letzte_nummer = 0
+
+        neue_nummer = letzte_nummer + 1
+        return f"RN-{neue_nummer:04d}"
+    else:
+        return aufgabe.rechnungsnummer
+
 def berechne_naechsten_versuch(nutzer, aufgabe):
     letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
     letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
@@ -693,15 +718,15 @@ def berechne_naechsten_versuch(nutzer, aufgabe):
     )
     return hoechster_versuch + 1
 
-def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender):
+def erstelle_aufgaben_mail(nutzer, aufgabe, versuch, absender,rechnungsnummer):
     #print(f"📧 Mail wird erstellt für {nutzer.username} - Aufgabe {aufgabe.id} - Versuch {versuch}")
     if versuch == 1:
-        betreff = f"Bitte bearbeiten Sie folgenden Geschäftsvorfall: {aufgabe.rechnungsnummer}"
-        betreff_en = f"Please process the following business transaction: {aufgabe.rechnungsnummer}"
+        betreff = f"Bitte bearbeiten Sie folgenden Geschäftsvorfall: {rechnungsnummer}"
+        betreff_en = f"Please process the following business transaction: {rechnungsnummer}"
     else:
         v = round((versuch/2) + 1,0)
-        betreff = f"Rechnung: {aufgabe.rechnungsnummer} Versuch {v}"
-        betreff_en = f"Invoice: {aufgabe.rechnungsnummer} Try {v}"
+        betreff = f"Rechnung: {rechnungsnummer} Versuch {v}"
+        betreff_en = f"Invoice: {rechnungsnummer} Try {v}"
     mailtext = f"{aufgabe.mailtext}"
 
     Mail.objects.create(
@@ -927,7 +952,7 @@ def korrekturbuchung_durchfuehren(request, buchung_id):
     )
     print(f"✅ Neue Korrekturbuchung gespeichert: {neue_buchung}")
     print("📧 Mail erstellt")
-    erstelle_aufgaben_mail(request.user, aufgabe, naechster_versuch+1, absender)
+    erstelle_aufgaben_mail(request.user, aufgabe,nutzeraufgabe, naechster_versuch+1, absender, nutzeraufgabe.rn_nummer)
     messages.success(request, _('Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt.') % {'versuch': naechster_versuch})
     return redirect('frontpage')
 
@@ -969,7 +994,7 @@ def mail_detail(request, mail_id):
         'aufgabe_link': aufgabe_link
     })
 
-def send_korrektur_mail(nutzer, aufgabe, request):
+def send_korrektur_mail(nutzer,aufgabe, request, rechnungsnummer):
     # Den höchsten bisherigen Versuch aus der Buchungs- oder Mail-Tabelle ermitteln
     letzter_mail_versuch = Mail.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
     letzter_buchung_versuch = Buchung.objects.filter(aufgabe=aufgabe, nutzer=nutzer).order_by('-versuch').first()
@@ -982,8 +1007,8 @@ def send_korrektur_mail(nutzer, aufgabe, request):
 
     naechster_versuch = hoechster_versuch + 1  # Neuer Versuch = Höchster + 1
     update_url = request.build_absolute_uri(reverse("posts:rechnung_detail", args=[aufgabe.id]))
-    mail_betreff = f"Korrekturbuchung für Rechnung - {aufgabe.rechnungsnummer}"
-    mail_betreff_en = f"Adjustment entry for the invoice - {aufgabe.rechnungsnummer}"
+    mail_betreff = f"Korrekturbuchung für Rechnung - {rechnungsnummer}"
+    mail_betreff_en = f"Adjustment entry for the invoice - {rechnungsnummer}"
     mail_text_en = (
         f"""
         Dear {nutzer.username},
@@ -1418,7 +1443,7 @@ def rechnungsuebersicht(request):
 
         rechnungsdaten.append({
             'id': aufgabe.id,
-            'rechnungsnr': aufgabe.rechnungsnummer,
+            'rechnungsnr': nutzer_aufgabe.rn_nummer,
             'beschreibung': beschreibung_kurz,
             'anzahl_buchungen': anzahl_buchungen,
             'anzahl_korrekturbuchungen': anzahl_korrekturbuchungen,

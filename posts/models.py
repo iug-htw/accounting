@@ -69,7 +69,7 @@ class Aufgabe_neu(models.Model):
     beschreibung = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.', verbose_name=_("Beschreibung"))
     beschreibung_de = models.TextField(blank=True, null=True, default='Keine weiteren Details angegeben.', verbose_name=_("Beschreibung"))
     beschreibung_en = models.TextField(blank=True, null=True, default='No further details.', verbose_name=_("Beschreibung"))
-    rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern', verbose_name=_("Rechnungstyp"))
+    rechnungstyp = models.CharField(max_length=20, choices=RECHNUNGSTYPEN, default='intern', verbose_name=_("Rechnungstyp"),help_text="Soll die Aufgabe als Rechnung dargetellt werden? (Eingehend = wir erhalten; Ausgehen = wir stellen eine aus; Intern = Es liegt keine Rechnung für den Geschäftsvorfall z.B. Abschreibungen; Keine = Nur die unten beigefügte Beschreibung und Beträge werden angezeigt)")
     aufgabeninfo = models.TextField(null=True, blank=True, help_text="Optionaler Informationstext zur Aufgabe (HTML erlaubt).", verbose_name=_("Aufgabeninfo"))
     hat_leistungszeitraum = models.BooleanField(null=True, blank=True, default=0,help_text="Zeigt im Dokument den Leistungszeitraum an.",verbose_name=_("Hat Leistungszeitraum"))
 
@@ -146,6 +146,7 @@ class NutzerAufgabe(models.Model):
     bearbeitungsstand = models.CharField(max_length=20, choices=STATUS_CHOICES, default='offen', verbose_name=_("Bearbeitungsstand"))
     leistungszeitraum_anfang = models.DateField(null=True, blank=True)
     leistungszeitraum_ende = models.DateField(null=True, blank=True)
+    rn_nummer = models.CharField(max_length=20, blank=True,null=True,)
 
     def __str__(self):
         return f"NutzerAufgabe für {self.nutzer.username} - {self.aufgabe.fragentyp_text}"
