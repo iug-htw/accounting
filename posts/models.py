@@ -114,6 +114,7 @@ class Buchung(models.Model):
     konto_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=0, verbose_name=_("Konto Korrekt"))  # 0=Richtig, 1=Soll falsch, 2=Haben falsch, 3=Beide falsch
     betrag_korrekt = models.IntegerField(choices=KORREKT_CHOICES, default=True, verbose_name=_("Betrag Korrekt"))  # True=Richtig, False=Falsch
     feedback_ollama = models.TextField(null=True, blank=True, verbose_name=_("Feedback Ollama"))
+    feedback_bereiche_json = models.JSONField(null=True, blank=True)
     def save(self, *args, **kwargs):
         if not self.versuch:
             # Wenn kein Versuch angegeben ist, den nächsten automatisch ermitteln
@@ -147,6 +148,7 @@ class NutzerAufgabe(models.Model):
     leistungszeitraum_anfang = models.DateField(null=True, blank=True)
     leistungszeitraum_ende = models.DateField(null=True, blank=True)
     rn_nummer = models.CharField(max_length=20, blank=True,null=True,)
+    faktor = models.FloatField(default=1.0, verbose_name=_("Skalierungsfaktor"))
 
     def __str__(self):
         return f"NutzerAufgabe für {self.nutzer.username} - {self.aufgabe.fragentyp_text}"
@@ -244,3 +246,13 @@ class Anfangsbestand(models.Model):
 
     def __str__(self):
         return f"{self.nutzer.username} - {self.konto.name}: {self.betrag} €"
+
+class Feedbackbereich(models.Model):
+    aufgabe_detail = models.ForeignKey(AufgabeDetail, on_delete=models.CASCADE, related_name="feedbackbereiche", verbose_name="Zugehöriger Buchungssatz")
+    von_betrag = models.FloatField(verbose_name="Von Betrag", null=True, blank=True)
+    bis_betrag = models.FloatField(verbose_name="Bis Betrag", null=True, blank=True)
+    feedback_text = models.TextField(verbose_name="Feedbacktext")
+    konto_falsch = models.IntegerField(null=True,blank=True)
+
+    def __str__(self):
+        return f"Feedback für {self.von_betrag} – {self.bis_betrag} €"

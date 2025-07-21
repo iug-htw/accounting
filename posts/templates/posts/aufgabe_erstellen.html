@@ -27,6 +27,7 @@
         <p class="pcenter">{% trans "Bitte zuerst die Anzahl der Konten für die Aufgabe festlegen. Anschließend kann der Kontenplan gewählt werden, um die Konten nach dem ausgewählten Plan zu filten." %}</p>
         <div id="fields-container">
             <div class="field-group">
+                <input type="hidden" name="buchungs_index[]" value="0">
                 <!-- Konto Auswahl -->
                 <label>{% trans "Konto:"%}</label>
                 <select name="konto_id[]" class="konto-select" required>
@@ -45,6 +46,15 @@
                 <!-- Betrag (falls kein Bezug besteht) -->
                 <input type="number" step="0.01" placeholder="Betrag" name="betrag[]" class="betrag">
                 </select>
+                <div class="feedback-container">
+                    <label>{% trans "Feedbackbereiche"%}:</label>
+                    <div class="feedback-list" data-index="0"></div>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="addFeedbackbereich(this)">{% trans "Feedbackbereich hinzufügen"%}</button>
+                <div class="konto-feedback-list" data-index="0"></div>
+                    <button type="button" class="btn btn-sm btn-info" onclick="addKontoFeedback(this)">
+                        {% trans "Konto-Feedback hinzufügen"%}
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -60,11 +70,13 @@
         soll: "{{ _('Soll') }}",
         haben: "{{ _('Haben') }}",
         betrag: "{{ _('Betrag') }}",
-        warnung: "{{ _('Bitte geben Sie mindestens einen Betrag ein.') }}"
+        warnung: "{{ _('Bitte geben Sie mindestens einen Betrag ein.') }}",
+        feedback: "{{ _('Feedbackbereich hinzufügen') }}"
     };
     function addFieldGroup() {
         let container = document.getElementById('fields-container');
         let newFieldGroup = document.createElement('div');
+        let index = document.querySelectorAll('.field-group').length;
         newFieldGroup.classList.add('field-group');
         let kontenOptions = `
             {% for konto in konten %}
@@ -72,6 +84,7 @@
             {% endfor %}
         `;
         newFieldGroup.innerHTML = `
+            <input type="hidden" name="buchungs_index[]" value="${index}">
             <label>${gettexts.konto}</label>
             <select name="konto_id[]" class="konto-select" required>
             {% for konto in konten %}
@@ -83,7 +96,16 @@
                 <option value="Soll">${gettexts.soll}</option>
                 <option value="Haben">${gettexts.haben}</option>
             </select>
-            <input type="number" step="0.0000001" placeholder=${gettexts.betrag} name="betrag[]" class="betrag">
+            <input type="number" step="0.01" placeholder=${gettexts.betrag} name="betrag[]" class="betrag">
+            <div class="feedback-container">
+                <label>Feedbackbereiche:</label>
+                <div class="feedback-list" data-index="${index}"></div>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="addFeedbackbereich(this)">${gettexts.feedback}</button>
+                <div class="konto-feedback-list" data-index="${index}"></div>
+                <button type="button" class="btn btn-sm btn-info" onclick="addKontoFeedback(this)">
+                    Konto-Feedback hinzufügen
+                </button>
+            </div>
         `;
         container.appendChild(newFieldGroup);
     }
@@ -150,6 +172,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+function addFeedbackbereich(button) {
+    const list = button.previousElementSibling;
+    const index = list.getAttribute("data-index");
+    const item = document.createElement('div');
+    item.classList.add('feedback-item');
+    item.innerHTML = `
+        <input type="number" step="0.01" name="feedback_von_${index}[]" placeholder="von €" required>
+        <input type="number" step="0.01" name="feedback_bis_${index}[]" placeholder="bis €" required>
+        <input type="text" name="feedback_text_${index}[]" placeholder="Feedbacktext" required>
+    `;
+    list.appendChild(item);
+}
+function addKontoFeedback(button) {
+    const list = button.previousElementSibling;
+    const index = list.getAttribute("data-index");
+
+    const item = document.createElement('div');
+    item.classList.add('konto-feedback-item');
+
+    // Erstelle Dropdown für Kontoauswahl
+    let kontoOptions = `
+        {% for konto in konten %}
+            <option value="{{ konto.id }}">{{ konto.name }}</option>
+        {% endfor %}
+    `;
+
+    item.innerHTML = `
+        <select name="konto_feedback_id_${index}[]">
+            ${kontoOptions}
+        </select>
+        <input type="text" name="konto_feedback_text_${index}[]" placeholder="Feedbacktext" required>
+    `;
+    list.appendChild(item);
+}
 </script>
 
 {% endblock %}

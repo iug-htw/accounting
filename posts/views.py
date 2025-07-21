@@ -2,7 +2,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand, Kontenplan
+from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand, Kontenplan, Feedbackbereich
 from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm,AufgabeImportForm
 from django.contrib import messages
 import json, random, hashlib,openpyxl,threading,requests
@@ -272,13 +272,11 @@ def speichere_aufgabe_details(request, aufgabe,kontenplan):
     konto_ids = request.POST.getlist('konto_id[]')
     soll_haben = request.POST.getlist('soll_haben[]')
     betraege = request.POST.getlist('betrag[]')
-
-    # Neue Felder für Abhängigkeiten
-
     aufgabe_details = []  # Zwischenspeicher für bulk_create()
 
     # **Erster Schritt: Speichere alle Details ohne Bezugskonto**
     for i in range(len(konto_ids)):
+        print(f"konto:  {Konto.objects.get(id=konto_ids[i])}")
         konto = Konto.objects.get(id=konto_ids[i])
         aufgabe_detail = AufgabeDetail.objects.create(
             aufgabe=aufgabe,
@@ -288,6 +286,33 @@ def speichere_aufgabe_details(request, aufgabe,kontenplan):
             kontenplan=kontenplan,
         )
         aufgabe_details.append(aufgabe_detail)
+        feedback_von = request.POST.getlist(f'feedback_von_{i}[]')
+        feedback_bis = request.POST.getlist(f'feedback_bis_{i}[]')
+        feedback_texts = request.POST.getlist(f'feedback_text_{i}[]')
+        konten_id = request.POST.getlist(f'konto_feedback_id_{i}[]')
+        feedback_konto_texts = request.POST.getlist(f'konto_feedback_text_{i}[]')
+        #print(f"konto id: {konto_ids}")
+        #print(f"feedback_von: {feedback_von}")
+        
+        for von, bis, text in zip(feedback_von, feedback_bis, feedback_texts):
+            if von and bis and text:
+                Feedbackbereich.objects.create(
+                    aufgabe_detail=aufgabe_detail,
+                    von_betrag=float(von),
+                    bis_betrag=float(bis),
+                    feedback_text=text
+                )
+        
+        #print(f"💾 feedback_texts {feedback_konto_texts}")
+        #print(f"💾 konto_ids {konto_ids}")
+        for text, konto in zip(feedback_konto_texts, konten_id):
+            if text and konto:
+                print(f"💾 Speichere KontoFeedback: Konto-ID={konto}, Text={text}")
+                Feedbackbereich.objects.create(
+                    aufgabe_detail=aufgabe_detail,
+                    feedback_text=text,
+                    konto_falsch=int(konto)
+                )
 
 @login_required
 def rechnung_detail_view(request, aufgabe_id):
@@ -309,7 +334,7 @@ def rechnung_detail_view(request, aufgabe_id):
     if request.method == 'POST':
         buchung = handle_nutzer_buchung(request, aufgabe, ist_frei=False)
         if not is_buchung_korrekt(buchung, nutzer_aufgabe):
-            send_korrektur_mail(request.user, nutzer_aufgabe,aufgabe, request)
+            send_korrektur_mail(request.user, nutzer_aufgabe.aufgabe, request, nutzer_aufgabe.rn_nummer)
         return redirect('frontpage')
 
     letzte_buchung = buchungen.last()
@@ -583,6 +608,19 @@ def handle_nutzer_buchung(request, aufgabe, ist_frei):
         buchung.betrag_korrekt = betrag_status
         buchung.save()
 
+        feedbackbereich_ids = ermittle_feedbackbereich_ids(
+            aufgabe=aufgabe,
+            nutzer_aufgabe=nutzer_aufgabe,
+            soll_konten_nutzer=soll_konten_nutzer,
+            betraege_soll_nutzer=betraege_soll_nutzer,
+            haben_konten_nutzer=haben_konten_nutzer,
+            betraege_haben_nutzer=betraege_haben_nutzer
+        )
+
+        buchung.feedback_bereiche_json = feedbackbereich_ids
+        print("Feedbackbereich IDs:", feedbackbereich_ids)
+        buchung.save(update_fields=["feedback_bereiche_json"])
+
         # Neue Bedingung für die Aufgabe als korrekt
         if konto_status == 0 and betrag_status == 0 and summe_korrekt:
             buchung.status = "korrekt"
@@ -600,6 +638,36 @@ def handle_nutzer_buchung(request, aufgabe, ist_frei):
         # Nur speichern, ohne Validierung
         #buchung.save()
     return buchung
+
+def ermittle_feedbackbereich_ids(aufgabe, nutzer_aufgabe, soll_konten_nutzer, betraege_soll_nutzer, haben_konten_nutzer, betraege_haben_nutzer):
+    feedbackbereich_ids = []
+
+    # Gruppiere AufgabeDetails nach Richtung
+    details_nach_richtung = {
+        "Soll": list(AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Soll")),
+        "Haben": list(AufgabeDetail.objects.filter(aufgabe=aufgabe, soll_haben="Haben"))
+    }
+
+    # Alle Nutzerbuchungen (Soll und Haben) prüfen – unabhängig vom Konto
+    for richtung, betraege in [
+        ("Soll", betraege_soll_nutzer),
+        ("Haben", betraege_haben_nutzer)
+    ]:
+        for betrag in betraege:
+            for detail in details_nach_richtung[richtung]:
+                ids = finde_feedbackbereich_ids(betrag, detail, nutzer_aufgabe.faktor)
+                feedbackbereich_ids.extend(ids)
+
+    return feedbackbereich_ids
+
+def finde_feedbackbereich_ids(nutzer_betrag, detail, faktor):
+    ids = []
+    for bereich in detail.feedbackbereiche.all():
+        untere = bereich.von_betrag * faktor
+        obere = bereich.bis_betrag * faktor
+        if untere <= nutzer_betrag <= obere:
+            ids.append(bereich.id)
+    return ids
 
 @login_required
 def freie_buchung(request):
@@ -619,7 +687,7 @@ def freie_buchung(request):
     }
     return render(request, 'posts/freie_buchung.html', context)
 
-def generiere_zufaellige_werte(aufgabe, versuch=0):
+def generiere_zufaellige_werte(aufgabe):
     
     faktor = Decimal(str(random.uniform(0.25, 2.0)))
     faktor = faktor.quantize(Decimal("0.01"))  # max. 2 Nachkommastellen
@@ -652,7 +720,8 @@ def generiere_zufaellige_werte(aufgabe, versuch=0):
             'soll_konten': soll_konten,
             'haben_konten': haben_konten,
             'soll_betraege': soll_betraege,
-            'haben_betraege': haben_betraege
+            'haben_betraege': haben_betraege,
+            'faktor': float(faktor)
         }
     else:
         return generiere_zufaellige_werte(aufgabe)
@@ -670,6 +739,8 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
             'bearbeitungsstand': 'offen'
         }
     )
+    nutzer_aufgabe.faktor = zufaellige_werte['faktor']
+    nutzer_aufgabe.save(update_fields=["faktor"])
     if not nutzer_aufgabe.rn_nummer:
         nutzer_aufgabe.rn_nummer = generiere_rn_nummer(aufgabe, nutzer)
         nutzer_aufgabe.save(update_fields=["rn_nummer"])
