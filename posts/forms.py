@@ -25,7 +25,7 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'unternehmen_kategorie', 
             'rechnungstyp',
             'fragentyp',
-            'unterkategorie',
+            'fragentyp_text',
             'aufgabeninfo',
             'mailtext',
             'umsatzsteuerfrei',
@@ -120,7 +120,8 @@ class AufgabeImportForm(forms.ModelForm):
 class AufgabeBearbeitenForm(forms.ModelForm):
     class Meta:
         model = Aufgabe_neu
-        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'rechnungstyp','mailtext','verabschiedung','nutzungsdauer','rechnungsnummer','umsatzsteuerfrei','hat_leistungszeitraum','eigene_ansicht','beschreibung', 'feedback_konto_falsch', 'feedback_betrag_falsch','zahlweise']
+        fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'rechnungstyp','mailtext','verabschiedung','nutzungsdauer','rechnungsnummer','umsatzsteuerfrei',
+                  'hat_leistungszeitraum','eigene_ansicht','beschreibung', 'feedback_konto_falsch', 'feedback_betrag_falsch','zahlweise']
     
 
 class AufgabeDetailBearbeitenForm(forms.ModelForm):

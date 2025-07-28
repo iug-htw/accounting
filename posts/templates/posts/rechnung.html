@@ -141,6 +141,12 @@
                                 <p>⚠️ {% trans "Beide Beträge sind falsch."%}</p>
                             {% endif %}
                             
+                           {% for item in feedbackbereich %}
+                                <ul>
+                                    {{ item }}
+                                </ul>
+                            {% endfor %}
+
                             {% if item.buchung.versuch > 2%}
                                 {% if item.buchung.konto_korrekt != 0 or item.buchung.betrag_korrekt != 0 %}
                                     <h4>{% trans "Zusätzliches Feedback:"%}</h4>

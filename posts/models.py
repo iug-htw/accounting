@@ -47,7 +47,7 @@ class Aufgabe_neu(models.Model):
     fragentyp = models.ForeignKey(Aufgabenkategorie,null=True, on_delete=models.CASCADE, help_text="Der Aufgabentyp; Was für eine Art von Aufgabe liegt vor?", verbose_name=_("Fragentyp"))
     ersteller = models.IntegerField(null=True, blank=True, verbose_name=_("Ersteller"))
     unterkategorie = models.IntegerField(null = True, blank=True, default = 1,help_text="Feld für Unterteilung von Fragen mit dem selben Fragentyp", verbose_name=_("Unterkategorie"))
-    fragentyp_text = models.CharField(null = True,max_length=255) #kann weg
+    fragentyp_text = models.CharField(null = True,max_length=255, verbose_name=_("Mailbetreff Geschäftsvorfall")) #kann weg
     mailtext = models.TextField(help_text="Der angezeigte Text in der Mail, welchen die Nutzer für jede Aufgabe erhalten.", verbose_name=_("Mailtext"))
     mailtext_de = models.TextField(null=True,help_text="Der angezeigte Text in der Mail, welchen die Nutzer für jede Aufgabe erhalten.", verbose_name=_("Mailtext"))
     mailtext_en = models.TextField(null=True,help_text="Der angezeigte Text in der Mail, welchen die Nutzer für jede Aufgabe erhalten.", verbose_name=_("Mailtext"))

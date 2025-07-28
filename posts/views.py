@@ -372,6 +372,13 @@ def rechnung_detail_view(request, aufgabe_id):
     is_lehrkraft = 0
     if request.user.role == 'teacher' or request.user.is_superuser:
         is_lehrkraft = 1
+    if letzte_buchung:
+        feedback_individuell = list(
+            Feedbackbereich.objects.filter(id__in=letzte_buchung.feedback_bereiche_json or [])
+            .values_list('feedback_text', flat=True)
+        )
+    else:
+        feedback_individuell = []
     datum = nutzer_aufgabe.erstellt_am
     rechnungs_template = template_map.get(aufgabe.rechnungstyp, 'posts/rechnungen/rechnung_basis.html')
     id_to_name = {konto.id: konto.name for konto in Konto.objects.filter(kontenplan=kontenplan)}
@@ -386,6 +393,7 @@ def rechnung_detail_view(request, aufgabe_id):
     context = {
         'rechnungs_template': rechnungs_template,  # Dynamisch gewähltes Template
         'rechnungsnummer': nutzer_aufgabe.rn_nummer,
+        'feedbackbereich': feedback_individuell,
         'is_lehrkraft': is_lehrkraft,
         'datum': datum,
         'unternehmen_name': unternehmen_name,
@@ -657,12 +665,27 @@ def ermittle_feedbackbereich_ids(aufgabe, nutzer_aufgabe, soll_konten_nutzer, be
             for detail in details_nach_richtung[richtung]:
                 ids = finde_feedbackbereich_ids(betrag, detail, nutzer_aufgabe.faktor)
                 feedbackbereich_ids.extend(ids)
+    
+    # Feedbackbereiche mit konto_falsch (nur für diese Aufgabe)
+    alle_fehlerhafte_konto_feedbacks = Feedbackbereich.objects.filter(
+        aufgabe_detail__aufgabe=aufgabe,
+        konto_falsch__isnull=False
+    )
+
+    # Nutzerkonten prüfen – wenn verwendet und im Feedback enthalten → ID merken
+    nutzer_konten_ids = set(map(int, soll_konten_nutzer + haben_konten_nutzer))
+
+    for fb in alle_fehlerhafte_konto_feedbacks:
+        if fb.konto_falsch in nutzer_konten_ids:
+            feedbackbereich_ids.append(fb.id)
 
     return feedbackbereich_ids
 
 def finde_feedbackbereich_ids(nutzer_betrag, detail, faktor):
     ids = []
-    for bereich in detail.feedbackbereiche.all():
+    for bereich in Feedbackbereich.objects.filter(aufgabe_detail=detail):
+        if bereich.von_betrag is None or bereich.bis_betrag is None:
+            continue
         untere = bereich.von_betrag * faktor
         obere = bereich.bis_betrag * faktor
         if untere <= nutzer_betrag <= obere:
