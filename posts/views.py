@@ -989,22 +989,138 @@ def aufgabe_bearbeiten(request, aufgabe_id):
     aufgabe = get_object_or_404(Aufgabe_neu, id=aufgabe_id)
     if aufgabe.ersteller != request.user.id and not request.user.is_superuser:
         return HttpResponse(_("Keine Berechtigung zum Bearbeiten."))
-    details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
+
     kontenplan = aufgabe.unternehmen_kategorie.kontenplan
-    if request.method == 'POST':
-        result = handle_form_submission(request, AufgabeBearbeitenForm, "Aufgabe erfolgreich bearbeitet.", 'posts:aufgaben_verwalten', instance=aufgabe)
-        if result:
-            for detail in details:
-                detail_form = AufgabeDetailBearbeitenForm(request.POST, prefix=str(detail.id), instance=detail)
+    form = AufgabeBearbeitenForm(request.POST or None, instance=aufgabe)
+    alte_details = AufgabeDetail.objects.filter(aufgabe=aufgabe)
+    alte_detail_ids = set(str(d.id) for d in alte_details)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+    
+        # Liste der übermittelten IDs aus den bestehenden Feldern
+        uebermittelte_ids = set()
+        for detail in alte_details:
+            prefix = str(detail.id)
+            if f"{prefix}-konto" in request.POST:
+                print(f"prefix:{prefix}")
+                detail_form = AufgabeDetailBearbeitenForm(request.POST, prefix=prefix, instance=detail, kontenplan=kontenplan)
                 if detail_form.is_valid():
                     detail_form.save()
-                else:
-                    messages.error(request, _("Fehler beim Bearbeiten der Details."))
-            return result
+                # Unabhängig vom Validieren: Feedback immer verarbeiten
+                uebermittelte_ids.add(str(detail.id))
 
-    form = AufgabeBearbeitenForm(instance=aufgabe)
-    detail_forms = [AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail, kontenplan=kontenplan) for detail in details]
-    return render(request, 'posts/aufgabe_bearbeiten.html', {'form': form, 'detail_forms': detail_forms})
+                # --- Feedbackbereiche löschen und neu anlegen ---
+                Feedbackbereich.objects.filter(aufgabe_detail=detail).delete()
+
+                # Betrags-Feedback
+                feedback_von = request.POST.getlist(f'feedback_von_{prefix}[]')
+                feedback_bis = request.POST.getlist(f'feedback_bis_{prefix}[]')
+                feedback_texts = request.POST.getlist(f'feedback_text_{prefix}[]')
+                print(f"Feedback Bereich {feedback_texts}")
+                for von, bis, text in zip(feedback_von, feedback_bis, feedback_texts):
+                    if von and bis and text:
+                        Feedbackbereich.objects.create(
+                            aufgabe_detail=detail,
+                            von_betrag=float(von),
+                            bis_betrag=float(bis),
+                            feedback_text=text
+                        )
+
+                # Konto-Feedback
+                konto_ids = request.POST.getlist(f'konto_feedback_id_{prefix}[]')
+                konto_feedback_texts = request.POST.getlist(f'konto_feedback_text_{prefix}[]')
+                print(f"Feedback Kotno {konto_feedback_texts}")
+                for konto_id, text in zip(konto_ids, konto_feedback_texts):
+                    if konto_id and text:
+                        Feedbackbereich.objects.create(
+                            aufgabe_detail=detail,
+                            konto_falsch=int(konto_id),
+                            feedback_text=text
+                        )
+
+
+        # Nicht übermittelte IDs => gelöscht
+        geloeschte_ids = alte_detail_ids - uebermittelte_ids
+        AufgabeDetail.objects.filter(id__in=geloeschte_ids).delete()
+
+        # Neue Konten aus dynamisch hinzugefügten Feldern speichern
+        konto_ids = request.POST.getlist('konto_id[]')
+        soll_haben = request.POST.getlist('soll_haben[]')
+        betraege = request.POST.getlist('betrag[]')
+        buchungs_index = request.POST.getlist('buchungs_index[]')
+
+        for i, index in enumerate(buchungs_index):
+            try:
+                konto = Konto.objects.get(id=konto_ids[i])
+                betrag = float(betraege[i]) if betraege[i] else None
+                richtung = soll_haben[i]
+                detail = AufgabeDetail.objects.create(
+                    aufgabe=aufgabe,
+                    konto=konto,
+                    soll_haben=richtung,
+                    betrag=betrag,
+                    kontenplan=kontenplan,
+                    bilanzposition=konto.bilanzposition_nummer
+                )
+                # Feedbackbereiche
+                feedback_von = request.POST.getlist(f'feedback_von_{index}[]')
+                feedback_bis = request.POST.getlist(f'feedback_bis_{index}[]')
+                feedback_texts = request.POST.getlist(f'feedback_text_{index}[]')
+                for von, bis, text in zip(feedback_von, feedback_bis, feedback_texts):
+                    if von and bis and text:
+                        Feedbackbereich.objects.create(
+                            aufgabe_detail=detail,
+                            von_betrag=float(von),
+                            bis_betrag=float(bis),
+                            feedback_text=text
+                        )
+
+                # Konto-Feedback
+                konten_ids = request.POST.getlist(f'konto_feedback_id_{index}[]')
+                konto_feedback_texts = request.POST.getlist(f'konto_feedback_text_{index}[]')
+                for konto_id, text in zip(konten_ids, konto_feedback_texts):
+                    if konto_id and text:
+                        Feedbackbereich.objects.create(
+                            aufgabe_detail=detail,
+                            konto_falsch=int(konto_id),
+                            feedback_text=text
+                        )
+
+            except Exception as e:
+                print(f"Fehler beim Hinzufügen eines neuen Details: {e}")
+                continue
+
+        messages.success(request, _("Aufgabe erfolgreich bearbeitet."))
+        return redirect('posts:aufgaben_verwalten')
+
+    # Formular vorbereiten
+    detail_forms = []
+    for detail in alte_details:
+        form_instance = AufgabeDetailBearbeitenForm(prefix=str(detail.id), instance=detail, kontenplan=kontenplan)
+        
+        # Initialdaten vorbereiten:
+        feedbackbereiche = Feedbackbereich.objects.filter(aufgabe_detail=detail, konto_falsch__isnull=True)
+        konto_feedbacks = Feedbackbereich.objects.filter(aufgabe_detail=detail, konto_falsch__isnull=False)
+
+        form_instance.initial['feedbackbereiche'] = [
+            {'von': fb.von_betrag, 'bis': fb.bis_betrag, 'text': fb.feedback_text}
+            for fb in feedbackbereiche
+        ]
+        form_instance.initial['konto_feedback'] = [
+            {'konto_id': fb.konto_falsch, 'text': fb.feedback_text}
+            for fb in konto_feedbacks
+        ]
+
+        detail_forms.append(form_instance)
+
+    konten = Konto.objects.filter(kontenplan=kontenplan).order_by('name')
+    return render(request, 'posts/aufgabe_bearbeiten.html', {
+        'form': form,
+        'detail_forms': detail_forms,
+        'konten': konten,
+    })
+
 
 def name_oder_id_liste_zu_id_liste(eingabe_liste):
     """Konvertiert ggf. Kontonamen in IDs"""

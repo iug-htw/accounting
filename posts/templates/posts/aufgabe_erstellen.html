@@ -105,6 +105,9 @@
                 <button type="button" class="btn btn-sm btn-info" onclick="addKontoFeedback(this)">
                     Konto-Feedback hinzufügen
                 </button>
+            <button type="button" class="btn btn-danger" onclick="this.closest('.field-group').remove();">
+                {{ _('Konto löschen') }}
+            </button>
             </div>
         `;
         container.appendChild(newFieldGroup);
@@ -181,6 +184,7 @@ function addFeedbackbereich(button) {
         <input type="number" step="0.01" name="feedback_von_${index}[]" placeholder="von €" required>
         <input type="number" step="0.01" name="feedback_bis_${index}[]" placeholder="bis €" required>
         <input type="text" name="feedback_text_${index}[]" placeholder="Feedbacktext" required>
+        <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove();">{% trans "Dieses Feedback löschen"%}</button>
     `;
     list.appendChild(item);
 }
@@ -203,6 +207,7 @@ function addKontoFeedback(button) {
             ${kontoOptions}
         </select>
         <input type="text" name="konto_feedback_text_${index}[]" placeholder="Feedbacktext" required>
+        <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove();">{% trans "Dieses Feedback löschen"%}</button>
     `;
     list.appendChild(item);
 }
