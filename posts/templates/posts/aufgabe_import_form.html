@@ -17,11 +17,13 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+    <!--
     <div class="form-group">
       <label for="aufgabeninfo_input"><strong>{% trans "Zusatzinformation zur Aufgabe (optional):"%}</strong></label>
       <input id="aufgabeninfo_input" type="hidden" name="aufgabeninfo" value="{{ form.aufgabeninfo.value|default_if_none:'' }}">
       <trix-editor input="aufgabeninfo_input"></trix-editor>
     </div>
+    -->
     <label for="excel_datei">{% trans "Excel-Datei (.xlsx) hochladen:"%}</label>
     <input type="file" name="excel_datei" required><br><br>
 

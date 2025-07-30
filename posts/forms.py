@@ -30,6 +30,7 @@ class Aufgabe_neu_Form(forms.ModelForm):
             'mailtext',
             'umsatzsteuerfrei',
             'hat_leistungszeitraum',
+            'nutzungsdauer',
             'feedback_konto_falsch',
             'feedback_betrag_falsch',
             'zahlweise',
@@ -93,17 +94,11 @@ class AufgabeImportForm(forms.ModelForm):
         fields = [
             'kontenplan',
             'unternehmen_kategorie', 
-            'mailtext',
-            'feedback_konto_falsch',
-            'feedback_betrag_falsch',
-            'eigene_ansicht',
-            'kontakt',
-            'aufgabeninfo'
         ]
         exclude = [
             'rechnungstyp', 'fragentyp', 'unterkategorie', 'fragentyp_text', 
             'nutzungsdauer', 'zahlweise', 'beschreibung', 'verabschiedung', 
-            'rechnungsbetrag', 'rechnungsnummer', 'ersteller','immer_feedback'
+            'rechnungsbetrag', 'rechnungsnummer', 'ersteller','immer_feedback','mailtext','feedback_konto_falsch','feedback_betrag_falsch','eigene_ansicht','kontakt','aufgabeninfo'
         ]
 
     def __init__(self, *args, **kwargs):

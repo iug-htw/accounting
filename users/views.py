@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required, admin_required, student_required
 from posts.models import Mail, NutzerAufgabe, Absender, Unternehmen
@@ -21,6 +21,7 @@ from collections import defaultdict
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
+
 
 ORGA_MAILS = [
     {
@@ -528,3 +529,26 @@ def orga_mail_bestaetigen(request, mail_id):
         mail.save(update_fields=["status"])
         messages.success(request, _("Die organisatorische Aufgabe wurde als erledigt markiert."))
     return redirect("posts:posteingang")
+
+@require_POST
+@lehrkraft_required
+def delete_user_view(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id, role='student', professor=request.user)
+    user.delete()
+    return JsonResponse({'success': True})
+
+
+@require_POST
+@lehrkraft_required
+def delete_studiengang_students_view(request):
+    studiengang = request.POST.get("studiengang")
+    semester = request.POST.get("semester")
+    
+    deleted_count, _ = CustomUser.objects.filter(
+        role='student',
+        professor=request.user,
+        studiengang__name=studiengang,
+        semester__name=semester
+    ).delete()
+    
+    return JsonResponse({'success': True, 'deleted_count': deleted_count})

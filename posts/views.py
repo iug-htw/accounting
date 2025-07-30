@@ -94,6 +94,148 @@ def aufgabe_neu_erstellen(request):
     ).order_by("name")
     return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
 
+def parse_excel_file(file):
+    wb = load_workbook(file)
+    return wb.active
+
+def resolve_konten_from_row(row, kontenplan):
+    konto_infos = []
+    for i in range(12, len(row), 3):
+        konto_name = row[i]
+        soll_haben = row[i+1]
+        betrag = row[i+2]
+
+        if not konto_name or not soll_haben or betrag is None:
+            break
+
+        try:
+            konto_nummer = int(konto_name)
+            konto = Konto.objects.filter(kontonummer=konto_nummer, kontenplan=kontenplan).first()
+        except (ValueError, TypeError):
+            konto = Konto.objects.filter(name__iexact=str(konto_name).strip(), kontenplan=kontenplan).first()
+
+        if not konto:
+            return None  # Fehlendes Konto
+
+        konto_infos.append((konto, soll_haben.strip(), float(betrag)))
+
+    return konto_infos
+
+def generiere_beschreibung(konto_infos, beschreibung):
+    ebk_konten = [k for k, _, _ in konto_infos if "EBK" in k.name.upper() or "ERÖFFNUNGSBILANZ" in k.name.upper()]
+    sbk_konten = [k for k, _, _ in konto_infos if "SBK" in k.name.upper() or "SCHLUSSBILANZ" in k.name.upper()]
+    andere_konten = [k for k, _, _ in konto_infos if k not in ebk_konten + sbk_konten]
+    
+    if ebk_konten:
+        anderes = andere_konten[0].name if andere_konten else "unbekanntes Konto"
+        return (
+            f"\nAm Geschäftsjahresbeginn wurde das Anfangsvermögen erfasst, um die Buchhaltung des Unternehmens korrekt zu starten. "
+            f"Erstelle die richtige Eröffnungsbilanz für das folgende Konto: \n{anderes}."
+        )
+    elif sbk_konten:
+        anderes = andere_konten[0].name if andere_konten else "unbekanntes Konto"
+        return (
+            f"\nZum Geschäftsjahresende wurde die Vermögens- und Schuldenlage erfasst. "
+            f"Diese Transaktion fließt in die Schlussbilanz ein und bildet die Grundlage für die Erfolgsrechnung. "
+            f"Folgendes Konto wird abgeschlossen: \n{anderes}."
+        )
+    else:
+        return (
+            f"\nDiese Transaktion wurde im laufenden Geschäftsjahr vorgenommen und betrifft eine übliche Geschäftstätigkeit. "
+            f"Verbuchen Sie diesen Geschäftsvorfall. \n{beschreibung}.\n"
+        )
+
+def erstelle_aufgabe_aus_zeile(beschreibung, row, konto_infos, form_data, kontenplan, user):
+    beschreibung_final=beschreibung
+    if form_data['rechnungstyp'] == 'Keine Rechnungsansicht':
+        beschreibung_final = generiere_beschreibung(konto_infos, beschreibung)
+
+    neue_aufgabe = Aufgabe_neu.objects.create(
+        beschreibung=beschreibung_final,
+        unternehmen_kategorie=form_data['unternehmen'],
+        rechnungstyp=form_data.get('rechnungstyp', 'non'),
+        fragentyp=form_data.get('fragentyp'),
+        unterkategorie=form_data.get('unterkategorie'),
+        fragentyp_text=form_data.get('fragentyp_text', ''),
+        mailtext=form_data.get('mailtext', ''),
+        feedback_konto_falsch=form_data.get('feedback_konto_falsch', ''),
+        feedback_betrag_falsch=form_data.get('feedback_betrag_falsch', ''),
+        nutzungsdauer=form_data.get('nutzungsdauer', 0),
+        verabschiedung=form_data.get('verabschiedung', ''),
+        kontakt=form_data.get('kontakt', ''),
+        aufgabeninfo=form_data.get('aufgabeninfo', ''),
+        umsatzsteuerfrei=form_data.get('umsatzsteuerfrei', False),
+        hat_leistungszeitraum=form_data.get('hat_leistungszeitraum', False),
+        beschreibung_de=beschreibung_final,
+        beschreibung_en=f"This transaction was carried out in the current fiscal year and needs to be processed. {beschreibung_final}",
+        zahlweise=form_data.get('zahlweise', ''),
+        rechnungsbetrag=0,
+        ersteller=user.id,
+        rechnungsnummer=f"RE-{random.randint(10000, 99999)}"
+    )
+
+    for konto, soll_haben, betrag in konto_infos:
+        detail = AufgabeDetail.objects.create(
+            aufgabe=neue_aufgabe,
+            konto=konto,
+            soll_haben=soll_haben,
+            kontenplan=kontenplan,
+            betrag=betrag,
+        )
+        if konto.bilanzposition_nummer:
+            detail.bilanzposition = konto.bilanzposition_nummer
+            detail.save()
+
+    return neue_aufgabe
+
+def importiere_aufgaben_aus_excel(sheet, kontenplan, form, user):
+    erfolgreich = []
+    fehlgeschlagen = []
+
+    for zeilennr, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+        beschreibung = row[0]
+        form_data = {
+            'unternehmen': form.cleaned_data["unternehmen_kategorie"],
+            'rechnungstyp': row[1] or 'non',
+            'fragentyp': None,  # wird unten gesetzt
+            'unterkategorie': None,
+            'fragentyp_text': row[3] or '',
+            'mailtext': row[4] or '',
+            'umsatzsteuerfrei': bool(row[5]),
+            'hat_leistungszeitraum': bool(row[6]),
+            'nutzungsdauer': int(row[7]) if row[7] else 0,
+            'feedback_konto_falsch': row[8] or '',
+            'feedback_betrag_falsch': row[9] or '',
+            'zahlweise': row[10] or '',
+            'aufgabeninfo': row[11] or '',
+            'verabschiedung': 'Mit freundlichen Grüßen',
+            'kontakt': 'Tel: 01234 567890\nE-Mail: info@unternehmen.de',
+        }
+        # Fragentyp-Name auslesen und auf ID mappen
+        fragentyp_name = row[2]
+        if fragentyp_name:
+            fragentyp_obj = Aufgabenkategorie.objects.filter(name=fragentyp_name).first()
+            if fragentyp_obj:
+                form_data['fragentyp'] = fragentyp_obj
+        konto_infos = resolve_konten_from_row(row, kontenplan)
+        if not konto_infos:
+            fehlgeschlagen.append((zeilennr, beschreibung))
+            continue
+
+        erstelle_aufgabe_aus_zeile(beschreibung, row, konto_infos, form_data, kontenplan, user)
+        erfolgreich.append((zeilennr, beschreibung))
+
+    return erfolgreich, fehlgeschlagen
+
+
+def erzeuge_standard_import_form(user):
+    beispiel_unternehmen = Unternehmen.objects.first()
+    beispiel_kategorie = Aufgabenkategorie.objects.first()
+    initial = {
+        'unternehmen_kategorie': beispiel_unternehmen.id if beispiel_unternehmen else None,
+        'fragentyp': beispiel_kategorie.id if beispiel_kategorie else None
+    }
+    return AufgabeImportForm(initial=initial, user=user)
 
 @lehrkraft_required
 def aufgabe_import_form(request):
@@ -102,160 +244,24 @@ def aufgabe_import_form(request):
         if form.is_valid():
             kontenplan = form.cleaned_data['kontenplan']
             excel_datei = request.FILES['excel_datei']
-            wb = load_workbook(excel_datei)
-            sheet = wb.active
+            sheet = parse_excel_file(excel_datei)
 
-            erfolgreich = []
-            fehlgeschlagen = []
+            erfolgreich, fehlgeschlagen = importiere_aufgaben_aus_excel(sheet, kontenplan, form, request.user)
 
-            # WICHTIG: Die Felder aus dem abgeschickten Formular lesen
-            unternehmen = form.cleaned_data['unternehmen_kategorie']
-            fragentyp = form.initial.get('fragentyp')
-            unterkategorie = form.cleaned_data.get('unterkategorie')
-            fragentyp_text = form.cleaned_data.get('fragentyp_text', 'Bitte bearbeiten Sie die Aufgabe')
-            mailtext = form.cleaned_data.get('mailtext', 'Sehr geehrte Damen und Herren, bitte bearbeiten Sie die folgende Aufgabe.')
-            feedback_konto_falsch = form.cleaned_data.get('feedback_konto_falsch', 'Bitte prüfen Sie das gewählte Konto.')
-            feedback_betrag_falsch = form.cleaned_data.get('feedback_betrag_falsch', 'Bitte prüfen Sie den Betrag.')
-            nutzungsdauer = form.cleaned_data.get('nutzungsdauer', 0)
-            verabschiedung = form.cleaned_data.get('verabschiedung', 'Mit freundlichen Grüßen')
-            kontakt = form.cleaned_data.get('kontakt', 'Tel: 01234 567890\nE-Mail: info@unternehmen.de')
-
-            for zeilennr, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
-                beschreibung = row[0]
-                rechnungsansicht = row[1]
-                if rechnungsansicht == 1:
-                    rechnungstyp = 'non'
-                else:
-                    rechnungstyp = 'intern'
-                immer_feedback = row[2]
-                zahlweise = row[3]
-
-                fehlendes_konto = False
-                konto_infos = []
-
-                for i in range(4, len(row), 3):
-                    konto_name = row[i]
-                    soll_haben = row[i+1]
-                    betrag = row[i+2]
-
-                    if not konto_name or not soll_haben or betrag is None:
-                        break
-
-                    try:
-                        # Versuche zuerst die Kontonummer (falls Zahl angegeben)
-                        konto_nummer = int(konto_name)
-                        konto = Konto.objects.filter(
-                            kontonummer=konto_nummer,
-                            kontenplan=kontenplan
-                        ).first()
-                    except (ValueError, TypeError):
-                        # Falls keine Zahl: Suche über den Namen (wie bisher)
-                        konto = Konto.objects.filter(
-                            name__iexact=str(konto_name).strip(),
-                            kontenplan=kontenplan
-                        ).first()
-
-                    if not konto:
-                        fehlendes_konto = True
-                        break
-
-                    konto_infos.append((konto, soll_haben.strip(), float(betrag)))
-
-                if fehlendes_konto:
-                    fehlgeschlagen.append((zeilennr, beschreibung))
-                    continue
-                aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
-                beschreibung_textkörper = ""
-                beschreibung_final = ""
-                ebk_konten = [konto for konto, _, _ in konto_infos if "EBK" in konto.name.upper() or "ERÖFFNUNGSBILANZ" in konto.name.upper()]
-                sbk_konten = [konto for konto, _, _ in konto_infos if "SBK" in konto.name.upper() or "SCHLUSSBILANZ" in konto.name.upper()]
-                nicht_ebk_sbk_konten = [konto for konto, _, _ in konto_infos if konto not in ebk_konten + sbk_konten]
-
-                if ebk_konten:
-                    anderes_konto = nicht_ebk_sbk_konten[0].name if nicht_ebk_sbk_konten else "unbekanntes Konto"
-                    beschreibung_textkörper = (
-                        "Am Geschäftsjahresbeginn wurde das Anfangsvermögen erfasst, um die Buchhaltung des Unternehmens korrekt zu starten. "
-                        "Erstelle die richtige Eröffnungsbilanz für das folgende Konto: "
-                    )
-                    beschreibung_final = f"\n{beschreibung_textkörper}\n{anderes_konto}."
-                elif sbk_konten:
-                    anderes_konto = nicht_ebk_sbk_konten[0].name if nicht_ebk_sbk_konten else "unbekanntes Konto"
-                    beschreibung_textkörper = (
-                        "Zum Geschäftsjahresende wurde die Vermögens- und Schuldenlage erfasst. "
-                        "Diese Transaktion fließt in die Schlussbilanz ein und bildet die Grundlage für die Erfolgsrechnung."
-                        "Folgendes Konto wird abgeschlossen: "
-                    )
-                    beschreibung_final = f"\n{beschreibung_textkörper}\n{anderes_konto}."
-                else:
-                    beschreibung_textkörper = (
-                        "Diese Transaktion wurde im laufenden Geschäftsjahr vorgenommen und betrifft eine übliche Geschäftstätigkeit. "
-                        "Verbuchen Sie diesen Geschäftsvorfall. "
-                    )
-                    beschreibung_final = f"\n{beschreibung_textkörper}\n{beschreibung}.\n"
-
-                # Neue Aufgabe pro Zeile erstellen
-                neue_aufgabe = Aufgabe_neu.objects.create(
-                    unternehmen_kategorie=unternehmen,
-                    rechnungstyp=rechnungstyp,
-                    fragentyp=fragentyp,
-                    unterkategorie=unterkategorie,
-                    fragentyp_text=fragentyp_text,
-                    mailtext=mailtext,
-                    feedback_konto_falsch=feedback_konto_falsch,
-                    feedback_betrag_falsch=feedback_betrag_falsch,
-                    nutzungsdauer=nutzungsdauer,
-                    verabschiedung=verabschiedung,
-                    kontakt=kontakt,
-                    aufgabeninfo=aufgabeninfo,
-                    beschreibung_de=beschreibung_final,
-                    beschreibung_en=f"\nThis transaction was carried out in the current fiscal year and relates to regular business operations. Record this business transaction.\n{beschreibung}\n",
-                    zahlweise=zahlweise,
-                    rechnungsbetrag=0,
-                    ersteller=request.user.id,
-                    immer_feedback=immer_feedback,
-                    rechnungsnummer=f"RE-{random.randint(10000, 99999)}"
-                )
-
-                # Konten zuordnen
-                for konto, soll_haben, betrag in konto_infos:
-                    aufgabe_detail = AufgabeDetail.objects.create(
-                        aufgabe=neue_aufgabe,
-                        konto=konto,
-                        soll_haben=soll_haben,
-                        kontenplan=kontenplan,
-                        betrag=betrag,
-                    )
-                    if konto.bilanzposition_nummer:
-                        aufgabe_detail.bilanzposition = konto.bilanzposition_nummer
-                        aufgabe_detail.save()
-
-                erfolgreich.append((zeilennr, beschreibung))
-
-            # Feedback
             if erfolgreich:
                 messages.success(request, _("%(anzahl)d Aufgaben erfolgreich importiert.") % {"anzahl": len(erfolgreich)})
             if fehlgeschlagen:
                 fehlermeldung = ", ".join(f"Zeile {z} ('{b}')" for z, b in fehlgeschlagen)
-                messages.error(request, _("%(anzahl)d Aufgaben konnten nicht importiert werden: %(fehler)s") % {"anzahl": len(fehlgeschlagen), "fehler": fehlermeldung})
+                messages.error(request, _("%(anzahl)d Aufgaben konnten nicht importiert werden: %(fehler)s") % {
+                    "anzahl": len(fehlgeschlagen),
+                    "fehler": fehlermeldung
+                })
             return redirect('posts:aufgaben_verwalten')
         else:
             messages.error(request, _("Fehlerhafte Eingaben oder keine Datei hochgeladen."))
 
     else:
-        beispiel_unternehmen = Unternehmen.objects.first()
-        beispiel_kategorie = Aufgabenkategorie.objects.first()
-        initial = {
-            'unternehmen_kategorie': beispiel_unternehmen.id if beispiel_unternehmen else None,
-            'fragentyp': beispiel_kategorie.id if beispiel_kategorie else None,
-            'fragentyp_text': 'Bitte bearbeiten Sie die beiliegende Rechnung',
-            'mailtext': 'Sehr geehrte Damen und Herren,\ndie folgende Rechnung ist eingegangen und muss bearbeitet werden.',
-            'feedback_konto_falsch': 'Bitte prüfen Sie das gewählte Konto.',
-            'feedback_betrag_falsch': 'Bitte prüfen Sie den Betrag.',
-            'nutzungsdauer': 0,
-            'verabschiedung': 'Mit freundlichen Grüßen',
-            'kontakt': 'Tel: 01234 567890\nE-Mail: info@unternehmen.de',
-        }
-        form = AufgabeImportForm(initial=initial, user=request.user)
+        form = erzeuge_standard_import_form(request.user)
 
     return render(request, 'posts/aufgabe_import_form.html', {'form': form})
 

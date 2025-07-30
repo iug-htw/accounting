@@ -18,4 +18,6 @@ urlpatterns = [
     path('update-profile/', views.update_profile, name='update_profile'),
     path('aufgaben-selbst-zuweisen/', views.aufgaben_selbst_zuweisen, name='aufgaben_selbst_zuweisen'),
     path("orga-mail-bestaetigen/<int:mail_id>/", orga_mail_bestaetigen, name="orga_mail_bestätigen"),
+    path('user/delete/<int:user_id>/', views.delete_user_view, name='delete_user'),
+    path('user/delete_by_studiengang/', views.delete_studiengang_students_view, name='delete_studiengang_students'),
     ]

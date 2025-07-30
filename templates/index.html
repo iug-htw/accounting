@@ -1,6 +1,50 @@
 {% extends 'master_layout.html' %}
 {% load static %}
 {% load i18n %}
+{%block css%}
+<style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 20px;
+  margin-right: 8px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider-round {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .3s;
+  border-radius: 20px;
+}
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 3px;
+  bottom: 3.5px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+input:checked + .slider-round {
+  background-color: #4CAF50;
+}
+input:checked + .slider-round:before {
+  transform: translateX(21px);
+}
+</style>
+
+
+{% endblock %}
 {% block content %}
     <!-- Anzeige des Nutzernamens und der Rolle -->
 
@@ -13,6 +57,14 @@
         <p>{% trans "Ihre Rolle:"%} {{ user.get_role_display }}</p>
     {% endif %}
     
+    <div style="margin-bottom: 1em;">
+    <label class="switch">
+        <input type="checkbox" id="edit-toggle" onchange="toggleBearbeitungsmodus()">
+        <span class="slider-round"></span>
+    </label>
+    <span>Bearbeitungsmodus aktivieren</span>
+    </div>
+
     <!-- Nur für Lehrkräfte die Studierenden anzeigen -->
     {% if user.role == 'teacher' %}
         <h2>{% trans "Ihre Studierenden:"%}</h2>
@@ -24,7 +76,11 @@
                         style="font-weight: bold;">{{ semester }}</button>
                     <div id="semester-{{ forloop.counter }}" style="display: none; margin-left: 1em;">
                         {% for studiengang, studenten in studiengangs.items %}
-                            <h4>{{ studiengang }}</h4>
+                            <h4>{{ studiengang }}
+                            <form class="edit-controls" method="post" style="display:inline; display:none;" onsubmit="return deleteStudiengangStudents(event, '{{ studiengang }}', '{{ semester }}')">
+                                <button type="submit">{% trans "Alle User des Studiengangs löschen"%}</button>
+                            </form>
+                            </h4>
                             <ul>
                                 {% for student in studenten %}
                                 <li id="studi-{{ student.id }}">
@@ -32,6 +88,9 @@
                                     {% if student.last_login is not null %} {% trans "Login: Ja" %} {% else %} {% trans "Login: Nein" %} {% endif %}
                                     <span id="progress-text-{{ student.id }}">0%</span>
                                     <span id="progress-icon-{{ student.id }}"></span>
+                                    <form class="edit-controls" method="post" style="display:inline; display:none;" onsubmit="return deleteUser(event, {{ student.id }})">
+                                        <button type="submit">{% trans "User löschen"%}</button>
+                                    </form>
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -119,5 +178,71 @@ document.addEventListener("DOMContentLoaded", function() {
 function berechneProzent(teil, gesamt) {
     return gesamt > 0 ? Math.round((teil / gesamt) * 100) : 0;
 }
+function deleteUser(event, userId) {
+    event.preventDefault();
+    if (!confirm("Diesen User wirklich löschen?")) return;
+
+    fetch(`/users/user/delete/${userId}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie('csrftoken')
+        }
+    }).then(response => response.json())
+      .then(data => {
+        if (data.success) {
+            document.getElementById(`studi-${userId}`).remove();
+        }
+    });
+    return false;
+}
+
+function deleteStudiengangStudents(event, studiengang, semester) {
+    event.preventDefault();
+    if (!confirm("Wirklich alle Studis dieses Studiengangs und Semesters löschen?")) return;
+
+    fetch(`/users/user/delete_by_studiengang/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCookie('csrftoken')
+        },
+        body: `studiengang=${encodeURIComponent(studiengang)}&semester=${encodeURIComponent(semester)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+    return false;
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+            const trimmed = cookie.trim();
+            if (trimmed.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+function toggleBearbeitungsmodus() {
+    const aktiviert = document.getElementById("edit-toggle").checked;
+    const controls = document.querySelectorAll(".edit-controls");
+    controls.forEach(form => {
+        form.style.display = aktiviert ? "inline" : "none";
+    });
+}
+
+// Optional: Zustand beim Seitenladen setzen (default: aus)
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("edit-toggle").checked = false;
+    toggleBearbeitungsmodus(); // alle Buttons ausblenden
+});
 </script>
 {% endblock %}
