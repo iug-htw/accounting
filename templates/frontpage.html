@@ -25,13 +25,14 @@
 
 <!-- Action Buttons -->
 <div class="action-buttons">
-    <div class="widget-button">
-        <a href="{% url 'posts:bilanz' %}" class="button">{% trans "Meine Bilanz"%} <span class="emoji">⚖️</span></a>
-    </div>
-    <div class="widget-button">
-        <a href="{% url 'posts:hauptbuch' %}" class="button">{% trans "Mein Hauptbuch"%}<span class="emoji">📚</span></a></a>
-    </div>
+    <a href="{% url 'posts:bilanz' %}" class="widget-button">
+        <span class="label">{% trans "Meine Bilanz"%}</span> <span class="emoji">⚖️</span>
+    </a>
+    <a href="{% url 'posts:hauptbuch' %}" class="widget-button">
+        <span class="label">{% trans "Mein Hauptbuch"%}</span> <span class="emoji">📚</span>
+    </a>
 </div>
+
     <!-- Fortschrittsanzeige für Studierende -->
 {% if user.role == 'student' %}
 <!-- Progress Section -->

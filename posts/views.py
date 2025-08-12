@@ -932,12 +932,18 @@ def hauptbuch_view(request):
     # Alle Buchungen des Nutzers abrufen
     buchungen = Buchung.objects.filter(nutzer=user)
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
-    t_konten = build_t_konten(buchungen, anfangsbestaende)
-    aufgaben_ids = sorted({
-        f"{buchung.aufgabe.id} {buchung.versuch})" if buchung.aufgabe
-        else f"{_('Freie Buchung')} ({buchung.versuch})"
-        for buchung in buchungen
-    })
+    guv_konto = ermittle_guv_konto(request)
+    t_konten = build_t_konten(buchungen, anfangsbestaende,guv_konto_id=guv_konto.id if guv_konto else None)
+    def label_for(b):
+        if b.aufgabe:
+            return f"{b.aufgabe.id} {b.versuch})"
+        if guv_konto and (
+            str(guv_konto.id) in safe_parse(b.antwort_konten_soll or "[]")
+            or str(guv_konto.id) in safe_parse(b.antwort_konten_haben or "[]")
+        ):
+            return f"GuV ({b.versuch})"
+        return f"{_('Freie Buchung')} ({b.versuch})"
+    aufgaben_ids = sorted({ label_for(b) for b in buchungen })
 
     return render(request, "posts/hauptbuch.html", {
         "t_konten": t_konten,
@@ -950,7 +956,7 @@ def generate_color(aufgabe_id):
     hue = hash_value % 360
     return f"hsl({hue}, 70%, 85%)"
 
-def build_t_konten(buchungen, anfangsbestände):
+def build_t_konten(buchungen, anfangsbestände,guv_konto_id=None):
     t_konten = {}
     aufgabe_farben = {}
     id_to_name = {str(konto.id): konto.name for konto in Konto.objects.all()}
@@ -974,8 +980,14 @@ def build_t_konten(buchungen, anfangsbestände):
 
             farbe = aufgabe_farben[buchung.aufgabe.id]
         else:
-            aufgabe_id_mit_versuch = f"{_('Freie Buchung')} {buchung.versuch})"
+            label = _("Freie Buchung")
             farbe = "#999999"
+            if guv_konto_id:
+                soll_ids = safe_parse(buchung.antwort_konten_soll or "[]")
+                haben_ids = safe_parse(buchung.antwort_konten_haben or "[]")
+                if str(guv_konto_id) in soll_ids or str(guv_konto_id) in haben_ids:
+                    label = _("GuV")
+            aufgabe_id_mit_versuch = f"{label} {buchung.versuch})"
         soll_konten = safe_parse(buchung.antwort_konten_soll or "[]")
         haben_konten = safe_parse(buchung.antwort_konten_haben or "[]")
         soll_betraege = safe_parse(buchung.antwort_betrag_soll or "[]")
@@ -1520,28 +1532,35 @@ def get_student(student_id, lehrer):
 def guv_uebersicht(request):
     # GuV-Konto holen (zur späteren Filterung)
     guv_konto = ermittle_guv_konto(request)
+    ek_konto  = ermittle_eigenkapital_konto(request)
     # Filtere alle Konten außer GuV
     konten = Konto.objects.exclude(name=guv_konto.name)
+    konten = Konto.objects.exclude(name=ek_konto.name)
     # Filtere Buchungen ohne GuV (SOLL und HABEN)
-    buchungen = Buchung.objects.filter(nutzer=request.user).exclude(
-        antwort_konten_soll__icontains=guv_konto.name
-    ).exclude(
-        antwort_konten_haben__icontains=guv_konto.name
+    buchungen = (
+        Buchung.objects.filter(nutzer=request.user)
+        .exclude(antwort_konten_soll__icontains=str(guv_konto.id))
+        .exclude(antwort_konten_haben__icontains=str(guv_konto.id))
+        .exclude(antwort_konten_soll__icontains=str(ek_konto.id))
+        .exclude(antwort_konten_haben__icontains=str(ek_konto.id))
     )
     # Anfangsbestände ohne GuV
-    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user).exclude(konto=guv_konto.id)
+    anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)\
+        .exclude(konto__in=[guv_konto, ek_konto])
     # Baue T-Konten-Struktur
-    t_konten = build_t_konten(buchungen, anfangsbestaende)
+    t_konten = build_t_konten(buchungen, anfangsbestaende,guv_konto_id=None)
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
     guv_id = str(guv_konto.id)
     if guv_id in t_konten:
         del t_konten[guv_id]
     # Verknüpfe Konten mit Kategorien
     konto_kategorien = {str(konto.id): konto.kategorie for konto in konten}
+    konto_unterkategorien = {str(k.id): k.unterkategorie for k in konten}
     return render(request, "posts/guv.html", {
         "t_konten": t_konten,
         "konten": konten,
-        "konto_kategorien": konto_kategorien
+        "konto_kategorien": konto_kategorien,
+        "konto_unterkategorien": konto_unterkategorien,
     })
 
 
@@ -1576,24 +1595,55 @@ def generate_user_anfangsbestaende(user):
 
 @login_required
 def speichere_guv_ergebnis(request):
-    if request.method == "POST":
-        try:
-            guv_result = float(request.POST.get("guv_result"))
-        except (TypeError, ValueError):
-            return JsonResponse({"error": "Ungültiger Betrag"}, status=400)
+    try:
+        guv_result = float(request.POST.get("guv_result"))
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "Ungültiger Betrag"}, status=400)
 
-        # GuV Konto holen oder erstellen
-        guv_konto = ermittle_guv_konto(request)
-        
-        # SBK-Betrag speichern (mit Vorzeichen)
-        Anfangsbestand.objects.update_or_create(
+    guv_konto = ermittle_guv_konto(request)
+    ek_konto  = ermittle_eigenkapital_konto(request)
+
+    betrag = abs(guv_result)
+
+    if guv_result > 0:
+        soll_ids, haben_ids = [str(guv_konto.id)], [str(ek_konto.id)]
+    elif guv_result < 0:
+        soll_ids, haben_ids = [str(ek_konto.id)], [str(guv_konto.id)]
+    else:
+        return JsonResponse({"success": True, "info": "0-Ergebnis – keine Buchung erzeugt"})
+
+    # vorhandene GuV-Abschlussbuchung suchen
+    existing = Buchung.objects.filter(
+        nutzer=request.user,
+        aufgabe=None
+    ).filter(
+        Q(antwort_konten_soll__icontains=str(guv_konto.id)) | Q(antwort_konten_haben__icontains=str(guv_konto.id))
+    ).first()
+
+    if existing:
+        existing.antwort_konten_soll = json.dumps(soll_ids)
+        existing.antwort_konten_haben = json.dumps(haben_ids)
+        existing.antwort_betrag_soll = json.dumps([betrag])
+        existing.antwort_betrag_haben = json.dumps([betrag])
+        existing.original_konten_soll = json.dumps(soll_ids)
+        existing.original_konten_haben = json.dumps(haben_ids)
+        existing.status = 'bearbeitet'
+        existing.save()
+        return JsonResponse({"success": True, "buchung_id": existing.buchung_id})
+    else:
+        buchung = Buchung.objects.create(
+            aufgabe=None,
             nutzer=request.user,
-            konto=guv_konto,
-            defaults={"betrag": guv_result}
+            status='bearbeitet',
+            antwort_konten_soll=json.dumps(soll_ids),
+            antwort_konten_haben=json.dumps(haben_ids),
+            antwort_betrag_soll=json.dumps([betrag]),
+            antwort_betrag_haben=json.dumps([betrag]),
+            original_konten_soll=json.dumps(soll_ids),
+            original_konten_haben=json.dumps(haben_ids),
         )
+        return JsonResponse({"success": True, "buchung_id": buchung.buchung_id})
 
-        return JsonResponse({"success": True})
-    return JsonResponse({"error": "Nur POST erlaubt"}, status=400)
 
 def ermittle_guv_konto(request):
     """Sucht das GuV-Konto anhand gängiger Begriffe im Kontenplan des Nutzers."""
@@ -1608,29 +1658,47 @@ def ermittle_guv_konto(request):
 
     return Konto.objects.filter(query).first()
 
+def ermittle_eigenkapital_konto(request):
+    """Findet das Eigenkapital-Konto im Kontenplan des Nutzers."""
+    unternehmen = getattr(request.user, "unternehmen", None)
+    if not unternehmen or not unternehmen.kontenplan:
+        return None
+    kontenplan = unternehmen.kontenplan
+    # typische Bezeichnungen abdecken
+    suchbegriffe = ["eigenkapital", "equity", "capital", "kapital"]
+    q = Q(kontenplan=kontenplan) & Q(name__iregex="|".join(suchbegriffe))
+    # Bevorzugt Passiva/Bestandskonto, wenn vorhanden
+    konto = Konto.objects.filter(q, kategorie="Bestandskonto", unterkategorie="Passiva").first()
+    return konto or Konto.objects.filter(q).first()
+
+
 @login_required
 def bilanz_uebersicht(request):
     user = request.user
 
-    # Alle Bestandskonten abrufen
+    guv_konto = ermittle_guv_konto(request)
+
+    # Bestandskonten laden und GuV herausfiltern (fallback, falls GuV falsch kategorisiert wäre)
     bestandskonten = Konto.objects.filter(kategorie="Bestandskonto").exclude(kategorie="Erfolgskonto")
+    if guv_konto:
+        bestandskonten = bestandskonten.exclude(id=guv_konto.id)
+
     buchungen = Buchung.objects.filter(nutzer=request.user)
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
 
-    # T-Konten nur für Bestandskonten erstellen
-    t_konten_all = build_t_konten(buchungen, anfangsbestaende)
-    konto_kategorien = {str(konto.id): konto.unterkategorie for konto in bestandskonten}
+    # T-Konten aufbauen und ggf. GuV entfernen
+    t_konten_all = build_t_konten(buchungen, anfangsbestaende, guv_konto_id=guv_konto.id if guv_konto else None)
+    konto_kategorien = {str(k.id): k.unterkategorie for k in bestandskonten}
     t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
 
-    # Filteroptionen für Aktiv- und Passivkonten
-    aktive_konten = [konto.name for konto in bestandskonten if konto.unterkategorie == "Aktiva"]
-    passive_konten = [konto.name for konto in bestandskonten if konto.unterkategorie == "Passiva"]
+    if guv_konto and str(guv_konto.id) in t_konten:
+        del t_konten[str(guv_konto.id)]
 
     return render(request, "posts/bilanz.html", {
         "t_konten": t_konten,
-        "aktive_konten": aktive_konten,
-        "passive_konten": passive_konten,
-        "bestandskonten": bestandskonten
+        "aktive_konten": [k.name for k in bestandskonten if k.unterkategorie == "Aktiva"],
+        "passive_konten": [k.name for k in bestandskonten if k.unterkategorie == "Passiva"],
+        "bestandskonten": bestandskonten,
     })
 
 @login_required

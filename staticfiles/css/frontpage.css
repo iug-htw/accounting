@@ -58,8 +58,8 @@ p {
     flex-wrap: wrap; /* Falls nötig, auf kleineren Bildschirmen */
 }
 
-.button span.emoji {
-    font-size: 32px; /* Nur das Emoji vergrößern */
+.widget-button .emoji {
+    font-size: 32px;
 }
 .widget-button:hover {
     background: linear-gradient(135deg, #117335, #74b729); /* Umgekehrter Gradient beim Hover */
@@ -199,4 +199,24 @@ p {
 /* Spezielle Anpassung: Fortschrittsbalken der Lehrerübersicht direkt unter den Dropdowns */
 .progress-container.teacher-progress {
     margin-top: 1.5rem; /* Mehr Abstand zum Filterbereich */
+}
+
+.widget-button {
+    background: linear-gradient(135deg, #74b729, #117335);
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    padding: 4rem 8rem;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;                 /* schon vorhanden */
+    text-decoration: none;        /* NEU */
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    margin: 1rem 2rem;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
 }

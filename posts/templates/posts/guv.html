@@ -18,13 +18,18 @@
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ konto_kategorien|get_item:konto }}">
+    <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ konto_kategorien|get_item:konto }}" data-unterkategorie="{{ konto_unterkategorien|get_item:konto }}">
         <h2>{{ daten.name }} </h2>
         <label>{% trans "Kategorie:"%}</label>
         <select class="konto-kategorie">
             <option value="" selected disabled>{% trans "Bitte wählen..."%}</option>
             <option value="Bestandskonto">{% trans "Bestandskonto"%}</option>
             <option value="Erfolgskonto">{% trans "Erfolgskonto"%}</option>
+        </select>
+         <select class="konto-untertyp" style="display:none; margin-left:.5rem;">
+            <option value="" selected disabled>{% trans "Untertyp wählen" %}</option>
+            <option value="Aufwand">{% trans "Aufwand" %}</option>
+            <option value="Ertrag">{% trans "Ertrag" %}</option>
         </select>
         <button class="konto-abschluss-btn">{% trans "Konto abschließen"%}</button>
         <table>
@@ -95,39 +100,60 @@
         abgeschlossen: "{{ _('Abgeschlossen') }}"
     };
 document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".konto").forEach(kontoDiv => {
+    const cat = kontoDiv.querySelector(".konto-kategorie");
+    const sub = kontoDiv.querySelector(".konto-untertyp");
+
+    // INIT: nur bei Erfolgskonto zeigen
+    if (cat && sub) sub.style.display = (cat.value === "Erfolgskonto") ? "inline-block" : "none";
+
+    cat?.addEventListener("change", () => {
+        if (!sub) return;
+        sub.style.display = (cat.value === "Erfolgskonto") ? "inline-block" : "none";
+        if (cat.value !== "Erfolgskonto") sub.value = ""; // zurücksetzen, wenn nicht Erfolgskonto
+    });
+    });
     document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
         button.addEventListener("click", function () {
-            let kontoDiv = this.closest(".konto");
-            let kontoName = kontoDiv.dataset.name;
-            let kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
-            let kategorie = kategorieDropdown ? kategorieDropdown.value : "";
-            let echteKategorie = kontoDiv.dataset.kategorie;
-            let abgeschlosseneErfolgskonten = new Set();
+            const kontoDiv = this.closest(".konto");
+            const kontoName = kontoDiv.dataset.konto; // FIX: statt dataset.name
+            const kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
+            const kategorie = kategorieDropdown ? kategorieDropdown.value : "";
+            const echteKategorie = kontoDiv.dataset.kategorie;          // "Bestandskonto" | "Erfolgskonto"
+            const echteUnterkategorie = (kontoDiv.dataset.unterkategorie || "").toLowerCase(); // "aufwand" | "ertrag" (bei Erfolgskonten)
+            const untertypSelect = kontoDiv.querySelector(".konto-untertyp");
+            const untertyp = (untertypSelect && untertypSelect.style.display !== "none") ? (untertypSelect.value || "") : "";
 
-            // Bestandskonto korrekt zugewiesen → Konto ausblenden
             if (echteKategorie === "Bestandskonto" && kategorie === "Bestandskonto") {
                 kontoDiv.style.display = "none";
                 return;
             }
-
-            // Falsche Zuweisungen behandeln
             if (echteKategorie === "Bestandskonto" && kategorie === "Erfolgskonto") {
                 alert(gettext("Fehler:") + ` ${kontoName} ` + gettext("ist ein Bestandskonto, aber wurde als Erfolgskonto ausgewählt."));
                 return;
             }
-
             if (echteKategorie === "Erfolgskonto" && kategorie === "Bestandskonto") {
                 alert(gettext("Fehler:") + ` ${kontoName} ` + gettext("ist ein Erfolgskonto, aber wurde als Bestandskonto ausgewählt."));
                 return;
             }
-
-            // Erfolgskonto korrekt abschließen
+            // Untertyp-Pflicht & -Prüfung
             if (echteKategorie === "Erfolgskonto" && kategorie === "Erfolgskonto") {
-                console.log(`Konto ${kontoName} wird abgeschlossen.`);
-                abgeschlosseneErfolgskonten.add(kontoName);
+                if (!untertyp) {
+                alert(gettext("Bitte Untertyp (Aufwand/Ertrag) wählen."));
+                return;   // ⬅️
+                }
+                const ut = untertyp.toLowerCase();
+                if (echteUnterkategorie.startsWith("aufwand") && ut !== "aufwand") {
+                alert(`${kontoName} ist ein Aufwandskonto`);
+                return;   // ⬅️
+                }
+                if (echteUnterkategorie.startsWith("ertrag") && ut !== "ertrag") {
+                alert(`${kontoName} ist ein Ertragskonto`);
+                return;   // ⬅️
+                }
             } else {
                 alert(gettext("Fehler: Unbekannte Kategorie für") + ` ${kontoName}.`);
-                return;
+                return;     // ⬅️
             }
 
             let sollTabelle = kontoDiv.querySelector(".soll-werte table");
@@ -186,7 +212,19 @@ document.addEventListener("DOMContentLoaded", function () {
               let kontoKategorie = kontoDiv.getAttribute('data-kategorie');
   
               if (!kontoName || kontoKategorie !== "Erfolgskonto") return;
-  
+
+              const untertypSelect = kontoDiv.querySelector(".konto-untertyp");
+                const untertyp = (untertypSelect && untertypSelect.style.display !== "none") ? (untertypSelect.value || "") : "";
+                const echteUnterkategorie = (kontoDiv.getAttribute('data-unterkategorie') || "").toLowerCase();
+
+                // ohne Untertyp -> kein GuV-Eintrag
+                if (!untertyp) return;
+
+                const ut = untertyp.toLowerCase();
+                if ( (echteUnterkategorie.startsWith("aufwand") && ut !== "aufwand") ||
+                    (echteUnterkategorie.startsWith("ertrag")  && ut !== "ertrag") ) {
+                return; // falscher Untertyp -> nicht in GuV schreiben
+                }
               let sollTabelle = kontoDiv.querySelector(".haben-werte table");
               let habenTabelle = kontoDiv.querySelector(".soll-werte table");
   
@@ -280,7 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       
           guvBody.appendChild(neueSBKZeile);
-      
+          const signedResult = (habenGesamt > sollGesamt) ? differenz : -differenz;
           // ✅ AJAX-Request zum Speichern des SBK-Betrags
           const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
           fetch("/posts/speichere_guv_ergebnis/", {
@@ -289,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   "Content-Type": "application/x-www-form-urlencoded",
                   "X-CSRFToken": csrfToken
               },
-              body: `guv_result=${differenz}`
+              body: `guv_result=${signedResult}`
           })
           .then(response => response.json())
           .then(data => {

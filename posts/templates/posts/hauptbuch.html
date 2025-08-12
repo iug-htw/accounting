@@ -73,32 +73,43 @@
 
 
 <script>
-    function filterTable() {
-        let selectedKonto = document.getElementById("konto_filter").value;
-        let selectedAufgabe = document.getElementById("aufgabe_filter").value;
-        let kontenDivs = document.querySelectorAll(".konto");
-        
-        kontenDivs.forEach(div => {
-            let rows = div.querySelectorAll("tr");
-            let hasVisibleRow = false;
-            
-            rows.forEach(row => {
-                let kontoMatch = (selectedKonto === "" || div.dataset.kontoname === selectedKonto);
-                let aufgabeMatch = (selectedAufgabe === "" || row.dataset.aufgabe === selectedAufgabe);
-                
-                if (kontoMatch && aufgabeMatch) {
-                    row.style.display = "table-row";
-                    hasVisibleRow = true;
-                } else {
-                    row.style.display = "none";
-                }
-            });
-            
-            div.style.display = hasVisibleRow ? "block" : "none";
-        });
-    }
+  function filterTable() {
+    const kontoSelect = document.getElementById("konto_filter");
+    const aufgabeSelect = document.getElementById("aufgabe_filter"); // kann null sein (auskommentiert)
+    const selectedKonto = kontoSelect ? kontoSelect.value : "";
+    const selectedAufgabe = aufgabeSelect ? aufgabeSelect.value : ""; // leer, wenn Select fehlt
 
-    document.getElementById("konto_filter").addEventListener("change", filterTable);
-    document.getElementById("aufgabe_filter").addEventListener("change", filterTable);
+    document.querySelectorAll(".konto").forEach(div => {
+      const kontoMatch = (selectedKonto === "" || div.dataset.kontoname === selectedKonto);
+
+      // Wenn du später wieder nach Aufgabe filtern willst:
+      let aufgabeMatch = true;
+      if (aufgabeSelect) {
+        // Sichtbarkeit auf Zeilenebene nur anwenden, wenn der Aufgaben-Filter existiert
+        let hasVisibleRow = false;
+        div.querySelectorAll("tbody tr[data-aufgabe]").forEach(row => {
+          const match = (selectedAufgabe === "" || row.dataset.aufgabe === selectedAufgabe);
+          row.style.display = match ? "table-row" : "none";
+          if (match) hasVisibleRow = true;
+        });
+        // Wenn keine Zeile passt und nach Aufgabe gefiltert wird, Container ausblenden
+        aufgabeMatch = (selectedAufgabe === "" || hasVisibleRow);
+      }
+
+      // Für den Kontenfilter: Container zeigen/verstecken
+      div.style.display = (kontoMatch && aufgabeMatch) ? "block" : "none";
+    });
+  }
+
+  // Events sicher registrieren
+  document.getElementById("konto_filter").addEventListener("change", filterTable);
+  const aufgabeSelect = document.getElementById("aufgabe_filter");
+  if (aufgabeSelect) {
+    aufgabeSelect.addEventListener("change", filterTable);
+  }
+
+  // Initial anwenden (falls vom Server ein Wert vorausgewählt wird)
+  filterTable();
 </script>
+
 {% endblock %}
