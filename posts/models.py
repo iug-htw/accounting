@@ -20,6 +20,7 @@ class Unternehmen(models.Model):
 
 class Aufgabenkategorie(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    ersteller = models.IntegerField(null=True, blank=True, verbose_name=_("Ersteller"))
 
     def __str__(self):
         return self.name

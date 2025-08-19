@@ -28,7 +28,7 @@
         </div>
     
         {% include "posts/rechnungen/betrag.html"%}
-
+        {% if aufgabe.rechnungstyp != "non" %}
         <div class="invoice-footer" style="margin-top: 40px;">
             <p><strong>{{ verabschiedung|linebreaks }}</strong></p>
             {% if aufgabe.rechnungstyp == "ausgehend" %}
@@ -43,6 +43,7 @@
             <br>
             
         </div>
+        {% endif %}
     </div>
 {% endblock %}
 

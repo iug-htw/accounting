@@ -298,7 +298,444 @@
         </div>
     </div>
 </div>
+{% if is_lehrkraft == 1 or request.user.is_superuser%}
+<h2>{% trans "Funktionen für Lehrende"%}</h2>
+<div class="faq-item">
+    <div class="faq-question">{% trans "Allgemein"%}</div>
+    <div class="faq-answer">
+        <p>{%trans "Als Lehrkraft sind prinzipiell alle Funktionen von Studierenden verfügbar, welche im oberen Abschnitt beschrieben werden. Es ist also folgende Funktionen möglich: "%} 
+            <ul>
+                <li>{% trans "Posteingang einsehen" %}</li>
+                <li>{% trans "Buchungssätze bearbeiten" %}</li>
+                <li>{% trans "GuV/Bilanz erstellen" %}</li>
+                <li>{% trans "Feedback von Aufgaben einsehen" %}</li>
+            </ul>
+            {%trans "Darüber hinaus gibt es weitere Funktionen, die hauptsächlich unter "%} <strong>{% trans "Verwaltung" %}</strong> {% trans "zu finden sind und hier in den nächsten Blöcken genauer erklärt werden."%}
+        </p>
+    </div>
+</div>
 
+<div class="faq-item">
+    <div class="faq-question">{% trans "Nutzererstellung"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>{%trans "Unter Studierende anlegen können neue Studierende bzw. Nutzer angelegt werden. Mithilfe von Studiengang und Semester können diese zu kategorisiert werden." %}
+                    <br>
+                    {% trans "Das Feld Fallstudie gibt dabei an, welche Aufgaben für diese Nutzer bereitgestellt werden können. Automatisch sind SecureNet und SecureNet_en vorhanden und auswählbar. Falls eigene Aufgaben erstellt werden, können diese einer eigenen Fallstudie zugeordnet werden und diese kann hier ausgewählt werden."%} 
+                    <br><br>
+                    {% trans "Aktuell werden den Nutzenden zu 50% Wahrscheinlichkeit KI-Feedback angezeigt. Das bedeutet, dass diese Nutzer bei der Erstellung eine 50% Chance haben, immer KI-Feedback für die Aufgaben zu erhalten oder nur vorgefertigtes Feedback erhalten, d.h. ein Nutzer sieht immer KI-Feedback oder niemals. Wenn diese Checkbox ausgewählt wird, dann erhalten alle Nutzenden immer KI Feedback." %}
+                    <br>
+                    {% trans "Wie das Feedback aufgebaut ist, ist im Reiter Feedback oben genauer erklärt. Zusätzlich wird die Erstellung von Feedback für bestimmte Fehler weiter unten erklärt." %}
+                    <br><br>
+                    {% trans "Zuletzt ist noch die Namensgenerierung für die neuen Nutzer festzulegen. Wird der Namensmodus ausgewählt, kann ein eigener Name gewählt werden und die Nutzer werden dann durchnummeriert erstellt (User1, User2 ...User30)" %}
+                    <br>
+                    {% trans "Wenn Namensmodus nicht ausgewählt wurde, wird ein automatischer Name erstellt, bestehend aus: Name der Lehrkraft, Semester, Studiengang. Dieser ist tendenziell nicht gut lesbar (BWLbaWiSe 24/2501)" %}
+                    <br><br>
+                    {% trans "Nach der Erstellung werden alle erstellen Konten inklusive Passwort angezeigt. Das Passwort ist dabei analog zum Nutzernamen. Sollte ein Konto mit diesem Namen bereits existieren, wird dies auch angezeigt." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Nutzererstellung" %}</p>
+                    <img src="/media/nutzeranlegen.gif" alt="{% trans 'Nutzer erstellen' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Nutzer managen"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Unter dem Reiter 'Meine Studierenden' kann der Fortschritt der einzelnen Studierenden eingesehen werden. Hier werden die Studierenden nach Semester und Studiengang aufgeteilt und der jeweilige Fortschritt kann genau eingesehen werden." %}
+                    <br>
+                    {% trans "Darüber hinaus kann mithilfe des Sliders der Bearbeitungsmodus aktiviert werden, was das Löschen von Studierenden ermöglicht. Dies kann nicht rückgängig gemacht werden und sollte nur mit Vorsicht benutzt werden." %}
+                    <br><br>
+                    {% trans "Auf der Frontpage kann darüber hinaus noch der Fortschritt aller Studierenden eingesehen werden und nachgeschaut werden, welche Aufgaben besser oder schlechter beantwortet wurden. Dafür können hier die Filter (Semester und Studiengang) benutzt werden, um einen Überblick zu erhalten" %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Nutzer managen" %}</p>
+                    <img src="/media/nutzermanagen.png" alt="{% trans 'Nutzer managen' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Aufgabenübersicht"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Unter 'Aufgabenliste' werden alle verfügbaren Aufgaben angezeigt. Dies beinhaltet alle Aufgaben für SecureNet und SecureNet_en, sowie selbst erstellte Aufgaben. Selbst erstellte Aufgaben können heir bearbeitet und gelöscht werden." %}
+                    <br><br>
+                    {% trans "Wichtig: Sollten selbst Aufgaben erstellt werden, sind diese nicht für andere Nutzer (außer Admins) sichtbar." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Aufgabenliste" %}</p>
+                    <img src="/media/aufgabenliste.png" alt="{% trans 'Aufgabenliste' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Aufgabenerstellung"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Vor der Aufgabenerstellung, müssen zunächst einige Vorbereitungen getätigt werden. Diese sind oben in der Übersicht verlinkt und werden weiter unten genauer erklärt:" %}
+                    <ul>
+                        <li>{% trans "Fallstudie/Unternehmen verwalten" %}</li>
+                        <li>{% trans "Fragentyp verwalten" %}</li>
+                        <li>{% trans "Konten verwalten" %}</li>
+                        <li>{% trans "Aufgaben aus Excel importieren" %}</li>
+                    </ul>
+                    {% trans "Der Import aus Excel stellt eine alternative Methode für die Aufgabenerstellung da." %}
+                    <br><br>
+                    <strong>{% trans "Wichtig: Studierende können nur Aufgaben sehen, wenn das Unternehmen bzw. die Fallstudie gleich sind." %}</strong>
+                    <br>
+                    {% trans "Bei der Nutzererstellung wird ein Unternehmen zugewiesen und bei der Aufgabenerstellung wird ein Unternehmen zugewiesen, wenn diese Unterschiedlich sind, können Nutzer eine zugewiesene Aufgabe nicht einsehen." %}
+                    <br>
+                    {% trans "Im Folgenden werden die einzelnen Felder genauer erklärt: " %}
+                    <ul>
+                        <li>{% trans "Kontenplan: Wählt den Kontenplan aus, auf den sicht die Aufgabe bezieht" %}</li>
+                        <li>{% trans "Unternehmen Kategorie: Unternehmen/Fallstudie, zu welcher diese Aufgabe kategorisiert wird" %}</li>
+                        <li>{% trans "Rechnungstyp: Gibt die Ansicht an, wie die Aufgabe für die Nutzer dargestellt wird. Genaueres unter 'Rechnungstyp'" %}</li>
+                        <li>{% trans "Fragentyp: Gibt den Fragentyp an (Skonto, Rabatt, Abschreibung etc.)" %}</li>
+                        <li>{% trans "Mailbetreff Geschäftsvorfall: Gibt für die Nutzer den Betreff an, der in der Mail im Posteingang zu der Aufgabe angezeigt wird" %}</li>
+                        <li>{% trans "Mailtext: Gibt den Text der Mail im Posteingang an" %}</li>
+                        <li>{% trans "Umsatzsteuerfrei: In der Aufgabenansicht wird angezeigt, dass diese Aufgabe Steuerfrei ist (wirkt sich nicht auf den Buchungssatz aus). Wird hier nein angegeben, so wird die Umsatzsteuer ausgerechnet und in der Rechnung mit angegeben." %}</li>
+                        <li>{% trans "Hat Leistungszeitraum: Falls es sich um einen Leistungszeitraum handelt, wird hierüber automatisch ein Leistungszeitraum berechnet, welcher bis zu 3 Monate als ist und bis zu 3 Wochen lang " %}</li>
+                        <li>{% trans "Nutzungsdauer: Die Nutzungsdauer für Abschreibungen" %}</li>
+                        <li>{% trans "Feedback Konto falsch: Falls die Nutzer kein KI-Feedback erhalten, wird dieses Feedback bei der 2. Falschen Antwort angezeigt." %}</li>
+                        <li>{% trans "Feedback Betrag falsch: Analog zum Konto, hier wird Feedback zum falschen Betrag angezeigt" %}</li>
+                        <li>{% trans "Zahlweise: Zeigt in der Aufgabenansicht die Zahlweise an" %}</li>
+                        <li>{% trans "Beschreibung: Der genaue Aufgabentext, der die Grundlage der Aufgabenansicht bildet. Der Betrag " %}</li>
+                        <li>{% trans "Verabschiedung: Gibt die Verabschiedung in der Aufgabenansicht an" %}</li>
+                        <li>{% trans "Zusatzinformation zur Aufgabe: Hier können für jede Aufgabe zusätzliche Hinweise gegeben werden, die für Nutzer dann sichtbar sind, sofern welche angegeben wurden." %}</li>
+                        <li>{% trans "Buchungssätze hinzufügen: Hier ist die Maske, um den Buchungssatz abzubilden. Grundsätzlich sollte über diese Felder hier der Buchungssatz nachgebaut werden, welcher die Grundlage für jede Aufgabe bildet. Das individuelle Feedback wird weiter unten genauer erklärt." %}</li> 
+                    </ul>
+                    <br><br>
+                    <strong>{% trans "Wichtige Informationen:" %}</strong>
+                    <br>
+                    <ul>
+                        <li>{% trans "Für Abschreibungen muss die Kategorie Abschreibungen ausgewählt werden. Hier wird der angezeigte Rechnungsbetrag aus dem Buchungssatz und der Nutzungsdauer automatisch ermittelt und für die Nutzer angezeigt" %}</li>
+                        <li>{% trans "Für Rabatte wird der Betrag vor dem Rabatt angezeigt. Dieser beträgt aktuell immer 5%" %}</li>
+                    </ul>
+                    
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Aufgabenerstellung" %}</p>
+                    <img src="/media/aufgabeerstellen.gif" alt="{% trans 'Aufgabe erstellen' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Fallstudie/Unternehmen verwalten"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Hier können eigene Fallstudien angelegt werden. " %}
+                    <br>
+                    {% trans "Der Name wird bei der Aufgabenerstellung in dem Dropdown angezeigt" %}
+                    <br>
+                    {% trans "Der Anzeige Name ist der angezeigte Name in der Rechnungsansicht" %}
+                    <br>
+                    {% trans "Der Kontenplan bezieht sich auf den verwendeten Kontenplan" %}
+                    <br>
+                    {% trans "Die Checkbox verhindert, dass die Werte randomisiert werden. Falls die Werte randomisiert werden sollen, wird jeder Teil des Buchungssatzes mit einem Faktor von 0,25 bis 1,75 multipliziert." %}
+                    <br><br>
+                    {% trans "Nur eigene Unternehmen und die vordefinierten Unternehmen sind für einen selbst sichtbar. Nur eigene Unternehmen können gelöscht werden." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Unternehmen verwalten" %}</p>
+                    <img src="/media/unternehmenverwalten.png" alt="{% trans 'Unternehmen verwalten' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Fragentyp verwalten"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>{% trans "Hier können individuelle Aufgabenkategorien erstellt werden und für die Aufgaben sichtbar gemacht werden. Die Aufgabenkategorien werden bei der Aufgabenzuweisung angezeigt." %}
+                    <br><br>
+                    {% trans "Nur eigene Kategorien und die vordefinierten Kategorien sind für einen selbst sichtbar. Nur eigene Kategorien können gelöscht werden." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Aufgabenkategorie" %}</p>
+                    <img src="/media/aufgabenkategorie.png" alt="{% trans 'Aufgabenkategorie' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Konten verwalten"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>{% trans "Diese Übersicht ermöglicht die Erstellung eigener Kontenpläne. Es ist außerdem möglich Kontenpläne zu importieren über eine Excel vorlage. Das wird nächsten Punkt genauer erklärt." %}
+                    <br>
+                    {% trans "Bevor Konten einem Kontenplan zugewiesen werden können, muss ein Kontenplan erstellt werden. Dafür reicht ein Click auf 'Neuen Kontenplan erstellen'." %}
+                    <br><br>
+                    {% trans "Im Anschluss können nun Konten diesem Plan hinzugefügt werden. Dafür müssen die Felder oben in der Ansicht ausgefüllt werden. " %}
+                    <br><br>
+                    {% trans "Name: Der Name des Kontos" %}
+                    <br><br>
+                    {% trans "Kategorie und Unterkategorie: Um welche Art von Konto es sich handelt. Diese Auswahl wird verwendet, um Hauptbuch/GuV und Bilanz anzuzeigen." %}
+                    <br><br>
+                    {% trans "Hat Anfangsbestand: Wenn ein Konto für das vorangegangene Geschäftsjahr ein Anfangsbestand haben soll, kann die Checkbox ausgewählt werden. Anschließend kann ein Anfangsbestand ausgewählt werden. Alle Anfangsbestände werden bei der Nutzererstellung mit einem zufälligen Faktor zwischen 0,75 und 1,25 randomisiert, außer das Unternehmen des Nutzers wurde als Fallstudie zugeordnet, was eine Randomisierung unterbindet." %}
+                    <br><br>
+                    {% trans "Es ist möglich Konten für die bestehenden Kontenpläne (SecureNet) hinzuzufügen. Diese sind nur für einen selbst sichtbar und löschbar." %}
+                    <br><br>
+                    {% trans "Um den Konten noch Kontennummern zuzuordnen, muss auf 'Bearbeiten' gedrückt werden bei dem entsprechenden Konto. In der Ansicht kann dann die Kontonummer hinzugefügt werden." %}
+                    <br><br>
+                    {% trans "In der Ansicht kann außerdem eine Bilanzposition mit angegeben werden. Die sorgt dafür, dass ein Konto unter der angegebenen Bilanzposition abgeschlossen wird. Wenn also das Konto 810 die Bilanzposition 800 hat, dann wird im Hauptbuch nur das Konto 800 angezeigt. Außerdem wird auch die Bilanzposition als richtiges Ergebnis für den Buchungssatz zugelassen." %}
+                    <br><br><br>
+                    {% trans "Nur eigene Kontenpläne und die vordefinierten Kontenpläne sind für einen selbst sichtbar. Nur eigene Kontenpläne können gelöscht werden." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Kontenplan und Konten" %}</p>
+                    <img src="/media/kontenplan.png" alt="{% trans 'Kontenplan' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Konten aus Excel importieren"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Alternativ kann das folgende Excel-Template benutzt werden, um Konten zu importieren. Wichtig ist hierbei, dass zunächst der Kontenplan erstellt wird. Unter Durchsuchen kann die Datei ausgewählt werden und mit dem Button Importieren importiert werden. " %}
+                    <br><br>
+                    <a href="/media/kontenimport.xlsx" download>{% trans "Konten importieren"%}</a>
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Kontenimport" %}</p>
+                    <img src="/media/kontenimport.png" alt="{% trans 'Kontenimport' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Aufgaben aus Excel importieren"%}</div>
+    <div class="faq-answer">
+        <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Aufgaben können auch alternativ über Excel importiert werden. Die Beschreibung der Felder sind aus dem Reiter 'Aufgabenerstellung' zu entnehmen." %}
+                    <br><br>
+                    {% trans "Prinzipiell müssen keine Felder ausgefüllt werden, sprich, es wird kein Fehler ausgeworfen, wenn ein Eintrag leer bleibt. " %}
+                    <br>
+                    {% trans "Folgende Punkte sind zu beachten:" %}
+                    <ul>
+                        <li>{% trans "Der Kontenname muss exakt zum Kontennamen im Kontenplan sein" %}</li>
+                        <li>{% trans "Statt des Kontennamens kann auch die Bilanzposition verwendet werden" %}</li>
+                        <li>{% trans "Der Buchungssatz wird über die nummerierten Felder kontoname_1, soll/haben_1, betrag_1 dargestellt. Es können beliebig viele weitere Felder hinzugefügt werden, jedoch muss die Reihenfolge beibehalten werden." %}</li>
+                    </ul>
+                    <br><br>
+                    <a href="/media/aufgabenimport.xlsx" download>{% trans "Aufgaben importieren"%}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Aufgaben zuweisen"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "In dieser Übersicht werden alle verfügbaren Aufgaben (vorgefertigte sowie selbst erstellte) angezeigt und nach Unternehmen sortiert. Hier ist es möglich die einzelnen Aufgaben anzuclicken und über 'Aufgaben zuweisen' den Nutzern zur verfügung zu stellen. Nach der Zuweisung erhalten die Nutzer eine Benachrichtigung über den Posteingang und können die Aufgabe bearbeiten." %}
+                    <br><br>
+                    {% trans "Es ist außerdem möglich, dass die Aufgaben auch selbst zugewiesen werden. Somit ist es möglich die Aufgaben im Vorhinein anzusehen, bevor diese an die Nutzer übergeben werden." %}
+                    <br><br>
+                    {% trans "Die Ansicht oben dient für den Überblick, um zu erkennen, welche Gruppen welche Aufgaben erhalten haben." %}
+                    <br><br>
+                    {% trans "Anzumerken ist, dass Aufgaben nur Gruppen von Nutzern zugewiesen werden können, nicht einzelnen Nutzern." %}
+                    <br><br>
+                    {% trans "Für die Zuweisung die entsprechenden Aufgaben auswählen und unten das Semester und den Studiengang auswählen." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Aufgaben zuweisen" %}</p>
+                    <img src="/media/aufgabenzuweisen.gif" alt="{% trans 'Aufgaben zuweisen' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Was machen die verschiedenen Rechnungsansichten"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Die verschiedenen Rechnungsansichten bilden die verschiedenen Arten von Geschäftsvorfällen ab. Hier wird unterschieden zwischen ausgehenden, eingehenden und internen Vorgängen." %}
+                    <br>
+                    {% trans "Ausgehende Rechnungen sind Rechnungen, die das eigene Unternehmen an Kunden leitet" %}
+                    <br>
+                    {% trans "Eingehende Rechnungen sind jene, die das Unternehmen von einem Kunden bzw. Geschäftspartner erhalten hat" %}
+                    <br>
+                    {% trans "Interne Vorgänge, wie z.B. Abschreibungen sind vorgänge, die keine externe Partei betreffen." %}
+                    <br>
+                    {% trans "Falls die Aufgaben nicht in Form eines Geschäftsvorfalls dargestellt werden sollen, kann auch darauf verzichtet werden und es wird nur die Aufgabe und der Rechnungsbetrag angezeigt." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                    <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Ausgehend" %}</p>
+                    <img src="/media/ausgehenderechnung.png" alt="{% trans 'ausgehend' %}">
+                    <p class="gif-caption">{% trans "Eingehend" %}</p>
+                    <img src="/media/eingehenderechnung.png" alt="{% trans 'eingehend' %}">
+                    <p class="gif-caption">{% trans "Intern" %}</p>
+                    <img src="/media/interneansicht.png" alt="{% trans 'intern' %}">
+                    <p class="gif-caption">{% trans "Keine" %}</p>
+                    <img src="/media/keineansicht.png" alt="{% trans 'keine' %}">
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Welche Informationen sehe nur ich? Welche Informationen können andere Lehrende sehen?"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>{% trans "Folgende Informationen sind für alle sichtbar" %}
+                    <ul>
+                        <li>{% trans "Aufgaben von SecureNet" %}</li>
+                        <li>{% trans "Aufgaben von SecureNet_en" %}</li>
+                        <li>{% trans "Vordefinierte Studiengänge" %}</li>
+                        <li>{% trans "Vordefinierte Semester" %}</li>
+                        <li>{% trans "Vordefinierte Fragetypen" %}</li>
+                        <li>{% trans "Kontenpläne von Securenet und SecureNet_en" %}</li>
+                   </ul>
+                    <br><br>
+                    {% trans "Folgende Informationen sind nur für einen selbst sichtbar" %}
+                    <ul>
+                        <li>{% trans "Erstellte Aufgaben" %}</li>
+                        <li>{% trans "Erstellte Studiengänge" %}</li>
+                        <li>{% trans "Erstellte Semester" %}</li>
+                        <li>{% trans "Erstellte Fragetypen" %}</li>
+                        <li>{% trans "Erstellte Konten (auch wenn diese in für alle sichtbare Kontenpläne hinzugefügt werden)" %}</li>
+                        <li>{% trans "Erstellte Kontenpläne" %}</li>
+                        <li>{% trans "Erstellte Nutzer" %}</li>
+                        <li>{% trans "Erstellte Unternehmen" %}</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Wie kann ich Feedback für typische Fehler erstellen?"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Bei der Aufgabenerstellung oder bei der Bearbeitung von Aufgaben können Feedbackblöcke für bestimmte Lösungen erstellt werden. Wenn z.B. Haben und Soll vertauscht wird, kann das Feedback einen Hinweis dazu geben. Auch wenn z.B. die Steuer vergessen wurde, kann hier ein spezielles Feedback erstellt werden." %}
+                    <br>
+                    {% trans "Der erstellte Buchungssatz für jede Aufgabe bildet dabei die Grundlage. Am besten lässt sich das mit einem Beispiel erklären. " %}
+                    <br><br>
+                    {% trans "Angenommen der Buchungssatz ist Konto A 100€ and Konto B 100€. Der Nutzer hat nun B 100€ and A 100€ eingegeben. " %}
+                    <br>
+                    {% trans "Um diesen Fall abzufangen, kann für Konto A ein spezielles Feedback hinterlegt werden, dass bei der Eingabe von Konto B ein Text ausgegeben werden soll, wenn B statt A eingegeben wird." %}
+                    <br>
+                    {% trans "Das wird über den Button 'Konto-Feedback' ermöglicht. hier wird Konto B als Indikator verwendet um das spezielle Feedback auszugeben." %}
+                    <br><br><br>
+                    {% trans "Angenommen der Buchungssatz lautet Konto A 119€ an Konto B 100€ und Steuer 19€" %}
+                    <br>
+                    {% trans "Die Nutzereingabe lautet Konto A 119€ and Konto B 119€" %}
+                    <br>
+                    {% trans "Hier kann nun ein Feedback hinterlegt werden, dass die Steuer vergessen wurde und in einem extra Konto erfasst werden muss. Dafür kann über den Button 'Feedbackbereich hinzufügen' genau der entsprechende Bereich hinzugefügt werden. Hier werden 2 Felder für den Wertebereich angezeigt, die für den Feedbacktext verwendet werden." %}
+                    <br>
+                    {% trans "Wenn also für Konto B der Bereich 119€ gewählt wird (bestenfalls von 118 bis 120 die grenzen setzen), dann wird der Fall abdegeckt und bei fehlender Steuer kann ein entsprechender Hinweis hinterlegt werden." %}
+                    <br><br>
+                    {% trans "Wichtig: Die Aufgaben werden randomisiert (außer das Unternehmen wurde anders eingestellt). Der Feedbackbereich wird um den selben Faktor randomisiert, sodass dieser immer abgegriffen wird." %}
+                </p>
+            </div>
+                <div class="faq-gif">
+                <div class="gif-wrapper">
+                    <p class="gif-caption">{% trans "Betrag" %}</p>
+                    <img src="/media/feedbackbetrag.png" alt="{% trans 'Betrag' %}">
+                    <p class="gif-caption">{% trans "Konto" %}</p>
+                    <img src="/media/feedbackkonto.png" alt="{% trans 'Konto' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Kann ich Aufgaben nacheinander freischalten?"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Ja. Die Aufgaben werden alle bei Aufgaben zuweisen einzeln angezeigt. Es ist möglich Aufgaben thematisch zu erstellen und nur diese zum passenden Zeitpunkt zur Verfügung zu stellen." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-item">
+    <div class="faq-question">{% trans "Wie kann ich die Randomisierung der Aufgabenwerte verhindern?"%}</div>
+    <div class="faq-answer">
+         <div class = "faq-flex-container">
+            <div class ="faq-text">
+                <p>
+                    {% trans "Die Randomisierung kann verhindert werden, indem das Unternehmen bzw. die Fallstudie, für die Aufgaben erstellt werden entsprechend eingestellt werden. Dafür bei Fallstudie/Unternehmen verwalten (bei Aufgabe erstellen) ein Unternehmen erstellt werden und die Checkbox 'Fallstudie' muss ausgewählt werden. Dann werden alle Aufgaben von diesem Unternehmen nicht randomisiert." %}
+                    <br><br>
+                    <strong>{% trans "Wichtig: " %}</strong>{% trans "Das gilt nur für selbst erstellte Aufgaben." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{%endif%}
 <script>
     document.querySelectorAll('.faq-question').forEach(item => {
         item.addEventListener('click', () => {

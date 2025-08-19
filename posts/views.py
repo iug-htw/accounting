@@ -893,11 +893,17 @@ def unternehmen_loeschen(request, unternehmen_id):
 
 @lehrkraft_required
 def aufgabenkategorie_verwalten(request):
-    """ Zeigt eine Liste der Kategorien an und ermöglicht das Hinzufügen. """
+    """Zeigt eine Liste der Kategorien an und ermöglicht das Hinzufügen."""
     if request.method == 'POST':
         form = AufgabenkategorieForm(request.POST)
         if form.is_valid():
-            form.save()
+            kat = form.save(commit=False)
+            if request.user.is_superuser:
+                # Admin-Eintrag als generisch führen (deine Konvention, vgl. Unternehmen)
+                kat.ersteller = 1
+            else:
+                kat.ersteller = request.user.id
+            kat.save()
             messages.success(request, _("Kategorie erfolgreich hinzugefügt."))
             return redirect('posts:aufgabenkategorie_verwalten')
         else:
@@ -905,16 +911,37 @@ def aufgabenkategorie_verwalten(request):
     else:
         form = AufgabenkategorieForm()
 
-    aufgabenkategorien = Aufgabenkategorie.objects.all()
-    return render(request, 'posts/neue_kategorie.html', {'form': form, 'aufgabenkategorien': aufgabenkategorien})
+    if request.user.is_superuser:
+        aufgabenkategorien = Aufgabenkategorie.objects.all()
+    else:
+        # Lehrkraft: generische (NULL/1) + eigene
+        aufgabenkategorien = Aufgabenkategorie.objects.filter(
+            Q(ersteller__isnull=True) | Q(ersteller=1) | Q(ersteller=request.user.id)
+        )
 
-@admin_required
+    return render(request, 'posts/neue_kategorie.html', {
+        'form': form,
+        'aufgabenkategorien': aufgabenkategorien
+    })
+
+
+@lehrkraft_required
 def aufgabenkategorie_loeschen(request, kategorie_id):
-    """ Löscht eine Kategorie und gibt eine Bestätigung aus. """
-    kategorie = get_object_or_404(Aufgabenkategorie, id=kategorie_id)
-    kategorie.delete()
-    messages.success(request, _("Die Kategorie '%(name)s' wurde gelöscht.") % {"name": kategorie.name})
-    return redirect('posts:aufgabenkategorie_verwalten')
+    """Löschen: Admin alles; Lehrkraft nur eigene."""
+    k = get_object_or_404(Aufgabenkategorie, id=kategorie_id)
+
+    if request.user.is_superuser:
+        k.delete()
+        messages.success(request, _("Die Kategorie '%(name)s' wurde gelöscht.") % {"name": k.name})
+        return redirect('posts:aufgabenkategorie_verwalten' )
+
+    # Lehrkraft: nur eigene Einträge löschen
+    if k.ersteller == request.user.id:
+        k.delete()
+        messages.success(request, _("Die Kategorie '%(name)s' wurde gelöscht.") % {"name": k.name})
+        return redirect('posts:aufgabenkategorie_verwalten' )
+
+    return HttpResponse(_("Keine Berechtigung zum Löschen dieser Kategorie."))
 
 @login_required
 def hauptbuch_view(request):
@@ -1582,6 +1609,8 @@ def generate_user_anfangsbestaende(user):
 
     # Einmalig zufälligen Faktor bestimmen
     faktor = round(random.uniform(0.75, 1.25), 2)
+    if unternehmen.fallstudie == 1:
+        faktor=1
 
     for konto in konten_mit_anfangsbestand:
         if Anfangsbestand.objects.filter(nutzer=user, konto=konto).exists():

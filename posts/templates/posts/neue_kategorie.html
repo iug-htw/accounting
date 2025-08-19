@@ -1,3 +1,4 @@
+{# templates/posts/neue_kategorie.html #}
 {% extends 'master_layout.html' %}
 {% load i18n %}
 {% load static %}
@@ -15,16 +16,21 @@
 
 <ul>
     {% for aufgabenkategorie in aufgabenkategorien %}
+        {# generisch, wenn ersteller leer oder 1 (Admin-Generika) #}
+        {% with is_generisch=aufgabenkategorie.ersteller|default_if_none:None %}
         <li>
             {{ aufgabenkategorie.name }}
-            {% if request.user.role == 'user.is_superuser' %}
-                <a href="{% url 'posts:aufgabenkategorie_loeschen' aufgabenkategorie.id %}" 
-                class="btn btn-danger" 
-                onclick="return confirm('{% trans "Soll die Kategorie wirklich gelöscht werden?" %}');">
-                {% trans "Löschen"%}
+
+            {# Löschen: Admin immer; Lehrkraft nur eigene #}
+            {% if request.user.is_superuser or aufgabenkategorie.ersteller == request.user.id %}
+                <a href="{% url 'posts:aufgabenkategorie_loeschen' aufgabenkategorie.id %}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('{% trans "Soll die Kategorie wirklich gelöscht werden?" %}');">
+                   {% trans "Löschen" %}
                 </a>
             {% endif %}
         </li>
+        {% endwith %}
     {% endfor %}
 </ul>
 
