@@ -333,32 +333,27 @@ def is_buchung_korrekt(buchung, nutzer_aufgabe):
     haben_konten_nutzer = safe_parse(buchung.antwort_konten_haben)
     soll_betraege_nutzer = [round(float(b), 2) for b in safe_parse(buchung.antwort_betrag_soll)]
     haben_betraege_nutzer = [round(float(b), 2) for b in safe_parse(buchung.antwort_betrag_haben)]
-
     # Erwartete Werte aus der Nutzeraufgabe
     soll_konten_aufgabe = nutzer_aufgabe.soll_konten
     haben_konten_aufgabe = nutzer_aufgabe.haben_konten
     soll_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.soll_betraege]
     haben_betraege_aufgabe = [round(float(b), 2) for b in nutzer_aufgabe.haben_betraege]
-
     erlaubte_soll_konten = erlaubte_konten(soll_konten_aufgabe)
     erlaubte_haben_konten = erlaubte_konten(haben_konten_aufgabe)
-
     konten_soll_korrekt = (
         set(soll_konten_nutzer).issubset(erlaubte_soll_konten)
-        and len(soll_konten_nutzer) == len(soll_konten_aufgabe)
+        #and len(soll_konten_nutzer) == len(soll_konten_aufgabe)
     )
     konten_haben_korrekt = (
         set(haben_konten_nutzer).issubset(erlaubte_haben_konten)
-        and len(haben_konten_nutzer) == len(haben_konten_aufgabe)
+        #and len(haben_konten_nutzer) == len(haben_konten_aufgabe)
     )
     betraege_soll_korrekt = sum(soll_betraege_nutzer) == sum(soll_betraege_aufgabe)
     betraege_haben_korrekt = sum(haben_betraege_nutzer) == sum(haben_betraege_aufgabe)
-
     # Prüfen, ob Summe Soll = Summe Haben
     summe_soll_nutzer = sum(soll_betraege_nutzer)
     summe_haben_nutzer = sum(haben_betraege_nutzer)
     summe_korrekt = summe_soll_nutzer == summe_haben_nutzer
-
     # Ergebnis zurückgeben
     return konten_soll_korrekt and konten_haben_korrekt and betraege_soll_korrekt and betraege_haben_korrekt and summe_korrekt
 
@@ -452,8 +447,8 @@ def handle_nutzer_buchung(request, aufgabe, ist_frei):
         erlaubte_haben_konten = erlaubte_konten(haben_konten_aufgabe)
 
         # Neue Konto-Status-Logik
-        soll_konten_ok = set(soll_konten_nutzer).issubset(erlaubte_soll_konten) and len(soll_konten_nutzer) == len(soll_konten_aufgabe)
-        haben_konten_ok = set(haben_konten_nutzer).issubset(erlaubte_haben_konten) and len(haben_konten_nutzer) == len(haben_konten_aufgabe)
+        soll_konten_ok = set(soll_konten_nutzer).issubset(erlaubte_soll_konten)
+        haben_konten_ok = set(haben_konten_nutzer).issubset(erlaubte_haben_konten)
 
         if not soll_konten_ok and not haben_konten_ok:
             konto_status = 3
@@ -866,7 +861,7 @@ def build_t_konten(buchungen, anfangsbestände,guv_konto_id=None):
                 soll_ids = safe_parse(buchung.antwort_konten_soll or "[]")
                 haben_ids = safe_parse(buchung.antwort_konten_haben or "[]")
                 if str(guv_konto_id) in soll_ids or str(guv_konto_id) in haben_ids:
-                    label = _("GuV")
+                    label = _("Jahresüberschuss/Jahresfehlbetrag")
             aufgabe_id_mit_versuch = f"{label} {buchung.versuch})"
         soll_konten = safe_parse(buchung.antwort_konten_soll or "[]")
         haben_konten = safe_parse(buchung.antwort_konten_haben or "[]")
@@ -1218,23 +1213,45 @@ def importiere_konten_aus_excel(datei, kontenplan, nutzer):
     sheet = wb.active
     fehlerhafte_zeilen = []
 
-    for index, row in enumerate(sheet.iter_rows(min_row=2, max_col=5, values_only=True), start=2):
-        kontonummer, name, kategorie, unterkategorie, bilanzposition = row
+    # max_col=6, da wir 6 Spalten erwarten
+    for index, row in enumerate(sheet.iter_rows(min_row=2, max_col=7, values_only=True), start=2):
+        kontonummer, name, kategorie, unterkategorie, bilanzposition,steuerkonto, anfangsbestand = row
         print(f"📄 Zeile {index}: {row}")
+
+        # Pflichtfelder prüfen
         if not name or not kategorie or str(name).strip() == "":
             fehlerhafte_zeilen.append(index)
             continue
+
         try:
+            # Anfangsbestand behandeln
+            betrag = None
+            hat_bestand = False
+            if anfangsbestand is not None and str(anfangsbestand).strip() != "":
+                try:
+                    betrag = float(anfangsbestand)
+                    if betrag > 0:
+                        hat_bestand = True
+                    else:
+                        betrag = None  # Null oder negative Werte nicht speichern
+                except (TypeError, ValueError):
+                    betrag = None
+
             Konto.objects.create(
                 name=name,
                 kategorie=kategorie,
                 unterkategorie=unterkategorie,
                 kontonummer=kontonummer,
                 bilanzposition_nummer=bilanzposition,
+                hat_anfangsbestand=hat_bestand,
+                steuerkonto=steuerkonto,
+                anfangsbestand_menge=betrag,
                 kontenplan=kontenplan,
                 erstellt_von=nutzer
             )
+
         except Exception as e:
+            print(f"❌ Fehler in Zeile {index}: {e}")
             fehlerhafte_zeilen.append(index)
 
     return fehlerhafte_zeilen
@@ -1462,6 +1479,7 @@ def guv_uebersicht(request):
         .exclude(antwort_konten_haben__icontains=str(guv_konto.id))
         .exclude(antwort_konten_soll__icontains=str(ek_konto.id))
         .exclude(antwort_konten_haben__icontains=str(ek_konto.id))
+        .exclude(aufgabe_id__isnull=True)
     )
     # Anfangsbestände ohne GuV
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)\
@@ -1605,7 +1623,13 @@ def bilanz_uebersicht(request):
     if guv_konto:
         bestandskonten = bestandskonten.exclude(id=guv_konto.id)
 
-    buchungen = Buchung.objects.filter(nutzer=request.user)
+    buchungen = Buchung.objects.filter(
+        nutzer=request.user
+    ).filter(
+        Q(aufgabe_id__isnull=False) |
+        Q(antwort_konten_soll__icontains=str(guv_konto.id)) |
+        Q(antwort_konten_haben__icontains=str(guv_konto.id))
+    )
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
 
     # T-Konten aufbauen und ggf. GuV entfernen

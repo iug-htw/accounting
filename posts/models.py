@@ -225,7 +225,7 @@ class Konto(models.Model):
     ]
     steuerkonto = models.IntegerField(
         choices=STEUER_TYPEN,
-        default=0,
+        default=0,null=True, blank=True,
         verbose_name="Steuerkonto"
     )
     hat_anfangsbestand = models.BooleanField(default=False)

@@ -172,6 +172,7 @@ def bulk_student_creation(request):
         fehlgeschlagene_namen = []
         neue_studierende = []
         nutzergruppe = 1 if request.POST.get("nutzergruppe") == "1" else random.randint(1,4)
+        unternehmen = Unternehmen.objects.all()
         for i in range(1, anzahl_studierende + 1):
             if name_mode == "on" and custom_name:
                 student_name = f"{custom_name}{i}"
@@ -194,7 +195,11 @@ def bulk_student_creation(request):
             )
             student.set_password(student_name)  # Passwort richtig hashen
             student.save()
-            send_willkommen_mail(student)
+            unter = Unternehmen.objects.get(id=unternehmen_id)
+            a=0
+            if "SecureNet" in unter.name:
+                a=1
+            send_willkommen_mail(student,a)
             generate_user_anfangsbestaende(student)
             send_profile_update_mail(student, request)
             neue_studierende.append(student)
@@ -209,7 +214,6 @@ def bulk_student_creation(request):
                 "anzahl": len(neue_studierende)
             }
             messages.success(request, message)
-        unternehmen = Unternehmen.objects.all()
         return render(request, 'users/bulk_student_creation.html', {
             'studiengaenge': Studiengang.objects.all(),
             'semester': Semester.objects.all(),
@@ -425,7 +429,7 @@ def send_profile_update_mail(user, request):
         
     )
 
-def send_willkommen_mail(user):
+def send_willkommen_mail(user,a):
     if settings.DEBUG:
         dokumentation_link = "http://localhost:8000/media/nutzerdokumentation.pdf"
     else:
@@ -435,17 +439,19 @@ def send_willkommen_mail(user):
             name="SecureNet", email="info@securenet.de",
             straße="Treskowallee 8", stadt="Berlin", plz="10318"
         )
-    betreff="Willkommen bei SecureNet"
+    betreff="Willkommen bei unserer Buchhaltungssoftware"
+    if a==1:
+        betreff="Willkommen bei SecureNet"
     betreff_en="Welcome to SecureNet"
     faq_url = reverse('posts:faq')
     mailtext="""
         Hallo, <br>
 
-        willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen. <br><br> \n
+        willkommen bei ihrer Software für Buchhaltung! Als CEO dieses Startups ist es deine Aufgabe die Buchhaltung professionell zu durchzuführen. <br><br> \n
 
-        Im Posteingang findest du alle wichtigen Rechnungen und Aufgaben, die du bearbeiten musst. Dein Hauptbuch bietet dir eine transparente Übersicht über alle T-Konten, damit du jederzeit nachvollziehen kannst, welche Buchungen vorgenommen wurden. Die Rechnungsübersicht hilft dir, offene und bereits bearbeitete Rechnungen im Blick zu behalten.<br><br>
+        Im Posteingang findest du alle wichtigen Rechnungen und Aufgaben, die du bearbeiten musst. Dein Hauptbuch bietet dir eine transparente Übersicht über alle T-Konten, damitdu jederzeit nachvollziehen kannst, welche Buchungen vorgenommen wurden. Die Rechnungsübersicht hilft dir, offene und bereits bearbeitete Rechnungen im Blick zu behalten<br><br>
 
-        Damit dein Unternehmen langfristig erfolgreich bleibt, solltest du regelmäßig die Bilanz prüfen. Sie zeigt dir, ob dein Unternehmen solide finanziert ist und wie sich Vermögenswerte und Verbindlichkeiten ausgleichen.<br><br>
+        Damit dein Unternehmen langfristig erfolgreich bleibt, solltest du regelmäßig die Bilanz prüfen. Sie zeigt dir, ob dein Unternehmen solide finanziert ist und wie sichVermögenswerte und Verbindlichkeiten ausgleichen.<br><br>
 
         Für eine Einführung in dein Unternehmen, kannst du gerne hier die Nutzerdokumentation einsehen: <br>
         <p><a href="{dokumentation_link}" target="_blank"> Nutzerdokumentation </a></p>
@@ -457,6 +463,26 @@ def send_willkommen_mail(user):
         Viel Erfolg bei SecureNet!
         Dein SecureNet-Team
         """.format(dokumentation_link=dokumentation_link,faq_url=faq_url)
+    if a==1:
+        mailtext="""
+            Hallo, <br>
+
+            willkommen bei SecureNet! Als CEO deines Cyber-Security-Startups ist es deine Aufgabe, nicht nur dein Unternehmen mit Schwachstellenanalysen und Penetrationstests vor Angriffen zu schützen, sondern auch die Buchhaltung professionell zu führen. <br><br> \n
+
+            Im Posteingang findest du alle wichtigen Rechnungen und Aufgaben, die du bearbeiten musst. Dein Hauptbuch bietet dir eine transparente Übersicht über alle T-Konten, damit du jederzeit nachvollziehen kannst, welche Buchungen vorgenommen wurden. Die Rechnungsübersicht hilft dir, offene und bereits bearbeitete Rechnungen im Blick zu behalten.<br><br>
+
+            Damit dein Unternehmen langfristig erfolgreich bleibt, solltest du regelmäßig die Bilanz prüfen. Sie zeigt dir, ob dein Unternehmen solide finanziert ist und wie sich Vermögenswerte und Verbindlichkeiten ausgleichen.<br><br>
+
+            Für eine Einführung in dein Unternehmen, kannst du gerne hier die Nutzerdokumentation einsehen: <br>
+            <p><a href="{dokumentation_link}" target="_blank"> Nutzerdokumentation </a></p>
+            <p>Weitere Informationen findest du auch in der <a href="{faq_url}">FAQ</a>.</p>
+            <br><br>
+            Starte jetzt und sorge dafür, dass deine Finanzen auf Kurs bleiben! Bei Fragen oder Unklarheiten steht dir dein Posteingang als zentrale Anlaufstelle zur Verfügung. <br>
+
+
+            Viel Erfolg bei SecureNet!
+            Dein SecureNet-Team
+            """.format(dokumentation_link=dokumentation_link,faq_url=faq_url)
     mailtext_en = """
         Hello, <br>
 
