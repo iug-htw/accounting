@@ -93,6 +93,7 @@
     </div>
 </section>
 <button id="abschluss-v2-btn">{% trans "GuV Konto abschließen v2"%}</button>
+<button id="guv-reset-btn">{% trans "GuV löschen und neu erstellen"%}</button>
 <script>
     const gettexts = {
         sbk: "{{ _('SBK') }}",
@@ -392,6 +393,37 @@ function parseLocalizedNumber(text) {
         return parseFloat(text.replace(/,/g, '')) || 0;
     }
 }
+
+async function api(url, method = 'GET', data) {
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: data ? JSON.stringify(data) : undefined
+  });
+  return res.json();
+}
+
+async function ladeServerGuv() {
+  const r = await api('{% url "posts:abschluss_status" %}?typ=GUV');
+  if (r.exists) { /* optional: r.daten in die Tabelle einspielen */ }
+}
+
+async function pruefeGuv() {
+  const client = /* TODO: baue hier dein bereits existierendes JS-GuV-JSON */ {};
+  const r = await api('{% url "posts:abschluss_pruefen" %}', 'POST', { typ: 'GUV', daten: client });
+  alert(r.korrekt ? 'GuV ist richtig.' : 'GuV ist falsch.');
+}
+
+async function resetGuv() {
+  await api('{% url "posts:abschluss_reset" %}', 'POST', { typ: 'GUV' });
+  location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  ladeServerGuv();
+  document.getElementById('guv-speichern-btn').addEventListener('click', pruefeGuv);
+  document.getElementById('guv-reset-btn').addEventListener('click', resetGuv);
+});
 
 </script>
 {% endblock %}

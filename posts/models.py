@@ -271,3 +271,24 @@ class Feedbackbereich(models.Model):
 
     def __str__(self):
         return f"Feedback für {self.von_betrag} – {self.bis_betrag} €"
+    
+class NutzerAbschluss(models.Model):
+    TYPEN = (
+        ("GUV", "GuV"),
+        ("BILANZ", "Bilanz"),
+    )
+    nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    typ = models.CharField(max_length=10, choices=TYPEN)
+    daten = models.JSONField(default=dict) # strukturierte Lösung (Konten + Beträge)
+    korrekt = models.BooleanField(null=True, blank=True) # None = noch nicht geprüft
+    erstellt_am = models.DateTimeField(auto_now_add=True)
+    aktualisiert_am = models.DateTimeField(auto_now=True)
+
+
+    class Meta:
+        unique_together = ("nutzer", "typ")
+
+
+    def __str__(self):
+        return f"{self.nutzer} – {self.typ}"
+

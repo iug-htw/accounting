@@ -646,7 +646,7 @@ def speichere_nutzer_aufgabe(nutzer, aufgabe, zufaellige_werte):
         if absender:
             nutzer_aufgabe.absender = absender
             nutzer_aufgabe.save(update_fields=["absender"])
-
+    recompute_abschluesse_for_user(nutzer)
     return nutzer_aufgabe
 
 def generiere_rn_nummer(aufgabe, nutzer):
@@ -1879,3 +1879,204 @@ def tkonto_vorschau(request):
 
 def faq_view(request):
     return render(request, 'posts/faq.html')
+
+def hole_nutzeraufgaben(user):
+    return NutzerAufgabe.objects.filter(nutzer=user).select_related("aufgabe")
+
+
+
+def _kontotyp(konto: Konto) -> str:
+    """Bestimme Kontoart über Modellfelder, nicht über Name/Nummernkreis."""
+    if konto.kategorie == "Erfolgskonto" or konto.unterkategorie in ("Aufwand", "Ertrag"):
+        return "erfolg"
+    return "bestand"
+
+
+def _seite_bestand(konto: Konto) -> str:
+    """Ermittele Standard-Seite eines Bestandskontos."""
+    if getattr(konto, "unterkategorie", None) in ("Aktiva", "Passiva"):
+        return konto.unterkategorie
+    nr = konto.kontonummer or 0
+    return "Aktiva" if nr < 3000 else "Passiva"  # Fallback nach Nummernkreis
+
+def _anfangsbestand_map(user):
+    """Hole Anfangsbestände aus dem Modell Anfangsbestand."""
+    from collections import defaultdict
+    m = defaultdict(lambda: {"ab": 0.0, "seite": None, "konto": None})
+    for ab in Anfangsbestand.objects.filter(nutzer=user).select_related("konto"):
+        k = str(ab.konto.id)
+        konto = ab.konto
+        seite = konto.unterkategorie or _seite_bestand(konto)
+        m[k]["ab"] += float(ab.betrag or 0.0)
+        m[k]["seite"] = seite
+        m[k]["konto"] = konto
+        print(f"[AB-Map] Konto {konto.id} ({konto.name}) | AB: {ab.betrag} | Seite: {seite}")
+    return m
+
+
+
+def _summe_aus_nutzeraufgaben(user):
+    """Aggregiere über alle NutzerAufgabe: je Konto Soll-/Haben-Summen bilden."""
+    from collections import defaultdict
+    res = defaultdict(lambda: {"soll": 0.0, "haben": 0.0, "konto": None})
+    for na in NutzerAufgabe.objects.filter(nutzer=user):
+        for k, b in zip(na.soll_konten, na.soll_betraege):
+            konto = Konto.objects.filter(id=int(k)).first()
+            if konto: res[k]["soll"] += float(b); res[k]["konto"] = konto
+        for k, b in zip(na.haben_konten, na.haben_betraege):
+            konto = Konto.objects.filter(id=int(k)).first()
+            if konto: res[k]["haben"] += float(b); res[k]["konto"] = konto
+    return res
+
+def aggregate_bestand(user):
+    """Bilanzsalden inkl. Anfangsbestand:
+       Aktiva:  AB + Soll - Haben
+       Passiva: AB + Haben - Soll"""
+    res = {"aktiva": {}, "passiva": {}}
+    sums, abm = _summe_aus_nutzeraufgaben(user), _anfangsbestand_map(user)
+    for k in set(sums.keys()) | set(abm.keys()):
+        konto = (sums.get(k) or {}).get("konto") or (abm.get(k) or {}).get("konto")
+        if not konto or _kontotyp(konto) != "bestand": 
+            continue
+        s = float((sums.get(k) or {}).get("soll", 0))
+        h = float((sums.get(k) or {}).get("haben", 0))
+        ab = float((abm.get(k) or {}).get("ab", 0))
+        seite = (abm.get(k) or {}).get("seite") or _seite_bestand(konto)
+        end = ab + (s - h) if seite == "Aktiva" else ab + (h - s)
+        if end != 0:
+            (res["aktiva"] if seite == "Aktiva" else res["passiva"])[k] = round(end, 2)
+    return res
+
+def ermittle_eigenkapital_konto_user(user):
+    from django.db.models import Q
+    u = getattr(user, "unternehmen", None)
+    if not u or not getattr(u, "kontenplan", None): return None
+    q = Q(kontenplan=u.kontenplan) & Q(name__iregex="eigenkapital|equity|capital|kapital")
+    k = Konto.objects.filter(q, kategorie="Bestandskonto", unterkategorie="Passiva").first()
+    return k or Konto.objects.filter(q).first()
+
+def finde_steuer_sammelkonto(user):
+    u = getattr(user, "unternehmen", None)
+    if not u or not getattr(u, "kontenplan", None): return None
+    rx = "steuer.*(sammel|verrechnung)|ust.*verrechnung|umsatzsteuerverrechnung|steuerverrechnung"
+    return Konto.objects.filter(kontenplan=u.kontenplan, name__iregex=rx).first()
+
+def konsolidiere_steuerkonten_bestand(bestand, user):
+    ids = set(list(bestand["aktiva"].keys()) + list(bestand["passiva"].keys()))
+    konten = {str(k.id): k for k in Konto.objects.filter(id__in=[int(i) for i in ids])}
+    vst = ust = 0.0
+    for k, konto in konten.items():
+        if getattr(konto, "steuerkonto", 0) not in (1, 2): 
+            continue
+        a = float(bestand["aktiva"].pop(k, 0.0))
+        p = float(bestand["passiva"].pop(k, 0.0))
+        if konto.steuerkonto == 1:  # Vorsteuer
+            vst += (a - p)
+        else:                      # Umsatzsteuer
+            ust += (p - a)
+    net = round(vst - ust, 2)
+    if net:
+        sk = finde_steuer_sammelkonto(user)
+        key = str(sk.id) if sk else "STEUER_SAMMEL"
+        (bestand["aktiva"] if net > 0 else bestand["passiva"])[key] = abs(net)
+    return bestand
+
+def aggregate_erfolg(user):
+    """Erfolgskonten: Habensaldo=Ertrag, Sollsaldo=Aufwand. Aggregiere ALLE Konten."""
+    res = {"aufwand": {}, "ertrag": {}}
+    for k, d in _summe_aus_nutzeraufgaben(user).items():
+        if not d["konto"] or _kontotyp(d["konto"]) != "erfolg": continue
+        saldo = round(d["haben"] - d["soll"], 2)  # >0 => Ertrag, <0 => Aufwand
+        bucket = "ertrag" if saldo > 0 else "aufwand"
+        if abs(saldo) > 0: res[bucket][k] = abs(saldo)
+    return res
+
+def berechne_guv(erfolg):
+    aw = sum(erfolg["aufwand"].values())
+    er = sum(erfolg["ertrag"].values())
+    saldo = round(er - aw, 2)  # Gewinn (+) / Verlust (-)
+    typ = "Gewinn" if saldo >= 0 else "Verlust"
+    return {"aufwand": erfolg["aufwand"], "ertrag": erfolg["ertrag"], "saldo": {"typ": typ, "betrag": abs(saldo)}}
+
+
+def berechne_bilanz(bestand, guv_saldo, user):
+    bestand = konsolidiere_steuerkonten_bestand(bestand, user)
+    betrag = guv_saldo["betrag"] * (1 if guv_saldo["typ"] == "Gewinn" else -1)
+    bestand["passiva"]["GUV"] = round(betrag, 2)  # z. B. -4911 bei Jahresfehlbetrag
+    sa, sp = round(sum(bestand["aktiva"].values()), 2), round(sum(bestand["passiva"].values()), 2)
+    return {"aktiva": bestand["aktiva"], "passiva": bestand["passiva"], "summe": max(sa, sp)}
+
+def normalize(d):
+    import json
+    def _rec(x):
+        if isinstance(x, dict):
+            return {k: _rec(x[k]) for k in sorted(x)}
+        if isinstance(x, float):
+            return round(x, 2)
+        if isinstance(x, list):
+            return [_rec(i) for i in x]
+        return x
+    return json.loads(json.dumps(_rec(d)))
+
+
+def speichere_abschluss(user, typ, daten):
+    obj, _ = NutzerAbschluss.objects.update_or_create(
+        nutzer=user, typ=typ, defaults={"daten": daten}
+    )
+    return obj
+
+
+def hole_abschluss(user, typ):
+    try:
+        return NutzerAbschluss.objects.get(nutzer=user, typ=typ)
+    except NutzerAbschluss.DoesNotExist:
+        return None
+
+
+def loesche_abschluss(user, typ):
+    NutzerAbschluss.objects.filter(nutzer=user, typ=typ).delete()
+
+
+def recompute_abschluesse_for_user(user):
+    erfolg = aggregate_erfolg(user)
+    guv = berechne_guv(erfolg)
+    speichere_abschluss(user, "GUV", guv)
+    bestand = aggregate_bestand(user)
+    bilanz = berechne_bilanz(bestand, guv["saldo"], user)
+    speichere_abschluss(user, "BILANZ", bilanz)
+
+
+def validiere_client_mit_server(client, server):
+    return normalize(client) == normalize(server)
+
+@login_required
+@require_http_methods(["GET"])
+def abschluss_status(request):
+    typ = request.GET.get("typ")
+    obj = hole_abschluss(request.user, typ)
+    if not obj:
+        return JsonResponse({"exists": False})
+    return JsonResponse({"exists": True, "korrekt": obj.korrekt, "daten": obj.daten})
+
+
+@login_required
+@require_http_methods(["POST"])
+def abschluss_pruefen(request):
+    import json
+    body = json.loads(request.body or "{}")
+    typ = body.get("typ"); client = body.get("daten", {})
+    obj = hole_abschluss(request.user, typ)
+    if not obj:
+        return JsonResponse({"error": "no-server-solution"}, status=404)
+    ok = validiere_client_mit_server(client, obj.daten)
+    obj.korrekt = ok; obj.save(update_fields=["korrekt", "aktualisiert_am"])
+    return JsonResponse({"korrekt": ok})
+
+
+@login_required
+@require_http_methods(["POST"])
+def abschluss_reset(request):
+    import json
+    typ = (json.loads(request.body or "{}")).get("typ")
+    loesche_abschluss(request.user, typ)
+    return JsonResponse({"ok": True})

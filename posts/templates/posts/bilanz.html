@@ -89,6 +89,7 @@
     </section>
 
 <button id="abschluss-alle-btn">{% trans "Alle Konten abschließen"%}</button>
+<button id="bilanz-reset-btn">{% trans "Bilanz löschen und neu erstellen"%}</button>
 
 <script>
 const gettexts = {
@@ -272,5 +273,26 @@ function formatNumber(value) {
         maximumFractionDigits: 2
     });
 }
+async function ladeServerBilanz() {
+  const r = await api('{% url "posts:abschluss_status" %}?typ=BILANZ');
+  if (r.exists) { /* optional: r.daten in die Tabelle einspielen */ }
+}
+
+async function pruefeBilanz() {
+  const client = /* TODO: baue hier dein JS-Bilanz-JSON */ {};
+  const r = await api('{% url "posts:abschluss_pruefen" %}', 'POST', { typ: 'BILANZ', daten: client });
+  alert(r.korrekt ? 'Bilanz ist richtig.' : 'Bilanz ist falsch.');
+}
+
+async function resetBilanz() {
+  await api('{% url "posts:abschluss_reset" %}', 'POST', { typ: 'BILANZ' });
+  location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  ladeServerBilanz();
+  document.getElementById('bilanz-speichern-btn').addEventListener('click', pruefeBilanz);
+  document.getElementById('bilanz-reset-btn').addEventListener('click', resetBilanz);
+});
 </script>
 {% endblock %}
