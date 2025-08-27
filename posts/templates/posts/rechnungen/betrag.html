@@ -10,11 +10,13 @@
         <p><strong>{% trans "Betrag:"%}</strong> {{ rechnungsbetrag|localized_format  }} EUR {%trans "(frei von Ust.)"%} </p>
     {% elif aufgabe.fragentyp_id == 15 %} 
         <p><strong> {% trans "Betrag:"%} </strong> {{ rechnungsbetrag|localized_format  }} EUR {% trans " " %}</p>
-    {%else%} 
+    {%else%}
+    <!-- Falls die Ansicht mal überarbeitet werden möchte:
         <p><strong>{% trans "Betrag netto" %}</strong>: {{ betrag_netto|localized_format  }} EUR
         <br>
         <strong>{%trans "Umsatzsteuer"%}</strong> (19%): {{ betrag_steuer|localized_format  }} EUR
         </p>
+    -->
         <strong>{%trans "Gesamtbetrag"%}</strong>: {{ rechnungsbetrag|localized_format  }} EUR
         </p>
     {% endif %}

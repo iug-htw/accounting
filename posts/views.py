@@ -1,98 +1,6 @@
-
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render,redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Unternehmen,Absender, AufgabeDetail, Aufgabe_neu, NutzerAufgabe, Buchung, Aufgabenkategorie, Mail, Konto, Anfangsbestand, Kontenplan, Feedbackbereich
-from .forms import  Aufgabe_neu_Form, AufgabenkategorieForm, UnternehmenForm, AufgabeBearbeitenForm, AufgabeDetailBearbeitenForm,KontoForm,AufgabeImportForm
-from django.contrib import messages
-import json, random, hashlib,openpyxl,threading,requests
-from random import choice
-from openpyxl import load_workbook
-from django.urls import reverse
-from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
-from django.core.mail import send_mail
-from django.db.models import Count, Q, F
-from django.contrib.auth import get_user_model
-from .absender import vornamen, nachnamen, straßen, staedte, plz, emailsuffix
-from decimal import Decimal, ROUND_HALF_UP
-from collections import defaultdict
-from django.utils.html import format_html
-from django.views.decorators.http import require_GET
-from decouple import config
-from django.utils.translation import gettext as _
-from django.db.models import Max
-#passt
-
-
-def safe_parse(val):
-    if isinstance(val, str):
-        return json.loads(val or "[]")
-    return val or []
-# Für Lehrkräfte
-def lehrkraft_required(view_func):
-    def _wrapped_view_func(request, *args, **kwargs):
-        if request.user.is_authenticated and (request.user.role == 'teacher' or request.user.is_superuser):
-            return view_func(request, *args, **kwargs)
-        else:
-           return fehlende_berechtigung_response()
-    return _wrapped_view_func
-
-# Für Studierende
-def student_required(view_func):
-    def _wrapped_view_func(request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role != 'student':
-            return fehlende_berechtigung_response()
-        return view_func(request, *args, **kwargs)
-    return _wrapped_view_func
-
-def admin_required(view_func):
-    def _wrapped_view_func(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_superuser:
-            return view_func(request, *args, **kwargs)
-        else:
-            return fehlende_berechtigung_response()
-    return _wrapped_view_func
-
-def fehlende_berechtigung_response():
-    return HttpResponse(
-        _('Fehlende Berechtigung<br><a href="%(link)s">Zurück zur Startseite</a>') % {
-            "link": reverse("index")
-        }
-    )
-
-def handle_form_submission(request, form_class, success_message, redirect_url, instance=None):
-    form = form_class(request.POST, instance=instance)
-    if form.is_valid():
-        form.save()
-        messages.success(request, success_message)
-        return redirect(redirect_url)
-    else:
-        messages.error(request, _("Das Formular ist nicht gültig."))
-        return None
-
-@lehrkraft_required
-def aufgabe_neu_erstellen(request):
-    if request.method == 'POST':
-        form = Aufgabe_neu_Form(request.POST, user=request.user)
-        if form.is_valid():
-            aufgabe = form.save(commit=False)
-            aufgabe.ersteller = request.user.id
-            aufgabe.rechnungsnummer = f"RE-{random.randint(10000, 99999)}"
-            kontenplan = form.cleaned_data['kontenplan']
-            aufgabe.aufgabeninfo = form.cleaned_data.get('aufgabeninfo', '')
-            aufgabe.save()
-            speichere_aufgabe_details(request, aufgabe, kontenplan)
-            messages.success(request, _("Aufgabe und Details erfolgreich erstellt."))
-            return redirect('frontpage')
-        else:
-            messages.error(request, _("Das Formular ist nicht gültig."))
-    else:
-        form = Aufgabe_neu_Form(user=request.user)
-
-    konten = Konto.objects.filter(
-        Q(kontenplan__nutzer=request.user) | Q(kontenplan__nutzer__is_superuser=True)
-    ).order_by("name")
-    return render(request, 'posts/aufgabe_erstellen.html', {'form': form, 'konten': konten})
+from .views_logik.bibliotheken import _
+from .views_logik.bibliotheken import *
+from .views_logik.utils import lehrkraft_required,student_required,admin_required,safe_parse
 
 def parse_excel_file(file):
     wb = load_workbook(file)
@@ -273,52 +181,6 @@ def kontenplan_konten_laden(request):
     konten_liste = [{'id': konto.id, 'name': konto.name} for konto in konten]
 
     return JsonResponse({'konten': konten_liste})
-
-def speichere_aufgabe_details(request, aufgabe,kontenplan):
-    konto_ids = request.POST.getlist('konto_id[]')
-    soll_haben = request.POST.getlist('soll_haben[]')
-    betraege = request.POST.getlist('betrag[]')
-    aufgabe_details = []  # Zwischenspeicher für bulk_create()
-
-    # **Erster Schritt: Speichere alle Details ohne Bezugskonto**
-    for i in range(len(konto_ids)):
-        print(f"konto:  {Konto.objects.get(id=konto_ids[i])}")
-        konto = Konto.objects.get(id=konto_ids[i])
-        aufgabe_detail = AufgabeDetail.objects.create(
-            aufgabe=aufgabe,
-            konto=konto,
-            soll_haben=soll_haben[i],
-            betrag=float(betraege[i]) if betraege[i] else None,
-            kontenplan=kontenplan,
-        )
-        aufgabe_details.append(aufgabe_detail)
-        feedback_von = request.POST.getlist(f'feedback_von_{i}[]')
-        feedback_bis = request.POST.getlist(f'feedback_bis_{i}[]')
-        feedback_texts = request.POST.getlist(f'feedback_text_{i}[]')
-        konten_id = request.POST.getlist(f'konto_feedback_id_{i}[]')
-        feedback_konto_texts = request.POST.getlist(f'konto_feedback_text_{i}[]')
-        #print(f"konto id: {konto_ids}")
-        #print(f"feedback_von: {feedback_von}")
-        
-        for von, bis, text in zip(feedback_von, feedback_bis, feedback_texts):
-            if von and bis and text:
-                Feedbackbereich.objects.create(
-                    aufgabe_detail=aufgabe_detail,
-                    von_betrag=float(von),
-                    bis_betrag=float(bis),
-                    feedback_text=text
-                )
-        
-        #print(f"💾 feedback_texts {feedback_konto_texts}")
-        #print(f"💾 konto_ids {konto_ids}")
-        for text, konto in zip(feedback_konto_texts, konten_id):
-            if text and konto:
-                print(f"💾 Speichere KontoFeedback: Konto-ID={konto}, Text={text}")
-                Feedbackbereich.objects.create(
-                    aufgabe_detail=aufgabe_detail,
-                    feedback_text=text,
-                    konto_falsch=int(konto)
-                )
 
 @login_required
 def rechnung_detail_view(request, aufgabe_id):
@@ -644,7 +506,7 @@ def handle_nutzer_buchung(request, aufgabe, ist_frei):
             nutzer_aufgabe.bearbeitungsstand = "bearbeitet"
 
         if (buchung.versuch == 3) and buchung.status != "korrekt":
-            threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung)).start()
+            threading.Thread(target=ollama_threading, args=(buchung, nutzer_aufgabe, aufgabe.beschreibung, aufgabe.aufgabeninfo)).start()
 
         buchung.save()
         nutzer_aufgabe.save()
@@ -871,15 +733,6 @@ def unternehmen_verwalten(request):
     else:
         unternehmen = Unternehmen.objects.filter(Q(ersteller=request.user.id) | Q(ersteller=1))
     return render(request, 'posts/neues_unternehmen.html', {'form': form, 'unternehmen': unternehmen})
-
-
-def handle_post_request(request, form_class, redirect_url, template_name):
-    if request.method == 'POST':
-        result = handle_form_submission(request, form_class, "Erfolgreich gespeichert.", redirect_url)
-        if result:
-            return result
-    form = form_class()
-    return render(request, template_name, {'form': form})
 
 @lehrkraft_required
 def unternehmen_loeschen(request, unternehmen_id):
@@ -1555,6 +1408,45 @@ def get_student(student_id, lehrer):
     """Gibt den Studierenden zurück, falls er dem Lehrer zugeordnet ist."""
     return User.objects.filter(id=student_id, role='student', professor=lehrer).first()
 
+def verrechne_steuerkonten(t_konten, konten):
+    sk = {"name": "Steuerverrechnung", "soll": [], "haben": []}
+
+    for konto in konten:
+        # Nur Steuerkonten anfassen
+        if getattr(konto, "steuerkonto", 0) not in (1, 2):
+            continue
+
+        konto_id = str(konto.id)
+        if konto_id not in t_konten:
+            continue
+
+        daten = t_konten[konto_id]
+        soll  = sum(float(b) for _, b, _ in daten["soll"])
+        haben = sum(float(b) for _, b, _ in daten["haben"])
+        saldo = soll - haben
+
+        if konto.steuerkonto == 1:  # Vorsteuer (Aktiv)
+            if saldo > 0:
+                sk["soll"].append(("Vorsteuer", abs(saldo), "#e6f7ff"))
+            elif saldo < 0:
+                sk["haben"].append(("Vorsteuer", abs(saldo), "#e6f7ff"))
+            # Einzelkonto ausblenden
+            del t_konten[konto_id]
+
+        elif konto.steuerkonto == 2:  # Umsatzsteuer (Passiv)
+            if saldo > 0:
+                sk["soll"].append(("Umsatzsteuer", abs(saldo), "#fff2e6"))
+            elif saldo < 0:
+                sk["haben"].append(("Umsatzsteuer", abs(saldo), "#fff2e6"))
+            # Einzelkonto ausblenden
+            del t_konten[konto_id]
+
+    if sk["soll"] or sk["haben"]:
+        t_konten["steuerverrechnung"] = sk
+
+    return t_konten
+
+
 @login_required
 def guv_uebersicht(request):
     # GuV-Konto holen (zur späteren Filterung)
@@ -1576,6 +1468,7 @@ def guv_uebersicht(request):
         .exclude(konto__in=[guv_konto, ek_konto])
     # Baue T-Konten-Struktur
     t_konten = build_t_konten(buchungen, anfangsbestaende,guv_konto_id=None)
+    t_konten = verrechne_steuerkonten(t_konten, konten)
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
     guv_id = str(guv_konto.id)
     if guv_id in t_konten:
@@ -1717,6 +1610,7 @@ def bilanz_uebersicht(request):
 
     # T-Konten aufbauen und ggf. GuV entfernen
     t_konten_all = build_t_konten(buchungen, anfangsbestaende, guv_konto_id=guv_konto.id if guv_konto else None)
+    t_konten_all = verrechne_steuerkonten(t_konten_all, bestandskonten)
     konto_kategorien = {str(k.id): k.unterkategorie for k in bestandskonten}
     t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
 
@@ -1857,7 +1751,7 @@ def ollama_prompt_view(request):
         return StreamingHttpResponse(stream_antwort(), content_type='text/event-stream')
     return render(request, 'posts/ollama_prompt.html')
 
-def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
+def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung, aufgabeninfo):
     id_to_name = {str(k.id): k.name for k in Konto.objects.all()}
 
     def id_betrag_zu_namen(paar_liste, betraege):
@@ -1885,6 +1779,7 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
     prompt = (
         f"Du bist ein Tutor für Buchhaltung. Deine Aufgabe ist es, didaktisches Feedback auf fehlerhafte Buchungssätze zu geben. Das Feedback soll maximal drei Sätze lang sein.Verwende keine IDs, sondern nur Kontonamen und Beträge. Vermeide es, die richtige Lösung vollständig zu nennen, vor allem den vollständigen Namen der richtigen Konten.\n\n"
         f"Sachverhalt: \n{beschreibung}\n"
+        f"Zusatzinformationen:\n Falls die Aufgabe einen Bezug zu anderen Aufgaben hat bzw. anderweitig Informationen relevant sind, stehen diese hier: {aufgabeninfo}\n"
         f"Nutzereingabe:\nSoll: {nutzer_soll}, Haben: {nutzer_haben}\n"
         f"Richtige Lösung:\nSoll: {korrekt_soll}, Haben: {korrekt_haben}\n"
         f"Falls die gewählten Konten nicht korrekt sind, erläutere kurz, warum sie nicht passend sind, und gib einen Hinweis, welches Konto oder welche Konten stattdessen in diesem Fall sinnvoll wären. Wenn die Anzahl der Konten nicht übereinstimmt, soll ebenfalls ein zusätzlicher Hinweis gegeben werden. Unstimmige Beträge: Falls die Beträge nicht korrekt sind, weise darauf hin, dass die Summe nicht dem Rechnungsbetrag entspricht, und gib einen Tipp, wie sich der korrekte Betrag zusammensetzt. Falls nur eines der beiden fehlerhaft ist, nenne nur den entsprechenden Punkt. Falls beides falsch ist, gehe auf beide Punkte ein. Vermeide es, die richtige Lösung explizit zu nennen, sondern leite den Nutzer mit Hinweisen zur richtigen Lösung. Gib mir nur das Feedback zurück."
@@ -1898,6 +1793,7 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
         "stream": False
     }
     print("📄 Beschreibung:\n", beschreibung)
+    print("📄 Zusatzinformationen:\n", aufgabeninfo)
     print("👤 Nutzereingabe – Soll:", nutzer_soll)
     print("👤 Nutzereingabe – Haben:", nutzer_haben)
     print("✅ Richtige Lösung – Soll:", korrekt_soll)
@@ -1914,8 +1810,8 @@ def generiere_feedback_von_ollama(buchung, nutzeraufgabe, beschreibung):
     except Exception as e:
         return f"Fehler bei Feedback-Generierung: {e}"
     
-def ollama_threading(buchung, nutzer_aufgabe, beschreibung):
-    feedback = generiere_feedback_von_ollama(buchung, nutzer_aufgabe, beschreibung)
+def ollama_threading(buchung, nutzer_aufgabe, beschreibung,aufgabeninfo):
+    feedback = generiere_feedback_von_ollama(buchung, nutzer_aufgabe, beschreibung, aufgabeninfo)
     buchung.feedback_ollama = feedback
     buchung.save()
  

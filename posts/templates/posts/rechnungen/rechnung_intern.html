@@ -5,12 +5,10 @@
 {% load i18n %}
 {% block content %}
 <div class="invoice-box">
-
+        <p><strong>{{ eigene_ansicht|linebreaks }}</strong></p>
         <div class="invoice-header" style="margin-top: 20px;">
             <p><strong>{% trans "Datum:"%}</strong> {{ datum|date:"d.m.Y" }}</p>
-            {% if aufgabe.rechnungstyp != "non" %}
-                <p><strong>{% trans "Dokument:"%}</strong> {{ rechnungsnummer|default:_("Keine Nummer angegeben") }}</p>
-            {% endif %}
+            <p><strong>{% trans "Dokument:"%}</strong> {{ rechnungsnummer|default:_("Keine Nummer angegeben") }}</p>
         </div>
     
         <div class="invoice-description" style="margin-top: 20px;">
@@ -18,7 +16,7 @@
             <br><br>
                 <p>
                 {% if aufgabe.rechnungstyp == "non"%}
-                    {% trans "Sehr geehrte Buchhaltung,"%} <br><br>{% trans "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"%}
+                    {% trans "Sehr geehrte Buchhaltung,"%} <br><br><i>{% trans "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"%}</i>
                 {% else %}
                     {% trans "Sehr geehrte Buchhaltung,"%} 
                 {%endif%}

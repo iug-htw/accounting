@@ -1,11 +1,13 @@
 from django.urls import path, include
 from . import views
+from .views_logik import utils
+from .views_logik.aufgabe_erstellen.aufgabe_erstellen import aufgabe_neu_erstellen
 
 app_name = 'posts'
 
 urlpatterns = [
 
-    path('aufgabe_erstellen/', views.aufgabe_neu_erstellen, name='aufgabe_erstellen'),
+    path('aufgabe_erstellen/', aufgabe_neu_erstellen, name='aufgabe_erstellen'),
     path('rechnung/', views.rechnung_detail_view, name='rechnung'),
     path('rechnung/<int:aufgabe_id>/', views.rechnung_detail_view, name='rechnung_detail'),
     path('unternehmen_verwalten/', views.unternehmen_verwalten, name='unternehmen_verwalten'),

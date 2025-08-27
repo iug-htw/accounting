@@ -116,7 +116,7 @@ class AufgabeBearbeitenForm(forms.ModelForm):
     class Meta:
         model = Aufgabe_neu
         fields = ['unternehmen_kategorie', 'fragentyp', 'fragentyp_text', 'rechnungstyp','mailtext','verabschiedung','nutzungsdauer','rechnungsnummer','umsatzsteuerfrei',
-                  'hat_leistungszeitraum','eigene_ansicht','beschreibung', 'feedback_konto_falsch', 'feedback_betrag_falsch','zahlweise']
+                  'hat_leistungszeitraum','eigene_ansicht','beschreibung', 'feedback_konto_falsch', 'feedback_betrag_falsch','aufgabeninfo','zahlweise']
     
 
 class AufgabeDetailBearbeitenForm(forms.ModelForm):
@@ -131,7 +131,7 @@ class AufgabeDetailBearbeitenForm(forms.ModelForm):
 class KontoForm(forms.ModelForm):
     class Meta:
         model = Konto
-        fields = ['name','hat_anfangsbestand', 'anfangsbestand_menge', 'kategorie', 'unterkategorie', 'kontenplan','kontonummer', 'bilanzposition_nummer']
+        fields = ['name','hat_anfangsbestand', 'anfangsbestand_menge', 'kategorie', 'unterkategorie', 'kontenplan','kontonummer','steuerkonto','bilanzposition_nummer']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)

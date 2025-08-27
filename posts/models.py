@@ -58,7 +58,7 @@ class Aufgabe_neu(models.Model):
     immer_feedback = models.BooleanField(null=True, blank=True, verbose_name=_("immer Feedback"))
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
     umsatzsteuerfrei = models.BooleanField(null=True, blank=True, default=0,help_text="Zeigt im Dokument an, dass der Betrag steuerfrei ist.")
-    eigene_ansicht = models.TextField(blank=True, null=True, default='SecureNet\nTreskowallee 8\n10318 Berlin',help_text="Angezeigter Text in der Mail, welche für die Nutzer verschickt wird. Zeigt die Addresse des eigenen Unternehmens", verbose_name=_("Eigene Ansicht"))
+    eigene_ansicht = models.TextField(blank=True, null=True,help_text="Angezeigter Text in der Mail, welche für die Nutzer verschickt wird. Zeigt die Addresse des eigenen Unternehmens", verbose_name=_("Eigene Ansicht"))
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001', verbose_name=_("Rechnungsnummer"))
     datum = models.DateField(blank=True, null=True, auto_now_add=True, verbose_name=_("Datum"))
     rechnungsbetrag = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=0.00, verbose_name=_("Rechnungsbetrag"))
@@ -76,6 +76,10 @@ class Aufgabe_neu(models.Model):
 
     def __str__(self):
         return f"({self.fragentyp})"
+    def save(self, *args, **kwargs):
+        if not self.eigene_ansicht and self.unternehmen_kategorie:
+            self.eigene_ansicht = f"{self.unternehmen_kategorie.anzeigename}\nTreskowallee 8\n10318 Berlin"
+        super().save(*args, **kwargs)
 
 class AufgabeDetail(models.Model):
     aufgabe = models.ForeignKey(Aufgabe_neu, on_delete=models.CASCADE, related_name="details", verbose_name=_("Aufgabe"))
@@ -214,6 +218,16 @@ class Konto(models.Model):
     kontonummer = models.IntegerField(null=True, blank=True, verbose_name=_("Kontonummer"))
     bilanzposition_nummer = models.IntegerField(null=True, blank=True, verbose_name=_("Bilanzposition Nummer"))
     eins = models.CharField(max_length=20, choices=UNTERKATEGORIE_CHOICES, blank=True, null=True, verbose_name=_("eins"))
+    STEUER_TYPEN = [
+        (0, "kein Steuerkonto"),
+        (1, "Vorsteuer"),
+        (2, "Umsatzsteuer"),
+    ]
+    steuerkonto = models.IntegerField(
+        choices=STEUER_TYPEN,
+        default=0,
+        verbose_name="Steuerkonto"
+    )
     hat_anfangsbestand = models.BooleanField(default=False)
     anfangsbestand_menge = models.IntegerField(null=True, blank=True)
     erstellt_von = models.ForeignKey(

@@ -2164,8 +2164,6 @@ msgid "Verwaltung"
 msgstr "Management"
 
 #: .\templates\master_layout.html:53
-#, fuzzy
-#| msgid "Ihre Studierenden:"
 msgid "Meine Studierenden"
 msgstr "List of your students:"
 
