@@ -280,6 +280,7 @@ class NutzerAbschluss(models.Model):
     nutzer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     typ = models.CharField(max_length=10, choices=TYPEN)
     daten = models.JSONField(default=dict) # strukturierte Lösung (Konten + Beträge)
+    eingabe = models.JSONField(default=dict, blank=True)
     korrekt = models.BooleanField(null=True, blank=True) # None = noch nicht geprüft
     erstellt_am = models.DateTimeField(auto_now_add=True)
     aktualisiert_am = models.DateTimeField(auto_now=True)

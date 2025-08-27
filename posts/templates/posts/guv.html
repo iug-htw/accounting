@@ -18,7 +18,7 @@
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ konto_kategorien|get_item:konto }}" data-unterkategorie="{{ konto_unterkategorien|get_item:konto }}">
+    <div class="konto" data-konto="{{ daten.name }}" data-konto-id="{{ konto }}" data-kategorie="{{ konto_kategorien|get_item:konto }}" data-unterkategorie="{{ konto_unterkategorien|get_item:konto }}">
         <h2>{{ daten.name }} </h2>
         <label>{% trans "Kategorie:"%}</label>
         <select class="konto-kategorie">
@@ -92,8 +92,8 @@
         </div>
     </div>
 </section>
-<button id="abschluss-v2-btn">{% trans "GuV Konto abschließen v2"%}</button>
-<button id="guv-reset-btn">{% trans "GuV löschen und neu erstellen"%}</button>
+<button id="abschluss-v2-btn">{% trans "GuV-Konto abschließen"%}</button>
+<button id="guv-reset-btn">{% trans "GuV-Konto löschen"%}</button>
 <script>
     const gettexts = {
         sbk: "{{ _('SBK') }}",
@@ -263,29 +263,37 @@ document.addEventListener("DOMContentLoaded", function () {
   
               // Finde freie Zelle oder erstelle neue Zeile
               let zeileGefunden = false;
-              for (let row of guvBody.querySelectorAll("tr")) {
-                  if (sbkSeite === "Soll" && !row.cells[0].innerText.trim()) {
-                      row.cells[0].innerText = kontoName;
-                      row.cells[1].innerText = formatNumber(sbkBetrag);
-                      zeileGefunden = true;
-                      break;
-                  } else if (sbkSeite === "Haben" && !row.cells[2].innerText.trim()) {
-                      row.cells[2].innerText = kontoName;
-                      row.cells[3].innerText = formatNumber(sbkBetrag);
-                      zeileGefunden = true;
-                      break;
-                  }
-              }
+                for (let row of guvBody.querySelectorAll("tr")) {
+                if (sbkSeite === "Soll" && !row.cells[0].innerText.trim()) {
+                    row.cells[0].dataset.kontoId = kontoDiv.dataset.kontoId;
+                    row.cells[0].innerText = kontoName;
+                    row.cells[1].dataset.value = sbkBetrag;
+                    row.cells[1].innerText = formatNumber(sbkBetrag);
+                    zeileGefunden = true;
+                    break;
+                } else if (sbkSeite === "Haben" && !row.cells[2].innerText.trim()) {
+                    row.cells[2].dataset.kontoId = kontoDiv.dataset.kontoId;
+                    row.cells[2].innerText = kontoName;
+                    row.cells[3].dataset.value = sbkBetrag;
+                    row.cells[3].innerText = formatNumber(sbkBetrag);
+                    zeileGefunden = true;
+                    break;
+                }
+                }
+
   
               if (!zeileGefunden) {
-                  let neueZeile = document.createElement("tr");
-                  if (sbkSeite === "Soll") {
-                      neueZeile.innerHTML = `<td>${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td><td></td><td></td>`;
-                  } else if (sbkSeite === "Haben") {
-                      neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td>`;
-                  }
-                  guvBody.appendChild(neueZeile);
-              }
+                const id = kontoDiv.dataset.kontoId;
+                const neueZeile = document.createElement("tr");
+                if (sbkSeite === "Soll") {
+                    neueZeile.innerHTML =
+                    `<td data-konto-id="${id}">${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td><td></td><td></td>`;
+                } else {
+                    neueZeile.innerHTML =
+                    `<td></td><td></td><td data-konto-id="${id}">${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td>`;
+                }
+                guvBody.appendChild(neueZeile);
+                }
   
               aktualisiereGuVSumme();
           });
@@ -394,36 +402,89 @@ function parseLocalizedNumber(text) {
     }
 }
 
-async function api(url, method = 'GET', data) {
-  const res = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: data ? JSON.stringify(data) : undefined
-  });
-  return res.json();
-}
-
-async function ladeServerGuv() {
-  const r = await api('{% url "posts:abschluss_status" %}?typ=GUV');
-  if (r.exists) { /* optional: r.daten in die Tabelle einspielen */ }
-}
-
-async function pruefeGuv() {
-  const client = /* TODO: baue hier dein bereits existierendes JS-GuV-JSON */ {};
-  const r = await api('{% url "posts:abschluss_pruefen" %}', 'POST', { typ: 'GUV', daten: client });
-  alert(r.korrekt ? 'GuV ist richtig.' : 'GuV ist falsch.');
-}
-
-async function resetGuv() {
-  await api('{% url "posts:abschluss_reset" %}', 'POST', { typ: 'GUV' });
-  location.reload();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
+  // vorhandene Eingabe vorladen
   ladeServerGuv();
-  document.getElementById('guv-speichern-btn').addEventListener('click', pruefeGuv);
-  document.getElementById('guv-reset-btn').addEventListener('click', resetGuv);
+
+  // ✅ Nur binden, wenn der Button existiert (bei dir gibt es ihn aktuell nicht)
+  const saveBtn = document.getElementById('guv-speichern-btn');
+  if (saveBtn) saveBtn.addEventListener('click', pruefeGuv);
+
+  // ✅ Wichtig: Reset-Button immer sauber binden
+  const resetBtn = document.getElementById('guv-reset-btn');
+  if (resetBtn) resetBtn.addEventListener('click', resetGuv);
+});
+function csrf() { return document.querySelector('meta[name="csrf-token"]').content; }
+function collectGuV() {
+  const rows = Array.from(document.querySelectorAll("#guv-body tr"));
+  const soll=[], haben=[];
+  rows.forEach(r=>{
+    const ks=r.cells[0]?.dataset.kontoId, bs=parseFloat(r.cells[1]?.dataset.value||0);
+    const kh=r.cells[2]?.dataset.kontoId, bh=parseFloat(r.cells[3]?.dataset.value||0);
+    if(ks && bs) soll.push({konto: ks, betrag: bs});
+    if(kh && bh) haben.push({konto: kh, betrag: bh});
+  });
+  return {soll, haben};
+}
+document.getElementById("abschluss-v2-btn").addEventListener("click", async ()=>{
+  const payload = {typ:"GUV", daten: collectGuV()};
+  const res = await fetch("{% url 'posts:abschluss_client_speichern' %}", {
+    method:"POST",
+    headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},
+    body: JSON.stringify(payload)
+  });
+  const r = await res.json();
+  alert(r.korrekt ? "{{_('GuV ist korrekt gespeichert.')}}" : "{{_('GuV ist falsch gespeichert.')}}");
 });
 
+async function ladeServerGuv(){
+  try{
+    const res = await fetch("{% url 'posts:abschluss_status' %}?typ=GUV");
+    const r = await res.json();
+    if(!r || !r.eingabe) return;
+
+    const nameById = {};
+    document.querySelectorAll(".konto").forEach(div=>{
+      nameById[div.dataset.kontoId] = div.dataset.konto;
+    });
+
+    const body = document.getElementById("guv-body");
+    body.innerHTML = "";
+
+    const addRow = (seite, k, b) => {
+      const tr = document.createElement("tr");
+      if(seite === "Soll"){
+        tr.innerHTML = `<td data-konto-id="${k}">${nameById[k]||k}</td><td data-value="${b}">${formatNumber(b)}</td><td></td><td></td>`;
+      }else{
+        tr.innerHTML = `<td></td><td></td><td data-konto-id="${k}">${nameById[k]||k}</td><td data-value="${b}">${formatNumber(b)}</td>`;
+      }
+      body.appendChild(tr);
+    };
+
+    Object.entries(r.eingabe.aufwand||{}).forEach(([k,b])=>addRow("Soll",k,b));
+    Object.entries(r.eingabe.ertrag||{}).forEach(([k,b])=>addRow("Haben",k,b));
+    aktualisiereGuVSumme();
+  }catch(e){ console.error(e); }
+}
+
+// ---- NEU: Nutzer-Eingabe (nur Eingabe!) zurücksetzen ----
+async function resetGuv(){
+  try{
+    const res = await fetch("{% url 'posts:abschluss_client_reset' %}", {
+      method: "POST",
+      headers: {'Content-Type':'application/json','X-CSRFToken': csrf()},
+      body: JSON.stringify({typ:"GUV"})
+    });
+    await res.json();
+  }catch(e){ console.error(e); }
+  // UI leeren & Buttons reaktivieren
+  document.getElementById("guv-body").innerHTML = "";
+  document.getElementById("summe-soll").innerText = "";
+  document.getElementById("summe-haben").innerText = "";
+  document.querySelectorAll(".konto-abschluss-btn").forEach(btn=>{
+    btn.disabled=false; btn.innerText="{{ _('Konto abschließen') }}";
+  });
+  document.getElementById("abschluss-v2-btn").disabled=false;
+}
 </script>
 {% endblock %}

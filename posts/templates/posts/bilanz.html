@@ -15,7 +15,7 @@
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ daten.name }}" data-kategorie="{{ bestandskonten|get_item:konto }}">
+    <div class="konto" data-konto="{{ daten.name }}" data-konto-id="{{ konto }}" data-kategorie="{{ bestandskonten|get_item:konto }}">
         <h2>{{ daten.name }}</h2>
         <label>{% trans "Kategorie:"%}</label>
         <select class="konto-kategorie">
@@ -88,10 +88,14 @@
         </div>
     </section>
 
-<button id="abschluss-alle-btn">{% trans "Alle Konten abschließen"%}</button>
-<button id="bilanz-reset-btn">{% trans "Bilanz löschen und neu erstellen"%}</button>
+<button id="abschluss-alle-btn">{% trans "Bilanz speichern"%}</button>
+<button id="bilanz-reset-btn">{% trans "Bilanz löschen"%}</button>
 
 <script>
+function isEigenkapitalName(name){
+  const n = (name||'').toLowerCase();
+  return n.includes('eigenkapital') || n.includes('gezeichnetes kapital') || n.includes('kapital ');
+}
 const gettexts = {
         sbk: "{{ _('SBK') }}",
         summe: "{{ _('Summe') }}",
@@ -173,6 +177,16 @@ document.addEventListener("DOMContentLoaded", function() {
             let kontoDiv = this.closest(".konto");
             let kontoName = kontoDiv.querySelector("h2").innerText;
             let kategorie = kontoDiv.querySelector(".konto-kategorie").value;
+            const select = kontoDiv.querySelector(".konto-kategorie");
+            if (!kategorie) {
+            // 1) aus data-kategorie (vom Backend), sonst 2) nach Saldo ableiten
+            kategorie = kontoDiv.dataset.kategorie || ((sollSumme >= habenSumme) ? "Aktiva" : "Passiva");
+            // UI auch setzen, damit der Nutzer es sieht
+            if (select) {
+                const opt = select.querySelector(`option[value="${kategorie}"]`);
+                if (opt) select.value = kategorie;
+            }
+            }
             let sollTabelle = kontoDiv.querySelector(".soll-tabelle");
             let habenTabelle = kontoDiv.querySelector(".haben-tabelle");
 
@@ -184,7 +198,58 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
             let differenz = Math.abs(sollSumme - habenSumme);
+            if (kategorie === "Passiva" && isEigenkapitalName(kontoName)) {
+                // GuV aus T-Konto auslesen
+                const habenRows = Array.from(habenTabelle.querySelectorAll("tr"));
+                const sollRows  = Array.from(sollTabelle.querySelectorAll("tr"));
 
+                const pick = rows => rows.map(r=>{
+                    const label = (r.cells[0]?.innerText || '').trim();
+                    const valTd = r.querySelector('td.betrag');
+                    const val   = parseFloat(valTd?.dataset.value || r.cells[1]?.dataset?.value || r.cells[1]?.innerText?.replace(/\./g,'').replace(',','.') || 0) || 0;
+                    return {label, val};
+                });
+
+                const h = pick(habenRows);
+                const s = pick(sollRows);
+
+                const ekVal  = h.filter(x => x.label.toLowerCase().startsWith('ebk')).reduce((a,b)=>a+b.val, 0);
+                let   guvVal = 0;
+                const guvH   = h.filter(x => x.label.toLowerCase().includes('guv'));
+                const guvS   = s.filter(x => x.label.toLowerCase().includes('guv'));
+                if (guvH.length) guvVal =  guvH.reduce((a,b)=>a+b.val, 0);    // Gewinn → positiv
+                if (guvS.length) guvVal = -guvS.reduce((a,b)=>a+b.val, 0);    // Verlust → negativ
+
+                // Fallback, falls nichts erkannt wurde → Standardweg
+                if (!ekVal && !guvVal) { /* kein Sonderfall */ }
+                else {
+                    // 1) EK-Zeile (Passiva)
+                    let z1 = document.createElement("tr");
+                    z1.innerHTML =
+                    `<td></td><td></td>` +
+                    `<td data-konto-id="${kontoDiv.dataset.kontoId}">${kontoName}</td>` +
+                    `<td data-value="${ekVal}">${formatNumber(ekVal)}</td>`;
+                    bilanzBody.appendChild(z1);
+
+                    // 2) GuV-Zeile unter EK (Passiva), negativ bei Verlust
+                    let z2 = document.createElement("tr");
+                    z2.innerHTML =
+                    `<td></td><td></td>` +
+                    `<td data-konto-id="GUV">Jahresüberschuss/Jahresfehlbetrag</td>` +
+                    `<td data-value="${guvVal}">${formatNumber(guvVal)}</td>`;
+                    bilanzBody.appendChild(z2);
+
+                    // Summen anpassen (GuV kann negativ sein)
+                    summePassiv += (ekVal + guvVal);
+                    summePassivElement.setAttribute("data-value", summePassiv);
+                    summePassivElement.innerText = formatNumber(summePassiv);
+
+                    // Button-UI
+                    this.disabled = true;
+                    this.innerText = `${gettexts.abgeschlossen}`;
+                    return; // <<< Standardlogik überspringen
+                }
+            }
             // Eintrag in die Bilanz-Tabelle
             let neueZeile = document.createElement("tr");
 
@@ -215,8 +280,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     // Erste freie Zeile in Aktivseite füllen
                     for (let i = 0; i < bilanzZeilen.length; i++) {
                         if (bilanzZeilen[i].cells[0].innerText.trim() === "") {
+                            bilanzZeilen[i].cells[0].dataset.kontoId = kontoDiv.dataset.kontoId;
                             bilanzZeilen[i].cells[0].innerText = kontoName;
-                            bilanzZeilen[i].cells[1].setAttribute("data-value", differenz);
+                            bilanzZeilen[i].cells[1].dataset.value = differenz;
                             bilanzZeilen[i].cells[1].innerText = formatNumber(differenz);
                             break;
                         }
@@ -224,7 +290,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     // Neue Zeile hinzufügen
                     let neueZeile = document.createElement("tr");
-                    neueZeile.innerHTML = `<td>${kontoName}</td><td data-value="${differenz}">${formatNumber(differenz)}</td><td></td><td></td>`;
+                    neueZeile.innerHTML =
+                        `<td data-konto-id="${kontoDiv.dataset.kontoId}">${kontoName}</td>` +
+                        `<td data-value="${differenz}">${formatNumber(differenz)}</td>` +
+                        `<td></td><td></td>`;
                     bilanzBody.appendChild(neueZeile);
                 }
             }
@@ -236,8 +305,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     // Erste freie Zeile in Passivseite füllen
                     for (let i = 0; i < bilanzZeilen.length; i++) {
                         if (bilanzZeilen[i].cells[2].innerText.trim() === "") {
+                            bilanzZeilen[i].cells[2].dataset.kontoId = kontoDiv.dataset.kontoId;
                             bilanzZeilen[i].cells[2].innerText = kontoName;
-                            bilanzZeilen[i].cells[3].setAttribute("data-value", differenz);
+                            bilanzZeilen[i].cells[3].dataset.value = differenz;
                             bilanzZeilen[i].cells[3].innerText = formatNumber(differenz);
                             break;
                         }
@@ -245,7 +315,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     // Neue Zeile hinzufügen
                     let neueZeile = document.createElement("tr");
-                    neueZeile.innerHTML = `<td></td><td></td><td>${kontoName}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
+                    neueZeile.innerHTML =
+                        `<td></td><td></td>` +
+                        `<td data-konto-id="${kontoDiv.dataset.kontoId}">${kontoName}</td>` +
+                        `<td data-value="${differenz}">${formatNumber(differenz)}</td>`;
                     bilanzBody.appendChild(neueZeile);
                 }
             }
@@ -273,26 +346,146 @@ function formatNumber(value) {
         maximumFractionDigits: 2
     });
 }
-async function ladeServerBilanz() {
-  const r = await api('{% url "posts:abschluss_status" %}?typ=BILANZ');
-  if (r.exists) { /* optional: r.daten in die Tabelle einspielen */ }
-}
 
-async function pruefeBilanz() {
-  const client = /* TODO: baue hier dein JS-Bilanz-JSON */ {};
-  const r = await api('{% url "posts:abschluss_pruefen" %}', 'POST', { typ: 'BILANZ', daten: client });
-  alert(r.korrekt ? 'Bilanz ist richtig.' : 'Bilanz ist falsch.');
-}
-
-async function resetBilanz() {
-  await api('{% url "posts:abschluss_reset" %}', 'POST', { typ: 'BILANZ' });
-  location.reload();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  ladeServerBilanz();
-  document.getElementById('bilanz-speichern-btn').addEventListener('click', pruefeBilanz);
-  document.getElementById('bilanz-reset-btn').addEventListener('click', resetBilanz);
+function csrf(){return document.querySelector('meta[name="csrf-token"]').content;}
+// nach „Alle Konten abschließen“ direkt speichern:
+document.getElementById("abschluss-alle-btn").addEventListener("click", async ()=>{
+  // warte minimal, bis Zeilen geschrieben wurden
+  setTimeout(async ()=>{
+    const payload = {typ:"BILANZ", daten: collectBilanz()};
+    const res = await fetch("{% url 'posts:abschluss_client_speichern' %}", {
+      method:"POST",
+      headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},
+      body: JSON.stringify(payload)
+    });
+    const r = await res.json();
+    alert(r.korrekt ? "{{_('Bilanz ist korrekt gespeichert.')}}" : "{{_('Bilanz ist falsch gespeichert.')}}");
+  }, 100);
 });
+
+async function ladeServerBilanz(){
+  try{
+    const res = await fetch("{% url 'posts:abschluss_status' %}?typ=BILANZ");
+    const r = await res.json();
+    if(!r || !r.eingabe) return;
+
+    const nameById = {};
+    document.querySelectorAll(".konto").forEach(div=>{
+      nameById[div.dataset.kontoId] = div.dataset.konto;
+    });
+    nameById["STEUER_SAMMEL"] = nameById["STEUER_SAMMEL"] || "{{ _('Steuer (Sammel)') }}";
+    nameById["GUV"] = nameById["GUV"] || "Jahresüberschuss/Jahresfehlbetrag";
+    const body = document.getElementById("bilanz-body");
+    body.innerHTML = "";
+
+    const addRow = (seite, k, b) => {
+      const tr = document.createElement("tr");
+      if(seite === "Aktiva"){
+        tr.innerHTML = `<td data-konto-id="${k}">${nameById[k]||k}</td><td data-value="${b}">${formatNumber(b)}</td><td></td><td></td>`;
+      }else{
+        tr.innerHTML = `<td></td><td></td><td data-konto-id="${k}">${nameById[k]||k}</td><td data-value="${b}">${formatNumber(b)}</td>`;
+      }
+      body.appendChild(tr);
+    };
+
+    Object.entries(r.eingabe.aktiva||{}).forEach(([k,b])=>addRow("Aktiva",k,b));
+    Object.entries(r.eingabe.passiva||{}).forEach(([k,b])=>addRow("Passiva",k,b));
+
+    // Summen setzen
+    let sumA=0, sumP=0;
+    Array.from(body.querySelectorAll("tr")).forEach(row=>{
+      sumA += parseFloat(row.cells[1]?.dataset.value||0);
+      sumP += parseFloat(row.cells[3]?.dataset.value||0);
+    });
+    document.getElementById("summe-aktiv").innerText = formatNumber(sumA);
+    document.getElementById("summe-passiv").innerText = formatNumber(sumP);
+  }catch(e){ console.error(e); }
+}
+
+// ---- NEU: Nutzer-Eingabe (nur Eingabe!) zurücksetzen ----
+async function resetBilanz(){
+  try{
+    const res = await fetch("{% url 'posts:abschluss_client_reset' %}", {
+      method:"POST",
+      headers:{'Content-Type':'application/json','X-CSRFToken':csrf()},
+      body: JSON.stringify({typ:"BILANZ"})
+    });
+    await res.json();
+  }catch(e){ console.error(e); }
+  // UI leeren & Buttons reaktivieren
+  document.getElementById("bilanz-body").innerHTML = "";
+  document.getElementById("summe-aktiv").innerText = "";
+  document.getElementById("summe-passiv").innerText = "";
+  document.querySelectorAll(".konto-abschluss-btn").forEach(btn=>{
+    btn.disabled=false; btn.innerText="{{ _('Konto abschließen') }}";
+  });
+}
+
+// ---- NEU: beim Laden einlesen + Reset-Button binden ----
+document.addEventListener("DOMContentLoaded", ()=>{
+  ladeServerBilanz();
+  const rb = document.getElementById("bilanz-reset-btn");
+  if (rb) rb.addEventListener("click", resetBilanz);
+});
+
+
+function csrf(){return document.querySelector('meta[name="csrf-token"]').content;}
+
+// ⬇️ NEU: Immer „Steuer (Sammel)“ → STEUER_SAMMEL mappen
+function mapSammelId(id, name) {
+  const n = (name || '').toLowerCase().trim();
+  if (n === 'steuer (sammel)' || n === 'steuer (sammelkonto)' || n === 'steuersammel' || n === 'steuer-sammel') {
+    return 'STEUER_SAMMEL';
+  }
+  return id;
+}
+
+function isSammelName(name){
+  const n = (name||'').toLowerCase().trim();
+  return n === 'steuer (sammel)'
+      || n === 'steuer (sammelkonto)'
+      || n === 'steuersammel'
+      || n === 'steuer-sammel'
+      || n === 'steuerverrechnung'
+      || n === 'steuer-verrechnung'
+      || n === 'steuer verrechnung'
+      || n === 'umsatzsteuerverrechnung'
+      || n === 'vorsteuerverrechnung';
+}
+
+function isGuvName(name){
+  const n = (name||'').toLowerCase().trim();
+  return n === 'guv' || n.startsWith('jahresübersch') || n.startsWith('jahresuebersch')
+      || n.startsWith('jahresfehl') || n.includes('jahresergebnis');
+}
+
+function collectBilanz(){
+  const rows = Array.from(document.querySelectorAll("#bilanz-body tr"));
+  const aktiva=[], passiva=[];
+  rows.forEach(r=>{
+    const nameA = (r.cells[0]?.textContent || '').trim();
+    const nameP = (r.cells[2]?.textContent || '').trim();
+
+    let ka = r.cells[0]?.dataset.kontoId;
+    let ba = parseFloat(r.cells[1]?.dataset.value || 0);
+
+    let kp = r.cells[2]?.dataset.kontoId;
+    let bp = parseFloat(r.cells[3]?.dataset.value || 0);
+
+    // Aktiva
+    if (ba) {
+      if (isGuvName(nameA))        { aktiva.push({konto:'GUV',            betrag: ba}); }
+      else if (nameA.toLowerCase()==='steuer (sammel)'){ aktiva.push({konto:'STEUER_SAMMEL', betrag: ba}); }
+      else if (ka)                 { aktiva.push({konto:ka,               betrag: ba}); }
+    }
+    // Passiva
+    if (bp) {
+      if (isGuvName(nameP))        { passiva.push({konto:'GUV',            betrag: bp}); }
+      else if (nameP.toLowerCase()==='steuer (sammel)'){ passiva.push({konto:'STEUER_SAMMEL', betrag: bp}); }
+      else if (kp)                 { passiva.push({konto:kp,               betrag: bp}); }
+    }
+  });
+  return {aktiva, passiva};
+}
 </script>
 {% endblock %}

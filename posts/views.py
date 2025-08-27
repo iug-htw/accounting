@@ -1610,13 +1610,11 @@ def bilanz_uebersicht(request):
 
     # T-Konten aufbauen und ggf. GuV entfernen
     t_konten_all = build_t_konten(buchungen, anfangsbestaende, guv_konto_id=guv_konto.id if guv_konto else None)
-    t_konten_all = verrechne_steuerkonten(t_konten_all, bestandskonten)
     konto_kategorien = {str(k.id): k.unterkategorie for k in bestandskonten}
     t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
-
     if guv_konto and str(guv_konto.id) in t_konten:
         del t_konten[str(guv_konto.id)]
-
+    t_konten = verrechne_steuerkonten(t_konten, bestandskonten)
     return render(request, "posts/bilanz.html", {
         "t_konten": t_konten,
         "aktive_konten": [k.name for k in bestandskonten if k.unterkategorie == "Aktiva"],
@@ -1962,23 +1960,45 @@ def finde_steuer_sammelkonto(user):
     return Konto.objects.filter(kontenplan=u.kontenplan, name__iregex=rx).first()
 
 def konsolidiere_steuerkonten_bestand(bestand, user):
-    ids = set(list(bestand["aktiva"].keys()) + list(bestand["passiva"].keys()))
-    konten = {str(k.id): k for k in Konto.objects.filter(id__in=[int(i) for i in ids])}
-    vst = ust = 0.0
-    for k, konto in konten.items():
-        if getattr(konto, "steuerkonto", 0) not in (1, 2): 
+    """
+    Konsolidiere Vorsteuer/Umsatzsteuer zu einem Sammelposten.
+    - Akzeptiert auch bereits vorhandenen 'STEUER_SAMMEL' in aktiva/passiva.
+    - Ignoriert Nicht-Zahlen-Keys beim Konto-Lookup.
+    - Schlüssel für Sammelposten ist IMMER 'STEUER_SAMMEL'.
+    """
+    # vorhandene Sammelwerte übernehmen
+    net = float(bestand.get("aktiva", {}).pop("STEUER_SAMMEL", 0.0)) - float(
+        bestand.get("passiva", {}).pop("STEUER_SAMMEL", 0.0)
+    )
+
+    ids = list(bestand.get("aktiva", {}).keys()) + list(bestand.get("passiva", {}).keys())
+    num_ids = [int(i) for i in ids if str(i).isdigit()]
+    konten = {str(k.id): k for k in Konto.objects.filter(id__in=num_ids)}
+
+    # Aktiva: +VSt, -USt
+    for k in list(bestand.get("aktiva", {}).keys()):
+        if not str(k).isdigit():
             continue
-        a = float(bestand["aktiva"].pop(k, 0.0))
-        p = float(bestand["passiva"].pop(k, 0.0))
-        if konto.steuerkonto == 1:  # Vorsteuer
-            vst += (a - p)
-        else:                      # Umsatzsteuer
-            ust += (p - a)
-    net = round(vst - ust, 2)
-    if net:
-        sk = finde_steuer_sammelkonto(user)
-        key = str(sk.id) if sk else "STEUER_SAMMEL"
-        (bestand["aktiva"] if net > 0 else bestand["passiva"])[key] = abs(net)
+        ko = konten.get(str(k))
+        if ko and getattr(ko, "steuerkonto", 0) in (1, 2):
+            v = float(bestand["aktiva"].pop(k, 0.0))
+            net += v if ko.steuerkonto == 1 else -v
+
+    # Passiva: -VSt, +USt
+    for k in list(bestand.get("passiva", {}).keys()):
+        if not str(k).isdigit():
+            continue
+        ko = konten.get(str(k))
+        if ko and getattr(ko, "steuerkonto", 0) in (1, 2):
+            v = float(bestand["passiva"].pop(k, 0.0))
+            net += -v if ko.steuerkonto == 1 else v
+
+    if round(net, 2) != 0:
+        if net > 0:
+            bestand.setdefault("aktiva", {})["STEUER_SAMMEL"] = round(net, 2)
+        else:
+            bestand.setdefault("passiva", {})["STEUER_SAMMEL"] = round(-net, 2)
+
     return bestand
 
 def aggregate_erfolg(user):
@@ -2000,11 +2020,23 @@ def berechne_guv(erfolg):
 
 
 def berechne_bilanz(bestand, guv_saldo, user):
+    """
+    'bestand' kommt bereits als {"aktiva": {...}, "passiva": {...}} (inkl. EBK/AB-Logik)
+    'guv_saldo' ist z.B. {"typ": "Gewinn"|"Verlust", "betrag": 4911.0}
+    """
+    # Zuerst Steuer-Sammelkonto im Bestand konsolidieren
     bestand = konsolidiere_steuerkonten_bestand(bestand, user)
-    betrag = guv_saldo["betrag"] * (1 if guv_saldo["typ"] == "Gewinn" else -1)
-    bestand["passiva"]["GUV"] = round(betrag, 2)  # z. B. -4911 bei Jahresfehlbetrag
-    sa, sp = round(sum(bestand["aktiva"].values()), 2), round(sum(bestand["passiva"].values()), 2)
-    return {"aktiva": bestand["aktiva"], "passiva": bestand["passiva"], "summe": max(sa, sp)}
+
+    # GUV immer auf Passiva aufnehmen (Gewinn +, Verlust -)
+    if guv_saldo and guv_saldo.get("betrag"):
+        betrag = float(guv_saldo["betrag"])
+        sign = 1.0 if guv_saldo.get("typ") == "Gewinn" else -1.0
+        bestand["passiva"]["GUV"] = round(sign * betrag, 2)
+
+    # Summen bilden
+    sa = round(sum(bestand["aktiva"].values()), 2)
+    sp = round(sum(bestand["passiva"].values()), 2)
+    return {"aktiva": bestand["aktiva"], "passiva": bestand["passiva"]}
 
 def normalize(d):
     import json
@@ -2049,6 +2081,109 @@ def recompute_abschluesse_for_user(user):
 def validiere_client_mit_server(client, server):
     return normalize(client) == normalize(server)
 
+
+def _kontenplan(user):
+    u = getattr(user, "unternehmen", None)
+    return getattr(u, "kontenplan", None)
+
+def _konto_id_from_token(user, token):
+    if not token:
+        return None
+    t = str(token).strip()
+    tl = t.lower()
+
+    # GuV-Synonyme, die aus der Tabelle kommen können
+    if t.upper() == "GUV" or tl.startswith("jahresübersch") or tl.startswith("jahresuebersch") \
+       or tl.startswith("jahresfehl") or "jahresergebnis" in tl:
+        return "GUV"
+
+    # Steuer-Sammelkonto
+    if t.upper() == "STEUER_SAMMEL" or tl in (
+        "steuer (sammel)", "steuer (sammelkonto)", "steuersammel", "steuer-sammel",
+        "steuerverrechnung", "steuer-verrechnung", "steuer verrechnung",
+        "umsatzsteuerverrechnung", "vorsteuerverrechnung"
+    ):
+        return "STEUER_SAMMEL"
+
+    if t.isdigit():
+        return str(int(t))
+    kp = _kontenplan(user)
+    k = Konto.objects.filter(kontenplan=kp, name__iexact=t).first()
+    return str(k.id) if k else None
+
+def _normalize_client_guv(user, data):
+    aw, er = {}, {}
+    for it in data.get("soll", []):  # Soll = Aufwand
+        k = _konto_id_from_token(user, it.get("konto")); b = float(it.get("betrag", 0))
+        if k: aw[k] = round(aw.get(k, 0)+b, 2)
+    for it in data.get("haben", []): # Haben = Ertrag
+        k = _konto_id_from_token(user, it.get("konto")); b = float(it.get("betrag", 0))
+        if k: er[k] = round(er.get(k, 0)+b, 2)
+    saldo = round(sum(er.values())-sum(aw.values()), 2)
+    return {"aufwand": aw, "ertrag": er, "saldo": {"typ": ("Gewinn" if saldo>=0 else "Verlust"), "betrag": abs(saldo)}}
+
+def _normalize_client_bilanz(user, data):
+    akt, pas = {}, {}
+    for it in data.get("aktiva", []):
+        k = _konto_id_from_token(user, it.get("konto"))
+        b = float(it.get("betrag", 0))
+        if (k == "STEUER_SAMMEL" or k) and b:
+            akt[k] = round(akt.get(k, 0) + b, 2)
+    for it in data.get("passiva", []):
+        k = _konto_id_from_token(user, it.get("konto"))
+        b = float(it.get("betrag", 0))
+        if (k == "STEUER_SAMMEL" or k) and b:
+            pas[k] = round(pas.get(k, 0) + b, 2)
+    return {"aktiva": akt, "passiva": pas}
+
+def _normalize_for_compare(user, typ, client_json):
+    if typ == "GUV":
+        return _normalize_client_guv(user, client_json)
+    b = _normalize_client_bilanz(user, client_json)
+    # Sammelkonto konsolidieren UND GUV immer auf Passiva (Verlust negativ) abbilden
+    b = konsolidiere_steuerkonten_bestand(b, user)
+    b = _ensure_guv_in_passiva(b)
+    return b
+
+@login_required
+@require_http_methods(["POST"])
+def abschluss_client_speichern(request):
+    import json
+    body = json.loads(request.body or "{}")
+    typ = body.get("typ")  # "GUV" | "BILANZ"
+    client_raw = body.get("daten", {})
+    if typ not in ("GUV", "BILANZ"): 
+        return JsonResponse({"error":"bad-typ"}, status=400)
+
+    # Server-Referenz laden
+    obj = hole_abschluss(request.user, typ)
+    if not obj:
+        return JsonResponse({"error":"no-server-solution"}, status=404)
+
+    # Nutzerlösung normalisieren, speichern & vergleichen
+    client_norm = _normalize_for_compare(request.user, typ, client_raw)
+    obj.eingabe = client_norm
+    ok = validiere_client_mit_server(client_norm, obj.daten)
+    obj.korrekt = ok
+    obj.save(update_fields=["eingabe","korrekt","aktualisiert_am"])
+    return JsonResponse({"korrekt": ok})
+
+@login_required
+@require_http_methods(["POST"])
+def abschluss_client_reset(request):
+    body = json.loads(request.body or "{}")
+    typ = body.get("typ")
+    if typ not in ("GUV", "BILANZ"):
+        return JsonResponse({"error": "bad-typ"}, status=400)
+    obj = hole_abschluss(request.user, typ)
+    if obj:
+        obj.eingabe = {}
+        obj.korrekt = None
+        obj.save(update_fields=["eingabe", "korrekt", "aktualisiert_am"])
+    return JsonResponse({"ok": True})
+
+
+# ❗ Passe den bestehenden Status-Endpoint an (nur return-Zeile ändern)
 @login_required
 @require_http_methods(["GET"])
 def abschluss_status(request):
@@ -2056,27 +2191,25 @@ def abschluss_status(request):
     obj = hole_abschluss(request.user, typ)
     if not obj:
         return JsonResponse({"exists": False})
-    return JsonResponse({"exists": True, "korrekt": obj.korrekt, "daten": obj.daten})
+    return JsonResponse({"exists": True, "korrekt": obj.korrekt, "daten": obj.daten, "eingabe": obj.eingabe})
 
+def _ensure_guv_in_passiva(bilanz: dict) -> dict:
+    """
+    Erwartet ein Dict {"aktiva": {...}, "passiva": {...}}
+    - verschiebt ggf. 'GUV' von Aktiva nach Passiva
+    - auf Passiva ist GUV > 0 = Gewinn, GUV < 0 = Verlust
+    """
+    if not bilanz:
+        return bilanz
+    akt = bilanz.get("aktiva", {}) or {}
+    pas = bilanz.get("passiva", {}) or {}
 
-@login_required
-@require_http_methods(["POST"])
-def abschluss_pruefen(request):
-    import json
-    body = json.loads(request.body or "{}")
-    typ = body.get("typ"); client = body.get("daten", {})
-    obj = hole_abschluss(request.user, typ)
-    if not obj:
-        return JsonResponse({"error": "no-server-solution"}, status=404)
-    ok = validiere_client_mit_server(client, obj.daten)
-    obj.korrekt = ok; obj.save(update_fields=["korrekt", "aktualisiert_am"])
-    return JsonResponse({"korrekt": ok})
+    a_val = float(akt.pop("GUV", 0) or 0)   # GUV auf Aktiva bedeutet Verlust (soll negativ auf Passiva)
+    p_val = float(pas.pop("GUV", 0) or 0)   # GUV bereits auf Passiva (i.d.R. Gewinn positiv)
 
+    net = round(p_val - a_val, 2)           # Aktiva-Anteil als negatives Vorzeichen
+    if net != 0:
+        pas["GUV"] = net
 
-@login_required
-@require_http_methods(["POST"])
-def abschluss_reset(request):
-    import json
-    typ = (json.loads(request.body or "{}")).get("typ")
-    loesche_abschluss(request.user, typ)
-    return JsonResponse({"ok": True})
+    bilanz["aktiva"], bilanz["passiva"] = akt, pas
+    return bilanz

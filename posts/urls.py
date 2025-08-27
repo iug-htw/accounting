@@ -41,6 +41,7 @@ urlpatterns = [
     path('freie_buchung/', views.freie_buchung, name="freie_buchung"),
     path('faq/', views.faq_view, name="faq"),
     path("abschluss/status", views.abschluss_status, name="abschluss_status"),
-    path("abschluss/pruefen", views.abschluss_pruefen, name="abschluss_pruefen"),
-    path("abschluss/reset", views.abschluss_reset, name="abschluss_reset"),
+    path("abschluss/client-speichern", views.abschluss_client_speichern, name="abschluss_client_speichern"),
+    path("abschluss/client-reset", views.abschluss_client_reset, name="abschluss_client_reset"),
+
 ]
