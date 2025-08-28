@@ -848,7 +848,7 @@ def build_t_konten(buchungen, anfangsbestände,guv_konto_id=None):
     # Bestehende Buchungen hinzufügen (Originalfunktion bleibt erhalten)
     for buchung in buchungen:
         if buchung.aufgabe: 
-            aufgabe_id_mit_versuch = f"{buchung.aufgabe.id} {buchung.versuch})"
+            aufgabe_id_mit_versuch = f"{buchung.aufgabe.rechnungsnummer} {buchung.versuch})"
 
             if buchung.aufgabe.id not in aufgabe_farben:
                 aufgabe_farben[buchung.aufgabe.id] = generate_color(buchung.aufgabe.id)
@@ -1486,7 +1486,7 @@ def guv_uebersicht(request):
         .exclude(konto__in=[guv_konto, ek_konto])
     # Baue T-Konten-Struktur
     t_konten = build_t_konten(buchungen, anfangsbestaende,guv_konto_id=None)
-    t_konten = verrechne_steuerkonten(t_konten, konten)
+    #t_konten = verrechne_steuerkonten(t_konten, konten)
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
     guv_id = str(guv_konto.id)
     if guv_id in t_konten:
@@ -1951,22 +1951,28 @@ def _summe_aus_nutzeraufgaben(user):
     return res
 
 def aggregate_bestand(user):
-    """Bilanzsalden inkl. Anfangsbestand:
-       Aktiva:  AB + Soll - Haben
-       Passiva: AB + Haben - Soll"""
     res = {"aktiva": {}, "passiva": {}}
-    sums, abm = _summe_aus_nutzeraufgaben(user), _anfangsbestand_map(user)
-    for k in set(sums.keys()) | set(abm.keys()):
-        konto = (sums.get(k) or {}).get("konto") or (abm.get(k) or {}).get("konto")
-        if not konto or _kontotyp(konto) != "bestand": 
+    sums = _summe_aus_nutzeraufgaben(user)
+    abm  = _anfangsbestand_map(user)
+    dyn  = _dyn_fetch(user).get("bestand", {})
+
+    # WICHTIG: alle Konten berücksichtigen, auch reine Anfangsbestände
+    alle_keys = set(sums.keys()) | set(abm.keys())
+
+    for k in alle_keys:
+        d   = sums.get(k) or {}
+        ko  = d.get("konto") or (abm.get(k) or {}).get("konto")
+        if not ko or _kontotyp(ko) != "bestand":
             continue
-        s = float((sums.get(k) or {}).get("soll", 0))
-        h = float((sums.get(k) or {}).get("haben", 0))
-        ab = float((abm.get(k) or {}).get("ab", 0))
-        seite = (abm.get(k) or {}).get("seite") or _seite_bestand(konto)
-        end = ab + (s - h) if seite == "Aktiva" else ab + (h - s)
-        if end != 0:
-            (res["aktiva"] if seite == "Aktiva" else res["passiva"])[k] = round(end, 2)
+        s = float(d.get("soll", 0.0))
+        h = float(d.get("haben", 0.0))
+        ab = float((abm.get(k) or {}).get("ab", 0.0))
+        se = (abm.get(k) or {}).get("seite") or _seite_bestand(ko)
+
+        end = round(ab + (s - h), 2) if se == "Aktiva" else round(ab + (h - s), 2)
+        side = dyn.get(k) or (se if end >= 0 else ("Passiva" if se == "Aktiva" else "Aktiva"))
+        if abs(end) > 0:
+            res["aktiva" if side == "Aktiva" else "passiva"][k] = abs(end)
     return res
 
 def ermittle_eigenkapital_konto_user(user):
@@ -1985,54 +1991,78 @@ def finde_steuer_sammelkonto(user):
 
 def konsolidiere_steuerkonten_bestand(bestand, user):
     """
-    Konsolidiere Vorsteuer/Umsatzsteuer zu einem Sammelposten.
-    - Akzeptiert auch bereits vorhandenen 'STEUER_SAMMEL' in aktiva/passiva.
-    - Ignoriert Nicht-Zahlen-Keys beim Konto-Lookup.
-    - Schlüssel für Sammelposten ist IMMER 'STEUER_SAMMEL'.
+    Bildet das Steuerverrechnungskonto als DIFFERENZ: Vorsteuer - Umsatzsteuer.
+    Positive Differenz -> Aktiva (Forderung), negative -> Passiva (Zahllast).
+    Entfernt die Einzel-VSt/USt-Konten und ersetzt sie durch den Sammelposten.
     """
-    # vorhandene Sammelwerte übernehmen
-    net = float(bestand.get("aktiva", {}).pop("STEUER_SAMMEL", 0.0)) - float(
-        bestand.get("passiva", {}).pop("STEUER_SAMMEL", 0.0)
-    )
+    KEY = "STEUER_SAMMEL"
 
-    ids = list(bestand.get("aktiva", {}).keys()) + list(bestand.get("passiva", {}).keys())
-    num_ids = [int(i) for i in ids if str(i).isdigit()]
+    # Vorhandenen Sammelposten entfernen
+    aktiva = bestand.get("aktiva", {})
+    passiva = bestand.get("passiva", {})
+    existing_akt = aktiva.pop(KEY, None)
+    existing_pas = passiva.pop(KEY, None)
+
+    # IDs einsammeln und Konten lookup
+    ids = [k for k in list(aktiva.keys()) + list(passiva.keys()) if str(k).isdigit()]
+    if not ids:
+        return bestand
+    num_ids = [int(k) for k in ids]
+
+    from .models import Konto  # ggf. an den Dateikopf ziehen
     konten = {str(k.id): k for k in Konto.objects.filter(id__in=num_ids)}
 
-    # Aktiva: +VSt, -USt
-    for k in list(bestand.get("aktiva", {}).keys()):
-        if not str(k).isdigit():
-            continue
-        ko = konten.get(str(k))
-        if ko and getattr(ko, "steuerkonto", 0) in (1, 2):
-            v = float(bestand["aktiva"].pop(k, 0.0))
-            net += v if ko.steuerkonto == 1 else -v
+    # Summen getrennt erfassen
+    vst_total = 0.0
+    ust_total = 0.0
+    vst_ids, ust_ids = [], []
 
-    # Passiva: -VSt, +USt
-    for k in list(bestand.get("passiva", {}).keys()):
-        if not str(k).isdigit():
+    for sid in ids:
+        ko = konten.get(str(sid))
+        if not ko:
             continue
-        ko = konten.get(str(k))
-        if ko and getattr(ko, "steuerkonto", 0) in (1, 2):
-            v = float(bestand["passiva"].pop(k, 0.0))
-            net += -v if ko.steuerkonto == 1 else v
+        flag = int(getattr(ko, "steuerkonto", 0))  # 1=VSt, 2=USt
+        if flag not in (1, 2):
+            continue
 
-    if round(net, 2) != 0:
-        if net > 0:
-            bestand.setdefault("aktiva", {})["STEUER_SAMMEL"] = round(net, 2)
+        val = float(aktiva.get(sid, passiva.get(sid, 0.0)))
+        if flag == 1:
+            vst_total += val
+            vst_ids.append(sid)
         else:
-            bestand.setdefault("passiva", {})["STEUER_SAMMEL"] = round(-net, 2)
+            ust_total += val
+            ust_ids.append(sid)
+
+    # Einzel-Steuerkonten entfernen
+    for sid in vst_ids + ust_ids:
+        aktiva.pop(sid, None)
+        passiva.pop(sid, None)
+
+    # Differenz bilden und Sammelposten schreiben
+    net = round(vst_total - ust_total, 2)
+    if net > 0:
+        aktiva[KEY] = net          # Forderung (Soll)
+    elif net < 0:
+        passiva[KEY] = -net        # Zahllast (Haben)
+    else:
+        # 🔧 NEU: Wenn es gar keine VSt/USt-IDs gab, den vom Client gelieferten Sammelposten wiederherstellen
+        if not (vst_ids or ust_ids):
+            if existing_akt is not None:
+                aktiva[KEY] = existing_akt
+            elif existing_pas is not None:
+                passiva[KEY] = existing_pas
 
     return bestand
 
 def aggregate_erfolg(user):
-    """Erfolgskonten: Habensaldo=Ertrag, Sollsaldo=Aufwand. Aggregiere ALLE Konten."""
-    res = {"aufwand": {}, "ertrag": {}}
+    res, dyn = {"aufwand": {}, "ertrag": {}}, _dyn_fetch(user).get("erfolg", {})
     for k, d in _summe_aus_nutzeraufgaben(user).items():
-        if not d["konto"] or _kontotyp(d["konto"]) != "erfolg": continue
-        saldo = round(d["haben"] - d["soll"], 2)  # >0 => Ertrag, <0 => Aufwand
-        bucket = "ertrag" if saldo > 0 else "aufwand"
-        if abs(saldo) > 0: res[bucket][k] = abs(saldo)
+        ko = d.get("konto")
+        if not ko or _kontotyp(ko) != "erfolg": continue
+        s, h, kid = float(d["soll"]), float(d["haben"]), str(ko.id)
+        saldo = round(h - s, 2); bucket = "ertrag" if saldo > 0 else "aufwand"
+        if kid in dyn: bucket = "ertrag" if dyn[kid] == "Ertrag" else "aufwand"
+        if abs(saldo) > 0: res[bucket][kid] = abs(saldo)
     return res
 
 def berechne_guv(erfolg):
@@ -2092,15 +2122,15 @@ def hole_abschluss(user, typ):
 def loesche_abschluss(user, typ):
     NutzerAbschluss.objects.filter(nutzer=user, typ=typ).delete()
 
-
 def recompute_abschluesse_for_user(user):
-    erfolg = aggregate_erfolg(user)
-    guv = berechne_guv(erfolg)
+    resolve_dynamik_for_user(user)
+    erfolg  = aggregate_erfolg(user)
+    guv     = berechne_guv(erfolg)
     speichere_abschluss(user, "GUV", guv)
-    bestand = aggregate_bestand(user)
-    bilanz = berechne_bilanz(bestand, guv["saldo"], user)
-    speichere_abschluss(user, "BILANZ", bilanz)
 
+    bestand = aggregate_bestand(user)  # nutzt _anfangsbestand_map(user)
+    bilanz  = berechne_bilanz(bestand, guv["saldo"], user)
+    speichere_abschluss(user, "BILANZ", bilanz)
 
 def validiere_client_mit_server(client, server):
     return normalize(client) == normalize(server)
@@ -2237,3 +2267,22 @@ def _ensure_guv_in_passiva(bilanz: dict) -> dict:
 
     bilanz["aktiva"], bilanz["passiva"] = akt, pas
     return bilanz
+
+def _dyn_fetch(user):
+    na = hole_abschluss(user, "GUV") or hole_abschluss(user, "BILANZ")
+    return (na.dynamik if na and na.dynamik else {"erfolg": {}, "bestand": {}})
+
+def resolve_dynamik_for_user(user):
+    sums, abm = _summe_aus_nutzeraufgaben(user), _anfangsbestand_map(user)
+    dyn_e, dyn_b = {}, {}
+    for ko in Konto.objects.filter(unterkategorie__in=("DYNAMIK_ERFOLG","DYNAMIK_BESTAND")):
+        k, s, h = str(ko.id), float((sums.get(str(ko.id)) or {}).get("soll",0)), float((sums.get(str(ko.id)) or {}).get("haben",0))
+        if ko.unterkategorie == "DYNAMIK_ERFOLG":
+            dyn_e[k] = "Ertrag" if (h - s) >= 0 else "Aufwand"
+        else:
+            ab = float((abm.get(k) or {}).get("ab",0)); se = (abm.get(k) or {}).get("seite") or _seite_bestand(ko)
+            end = ab + (s - h) if se == "Aktiva" else ab + (h - s)
+            dyn_b[k] = se if end >= 0 else ("Passiva" if se == "Aktiva" else "Aktiva")
+    for typ in ("GUV","BILANZ"):
+        na = hole_abschluss(user, typ) or NutzerAbschluss.objects.create(nutzer=user, typ=typ, daten={})
+        na.dynamik = {"erfolg": dyn_e, "bestand": dyn_b}; na.save(update_fields=["dynamik","aktualisiert_am"])

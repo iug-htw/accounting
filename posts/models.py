@@ -210,6 +210,8 @@ class Konto(models.Model):
         ('Passiva', _('Passiva')),
         ('Aufwand', _('Aufwand')),
         ('Ertrag', _('Ertrag')),
+        ("DYNAMIK_ERFOLG", _("Dynamisch (GuV)")),
+        ("DYNAMIK_BESTAND", _("Dynamisch (Bilanz)")),
     ]
 
     name = models.CharField(max_length=255, verbose_name=_("name"))
@@ -284,6 +286,7 @@ class NutzerAbschluss(models.Model):
     korrekt = models.BooleanField(null=True, blank=True) # None = noch nicht geprüft
     erstellt_am = models.DateTimeField(auto_now_add=True)
     aktualisiert_am = models.DateTimeField(auto_now=True)
+    dynamik = models.JSONField(default=dict, blank=True)
 
 
     class Meta:

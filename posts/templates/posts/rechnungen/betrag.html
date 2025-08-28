@@ -22,5 +22,7 @@
     {% endif %}
 </div>
 <div class="payment-info" style="margin-top: 20px;">
+    {%if aufgabe.zahlweise != None%}
     <p><strong>{% trans "Zahlungsweise:"%}</strong> {{ zahlweise|default:_("Keine Zahlungsart angegeben") }}</p>
+    {%endif%}
 </div>

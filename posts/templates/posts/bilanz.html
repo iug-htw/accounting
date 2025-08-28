@@ -102,6 +102,16 @@ const gettexts = {
         summe: "{{ _('Summe') }}",
         abgeschlossen: "{{ _('Abgeschlossen') }}"
     };
+const GUV_LABEL = "{{ _('Jahresüberschuss/Jahresfehlbetrag')|escapejs }}";
+function isGuVLabel(txt){
+  const t = (txt||"").toLowerCase();
+  // deckt "guv", "jahresüberschuss/jahresfehlbetrag" und Schreibweisen ohne Umlaut ab
+  return t.includes('guv') ||
+         t.includes(GUV_LABEL.toLowerCase()) ||
+         t.includes('jahresüberschuss') || t.includes('jahresueberschuss') ||
+         t.includes('jahresfehlbetrag') ||
+         t.includes('gewinn') || t.includes('verlust');
+}
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
         button.addEventListener("click", function() {
@@ -216,8 +226,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 const ekVal  = h.filter(x => x.label.toLowerCase().startsWith('ebk')).reduce((a,b)=>a+b.val, 0);
                 let   guvVal = 0;
-                const guvH   = h.filter(x => x.label.toLowerCase().includes('guv'));
-                const guvS   = s.filter(x => x.label.toLowerCase().includes('guv'));
+                const guvH = h.filter(x => isGuVLabel(x.label));  // Gewinn → positiv
+                const guvS = s.filter(x => isGuVLabel(x.label));  // Verlust → negativ
                 if (guvH.length) guvVal =  guvH.reduce((a,b)=>a+b.val, 0);    // Gewinn → positiv
                 if (guvS.length) guvVal = -guvS.reduce((a,b)=>a+b.val, 0);    // Verlust → negativ
 
@@ -472,7 +482,6 @@ function collectBilanz(){
 
     let kp = r.cells[2]?.dataset.kontoId;
     let bp = parseFloat(r.cells[3]?.dataset.value || 0);
-
     // Aktiva
     if (ba) {
       if (isGuvName(nameA))        { aktiva.push({konto:'GUV',            betrag: ba}); }
