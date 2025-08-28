@@ -15,6 +15,8 @@
 <br>
 {% trans "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."%}
 <br>
+{% trans "Wenn ein Konto als Bestandskonto zugewiesen wird, wird dieses ausgeblendet. Beim Neuladen der Seite wird dieses Konto wieder angezeigt"%}
+<br>
 {% trans "Hinweis: Freie Buchungen werden hier nicht angezeigt."%}
 </p>
 
@@ -108,12 +110,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const sub = kontoDiv.querySelector(".konto-untertyp");
 
     // INIT: nur bei Erfolgskonto zeigen
-    if (cat && sub) sub.style.display = (cat.value === "Erfolgskonto") ? "inline-block" : "none";
+    //if (cat && sub) sub.style.display = (cat.value === "Erfolgskonto") ? "inline-block" : "none";
 
     cat?.addEventListener("change", () => {
         if (!sub) return;
         sub.style.display = (cat.value === "Erfolgskonto") ? "inline-block" : "none";
-        if (cat.value !== "Erfolgskonto") sub.value = ""; // zurücksetzen, wenn nicht Erfolgskonto
+        //if (cat.value !== "Erfolgskonto") sub.value = ""; // zurücksetzen, wenn nicht Erfolgskonto
     });
     });
     document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
@@ -127,37 +129,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const untertypSelect = kontoDiv.querySelector(".konto-untertyp");
             const untertyp = (untertypSelect && untertypSelect.style.display !== "none") ? (untertypSelect.value || "") : "";
 
-            if (echteKategorie === "Bestandskonto" && kategorie === "Bestandskonto") {
+            if (kategorie === "Bestandskonto") {
                 kontoDiv.style.display = "none";
                 return;
             }
-            if (echteKategorie === "Bestandskonto" && kategorie === "Erfolgskonto") {
-                alert(gettext("Fehler:") + ` ${kontoName} ` + gettext("ist ein Bestandskonto, aber wurde als Erfolgskonto ausgewählt."));
-                return;
-            }
-            if (echteKategorie === "Erfolgskonto" && kategorie === "Bestandskonto") {
-                alert(gettext("Fehler:") + ` ${kontoName} ` + gettext("ist ein Erfolgskonto, aber wurde als Bestandskonto ausgewählt."));
-                return;
-            }
-            // Untertyp-Pflicht & -Prüfung
-            if (echteKategorie === "Erfolgskonto" && kategorie === "Erfolgskonto") {
-                if (!untertyp) {
-                alert(gettext("Bitte Untertyp (Aufwand/Ertrag) wählen."));
-                return;   // ⬅️
-                }
-                const ut = untertyp.toLowerCase();
-                if (echteUnterkategorie.startsWith("aufwand") && ut !== "aufwand") {
-                alert(`${kontoName} ist ein Aufwandskonto`);
-                return;   // ⬅️
-                }
-                if (echteUnterkategorie.startsWith("ertrag") && ut !== "ertrag") {
-                alert(`${kontoName} ist ein Ertragskonto`);
-                return;   // ⬅️
-                }
-            } else {
-                alert(gettext("Fehler: Unbekannte Kategorie für") + ` ${kontoName}.`);
-                return;     // ⬅️
-            }
+            
 
             let sollTabelle = kontoDiv.querySelector(".soll-werte table");
             let habenTabelle = kontoDiv.querySelector(".haben-werte table");
@@ -209,97 +185,80 @@ document.addEventListener("DOMContentLoaded", function () {
       let guvBody = document.getElementById("guv-body");
   
       document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
-          button.addEventListener("click", function () {
-              let kontoDiv = this.closest(".konto");
-              let kontoName = kontoDiv.getAttribute('data-konto');
-              let kontoKategorie = kontoDiv.getAttribute('data-kategorie');
-  
-              if (!kontoName || kontoKategorie !== "Erfolgskonto") return;
+    button.addEventListener("click", function () {
+        const kontoDiv  = this.closest(".konto");
+        const kontoName = kontoDiv.getAttribute("data-konto");
+        const kontoId   = kontoDiv.dataset.kontoId;
 
-              const untertypSelect = kontoDiv.querySelector(".konto-untertyp");
-                const untertyp = (untertypSelect && untertypSelect.style.display !== "none") ? (untertypSelect.value || "") : "";
-                const echteUnterkategorie = (kontoDiv.getAttribute('data-unterkategorie') || "").toLowerCase();
+        // 1) Zugeordnete Bestandskonten NICHT in die GuV schreiben
+        const kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
+        if (kategorieDropdown && kategorieDropdown.value === "Bestandskonto") {
+        return;
+        }
 
-                // ohne Untertyp -> kein GuV-Eintrag
-                if (!untertyp) return;
+        // 2) Betrag = |Summe(Soll) - Summe(Haben)| des Kontos (ohne SBK-/Summenzeilen)
+        const parseCell = (cell) => {
+        if (!cell) return 0;
+        const dv = cell.dataset?.value;
+        return dv ? Math.abs(parseFloat(dv) || 0) : Math.abs(parseLocalizedNumber(cell.innerText) || 0);
+        };
+        const sumRows = (tableEl) => Array.from(tableEl.querySelectorAll("tr"))
+        .filter(row => {
+            const label = (row.cells[0]?.innerText || "").trim().toLowerCase();
+            return label !== "sbk" &&
+                label !== gettext("SBK").toLowerCase() &&
+                label !== gettext("Summe").toLowerCase();
+        })
+        .reduce((sum, row) => sum + parseCell(row.cells[1]), 0);
 
-                const ut = untertyp.toLowerCase();
-                if ( (echteUnterkategorie.startsWith("aufwand") && ut !== "aufwand") ||
-                    (echteUnterkategorie.startsWith("ertrag")  && ut !== "ertrag") ) {
-                return; // falscher Untertyp -> nicht in GuV schreiben
-                }
-              let sollTabelle = kontoDiv.querySelector(".haben-werte table");
-              let habenTabelle = kontoDiv.querySelector(".soll-werte table");
-  
-              let sbkBetrag = 0;
-              let sbkSeite = "";
-  
-              // SBK in Soll suchen
-              let sbkZeileSoll = Array.from(sollTabelle.querySelectorAll("tr"))
-                  .find(row => row.cells[0]?.innerText.trim() === "SBK");
-              if (sbkZeileSoll) {
-                  sbkBetrag = parseFloat(sbkZeileSoll.cells[1]?.dataset.value) || 0;
-                  sbkSeite = "Soll";
-              }
-  
-              // SBK in Haben suchen, wenn nicht im Soll gefunden
-              if (sbkBetrag === 0) {
-                  let sbkZeileHaben = Array.from(habenTabelle.querySelectorAll("tr"))
-                      .find(row => row.cells[0]?.innerText.trim() === "SBK");
-                  if (sbkZeileHaben) {
-                      sbkBetrag = parseFloat(sbkZeileHaben.cells[1]?.dataset.value) || 0;
-                      sbkSeite = "Haben";
-                  }
-              }
-  
-              // Fallback: Berechnung der Differenz
-              if (sbkBetrag === 0) {
-                  let sollSumme = Array.from(sollTabelle.querySelectorAll("tr"))
-                      .reduce((sum, row) => sum + (parseFloat(row.cells[1]?.dataset.value) || 0), 0);
-                  let habenSumme = Array.from(habenTabelle.querySelectorAll("tr"))
-                      .reduce((sum, row) => sum + (parseFloat(row.cells[1]?.dataset.value) || 0), 0);
-  
-                  sbkBetrag = Math.abs(sollSumme - habenSumme);
-                  sbkSeite = sollSumme > habenSumme ? "Soll" : "Haben";
-              }
-  
-              // Finde freie Zelle oder erstelle neue Zeile
-              let zeileGefunden = false;
-                for (let row of guvBody.querySelectorAll("tr")) {
-                if (sbkSeite === "Soll" && !row.cells[0].innerText.trim()) {
-                    row.cells[0].dataset.kontoId = kontoDiv.dataset.kontoId;
-                    row.cells[0].innerText = kontoName;
-                    row.cells[1].dataset.value = sbkBetrag;
-                    row.cells[1].innerText = formatNumber(sbkBetrag);
-                    zeileGefunden = true;
-                    break;
-                } else if (sbkSeite === "Haben" && !row.cells[2].innerText.trim()) {
-                    row.cells[2].dataset.kontoId = kontoDiv.dataset.kontoId;
-                    row.cells[2].innerText = kontoName;
-                    row.cells[3].dataset.value = sbkBetrag;
-                    row.cells[3].innerText = formatNumber(sbkBetrag);
-                    zeileGefunden = true;
-                    break;
-                }
-                }
+        const sollTbl    = kontoDiv.querySelector(".soll-werte table");
+        const habenTbl   = kontoDiv.querySelector(".haben-werte table");
+        const sollSumme  = sumRows(sollTbl);
+        const habenSumme = sumRows(habenTbl);
+        const betrag     = Math.abs(sollSumme - habenSumme);
 
-  
-              if (!zeileGefunden) {
-                const id = kontoDiv.dataset.kontoId;
-                const neueZeile = document.createElement("tr");
-                if (sbkSeite === "Soll") {
-                    neueZeile.innerHTML =
-                    `<td data-konto-id="${id}">${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td><td></td><td></td>`;
-                } else {
-                    neueZeile.innerHTML =
-                    `<td></td><td></td><td data-konto-id="${id}">${kontoName}</td><td data-value="${sbkBetrag}">${formatNumber(sbkBetrag)}</td>`;
-                }
-                guvBody.appendChild(neueZeile);
-                }
-  
-              aktualisiereGuVSumme();
-          });
-      });
+        if (!betrag) {
+        // Nichts zu buchen -> optional einfach ignorieren
+        return;
+        }
+
+        // 3) Seite NUR nach Unterkategorie bestimmen:
+        //    Aufwand -> Soll, Ertrag -> Haben (ohne weitere Prüfungen)
+        const ukRaw = (kontoDiv.getAttribute("data-unterkategorie") || "").toLowerCase();
+        const seite = ukRaw.startsWith("aufwand") ? "Soll" : "Haben"; // Default: Ertrag/Haben
+
+        // 4) In nächste freie Zelle oder neue Zeile schreiben
+        let eingefuegt = false;
+        for (let row of document.getElementById("guv-body").querySelectorAll("tr")) {
+        if (seite === "Soll" && !row.cells[0].innerText.trim()) {
+            row.cells[0].dataset.kontoId = kontoId;
+            row.cells[0].innerText = kontoName;
+            row.cells[1].dataset.value = betrag;
+            row.cells[1].innerText = formatNumber(betrag);
+            eingefuegt = true;
+            break;
+        } else if (seite === "Haben" && !row.cells[2].innerText.trim()) {
+            row.cells[2].dataset.kontoId = kontoId;
+            row.cells[2].innerText = kontoName;
+            row.cells[3].dataset.value = betrag;
+            row.cells[3].innerText = formatNumber(betrag);
+            eingefuegt = true;
+            break;
+        }
+        }
+        if (!eingefuegt) {
+        const tr = document.createElement("tr");
+        if (seite === "Soll") {
+            tr.innerHTML = `<td data-konto-id="${kontoId}">${kontoName}</td><td data-value="${betrag}">${formatNumber(betrag)}</td><td></td><td></td>`;
+        } else {
+            tr.innerHTML = `<td></td><td></td><td data-konto-id="${kontoId}">${kontoName}</td><td data-value="${betrag}">${formatNumber(betrag)}</td>`;
+        }
+        document.getElementById("guv-body").appendChild(tr);
+        }
+
+        aktualisiereGuVSumme();
+    });
+    });
       function insertSBKRow() {
           let sollGesamt = 0, habenGesamt = 0;
           guvBody.querySelectorAll("tr").forEach(row => {
