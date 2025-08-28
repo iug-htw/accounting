@@ -199,7 +199,7 @@ def bulk_student_creation(request):
             a=0
             if "SecureNet" in unter.name:
                 a=1
-            send_willkommen_mail(student,a)
+            send_willkommen_mail(student,a,unter.anzeigename)
             generate_user_anfangsbestaende(student)
             send_profile_update_mail(student, request)
             neue_studierende.append(student)
@@ -429,14 +429,14 @@ def send_profile_update_mail(user, request):
         
     )
 
-def send_willkommen_mail(user,a):
+def send_willkommen_mail(user,a, anzeigename):
     if settings.DEBUG:
         dokumentation_link = "http://localhost:8000/media/nutzerdokumentation.pdf"
     else:
         dokumentation_link = "https://train.f4.htw-berlin.de/media/nutzerdokumentation.pdf"
-
+    
     absender, _ = Absender.objects.get_or_create(
-            name="SecureNet", email="info@securenet.de",
+            name=anzeigename, email=f"info@{anzeigename}.de",
             straße="Treskowallee 8", stadt="Berlin", plz="10318"
         )
     betreff="Willkommen bei unserer Buchhaltungssoftware"
