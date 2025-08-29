@@ -77,6 +77,9 @@ input:checked + .slider-round:before {
                     <div id="semester-{{ forloop.counter }}" style="display: none; margin-left: 1em;">
                         {% for studiengang, studenten in studiengangs.items %}
                             <h4>{{ studiengang }}</h4>
+                            <form class="edit-controls" method="post" style="display:inline; display:none;" onsubmit="return deleteStudiengangStudents(event, '{{ studiengang }}', '{{ semester }}')">
+                                <button type="submit">{% trans "Alle User des Studiengangs löschen"%}</button>
+                            </form>
                             <ul>
                                 {% for entry in studenten %}
                                     {% with student=entry.student abschluss=entry.abschluss %}
@@ -85,9 +88,6 @@ input:checked + .slider-round:before {
                                         {% if student.last_login %}{% trans "Login: Ja" %}{% else %}{% trans "Login: Nein" %}{% endif %}
                                         <span id="progress-text-{{ student.id }}">0%</span>
                                         <span id="progress-icon-{{ student.id }}"></span>
-                                        <form class="edit-controls" method="post" style="display:inline; display:none;" onsubmit="return deleteUser(event, {{ student.id }})">
-                                            <button type="submit">{% trans "User löschen"%}</button>
-                                        </form>
                                         <!-- NEU: GuV / Bilanz Status -->
                                         <span> | {% trans "GuV"%}:
                                             {% if abschluss.GUV == None %}-{% elif abschluss.GUV == 1 %}🟢{% else %}🔴{% endif %}
@@ -95,7 +95,9 @@ input:checked + .slider-round:before {
                                         <span> {% trans "Bilanz"%}:
                                             {% if abschluss.BILANZ == None %}-{% elif abschluss.BILANZ == 1 %}🟢{% else %}🔴{% endif %}
                                         </span>
-
+                                        <form class="edit-controls" method="post" style="display:inline; display:none;" onsubmit="return deleteUser(event, {{ student.id }})">
+                                            <button type="submit">{% trans "User löschen"%}</button>
+                                        </form>
                                         <form class="edit-controls" ...>...</form>
                                     </li>
                                     {% endwith %}
