@@ -3,13 +3,15 @@ from . import views
 from .views_logik import utils
 from .views_logik.aufgabe_erstellen.aufgabe_erstellen import aufgabe_neu_erstellen
 from .views_logik.aufgabe_importieren.excel_imports import aufgabe_import_form
-app_name = 'posts'
+from .views_logik.rechnung.rechnung_ansicht import rechnung_detail_view
+from .views_logik.rechnung.buchung import freie_buchung
+app_name = 'posts' 
 
 urlpatterns = [
 
     path('aufgabe_erstellen/', aufgabe_neu_erstellen, name='aufgabe_erstellen'),
-    path('rechnung/', views.rechnung_detail_view, name='rechnung'),
-    path('rechnung/<int:aufgabe_id>/', views.rechnung_detail_view, name='rechnung_detail'),
+    path('rechnung/', rechnung_detail_view, name='rechnung'),
+    path('rechnung/<int:aufgabe_id>/', rechnung_detail_view, name='rechnung_detail'),
     path('unternehmen_verwalten/', views.unternehmen_verwalten, name='unternehmen_verwalten'),
     path('unternehmen_loeschen/<int:unternehmen_id>/', views.unternehmen_loeschen, name='unternehmen_loeschen'),
     path('aufgabenkategorie_verwalten/', views.aufgabenkategorie_verwalten, name='aufgabenkategorie_verwalten'),
@@ -38,7 +40,7 @@ urlpatterns = [
     path('kontenplan_konten_laden/', views.kontenplan_konten_laden, name='kontenplan_konten_laden'),
     path('tkonto_vorschau/', views.tkonto_vorschau, name='tkonto_vorschau'),
     path('kontenplan_loeschen/<int:pk>/', views.kontenplan_loeschen, name='kontenplan_loeschen'),
-    path('freie_buchung/', views.freie_buchung, name="freie_buchung"),
+    path('freie_buchung/', freie_buchung, name="freie_buchung"),
     path('faq/', views.faq_view, name="faq"),
     path("abschluss/status", views.abschluss_status, name="abschluss_status"),
     path("abschluss/client-speichern", views.abschluss_client_speichern, name="abschluss_client_speichern"),

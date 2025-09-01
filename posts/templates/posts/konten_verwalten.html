@@ -103,34 +103,34 @@
     {% endfor %}
 </table>
 <script>
-    const gettexts = {
-        aktiva: "{{ _('Aktiva') }}",
-        passiva: "{{ _('Passiva') }}",
-        aufwand: "{{ _('Aufwand') }}",
-        ertrag: "{{ _('Ertrag') }}"
-    };
-    document.addEventListener("DOMContentLoaded", function() {
-      let kategorieField = document.querySelector("#id_kategorie");
-      let unterkategorieField = document.querySelector("#id_unterkategorie");
+const gettexts = {
+    aktiva: "{{ _('Aktiva') }}",
+    passiva: "{{ _('Passiva') }}",
+    aufwand: "{{ _('Aufwand') }}",
+    ertrag: "{{ _('Ertrag') }}"
+};
+document.addEventListener("DOMContentLoaded", function() {
+  let kategorieField = document.querySelector("#id_kategorie");
+  let unterkategorieField = document.querySelector("#id_unterkategorie");
 
-      function updateUnterkategorie() {
-          let kategorie = kategorieField.value;
-          unterkategorieField.innerHTML = "";
-          if (kategorie === "Bestandskonto") {
-              unterkategorieField.innerHTML = `
-                  <option value="Aktiva">${gettexts.aktiva}</option>
-                  <option value="Passiva">${gettexts.passiva}</option>
-              `;
-          } else if (kategorie === "Erfolgskonto") {
-              unterkategorieField.innerHTML = `
-                  <option value="Aufwand">${gettexts.aufwand}</option>
-                  <option value="Ertrag">${gettexts.ertrag}</option>
-              `;
-          }
+  function updateUnterkategorie() {
+      let kategorie = kategorieField.value;
+      unterkategorieField.innerHTML = "";
+      if (kategorie === "Bestandskonto") {
+          unterkategorieField.innerHTML = `
+              <option value="Aktiva">${gettexts.aktiva}</option>
+              <option value="Passiva">${gettexts.passiva}</option>
+          `;
+      } else if (kategorie === "Erfolgskonto") {
+          unterkategorieField.innerHTML = `
+              <option value="Aufwand">${gettexts.aufwand}</option>
+              <option value="Ertrag">${gettexts.ertrag}</option>
+          `;
       }
+  }
 
-      kategorieField.addEventListener("change", updateUnterkategorie);
-      updateUnterkategorie(); // ⬅️ WICHTIG: befüllt die Liste sofort beim Laden
-  });
+  kategorieField.addEventListener("change", updateUnterkategorie);
+  updateUnterkategorie(); // ⬅️ WICHTIG: befüllt die Liste sofort beim Laden
+});
     </script>
 {% endblock %}
