@@ -2,7 +2,7 @@ from django.urls import path, include
 from . import views
 from .views_logik import utils
 from .views_logik.aufgabe_erstellen.aufgabe_erstellen import aufgabe_neu_erstellen
-
+from .views_logik.aufgabe_importieren.excel_imports import aufgabe_import_form
 app_name = 'posts'
 
 urlpatterns = [
@@ -34,7 +34,7 @@ urlpatterns = [
     path('aufgabe/<int:aufgabe_id>/loeschen/', views.aufgabe_loeschen, name='aufgabe_loeschen'),
     path('ollama_prompt/', views.ollama_prompt_view, name='ollama_prompt'),
     path("buchungssatz-uebersicht/", views.buchungssatz_uebersicht, name="buchungssatz_uebersicht"),
-    path('aufgabe_import_form/', views.aufgabe_import_form, name='aufgabe_import_form'),
+    path('aufgabe_import_form/', aufgabe_import_form, name='aufgabe_import_form'),
     path('kontenplan_konten_laden/', views.kontenplan_konten_laden, name='kontenplan_konten_laden'),
     path('tkonto_vorschau/', views.tkonto_vorschau, name='tkonto_vorschau'),
     path('kontenplan_loeschen/<int:pk>/', views.kontenplan_loeschen, name='kontenplan_loeschen'),

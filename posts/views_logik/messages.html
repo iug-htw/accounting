@@ -1,0 +1,24 @@
+<style>
+  .flash-container { margin: 1rem 0; }
+  .flash { padding: .75rem 1rem; border-radius: .5rem; margin-bottom: .5rem; border: 1px solid transparent; }
+  .flash-success { background: #e6f4ea; border-color: #34a853; color: #19692c; }  /* grün  */
+  .flash-error   { background: #fdecea; border-color: #d93025; color: #7a271a; }  /* rot   */
+  .flash-warning { background: #fff4e5; border-color: #f29900; color: #7a4e00; }  /* gelb  */
+  .flash-info    { background: #e8f0fe; border-color: #1a73e8; color: #174ea6; }  /* blau  */
+</style>
+
+{% if messages %}
+  <div class="flash-container" aria-live="polite" aria-atomic="true">
+    {% for message in messages %}
+      {% if "success" in message.tags %}
+        <div class="flash flash-success">{{ message }}</div>
+      {% elif "error" in message.tags %}
+        <div class="flash flash-error">{{ message }}</div>
+      {% elif "warning" in message.tags %}
+        <div class="flash flash-warning">{{ message }}</div>
+      {% else %}
+        <div class="flash flash-info">{{ message }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}

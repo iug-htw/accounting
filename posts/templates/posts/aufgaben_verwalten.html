@@ -7,6 +7,7 @@
 
 {% block content %}
 <h1>{% trans "Aufgabenverwaltung"%}</h1>
+{% include "messages.html" %}
 
 {% if aufgaben_nach_unternehmen %}
     {% for unternehmen, aufgaben in aufgaben_nach_unternehmen.items %}
