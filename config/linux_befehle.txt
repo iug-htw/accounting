@@ -35,6 +35,4 @@ Neustart der VM
 sudo systemctl restart gunicorn
 sudo systemctl restart nginx
 
-scp wiuser@train.f4.htw-berlin.de:~/individuelles-tempo/backups/db_backup_2025-11-04_03-00-01.sqlite3 "C:\Users\iug\Downloads"
-
-Settings.py ändern! 
+PS C:\Users\iug> scp wiuser@train.f4.htw-berlin.de:~/individuelles-tempo/db.sqlite3 "C:\Users\iug\Downloads"

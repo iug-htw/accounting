@@ -83,7 +83,10 @@
 <script>
 function isEigenkapitalName(name){
   const n = (name||'').toLowerCase();
-  return n.includes('eigenkapital') || n.includes('gezeichnetes kapital') || n.includes('kapital ');
+  return n.includes('eigenkapital') || n.includes('gezeichnetes kapital') || n.includes('kapital ')
+  || n.includes('equity')
+      || n.includes('capital')
+      || n.includes('retained earnings');;
 }
 let bilanzBody = document.getElementById("bilanz-body");
 const gettexts = {
@@ -99,7 +102,10 @@ function isGuVLabel(txt){
          t.includes(GUV_LABEL.toLowerCase()) ||
          t.includes('jahresüberschuss') || t.includes('jahresueberschuss') ||
          t.includes('jahresfehlbetrag') ||
-         t.includes('gewinn') || t.includes('verlust');
+         t.includes('gewinn') || t.includes('verlust')
+         || t.includes('net income') || t.includes('net loss')
+         || t.includes('profit or loss') || t.includes('profit for the year')
+         || t.includes('loss for the year');
 }
 
 
@@ -173,7 +179,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     let z2 = document.createElement("tr");
                     z2.innerHTML =
                     `<td></td><td></td>` +
-                    `<td data-konto-id="GUV">Jahresüberschuss/Jahresfehlbetrag</td>` +
+                    `<td data-konto-id="GUV">${GUV_LABEL}</td>` +
                     `<td data-value="${guvVal}">${formatNumber(guvVal)}</td>`;
                     bilanzBody.appendChild(z2);
 
@@ -411,16 +417,16 @@ function collectBilanz(){
     let bp = parseFloat(r.cells[3]?.dataset.value || 0);
     // Aktiva
     if (ba) {
-      if (isGuvName(nameA))        { aktiva.push({konto:'GUV',            betrag: ba}); }
+      if (ka === 'GUV' || isGuVLabel(nameA)) { aktiva.push({konto:'GUV', betrag: ba}); }
       else if (nameA.toLowerCase()==='steuer (sammel)'){ aktiva.push({konto:'STEUER_SAMMEL', betrag: ba}); }
-      else if (ka)                 { aktiva.push({konto:ka,               betrag: ba}); }
+      else if (ka) { aktiva.push({konto:ka, betrag: ba}); }
     }
-    // Passiva
     if (bp) {
-      if (isGuvName(nameP))        { passiva.push({konto:'GUV',            betrag: bp}); }
+      if (kp === 'GUV' || isGuVLabel(nameP)) { passiva.push({konto:'GUV', betrag: bp}); }
       else if (nameP.toLowerCase()==='steuer (sammel)'){ passiva.push({konto:'STEUER_SAMMEL', betrag: bp}); }
-      else if (kp)                 { passiva.push({konto:kp,               betrag: bp}); }
+      else if (kp) { passiva.push({konto:kp, betrag: bp}); }
     }
+
   });
   return {aktiva, passiva};
 }
@@ -453,8 +459,13 @@ function handleEigenkapitalAbschluss(div, body) {
     const rowsH = Array.from(habenTbl.querySelectorAll('tr'));
     const rowsS = Array.from(sollTbl.querySelectorAll('tr'));
 
-    const getLabel = r => (r.cells[0]?.innerText || "").trim();
-    const isGuVLabel = txt => ["guv", "jahresüberschuss", "jahresfehlbetrag"].some(w => txt.toLowerCase().includes(w));
+    const getLabel = r => (r.cells[0]?.innerText || "").trim().toLowerCase();
+    const isOpening = (txt) =>
+    txt.startsWith("ebk") ||
+    txt === "ob" ||
+    txt.includes("opening balance") ||
+    txt.includes("balance b/f") ||
+    txt.includes("balance brought forward");
 
     // EK aus Haben-EBK
     const ekVal = rowsH
@@ -482,7 +493,7 @@ function handleEigenkapitalAbschluss(div, body) {
     const trGuV = document.createElement("tr");
     trGuV.innerHTML = `
         <td></td><td></td>
-        <td data-konto-id="GUV">Jahresüberschuss/Jahresfehlbetrag</td>
+        <td data-konto-id="GUV">${GUV_LABEL}</td>
         <td data-value="${guvVal}">${formatNumber(guvVal)}</td>
     `;
     body.appendChild(trGuV);

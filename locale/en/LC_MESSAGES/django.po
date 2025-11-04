@@ -659,16 +659,12 @@ msgid "Alle Konten abschließen"
 msgstr "Close all accounts"
 
 #: .\posts\templates\posts\bilanz.html:80
-#, fuzzy
-#| msgid "Anzeigename speichern"
 msgid "Bilanz speichern"
-msgstr "Save display name"
+msgstr "Save Balance Sheets"
 
 #: .\posts\templates\posts\bilanz.html:81
-#, fuzzy
-#| msgid "Konto löschen"
 msgid "Bilanz löschen"
-msgstr "Delete account"
+msgstr "Delete Balance Sheet"
 
 #: .\posts\templates\posts\bilanz.html:90 .\posts\templates\posts\guv.html:92
 msgid "SBK"
@@ -683,18 +679,16 @@ msgid "Jahresüberschuss/Jahresfehlbetrag"
 msgstr "Net Income/Net Loss"
 
 #: .\posts\templates\posts\bilanz.html:300
-#, fuzzy
-#| msgid "Betrag ist korrekt."
 msgid "Bilanz ist korrekt gespeichert."
-msgstr "Amount is correct"
+msgstr "Balance Sheet is correct"
 
 #: .\posts\templates\posts\bilanz.html:300
 msgid "Bilanz ist falsch gespeichert."
-msgstr ""
+msgstr "Balance sheet is wrong"
 
 #: .\posts\templates\posts\bilanz.html:314
 msgid "Steuer (Sammel)"
-msgstr ""
+msgstr "VAT (all)"
 
 #: .\posts\templates\posts\bilanz.html:358 .\posts\templates\posts\guv.html:362
 msgid "Konto abschließen"
@@ -1273,16 +1267,12 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:308
-#, fuzzy
-#| msgid "Posteingang"
 msgid "Posteingang einsehen"
-msgstr "Inbox"
+msgstr "View the Inbox"
 
 #: .\posts\templates\posts\faq.html:309
-#, fuzzy
-#| msgid "Buchungssätze"
 msgid "Buchungssätze bearbeiten"
-msgstr "Journal entries"
+msgstr "Edit Journal entries"
 
 #: .\posts\templates\posts\faq.html:310
 #, fuzzy
@@ -1291,10 +1281,8 @@ msgid "GuV/Bilanz erstellen"
 msgstr "Prepare income statement and balance sheet"
 
 #: .\posts\templates\posts\faq.html:311
-#, fuzzy
-#| msgid "Feedback Konto falsch"
 msgid "Feedback von Aufgaben einsehen"
-msgstr "Feedback incorrect account"
+msgstr "See the feedback from tasks"
 
 #: .\posts\templates\posts\faq.html:313
 msgid "Darüber hinaus gibt es weitere Funktionen, die hauptsächlich unter "
@@ -1309,10 +1297,8 @@ msgid "zu finden sind und hier in den nächsten Blöcken genauer erklärt werden
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:319 .\posts\templates\posts\faq.html:340
-#, fuzzy
-#| msgid "Aufgabe erstellen"
 msgid "Nutzererstellung"
-msgstr "Create task"
+msgstr "User Creation"
 
 #: .\posts\templates\posts\faq.html:323
 msgid ""
@@ -1370,17 +1356,13 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:341
-#, fuzzy
-#| msgid "Aufgabe erstellen"
 msgid "Nutzer erstellen"
-msgstr "Create task"
+msgstr "Create User"
 
 #: .\posts\templates\posts\faq.html:349 .\posts\templates\posts\faq.html:363
 #: .\posts\templates\posts\faq.html:364
-#, fuzzy
-#| msgid "Nutzer anlegen"
 msgid "Nutzer managen"
-msgstr "Create Users"
+msgstr "Manage Users"
 
 #: .\posts\templates\posts\faq.html:354
 msgid ""
@@ -1406,10 +1388,8 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:372
-#, fuzzy
-#| msgid "Aufgabe bearbeiten"
 msgid "Aufgabenübersicht"
-msgstr "Edit task"
+msgstr "Task List"
 
 #: .\posts\templates\posts\faq.html:377
 msgid ""
@@ -1431,8 +1411,6 @@ msgid "Aufgabenliste"
 msgstr "Task List"
 
 #: .\posts\templates\posts\faq.html:393 .\posts\templates\posts\faq.html:442
-#, fuzzy
-#| msgid "Aufgabe erstellen"
 msgid "Aufgabenerstellung"
 msgstr "Create task"
 
@@ -1444,8 +1422,6 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:400 .\posts\templates\posts\faq.html:451
-#, fuzzy
-#| msgid "Unternehmen verwalten"
 msgid "Fallstudie/Unternehmen verwalten"
 msgstr "Manage Business/Case studys"
 
@@ -1473,10 +1449,8 @@ msgid "Im Folgenden werden die einzelnen Felder genauer erklärt: "
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:413
-#, fuzzy
-#| msgid "Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
 msgid "Kontenplan: Wählt den Kontenplan aus, auf den sicht die Aufgabe bezieht"
-msgstr "Select the chart of accounts to which this task refers."
+msgstr "Chart of Accounts: Choose the chart of accounts corresponding to the task."
 
 #: .\posts\templates\posts\faq.html:414
 msgid ""
@@ -1565,10 +1539,8 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:431
-#, fuzzy
-#| msgid "Allgemeine Informationen"
 msgid "Wichtige Informationen:"
-msgstr "General information"
+msgstr "Important information:"
 
 #: .\posts\templates\posts\faq.html:434
 msgid ""
@@ -1636,10 +1608,8 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:491 .\posts\templates\posts\faq.html:492
-#, fuzzy
-#| msgid "Aufgabenkategorien verwalten"
 msgid "Aufgabenkategorie"
-msgstr "Manage task categories"
+msgstr "Task categories"
 
 #: .\posts\templates\posts\faq.html:504
 msgid ""
@@ -1709,8 +1679,6 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:527
-#, fuzzy
-#| msgid "Kontenplan"
 msgid "Kontenplan und Konten"
 msgstr "Chart of accounts"
 
@@ -1728,16 +1696,12 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:543
-#, fuzzy
-#| msgid "Konten aus Excel importieren"
 msgid "Konten importieren"
 msgstr "Import accounts from Excel"
 
 #: .\posts\templates\posts\faq.html:548 .\posts\templates\posts\faq.html:549
-#, fuzzy
-#| msgid "Kontenplan"
 msgid "Kontenimport"
-msgstr "Chart of accounts"
+msgstr "Import accounts"
 
 #: .\posts\templates\posts\faq.html:562
 msgid ""
@@ -2192,18 +2156,16 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\guv.html:89
-#, fuzzy
-#| msgid "Konto löschen"
 msgid "GuV-Konto löschen"
-msgstr "Delete account"
+msgstr "Delete P&L Account"
 
 #: .\posts\templates\posts\guv.html:313
 msgid "GuV ist korrekt gespeichert."
-msgstr ""
+msgstr "P&L Statement is correct"
 
 #: .\posts\templates\posts\guv.html:313
 msgid "GuV ist falsch gespeichert."
-msgstr ""
+msgstr "P&L Statement is wrong"
 
 #: .\posts\templates\posts\hauptbuch.html:9
 msgid "Dein Hauptbuch"
@@ -2793,8 +2755,6 @@ msgid "Die Kategorie '%(name)s' wurde gelöscht."
 msgstr "The category '%(name)s' has been deleted."
 
 #: .\posts\views.py:326
-#, fuzzy
-#| msgid "Keine Berechtigung zum Löschen dieser Aufgabe."
 msgid "Keine Berechtigung zum Löschen dieser Kategorie."
 msgstr "No permission to delete this task."
 
@@ -2995,8 +2955,6 @@ msgid "Ihre Rolle:"
 msgstr "Your role:"
 
 #: .\templates\index.html:65
-#, fuzzy
-#| msgid "Bearbeitungsstand"
 msgid "Bearbeitungsmodus aktivieren"
 msgstr "Processing status"
 

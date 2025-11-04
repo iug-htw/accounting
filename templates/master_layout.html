@@ -35,16 +35,7 @@
                         {% endif %}
                     </a>
                     <a href="{% url 'posts:rechnungsuebersicht' %}" class="nav-element">{% trans "Rechnungen"%}</a>
-                        <div class="nav-dropdown">
-                            <a href="#" class="nav-element dropdown-toggle">{% trans "Profil"%} ▾</a>
-                            <div class="dropdown-content">
-                                <a href="{% url 'users:update_profile' %}" class="nav-element">{% trans "Profil"%}</a>
-                                <a href="/media/nutzerdokumentation.pdf" class="nav-element">{% trans "Handbuch"%}</a>
-                                {% if request.user.role == 'teacher' %}
-                                    <a href="/media/nutzerdokumentation_lehrende.pdf" class="nav-element" target="_blank">{% trans "Handbuch Lehrende"%}</a>
-                                {% endif %}
-                            </div>
-                        </div>
+                    <a href="{% url 'users:update_profile' %}" class="nav-element">{% trans "Profil"%}</a>
                         
                         {% if request.user.role == 'teacher' %}
                             <div class="nav-dropdown">
