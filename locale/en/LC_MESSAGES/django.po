@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-12 16:29+0200\n"
+"POT-Creation-Date: 2025-11-04 13:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,9 +18,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\posts\forms.py:11 .\posts\forms.py:83 .\posts\models.py:84
-#: .\posts\models.py:222 .\posts\templates\posts\konten_verwalten.html:51
-#: .\posts\templates\posts\konten_verwalten.html:72
+#: .\posts\forms.py:11 .\posts\forms.py:83 .\posts\models.py:89
+#: .\posts\models.py:239 .\posts\templates\posts\faq.html:528
+#: .\posts\templates\posts\konten_verwalten.html:52
+#: .\posts\templates\posts\konten_verwalten.html:73
 #: .\posts\templates\posts\neues_unternehmen.html:14
 msgid "Kontenplan"
 msgstr "Chart of accounts"
@@ -37,8 +38,8 @@ msgstr "Additional information about the task"
 msgid "Optionaler Informationstext zur Aufgabe (HTML erlaubt)."
 msgstr "Optional information text for the task (HTML allowed)."
 
-#: .\posts\models.py:12 .\posts\models.py:28
-#: .\posts\templates\posts\konten_verwalten.html:61
+#: .\posts\models.py:12 .\posts\models.py:29
+#: .\posts\templates\posts\konten_verwalten.html:62
 #: .\posts\templates\posts\neues_unternehmen.html:10 .\users\models.py:38
 #: .\users\models.py:44
 msgid "Name"
@@ -52,382 +53,390 @@ msgstr "chart of accounts"
 msgid "Fallstudie"
 msgstr "Case study"
 
-#: .\posts\models.py:16 .\posts\models.py:48 .\posts\models.py:102
-#: .\users\models.py:39 .\users\models.py:45
+#: .\posts\models.py:16 .\posts\models.py:23 .\posts\models.py:49
+#: .\posts\models.py:107 .\users\models.py:39 .\users\models.py:45
 msgid "Ersteller"
 msgstr "Creator"
 
-#: .\posts\models.py:29
+#: .\posts\models.py:30
 msgid "Email"
 msgstr "Email"
 
-#: .\posts\models.py:30
+#: .\posts\models.py:31
 msgid "Straße"
 msgstr "Street"
 
-#: .\posts\models.py:31
+#: .\posts\models.py:32
 msgid "Stadt"
 msgstr "City"
 
-#: .\posts\models.py:32
+#: .\posts\models.py:33
 msgid "Plz"
 msgstr "Zip Code"
 
-#: .\posts\models.py:33
+#: .\posts\models.py:34
 msgid "telnr"
 msgstr "phone number"
 
-#: .\posts\models.py:41
+#: .\posts\models.py:42
 msgid "Eingehende Rechnung"
 msgstr "Incoming invoice"
 
-#: .\posts\models.py:42
+#: .\posts\models.py:43
 msgid "Ausgehende Rechnung"
 msgstr "Outgoing invoice"
 
-#: .\posts\models.py:43
+#: .\posts\models.py:44
 msgid "Interner Vorgang"
 msgstr "Internal transaction"
 
-#: .\posts\models.py:44
+#: .\posts\models.py:45
 msgid "Keine Rechnungsansicht"
 msgstr "No invoice view"
 
-#: .\posts\models.py:46
-msgid "Unternehmen Kategorie"
-msgstr "Business category"
+#: .\posts\models.py:47
+#, fuzzy
+#| msgid "Unternehmen/Fallstudien verwalten"
+msgid "Unternehmen/Fallstudie"
+msgstr "Manage Business/Case studys"
 
-#: .\posts\models.py:47 .\posts\templates\posts\aufgaben_verwalten.html:21
+#: .\posts\models.py:48 .\posts\templates\posts\aufgaben_verwalten.html:22
 #: .\posts\templates\posts\rechnungsuebersicht.html:18
 msgid "Fragentyp"
 msgstr "Question type"
 
-#: .\posts\models.py:49 .\posts\models.py:212
-#: .\posts\templates\posts\konten_verwalten.html:64
+#: .\posts\models.py:50 .\posts\models.py:219
+#: .\posts\templates\posts\konten_verwalten.html:65
 msgid "Unterkategorie"
 msgstr "Sub Category"
 
-#: .\posts\models.py:50
+#: .\posts\models.py:51
 msgid "Mailbetreff Geschäftsvorfall"
 msgstr "Email subject business case"
 
-#: .\posts\models.py:51 .\posts\models.py:52 .\posts\models.py:53
-#: .\posts\models.py:180 .\posts\models.py:181 .\posts\models.py:182
+#: .\posts\models.py:52 .\posts\models.py:53 .\posts\models.py:54
+#: .\posts\models.py:185 .\posts\models.py:186 .\posts\models.py:187
 msgid "Mailtext"
 msgstr "Mailtext"
 
-#: .\posts\models.py:54
+#: .\posts\models.py:55
 msgid "Nutzungsdauer"
 msgstr "Useful life"
 
-#: .\posts\models.py:55
+#: .\posts\models.py:56
 msgid "Feedback Konto falsch"
 msgstr "Feedback incorrect account"
 
-#: .\posts\models.py:56
+#: .\posts\models.py:57
 msgid "Feedback Betrag falsch"
 msgstr "Feedback incorrect amount"
 
-#: .\posts\models.py:57
+#: .\posts\models.py:58
 msgid "immer Feedback"
 msgstr "always feedback"
 
-#: .\posts\models.py:60
+#: .\posts\models.py:61
 msgid "Eigene Ansicht"
 msgstr "Custom view"
 
-#: .\posts\models.py:61
+#: .\posts\models.py:62
 msgid "Rechnungsnummer"
 msgstr "Invoice number"
 
-#: .\posts\models.py:62 .\posts\models.py:187
+#: .\posts\models.py:63 .\posts\models.py:192
 #: .\posts\templates\posts\posteingang.html:19
 msgid "Datum"
 msgstr "Date"
 
-#: .\posts\models.py:63
+#: .\posts\models.py:64
 msgid "Rechnungsbetrag"
 msgstr "Invoice amount"
 
-#: .\posts\models.py:64
+#: .\posts\models.py:65
 msgid "Zahlweise"
 msgstr "Payment method"
 
-#: .\posts\models.py:65 .\posts\models.py:66 .\posts\models.py:67
+#: .\posts\models.py:66 .\posts\models.py:67 .\posts\models.py:68
 msgid "Verabschiedung"
 msgstr "Closing"
 
-#: .\posts\models.py:68
+#: .\posts\models.py:69
 msgid "Kontakt"
 msgstr "Contact"
 
-#: .\posts\models.py:69 .\posts\models.py:70 .\posts\models.py:71
-#: .\posts\templates\posts\aufgaben_verwalten.html:22
+#: .\posts\models.py:70 .\posts\models.py:71 .\posts\models.py:72
+#: .\posts\templates\posts\aufgaben_verwalten.html:23
 msgid "Beschreibung"
 msgstr "Description"
 
-#: .\posts\models.py:72
+#: .\posts\models.py:73
 msgid "Rechnungstyp"
 msgstr "Invoice type"
 
-#: .\posts\models.py:73
+#: .\posts\models.py:74
 msgid "Aufgabeninfo"
 msgstr "Task info"
 
-#: .\posts\models.py:74
+#: .\posts\models.py:75
 msgid "Hat Leistungszeitraum"
 msgstr "Has service period"
 
-#: .\posts\models.py:80 .\posts\models.py:100 .\posts\models.py:139
-#: .\posts\models.py:175
+#: .\posts\models.py:85 .\posts\models.py:105 .\posts\models.py:144
+#: .\posts\models.py:180
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:14
 #: .\posts\templates\posts\hauptbuch.html:24
 #: .\users\templates\users\aufgaben_zuweisen.html:48
 msgid "Aufgabe"
 msgstr "Task"
 
-#: .\posts\models.py:81 .\posts\models.py:241
+#: .\posts\models.py:86 .\posts\models.py:258
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:92
 #: .\posts\templates\posts\aufgabe_erstellen.html:69
+#: .\posts\templates\posts\faq.html:703 .\posts\templates\posts\faq.html:704
 msgid "Konto"
 msgstr "Account"
 
-#: .\posts\models.py:82 .\posts\templates\posts\aufgabe_bearbeiten.html:93
+#: .\posts\models.py:87 .\posts\templates\posts\aufgabe_bearbeiten.html:93
 #: .\posts\templates\posts\aufgabe_erstellen.html:70
 msgid "Soll/Haben"
 msgstr "Credit/Debit"
 
-#: .\posts\models.py:83 .\posts\models.py:242
+#: .\posts\models.py:88 .\posts\models.py:259
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:96
 #: .\posts\templates\posts\aufgabe_erstellen.html:73
+#: .\posts\templates\posts\faq.html:701 .\posts\templates\posts\faq.html:702
 #: .\posts\templates\posts\rechnung_js.html:5
 msgid "Betrag"
 msgstr "Amount"
 
-#: .\posts\models.py:85 .\posts\templates\posts\konten_verwalten.html:65
+#: .\posts\models.py:90 .\posts\templates\posts\konten_verwalten.html:66
 msgid "Bilanzposition"
 msgstr "Balance sheet item"
 
-#: .\posts\models.py:89 .\posts\models.py:134
+#: .\posts\models.py:94 .\posts\models.py:139
 #: .\posts\templates\posts\rechnungsuebersicht.html:30
 msgid "Offen"
 msgstr "Open"
 
-#: .\posts\models.py:90 .\posts\models.py:135 .\posts\models.py:190
+#: .\posts\models.py:95 .\posts\models.py:140 .\posts\models.py:195
 #: .\posts\templates\posts\posteingang.html:30
 #: .\posts\templates\posts\rechnungsuebersicht.html:32
 #: .\templates\frontpage.html:42 .\templates\frontpage.html:82
-#: .\templates\frontpage.html:111 .\templates\index.html:138
+#: .\templates\frontpage.html:111 .\templates\index.html:148
 msgid "Bearbeitet"
 msgstr "Processed"
 
-#: .\posts\models.py:91 .\posts\models.py:136 .\templates\frontpage.html:46
+#: .\posts\models.py:96 .\posts\models.py:141 .\templates\frontpage.html:46
 #: .\templates\frontpage.html:86 .\templates\frontpage.html:115
-#: .\templates\index.html:137
+#: .\templates\index.html:147
 msgid "Korrekt"
 msgstr "Correct"
 
-#: .\posts\models.py:94
+#: .\posts\models.py:99
 msgid "Richtig"
 msgstr "Correct"
 
-#: .\posts\models.py:95
+#: .\posts\models.py:100
 msgid "Soll ist falsch"
 msgstr "Debit is incorrect"
 
-#: .\posts\models.py:96
+#: .\posts\models.py:101
 msgid "Haben ist falsch"
 msgstr "Credit is incorrect"
 
-#: .\posts\models.py:97
+#: .\posts\models.py:102
 msgid "Beide sind falsch"
 msgstr "Both are incorrect"
 
-#: .\posts\models.py:99
+#: .\posts\models.py:104
 msgid "Buchungs ID"
 msgstr "Entry ID"
 
-#: .\posts\models.py:101 .\posts\models.py:141 .\posts\models.py:174
-#: .\posts\models.py:227 .\posts\models.py:240
+#: .\posts\models.py:106 .\posts\models.py:146 .\posts\models.py:179
+#: .\posts\models.py:244 .\posts\models.py:257
 msgid "Nutzer"
 msgstr "User"
 
-#: .\posts\models.py:103 .\posts\templates\posts\posteingang.html:17
+#: .\posts\models.py:108 .\posts\templates\posts\posteingang.html:17
 #: .\posts\templates\posts\rechnungsuebersicht.html:19
 msgid "Status"
 msgstr "Status"
 
-#: .\posts\models.py:104
+#: .\posts\models.py:109
 msgid "Freischaltung"
 msgstr "Activation"
 
-#: .\posts\models.py:105 .\posts\models.py:183
+#: .\posts\models.py:110 .\posts\models.py:188
 #: .\posts\templates\posts\rechnung.html:77
 msgid "Versuch"
 msgstr "Try"
 
-#: .\posts\models.py:106
+#: .\posts\models.py:111
 msgid "Abgeschlossen Datum"
 msgstr "Completion date"
 
-#: .\posts\models.py:107
+#: .\posts\models.py:112
 msgid "Antwort Konten Soll"
 msgstr "Answer accounts debit"
 
-#: .\posts\models.py:108
+#: .\posts\models.py:113
 msgid "Antwort Konten Haben"
 msgstr "Answer accounts credit"
 
-#: .\posts\models.py:109
+#: .\posts\models.py:114
 msgid "Antwort Betrag Soll"
 msgstr "Answer amount debit"
 
-#: .\posts\models.py:110
+#: .\posts\models.py:115
 msgid "Antwort Betrag Haben"
 msgstr "Answer amount credit"
 
-#: .\posts\models.py:111
+#: .\posts\models.py:116
 msgid "Original Konten Soll"
 msgstr "Original account debit"
 
-#: .\posts\models.py:112
+#: .\posts\models.py:117
 msgid "Original Konten Haben"
 msgstr "Original accoutn credit"
 
-#: .\posts\models.py:113
+#: .\posts\models.py:118
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:18
 #: .\posts\templates\posts\rechnung.html:84
 msgid "Korrekturbuchung"
 msgstr "Adjustment entry"
 
-#: .\posts\models.py:114
+#: .\posts\models.py:119
 msgid "Konto Korrekt"
 msgstr "Account correct"
 
-#: .\posts\models.py:115
+#: .\posts\models.py:120
 msgid "Betrag Korrekt"
 msgstr "Amount correct"
 
-#: .\posts\models.py:116
+#: .\posts\models.py:121
 msgid "Feedback Ollama"
 msgstr "Feedback Ollama"
 
-#: .\posts\models.py:140 .\posts\models.py:176
+#: .\posts\models.py:145 .\posts\models.py:181
 msgid "Absender"
 msgstr "Sender"
 
-#: .\posts\models.py:142
+#: .\posts\models.py:147
 msgid "Soll Konten"
 msgstr "Debit"
 
-#: .\posts\models.py:143
+#: .\posts\models.py:148
 msgid "Haben Konten"
 msgstr "Credit"
 
-#: .\posts\models.py:144
+#: .\posts\models.py:149
 msgid "Soll Beträge"
 msgstr "Debit amounts"
 
-#: .\posts\models.py:145
+#: .\posts\models.py:150
 msgid "Haben Beträge"
 msgstr "Credit amounts"
 
-#: .\posts\models.py:146
+#: .\posts\models.py:151
 msgid "Erstellt am"
 msgstr "Created at"
 
-#: .\posts\models.py:147
+#: .\posts\models.py:152
 msgid "Bearbeitungsstand"
 msgstr "Processing status"
 
-#: .\posts\models.py:151
+#: .\posts\models.py:156
 msgid "Skalierungsfaktor"
 msgstr "Scaling factor"
 
-#: .\posts\models.py:177 .\posts\models.py:178 .\posts\models.py:179
+#: .\posts\models.py:182 .\posts\models.py:183 .\posts\models.py:184
 #: .\posts\templates\posts\posteingang.html:16
 msgid "Betreff"
 msgstr "Subject"
 
-#: .\posts\models.py:184 .\posts\templates\posts\posteingang.html:18
+#: .\posts\models.py:189 .\posts\templates\posts\posteingang.html:18
 msgid "Von"
 msgstr "From"
 
-#: .\posts\models.py:185
+#: .\posts\models.py:190
 msgid "Absender Name"
 msgstr "Sender name"
 
-#: .\posts\models.py:186
+#: .\posts\models.py:191
 msgid "Absender Adresse"
 msgstr "Sender address"
 
-#: .\posts\models.py:189 .\posts\templates\posts\posteingang.html:32
+#: .\posts\models.py:194 .\posts\templates\posts\posteingang.html:32
 msgid "Nicht bearbeitet"
 msgstr "Not processed"
 
-#: .\posts\models.py:191
+#: .\posts\models.py:196
 msgid "nicht bearbeitet"
 msgstr "Not processed"
 
-#: .\posts\models.py:199 .\posts\templates\posts\guv.html:26
+#: .\posts\models.py:204
 msgid "Bestandskonto"
 msgstr "Asset account"
 
-#: .\posts\models.py:200 .\posts\templates\posts\guv.html:27
+#: .\posts\models.py:205
 msgid "Erfolgskonto"
 msgstr "Income account"
 
-#: .\posts\models.py:204 .\posts\templates\posts\bilanz.html:27
-#: .\posts\templates\posts\bilanz.html:71
-#: .\posts\templates\posts\konten_verwalten.html:106
-#: .\posts\templates\posts\konto_bearbeiten.html:33
+#: .\posts\models.py:209 .\posts\templates\posts\bilanz.html:60
+#: .\posts\templates\posts\konten_verwalten.html:111
+#: .\posts\templates\posts\konto_bearbeiten.html:35
 msgid "Aktiva"
 msgstr "Assets"
 
-#: .\posts\models.py:205 .\posts\templates\posts\bilanz.html:28
-#: .\posts\templates\posts\bilanz.html:72
-#: .\posts\templates\posts\konten_verwalten.html:107
-#: .\posts\templates\posts\konto_bearbeiten.html:34
+#: .\posts\models.py:210 .\posts\templates\posts\bilanz.html:61
+#: .\posts\templates\posts\konten_verwalten.html:112
+#: .\posts\templates\posts\konto_bearbeiten.html:36
 msgid "Passiva"
 msgstr "Liabilities"
 
-#: .\posts\models.py:206 .\posts\templates\posts\guv.html:31
-#: .\posts\templates\posts\konten_verwalten.html:108
-#: .\posts\templates\posts\konto_bearbeiten.html:35
+#: .\posts\models.py:211 .\posts\templates\posts\konten_verwalten.html:113
+#: .\posts\templates\posts\konto_bearbeiten.html:37
 msgid "Aufwand"
 msgstr "Expense"
 
-#: .\posts\models.py:207 .\posts\templates\posts\guv.html:32
-#: .\posts\templates\posts\konten_verwalten.html:109
-#: .\posts\templates\posts\konto_bearbeiten.html:36
+#: .\posts\models.py:212 .\posts\templates\posts\konten_verwalten.html:114
+#: .\posts\templates\posts\konto_bearbeiten.html:38
 msgid "Ertrag"
 msgstr "Revenue"
 
-#: .\posts\models.py:210
+#: .\posts\models.py:213
+msgid "Dynamisch (GuV)"
+msgstr ""
+
+#: .\posts\models.py:214
+msgid "Dynamisch (Bilanz)"
+msgstr ""
+
+#: .\posts\models.py:217
 msgid "name"
 msgstr "name"
 
-#: .\posts\models.py:211
+#: .\posts\models.py:218
 msgid "kategorie"
 msgstr "category"
 
-#: .\posts\models.py:213 .\posts\templates\posts\konten_verwalten.html:62
+#: .\posts\models.py:220 .\posts\templates\posts\konten_verwalten.html:63
 msgid "Kontonummer"
 msgstr "Account number"
 
-#: .\posts\models.py:214
+#: .\posts\models.py:221
 msgid "Bilanzposition Nummer"
 msgstr "Balance sheet item number"
 
-#: .\posts\models.py:215
+#: .\posts\models.py:222
 msgid "eins"
 msgstr "one"
 
-#: .\posts\models.py:220
+#: .\posts\models.py:237
 msgid "Erstellt von"
 msgstr "Created by"
 
-#: .\posts\models.py:234
+#: .\posts\models.py:251
 #, python-format
 msgid "Kontenplan %(nutzer)s (%(id)s)"
 msgstr "Chart of accounts %(nutzer)s (%(id)s)"
@@ -472,8 +481,8 @@ msgstr "Save"
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:94
 #: .\posts\templates\posts\aufgabe_erstellen.html:43
 #: .\posts\templates\posts\aufgabe_erstellen.html:71
-#: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:37
-#: .\posts\templates\posts\guv.html:75
+#: .\posts\templates\posts\bilanz.html:23 .\posts\templates\posts\guv.html:29
+#: .\posts\templates\posts\guv.html:67
 #: .\posts\templates\posts\hauptbuch.html:37
 #: .\posts\templates\posts\rechnung_js.html:7
 msgid "Soll"
@@ -482,8 +491,8 @@ msgstr "Debit"
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:95
 #: .\posts\templates\posts\aufgabe_erstellen.html:44
 #: .\posts\templates\posts\aufgabe_erstellen.html:72
-#: .\posts\templates\posts\bilanz.html:34 .\posts\templates\posts\guv.html:37
-#: .\posts\templates\posts\guv.html:76
+#: .\posts\templates\posts\bilanz.html:23 .\posts\templates\posts\guv.html:29
+#: .\posts\templates\posts\guv.html:68
 #: .\posts\templates\posts\hauptbuch.html:38
 msgid "Haben"
 msgstr "Credit"
@@ -494,7 +503,7 @@ msgid "Bitte geben Sie mindestens einen Betrag ein."
 msgstr "Please insert any amount for at least one field"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:11
-#: .\posts\templates\posts\aufgaben_verwalten.html:58
+#: .\posts\templates\posts\aufgaben_verwalten.html:55
 msgid "Neue Aufgabe erstellen"
 msgstr "Create a new task"
 
@@ -505,15 +514,18 @@ msgstr "Manage Business/Case studys"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:14
 #: .\posts\templates\posts\aufgabe_import_form.html:13
+#: .\posts\templates\posts\faq.html:401 .\posts\templates\posts\faq.html:480
 msgid "Fragentyp verwalten"
 msgstr "Manage question type"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:15
 #: .\posts\templates\posts\aufgabe_import_form.html:14
+#: .\posts\templates\posts\faq.html:402 .\posts\templates\posts\faq.html:500
 msgid "Konten verwalten"
 msgstr "Manage accounts"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:16
+#: .\posts\templates\posts\faq.html:403 .\posts\templates\posts\faq.html:557
 msgid "Aufgaben aus Excel importieren"
 msgstr "Import tasks from Excel"
 
@@ -582,43 +594,35 @@ msgstr "Start import"
 
 #: .\posts\templates\posts\aufgaben_verwalten.html:9
 msgid "Aufgabenverwaltung"
-msgstr "List of tasks"
+msgstr "Task Management"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:20
+#: .\posts\templates\posts\aufgaben_verwalten.html:21
 msgid "ID"
 msgstr "ID"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:23
+#: .\posts\templates\posts\aufgaben_verwalten.html:24
 #: .\posts\templates\posts\aufgaben_verwalten.html:35
-#: .\posts\templates\posts\konten_verwalten.html:93
+#: .\posts\templates\posts\konten_verwalten.html:98
 msgid "Bearbeiten"
 msgstr "Modify"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:24
-msgid "Zur Rechnung"
-msgstr "To the invoice"
-
 #: .\posts\templates\posts\aufgaben_verwalten.html:25
-#: .\posts\templates\posts\aufgaben_verwalten.html:44
-#: .\posts\templates\posts\konten_verwalten.html:96
-#: .\posts\templates\posts\neue_kategorie.html:24
+#: .\posts\templates\posts\aufgaben_verwalten.html:41
+#: .\posts\templates\posts\konten_verwalten.html:101
+#: .\posts\templates\posts\neue_kategorie.html:29
 #: .\posts\templates\posts\neues_unternehmen.html:32
 #: .\users\templates\users\add_semester.html:20
 #: .\users\templates\users\add_studiengang.html:19
 msgid "Löschen"
 msgstr "Delete"
 
-#: .\posts\templates\posts\aufgaben_verwalten.html:38
-msgid "Link"
-msgstr "Link"
-
-#: .\posts\templates\posts\aufgaben_verwalten.html:55
+#: .\posts\templates\posts\aufgaben_verwalten.html:52
 msgid "Keine Aufgaben vorhanden."
 msgstr "No tasks available"
 
 #: .\posts\templates\posts\bilanz.html:11
-#: .\posts\templates\posts\bilanz.html:66 .\posts\templates\posts\faq.html:285
-#: .\templates\master_layout.html:67
+#: .\posts\templates\posts\bilanz.html:55 .\posts\templates\posts\faq.html:285
+#: .\templates\index.html:96 .\templates\master_layout.html:67
 msgid "Bilanz"
 msgstr "Balance sheet"
 
@@ -639,61 +643,69 @@ msgstr ""
 "Currently, the balance sheet is not saved; it serves only to check whether "
 "the journal entries and account assignments have been made correctly."
 
-#: .\posts\templates\posts\bilanz.html:20 .\posts\templates\posts\guv.html:23
-#: .\posts\templates\posts\konten_verwalten.html:13
-#: .\posts\templates\posts\konto_bearbeiten.html:16
-msgid "Kategorie:"
-msgstr "Category:"
+#: .\posts\templates\posts\bilanz.html:14 .\posts\templates\posts\guv.html:20
+msgid "Hinweis: Freie Buchungen werden hier nicht angezeigt."
+msgstr ""
 
-#: .\posts\templates\posts\bilanz.html:22
-#: .\posts\templates\posts\freie_buchung.html:24
-#: .\posts\templates\posts\freie_buchung.html:45
-#: .\posts\templates\posts\guv.html:25
-#: .\posts\templates\posts\rechnung.html:222
-#: .\posts\templates\posts\rechnung.html:243
-#: .\posts\templates\posts\rechnung_js.html:81
-#: .\posts\templates\posts\rechnung_js.html:105
-#: .\posts\templates\posts\rechnung_js.html:352
-msgid "Bitte wählen..."
-msgstr "Please select..."
-
-#: .\posts\templates\posts\bilanz.html:24
-msgid "Gewinn"
-msgstr "Profit"
-
-#: .\posts\templates\posts\bilanz.html:25
-msgid "Verlust"
-msgstr "Loss"
-
-#: .\posts\templates\posts\bilanz.html:31 .\posts\templates\posts\guv.html:34
-msgid "Konto abschließen"
-msgstr "Close account"
-
-#: .\posts\templates\posts\bilanz.html:80
-#: .\posts\templates\posts\bilanz.html:82
-#: .\posts\templates\posts\bilanz.html:96 .\posts\templates\posts\guv.html:85
-#: .\posts\templates\posts\guv.html:87 .\posts\templates\posts\guv.html:99
+#: .\posts\templates\posts\bilanz.html:69
+#: .\posts\templates\posts\bilanz.html:71
+#: .\posts\templates\posts\bilanz.html:91 .\posts\templates\posts\guv.html:77
+#: .\posts\templates\posts\guv.html:79 .\posts\templates\posts\guv.html:93
 msgid "Summe"
 msgstr "Total"
 
-#: .\posts\templates\posts\bilanz.html:91
+#: .\posts\templates\posts\bilanz.html:79 .\posts\templates\posts\guv.html:87
 msgid "Alle Konten abschließen"
 msgstr "Close all accounts"
 
-#: .\posts\templates\posts\bilanz.html:95 .\posts\templates\posts\guv.html:98
+#: .\posts\templates\posts\bilanz.html:80
+#, fuzzy
+#| msgid "Anzeigename speichern"
+msgid "Bilanz speichern"
+msgstr "Save display name"
+
+#: .\posts\templates\posts\bilanz.html:81
+#, fuzzy
+#| msgid "Konto löschen"
+msgid "Bilanz löschen"
+msgstr "Delete account"
+
+#: .\posts\templates\posts\bilanz.html:90 .\posts\templates\posts\guv.html:92
 msgid "SBK"
 msgstr "CBA"
 
-#: .\posts\templates\posts\bilanz.html:97 .\posts\templates\posts\guv.html:100
+#: .\posts\templates\posts\bilanz.html:92 .\posts\templates\posts\guv.html:94
 msgid "Abgeschlossen"
 msgstr "Completed"
+
+#: .\posts\templates\posts\bilanz.html:94 .\posts\views.py:407
+msgid "Jahresüberschuss/Jahresfehlbetrag"
+msgstr "Net Income/Net Loss"
+
+#: .\posts\templates\posts\bilanz.html:300
+#, fuzzy
+#| msgid "Betrag ist korrekt."
+msgid "Bilanz ist korrekt gespeichert."
+msgstr "Amount is correct"
+
+#: .\posts\templates\posts\bilanz.html:300
+msgid "Bilanz ist falsch gespeichert."
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:314
+msgid "Steuer (Sammel)"
+msgstr ""
+
+#: .\posts\templates\posts\bilanz.html:358 .\posts\templates\posts\guv.html:362
+msgid "Konto abschließen"
+msgstr "Close account"
 
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:10
 msgid "Buchungssatz-Übersicht"
 msgstr "Journal entry overview"
 
-#: .\posts\templates\posts\buchungssatz_uebersicht.html:14 .\posts\views.py:945
-#: .\posts\views.py:983
+#: .\posts\templates\posts\buchungssatz_uebersicht.html:14 .\posts\views.py:354
+#: .\posts\views.py:401
 msgid "Freie Buchung"
 msgstr "Custom Journal Entry"
 
@@ -718,7 +730,7 @@ msgstr ""
 msgid "Bei Fragen: felix.bartl@htw-berlin.de"
 msgstr "If you have any questions: felix.bartl@htw-berlin.de"
 
-#: .\posts\templates\posts\faq.html:78
+#: .\posts\templates\posts\faq.html:78 .\posts\templates\posts\faq.html:304
 msgid "Allgemein"
 msgstr "General"
 
@@ -832,7 +844,7 @@ msgstr ""
 
 #: .\posts\templates\posts\faq.html:116
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:16
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:17
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:15
 msgid "Geschäftsvorfall"
 msgstr "Business transaction"
 
@@ -1185,8 +1197,8 @@ msgstr ""
 "Once all business transactions have been processed (or even in between), the "
 "income statement and balance sheet can be prepared."
 
-#: .\posts\templates\posts\faq.html:278 .\posts\templates\posts\guv.html:70
-#: .\posts\views.py:989 .\templates\master_layout.html:66
+#: .\posts\templates\posts\faq.html:278 .\posts\templates\posts\guv.html:62
+#: .\templates\index.html:93 .\templates\master_layout.html:66
 msgid "GuV"
 msgstr "P&L"
 
@@ -1215,7 +1227,7 @@ msgstr ""
 "the balance sheet. The income statement account can be closed at the bottom "
 "of the page using the button"
 
-#: .\posts\templates\posts\faq.html:282
+#: .\posts\templates\posts\faq.html:282 .\posts\templates\posts\guv.html:88
 msgid "GuV-Konto abschließen"
 msgstr "Close P&L account"
 
@@ -1249,6 +1261,844 @@ msgstr "P&L and Balance Sheet"
 msgid "GuV und Bilanz aufstellen"
 msgstr "Prepare income statement and balance sheet"
 
+#: .\posts\templates\posts\faq.html:302
+msgid "Funktionen für Lehrende"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:306
+msgid ""
+"Als Lehrkraft sind prinzipiell alle Funktionen von Studierenden verfügbar, "
+"welche im oberen Abschnitt beschrieben werden. Es ist also folgende "
+"Funktionen möglich: "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:308
+#, fuzzy
+#| msgid "Posteingang"
+msgid "Posteingang einsehen"
+msgstr "Inbox"
+
+#: .\posts\templates\posts\faq.html:309
+#, fuzzy
+#| msgid "Buchungssätze"
+msgid "Buchungssätze bearbeiten"
+msgstr "Journal entries"
+
+#: .\posts\templates\posts\faq.html:310
+#, fuzzy
+#| msgid "GuV und Bilanz aufstellen"
+msgid "GuV/Bilanz erstellen"
+msgstr "Prepare income statement and balance sheet"
+
+#: .\posts\templates\posts\faq.html:311
+#, fuzzy
+#| msgid "Feedback Konto falsch"
+msgid "Feedback von Aufgaben einsehen"
+msgstr "Feedback incorrect account"
+
+#: .\posts\templates\posts\faq.html:313
+msgid "Darüber hinaus gibt es weitere Funktionen, die hauptsächlich unter "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:313 .\templates\master_layout.html:51
+msgid "Verwaltung"
+msgstr "Management"
+
+#: .\posts\templates\posts\faq.html:313
+msgid "zu finden sind und hier in den nächsten Blöcken genauer erklärt werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:319 .\posts\templates\posts\faq.html:340
+#, fuzzy
+#| msgid "Aufgabe erstellen"
+msgid "Nutzererstellung"
+msgstr "Create task"
+
+#: .\posts\templates\posts\faq.html:323
+msgid ""
+"Unter Studierende anlegen können neue Studierende bzw. Nutzer angelegt "
+"werden. Mithilfe von Studiengang und Semester können diese zu kategorisiert "
+"werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:325
+msgid ""
+"Das Feld Fallstudie gibt dabei an, welche Aufgaben für diese Nutzer "
+"bereitgestellt werden können. Automatisch sind SecureNet und SecureNet_en "
+"vorhanden und auswählbar. Falls eigene Aufgaben erstellt werden, können "
+"diese einer eigenen Fallstudie zugeordnet werden und diese kann hier "
+"ausgewählt werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:327
+#, python-format
+msgid ""
+"Aktuell werden den Nutzenden zu 50%% Wahrscheinlichkeit KI-Feedback "
+"angezeigt. Das bedeutet, dass diese Nutzer bei der Erstellung eine 50%% "
+"Chance haben, immer KI-Feedback für die Aufgaben zu erhalten oder nur "
+"vorgefertigtes Feedback erhalten, d.h. ein Nutzer sieht immer KI-Feedback "
+"oder niemals. Wenn diese Checkbox ausgewählt wird, dann erhalten alle "
+"Nutzenden immer KI Feedback."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:329
+msgid ""
+"Wie das Feedback aufgebaut ist, ist im Reiter Feedback oben genauer erklärt. "
+"Zusätzlich wird die Erstellung von Feedback für bestimmte Fehler weiter "
+"unten erklärt."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:331
+msgid ""
+"Zuletzt ist noch die Namensgenerierung für die neuen Nutzer festzulegen. "
+"Wird der Namensmodus ausgewählt, kann ein eigener Name gewählt werden und "
+"die Nutzer werden dann durchnummeriert erstellt (User1, User2 ...User30)"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:333
+msgid ""
+"Wenn Namensmodus nicht ausgewählt wurde, wird ein automatischer Name "
+"erstellt, bestehend aus: Name der Lehrkraft, Semester, Studiengang. Dieser "
+"ist tendenziell nicht gut lesbar (BWLbaWiSe 24/2501)"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:335
+msgid ""
+"Nach der Erstellung werden alle erstellen Konten inklusive Passwort "
+"angezeigt. Das Passwort ist dabei analog zum Nutzernamen. Sollte ein Konto "
+"mit diesem Namen bereits existieren, wird dies auch angezeigt."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:341
+#, fuzzy
+#| msgid "Aufgabe erstellen"
+msgid "Nutzer erstellen"
+msgstr "Create task"
+
+#: .\posts\templates\posts\faq.html:349 .\posts\templates\posts\faq.html:363
+#: .\posts\templates\posts\faq.html:364
+#, fuzzy
+#| msgid "Nutzer anlegen"
+msgid "Nutzer managen"
+msgstr "Create Users"
+
+#: .\posts\templates\posts\faq.html:354
+msgid ""
+"Unter dem Reiter 'Meine Studierenden' kann der Fortschritt der einzelnen "
+"Studierenden eingesehen werden. Hier werden die Studierenden nach Semester "
+"und Studiengang aufgeteilt und der jeweilige Fortschritt kann genau "
+"eingesehen werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:356
+msgid ""
+"Darüber hinaus kann mithilfe des Sliders der Bearbeitungsmodus aktiviert "
+"werden, was das Löschen von Studierenden ermöglicht. Dies kann nicht "
+"rückgängig gemacht werden und sollte nur mit Vorsicht benutzt werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:358
+msgid ""
+"Auf der Frontpage kann darüber hinaus noch der Fortschritt aller "
+"Studierenden eingesehen werden und nachgeschaut werden, welche Aufgaben "
+"besser oder schlechter beantwortet wurden. Dafür können hier die Filter "
+"(Semester und Studiengang) benutzt werden, um einen Überblick zu erhalten"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:372
+#, fuzzy
+#| msgid "Aufgabe bearbeiten"
+msgid "Aufgabenübersicht"
+msgstr "Edit task"
+
+#: .\posts\templates\posts\faq.html:377
+msgid ""
+"Unter 'Aufgabenliste' werden alle verfügbaren Aufgaben angezeigt. Dies "
+"beinhaltet alle Aufgaben für SecureNet und SecureNet_en, sowie selbst "
+"erstellte Aufgaben. Selbst erstellte Aufgaben können heir bearbeitet und "
+"gelöscht werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:379
+msgid ""
+"Wichtig: Sollten selbst Aufgaben erstellt werden, sind diese nicht für "
+"andere Nutzer (außer Admins) sichtbar."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:384 .\posts\templates\posts\faq.html:385
+#: .\templates\master_layout.html:55
+msgid "Aufgabenliste"
+msgstr "Task List"
+
+#: .\posts\templates\posts\faq.html:393 .\posts\templates\posts\faq.html:442
+#, fuzzy
+#| msgid "Aufgabe erstellen"
+msgid "Aufgabenerstellung"
+msgstr "Create task"
+
+#: .\posts\templates\posts\faq.html:398
+msgid ""
+"Vor der Aufgabenerstellung, müssen zunächst einige Vorbereitungen getätigt "
+"werden. Diese sind oben in der Übersicht verlinkt und werden weiter unten "
+"genauer erklärt:"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:400 .\posts\templates\posts\faq.html:451
+#, fuzzy
+#| msgid "Unternehmen verwalten"
+msgid "Fallstudie/Unternehmen verwalten"
+msgstr "Manage Business/Case studys"
+
+#: .\posts\templates\posts\faq.html:405
+msgid ""
+"Der Import aus Excel stellt eine alternative Methode für die "
+"Aufgabenerstellung da."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:407
+msgid ""
+"Wichtig: Studierende können nur Aufgaben sehen, wenn das Unternehmen bzw. "
+"die Fallstudie gleich sind."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:409
+msgid ""
+"Bei der Nutzererstellung wird ein Unternehmen zugewiesen und bei der "
+"Aufgabenerstellung wird ein Unternehmen zugewiesen, wenn diese "
+"Unterschiedlich sind, können Nutzer eine zugewiesene Aufgabe nicht einsehen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:411
+msgid "Im Folgenden werden die einzelnen Felder genauer erklärt: "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:413
+#, fuzzy
+#| msgid "Wähle den Kontenplan aus, auf den sich diese Aufgabe bezieht."
+msgid "Kontenplan: Wählt den Kontenplan aus, auf den sicht die Aufgabe bezieht"
+msgstr "Select the chart of accounts to which this task refers."
+
+#: .\posts\templates\posts\faq.html:414
+msgid ""
+"Unternehmen Kategorie: Unternehmen/Fallstudie, zu welcher diese Aufgabe "
+"kategorisiert wird"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:415
+msgid ""
+"Rechnungstyp: Gibt die Ansicht an, wie die Aufgabe für die Nutzer "
+"dargestellt wird. Genaueres unter 'Rechnungstyp'"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:416
+msgid "Fragentyp: Gibt den Fragentyp an (Skonto, Rabatt, Abschreibung etc.)"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:417
+msgid ""
+"Mailbetreff Geschäftsvorfall: Gibt für die Nutzer den Betreff an, der in der "
+"Mail im Posteingang zu der Aufgabe angezeigt wird"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:418
+msgid "Mailtext: Gibt den Text der Mail im Posteingang an"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:419
+msgid ""
+"Umsatzsteuerfrei: In der Aufgabenansicht wird angezeigt, dass diese Aufgabe "
+"Steuerfrei ist (wirkt sich nicht auf den Buchungssatz aus). Wird hier nein "
+"angegeben, so wird die Umsatzsteuer ausgerechnet und in der Rechnung mit "
+"angegeben."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:420
+msgid ""
+"Hat Leistungszeitraum: Falls es sich um einen Leistungszeitraum handelt, "
+"wird hierüber automatisch ein Leistungszeitraum berechnet, welcher bis zu 3 "
+"Monate als ist und bis zu 3 Wochen lang "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:421
+msgid "Nutzungsdauer: Die Nutzungsdauer für Abschreibungen"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:422
+msgid ""
+"Feedback Konto falsch: Falls die Nutzer kein KI-Feedback erhalten, wird "
+"dieses Feedback bei der 2. Falschen Antwort angezeigt."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:423
+msgid ""
+"Feedback Betrag falsch: Analog zum Konto, hier wird Feedback zum falschen "
+"Betrag angezeigt"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:424
+msgid "Zahlweise: Zeigt in der Aufgabenansicht die Zahlweise an"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:425
+msgid ""
+"Beschreibung: Der genaue Aufgabentext, der die Grundlage der Aufgabenansicht "
+"bildet. Der Betrag "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:426
+msgid "Verabschiedung: Gibt die Verabschiedung in der Aufgabenansicht an"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:427
+msgid ""
+"Zusatzinformation zur Aufgabe: Hier können für jede Aufgabe zusätzliche "
+"Hinweise gegeben werden, die für Nutzer dann sichtbar sind, sofern welche "
+"angegeben wurden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:428
+msgid ""
+"Buchungssätze hinzufügen: Hier ist die Maske, um den Buchungssatz "
+"abzubilden. Grundsätzlich sollte über diese Felder hier der Buchungssatz "
+"nachgebaut werden, welcher die Grundlage für jede Aufgabe bildet. Das "
+"individuelle Feedback wird weiter unten genauer erklärt."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:431
+#, fuzzy
+#| msgid "Allgemeine Informationen"
+msgid "Wichtige Informationen:"
+msgstr "General information"
+
+#: .\posts\templates\posts\faq.html:434
+msgid ""
+"Für Abschreibungen muss die Kategorie Abschreibungen ausgewählt werden. Hier "
+"wird der angezeigte Rechnungsbetrag aus dem Buchungssatz und der "
+"Nutzungsdauer automatisch ermittelt und für die Nutzer angezeigt"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:435
+#, python-format
+msgid ""
+"Für Rabatte wird der Betrag vor dem Rabatt angezeigt. Dieser beträgt aktuell "
+"immer 5%%"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:443 .\templates\master_layout.html:57
+msgid "Aufgabe erstellen"
+msgstr "Create task"
+
+#: .\posts\templates\posts\faq.html:456
+msgid "Hier können eigene Fallstudien angelegt werden. "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:458
+msgid "Der Name wird bei der Aufgabenerstellung in dem Dropdown angezeigt"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:460
+msgid "Der Anzeige Name ist der angezeigte Name in der Rechnungsansicht"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:462
+msgid "Der Kontenplan bezieht sich auf den verwendeten Kontenplan"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:464
+msgid ""
+"Die Checkbox verhindert, dass die Werte randomisiert werden. Falls die Werte "
+"randomisiert werden sollen, wird jeder Teil des Buchungssatzes mit einem "
+"Faktor von 0,25 bis 1,75 multipliziert."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:466
+msgid ""
+"Nur eigene Unternehmen und die vordefinierten Unternehmen sind für einen "
+"selbst sichtbar. Nur eigene Unternehmen können gelöscht werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:471 .\posts\templates\posts\faq.html:472
+#: .\posts\templates\posts\neues_unternehmen.html:6
+msgid "Unternehmen verwalten"
+msgstr "Manage Business/Case studys"
+
+#: .\posts\templates\posts\faq.html:484
+msgid ""
+"Hier können individuelle Aufgabenkategorien erstellt werden und für die "
+"Aufgaben sichtbar gemacht werden. Die Aufgabenkategorien werden bei der "
+"Aufgabenzuweisung angezeigt."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:486
+msgid ""
+"Nur eigene Kategorien und die vordefinierten Kategorien sind für einen "
+"selbst sichtbar. Nur eigene Kategorien können gelöscht werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:491 .\posts\templates\posts\faq.html:492
+#, fuzzy
+#| msgid "Aufgabenkategorien verwalten"
+msgid "Aufgabenkategorie"
+msgstr "Manage task categories"
+
+#: .\posts\templates\posts\faq.html:504
+msgid ""
+"Diese Übersicht ermöglicht die Erstellung eigener Kontenpläne. Es ist "
+"außerdem möglich Kontenpläne zu importieren über eine Excel vorlage. Das "
+"wird nächsten Punkt genauer erklärt."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:506
+msgid ""
+"Bevor Konten einem Kontenplan zugewiesen werden können, muss ein Kontenplan "
+"erstellt werden. Dafür reicht ein Click auf 'Neuen Kontenplan erstellen'."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:508
+msgid ""
+"Im Anschluss können nun Konten diesem Plan hinzugefügt werden. Dafür müssen "
+"die Felder oben in der Ansicht ausgefüllt werden. "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:510
+msgid "Name: Der Name des Kontos"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:512
+msgid ""
+"Kategorie und Unterkategorie: Um welche Art von Konto es sich handelt. Diese "
+"Auswahl wird verwendet, um Hauptbuch/GuV und Bilanz anzuzeigen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:514
+msgid ""
+"Hat Anfangsbestand: Wenn ein Konto für das vorangegangene Geschäftsjahr ein "
+"Anfangsbestand haben soll, kann die Checkbox ausgewählt werden. Anschließend "
+"kann ein Anfangsbestand ausgewählt werden. Alle Anfangsbestände werden bei "
+"der Nutzererstellung mit einem zufälligen Faktor zwischen 0,75 und 1,25 "
+"randomisiert, außer das Unternehmen des Nutzers wurde als Fallstudie "
+"zugeordnet, was eine Randomisierung unterbindet."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:516
+msgid ""
+"Es ist möglich Konten für die bestehenden Kontenpläne (SecureNet) "
+"hinzuzufügen. Diese sind nur für einen selbst sichtbar und löschbar."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:518
+msgid ""
+"Um den Konten noch Kontennummern zuzuordnen, muss auf 'Bearbeiten' gedrückt "
+"werden bei dem entsprechenden Konto. In der Ansicht kann dann die "
+"Kontonummer hinzugefügt werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:520
+msgid ""
+"In der Ansicht kann außerdem eine Bilanzposition mit angegeben werden. Die "
+"sorgt dafür, dass ein Konto unter der angegebenen Bilanzposition "
+"abgeschlossen wird. Wenn also das Konto 810 die Bilanzposition 800 hat, dann "
+"wird im Hauptbuch nur das Konto 800 angezeigt. Außerdem wird auch die "
+"Bilanzposition als richtiges Ergebnis für den Buchungssatz zugelassen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:522
+msgid ""
+"Nur eigene Kontenpläne und die vordefinierten Kontenpläne sind für einen "
+"selbst sichtbar. Nur eigene Kontenpläne können gelöscht werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:527
+#, fuzzy
+#| msgid "Kontenplan"
+msgid "Kontenplan und Konten"
+msgstr "Chart of accounts"
+
+#: .\posts\templates\posts\faq.html:536
+#: .\posts\templates\posts\konten_verwalten.html:43
+msgid "Konten aus Excel importieren"
+msgstr "Import accounts from Excel"
+
+#: .\posts\templates\posts\faq.html:541
+msgid ""
+"Alternativ kann das folgende Excel-Template benutzt werden, um Konten zu "
+"importieren. Wichtig ist hierbei, dass zunächst der Kontenplan erstellt "
+"wird. Unter Durchsuchen kann die Datei ausgewählt werden und mit dem Button "
+"Importieren importiert werden. "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:543
+#, fuzzy
+#| msgid "Konten aus Excel importieren"
+msgid "Konten importieren"
+msgstr "Import accounts from Excel"
+
+#: .\posts\templates\posts\faq.html:548 .\posts\templates\posts\faq.html:549
+#, fuzzy
+#| msgid "Kontenplan"
+msgid "Kontenimport"
+msgstr "Chart of accounts"
+
+#: .\posts\templates\posts\faq.html:562
+msgid ""
+"Aufgaben können auch alternativ über Excel importiert werden. Die "
+"Beschreibung der Felder sind aus dem Reiter 'Aufgabenerstellung' zu "
+"entnehmen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:564
+msgid ""
+"Prinzipiell müssen keine Felder ausgefüllt werden, sprich, es wird kein "
+"Fehler ausgeworfen, wenn ein Eintrag leer bleibt. "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:566
+msgid "Folgende Punkte sind zu beachten:"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:568
+msgid "Der Kontenname muss exakt zum Kontennamen im Kontenplan sein"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:569
+msgid "Statt des Kontennamens kann auch die Bilanzposition verwendet werden"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:570
+msgid ""
+"Der Buchungssatz wird über die nummerierten Felder kontoname_1, soll/"
+"haben_1, betrag_1 dargestellt. Es können beliebig viele weitere Felder "
+"hinzugefügt werden, jedoch muss die Reihenfolge beibehalten werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:573
+#, fuzzy
+#| msgid "Aufgaben aus Excel importieren"
+msgid "Aufgaben importieren"
+msgstr "Import tasks from Excel"
+
+#: .\posts\templates\posts\faq.html:581 .\posts\templates\posts\faq.html:599
+#: .\posts\templates\posts\faq.html:600 .\templates\master_layout.html:56
+#: .\users\templates\users\aufgaben_zuweisen.html:9
+msgid "Aufgaben zuweisen"
+msgstr "Assign tasks"
+
+#: .\posts\templates\posts\faq.html:586
+msgid ""
+"In dieser Übersicht werden alle verfügbaren Aufgaben (vorgefertigte sowie "
+"selbst erstellte) angezeigt und nach Unternehmen sortiert. Hier ist es "
+"möglich die einzelnen Aufgaben anzuclicken und über 'Aufgaben zuweisen' den "
+"Nutzern zur verfügung zu stellen. Nach der Zuweisung erhalten die Nutzer "
+"eine Benachrichtigung über den Posteingang und können die Aufgabe bearbeiten."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:588
+msgid ""
+"Es ist außerdem möglich, dass die Aufgaben auch selbst zugewiesen werden. "
+"Somit ist es möglich die Aufgaben im Vorhinein anzusehen, bevor diese an die "
+"Nutzer übergeben werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:590
+msgid ""
+"Die Ansicht oben dient für den Überblick, um zu erkennen, welche Gruppen "
+"welche Aufgaben erhalten haben."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:592
+msgid ""
+"Anzumerken ist, dass Aufgaben nur Gruppen von Nutzern zugewiesen werden "
+"können, nicht einzelnen Nutzern."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:594
+msgid ""
+"Für die Zuweisung die entsprechenden Aufgaben auswählen und unten das "
+"Semester und den Studiengang auswählen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:608
+#, fuzzy
+#| msgid "Keine Rechnungsansicht"
+msgid "Was machen die verschiedenen Rechnungsansichten"
+msgstr "No invoice view"
+
+#: .\posts\templates\posts\faq.html:613
+msgid ""
+"Die verschiedenen Rechnungsansichten bilden die verschiedenen Arten von "
+"Geschäftsvorfällen ab. Hier wird unterschieden zwischen ausgehenden, "
+"eingehenden und internen Vorgängen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:615
+msgid ""
+"Ausgehende Rechnungen sind Rechnungen, die das eigene Unternehmen an Kunden "
+"leitet"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:617
+msgid ""
+"Eingehende Rechnungen sind jene, die das Unternehmen von einem Kunden bzw. "
+"Geschäftspartner erhalten hat"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:619
+msgid ""
+"Interne Vorgänge, wie z.B. Abschreibungen sind vorgänge, die keine externe "
+"Partei betreffen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:621
+msgid ""
+"Falls die Aufgaben nicht in Form eines Geschäftsvorfalls dargestellt werden "
+"sollen, kann auch darauf verzichtet werden und es wird nur die Aufgabe und "
+"der Rechnungsbetrag angezeigt."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:626
+#, fuzzy
+#| msgid "Ausgehende Rechnung"
+msgid "Ausgehend"
+msgstr "Outgoing invoice"
+
+#: .\posts\templates\posts\faq.html:627
+#, fuzzy
+#| msgid "ansehen."
+msgid "ausgehend"
+msgstr "."
+
+#: .\posts\templates\posts\faq.html:628
+#, fuzzy
+#| msgid " einsehen"
+msgid "Eingehend"
+msgstr " view"
+
+#: .\posts\templates\posts\faq.html:629
+#, fuzzy
+#| msgid " einsehen"
+msgid "eingehend"
+msgstr " view"
+
+#: .\posts\templates\posts\faq.html:630
+#, fuzzy
+#| msgid "Filtern"
+msgid "Intern"
+msgstr "Filter"
+
+#: .\posts\templates\posts\faq.html:631
+#, fuzzy
+#| msgid "Filtern"
+msgid "intern"
+msgstr "Filter"
+
+#: .\posts\templates\posts\faq.html:632
+msgid "Keine"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:633
+msgid "keine"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:641
+msgid ""
+"Welche Informationen sehe nur ich? Welche Informationen können andere "
+"Lehrende sehen?"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:645
+msgid "Folgende Informationen sind für alle sichtbar"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:647
+#, fuzzy
+#| msgid "Aufgaben zuweisen"
+msgid "Aufgaben von SecureNet"
+msgstr "Assign tasks"
+
+#: .\posts\templates\posts\faq.html:648
+#, fuzzy
+#| msgid "Aufgabe bearbeiten"
+msgid "Aufgaben von SecureNet_en"
+msgstr "Edit task"
+
+#: .\posts\templates\posts\faq.html:649
+#, fuzzy
+#| msgid "Vorhandene Studiengänge"
+msgid "Vordefinierte Studiengänge"
+msgstr "Existing programs"
+
+#: .\posts\templates\posts\faq.html:650
+#, fuzzy
+#| msgid "Vorhandene Semester"
+msgid "Vordefinierte Semester"
+msgstr "Existing semester"
+
+#: .\posts\templates\posts\faq.html:651
+msgid "Vordefinierte Fragetypen"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:652
+msgid "Kontenpläne von Securenet und SecureNet_en"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:655
+msgid "Folgende Informationen sind nur für einen selbst sichtbar"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:657
+#, fuzzy
+#| msgid "Alle Aufgaben"
+msgid "Erstellte Aufgaben"
+msgstr "All tasks"
+
+#: .\posts\templates\posts\faq.html:658
+#, fuzzy
+#| msgid "Alle Studiengänge"
+msgid "Erstellte Studiengänge"
+msgstr "All study programs"
+
+#: .\posts\templates\posts\faq.html:659
+#, fuzzy
+#| msgid "Alle Semester"
+msgid "Erstellte Semester"
+msgstr "All Semesters"
+
+#: .\posts\templates\posts\faq.html:660
+#, fuzzy
+#| msgid "Erstellt am"
+msgid "Erstellte Fragetypen"
+msgstr "Created at"
+
+#: .\posts\templates\posts\faq.html:661
+msgid ""
+"Erstellte Konten (auch wenn diese in für alle sichtbare Kontenpläne "
+"hinzugefügt werden)"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:662
+#, fuzzy
+#| msgid "Erstellte Studierende"
+msgid "Erstellte Kontenpläne"
+msgstr "Created students:"
+
+#: .\posts\templates\posts\faq.html:663
+#, fuzzy
+#| msgid "Ersteller"
+msgid "Erstellte Nutzer"
+msgstr "Creator"
+
+#: .\posts\templates\posts\faq.html:664
+#, fuzzy
+#| msgid "Bestehende Unternehmen"
+msgid "Erstellte Unternehmen"
+msgstr "Existing companies"
+
+#: .\posts\templates\posts\faq.html:673
+msgid "Wie kann ich Feedback für typische Fehler erstellen?"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:678
+msgid ""
+"Bei der Aufgabenerstellung oder bei der Bearbeitung von Aufgaben können "
+"Feedbackblöcke für bestimmte Lösungen erstellt werden. Wenn z.B. Haben und "
+"Soll vertauscht wird, kann das Feedback einen Hinweis dazu geben. Auch wenn "
+"z.B. die Steuer vergessen wurde, kann hier ein spezielles Feedback erstellt "
+"werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:680
+msgid ""
+"Der erstellte Buchungssatz für jede Aufgabe bildet dabei die Grundlage. Am "
+"besten lässt sich das mit einem Beispiel erklären. "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:682
+msgid ""
+"Angenommen der Buchungssatz ist Konto A 100€ and Konto B 100€. Der Nutzer "
+"hat nun B 100€ and A 100€ eingegeben. "
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:684
+msgid ""
+"Um diesen Fall abzufangen, kann für Konto A ein spezielles Feedback "
+"hinterlegt werden, dass bei der Eingabe von Konto B ein Text ausgegeben "
+"werden soll, wenn B statt A eingegeben wird."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:686
+msgid ""
+"Das wird über den Button 'Konto-Feedback' ermöglicht. hier wird Konto B als "
+"Indikator verwendet um das spezielle Feedback auszugeben."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:688
+msgid ""
+"Angenommen der Buchungssatz lautet Konto A 119€ an Konto B 100€ und Steuer "
+"19€"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:690
+msgid "Die Nutzereingabe lautet Konto A 119€ and Konto B 119€"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:692
+msgid ""
+"Hier kann nun ein Feedback hinterlegt werden, dass die Steuer vergessen "
+"wurde und in einem extra Konto erfasst werden muss. Dafür kann über den "
+"Button 'Feedbackbereich hinzufügen' genau der entsprechende Bereich "
+"hinzugefügt werden. Hier werden 2 Felder für den Wertebereich angezeigt, die "
+"für den Feedbacktext verwendet werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:694
+msgid ""
+"Wenn also für Konto B der Bereich 119€ gewählt wird (bestenfalls von 118 bis "
+"120 die grenzen setzen), dann wird der Fall abdegeckt und bei fehlender "
+"Steuer kann ein entsprechender Hinweis hinterlegt werden."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:696
+msgid ""
+"Wichtig: Die Aufgaben werden randomisiert (außer das Unternehmen wurde "
+"anders eingestellt). Der Feedbackbereich wird um den selben Faktor "
+"randomisiert, sodass dieser immer abgegriffen wird."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:712
+msgid "Kann ich Aufgaben nacheinander freischalten?"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:717
+msgid ""
+"Ja. Die Aufgaben werden alle bei Aufgaben zuweisen einzeln angezeigt. Es ist "
+"möglich Aufgaben thematisch zu erstellen und nur diese zum passenden "
+"Zeitpunkt zur Verfügung zu stellen."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:725
+msgid "Wie kann ich die Randomisierung der Aufgabenwerte verhindern?"
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:730
+msgid ""
+"Die Randomisierung kann verhindert werden, indem das Unternehmen bzw. die "
+"Fallstudie, für die Aufgaben erstellt werden entsprechend eingestellt "
+"werden. Dafür bei Fallstudie/Unternehmen verwalten (bei Aufgabe erstellen) "
+"ein Unternehmen erstellt werden und die Checkbox 'Fallstudie' muss "
+"ausgewählt werden. Dann werden alle Aufgaben von diesem Unternehmen nicht "
+"randomisiert."
+msgstr ""
+
+#: .\posts\templates\posts\faq.html:732
+#, fuzzy
+#| msgid "Wichtig"
+msgid "Wichtig: "
+msgstr "Important"
+
+#: .\posts\templates\posts\faq.html:732
+msgid "Das gilt nur für selbst erstellte Aufgaben."
+msgstr ""
+
 #: .\posts\templates\posts\freie_buchung.html:11
 msgid ""
 "Diese Übersicht steht für die freie Erstellung von Buchungssätzen zur "
@@ -1270,6 +2120,16 @@ msgstr ""
 #: .\posts\templates\posts\rechnung.html:219
 msgid "Eingaben Soll:"
 msgstr "Input debit:"
+
+#: .\posts\templates\posts\freie_buchung.html:24
+#: .\posts\templates\posts\freie_buchung.html:45
+#: .\posts\templates\posts\rechnung.html:222
+#: .\posts\templates\posts\rechnung.html:243
+#: .\posts\templates\posts\rechnung_js.html:81
+#: .\posts\templates\posts\rechnung_js.html:105
+#: .\posts\templates\posts\rechnung_js.html:352
+msgid "Bitte wählen..."
+msgstr "Please select..."
 
 #: .\posts\templates\posts\freie_buchung.html:35
 #: .\posts\templates\posts\freie_buchung.html:56
@@ -1325,13 +2185,25 @@ msgstr ""
 msgid "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."
 msgstr "The P&L account is closed at the bottom of the page using the button."
 
-#: .\posts\templates\posts\guv.html:30
-msgid "Untertyp wählen"
-msgstr "Please select a subtype"
+#: .\posts\templates\posts\guv.html:18
+msgid ""
+"Wenn ein Konto als Bestandskonto zugewiesen wird, wird dieses ausgeblendet. "
+"Beim Neuladen der Seite wird dieses Konto wieder angezeigt"
+msgstr ""
 
-#: .\posts\templates\posts\guv.html:95
-msgid "GuV Konto abschließen v2"
-msgstr "Close P&L account v2"
+#: .\posts\templates\posts\guv.html:89
+#, fuzzy
+#| msgid "Konto löschen"
+msgid "GuV-Konto löschen"
+msgstr "Delete account"
+
+#: .\posts\templates\posts\guv.html:313
+msgid "GuV ist korrekt gespeichert."
+msgstr ""
+
+#: .\posts\templates\posts\guv.html:313
+msgid "GuV ist falsch gespeichert."
+msgstr ""
 
 #: .\posts\templates\posts\hauptbuch.html:9
 msgid "Dein Hauptbuch"
@@ -1358,74 +2230,75 @@ msgstr "Filter by task:"
 msgid "Alle Aufgaben"
 msgstr "All tasks"
 
-#: .\posts\templates\posts\konten_verwalten.html:4
+#: .\posts\templates\posts\konten_verwalten.html:5
 msgid "Kontenverwaltung"
 msgstr "Manage accounts"
 
-#: .\posts\templates\posts\konten_verwalten.html:7
+#: .\posts\templates\posts\konten_verwalten.html:8
 msgid "Neues Konto hinzufügen"
 msgstr "Add new account"
 
-#: .\posts\templates\posts\konten_verwalten.html:10
+#: .\posts\templates\posts\konten_verwalten.html:11
 #: .\posts\templates\posts\konto_bearbeiten.html:8
 msgid "Kontoname:"
 msgstr "Account name:"
 
-#: .\posts\templates\posts\konten_verwalten.html:16
+#: .\posts\templates\posts\konten_verwalten.html:14
+#: .\posts\templates\posts\konto_bearbeiten.html:16
+msgid "Kategorie:"
+msgstr "Category:"
+
+#: .\posts\templates\posts\konten_verwalten.html:17
 #: .\posts\templates\posts\konto_bearbeiten.html:19
 msgid "Unterkategorie:"
 msgstr "Sub category:"
 
-#: .\posts\templates\posts\konten_verwalten.html:18
-#: .\posts\templates\posts\konten_verwalten.html:48
-#: .\posts\templates\posts\konto_bearbeiten.html:25
+#: .\posts\templates\posts\konten_verwalten.html:19
+#: .\posts\templates\posts\konten_verwalten.html:49
+#: .\posts\templates\posts\konto_bearbeiten.html:27
 #: .\posts\templates\posts\neues_unternehmen.html:27
 msgid "Kontenplan:"
 msgstr "Chart of accounts:"
 
-#: .\posts\templates\posts\konten_verwalten.html:20
+#: .\posts\templates\posts\konten_verwalten.html:21
 #: .\posts\templates\posts\konto_bearbeiten.html:10
 msgid "Hat Anfangsbestand"
 msgstr "includes opening balance"
 
-#: .\posts\templates\posts\konten_verwalten.html:22
-#: .\posts\templates\posts\konten_verwalten.html:66
+#: .\posts\templates\posts\konten_verwalten.html:23
+#: .\posts\templates\posts\konten_verwalten.html:67
 msgid "Anfangsbestand"
 msgstr "Opening balance"
 
-#: .\posts\templates\posts\konten_verwalten.html:24
+#: .\posts\templates\posts\konten_verwalten.html:25
 msgid "Konto hinzufügen"
 msgstr "Add account"
 
-#: .\posts\templates\posts\konten_verwalten.html:29
+#: .\posts\templates\posts\konten_verwalten.html:30
 msgid "Neuen Kontenplan erstellen"
 msgstr "Create a new chart of accounts"
 
-#: .\posts\templates\posts\konten_verwalten.html:31
+#: .\posts\templates\posts\konten_verwalten.html:32
 msgid "Kontenplan erfolgreich erstellt!"
 msgstr "Chart of accounts created successfully!"
 
-#: .\posts\templates\posts\konten_verwalten.html:42
-msgid "Konten aus Excel importieren"
-msgstr "Import accounts from Excel"
-
-#: .\posts\templates\posts\konten_verwalten.html:45
+#: .\posts\templates\posts\konten_verwalten.html:46
 msgid "Excel-Datei:"
 msgstr "Excel file:"
 
-#: .\posts\templates\posts\konten_verwalten.html:55
+#: .\posts\templates\posts\konten_verwalten.html:56
 msgid "Importieren"
 msgstr "Start import"
 
-#: .\posts\templates\posts\konten_verwalten.html:58
+#: .\posts\templates\posts\konten_verwalten.html:59
 msgid "Bestehende Konten"
 msgstr "Existing accounts"
 
-#: .\posts\templates\posts\konten_verwalten.html:63
+#: .\posts\templates\posts\konten_verwalten.html:64
 msgid "Kategorie"
 msgstr "Category"
 
-#: .\posts\templates\posts\konten_verwalten.html:67
+#: .\posts\templates\posts\konten_verwalten.html:68
 msgid "Aktionen"
 msgstr "Actions"
 
@@ -1445,11 +2318,15 @@ msgstr "Account number:"
 msgid "Bilanzposition:"
 msgstr "Balance sheet position:"
 
-#: .\posts\templates\posts\konto_bearbeiten.html:27
+#: .\posts\templates\posts\konto_bearbeiten.html:25
+msgid "Steuerkonto:"
+msgstr ""
+
+#: .\posts\templates\posts\konto_bearbeiten.html:29
 msgid "Änderungen speichern"
 msgstr "Save changes"
 
-#: .\posts\templates\posts\konto_bearbeiten.html:30
+#: .\posts\templates\posts\konto_bearbeiten.html:32
 msgid "Zurück zur Übersicht"
 msgstr "Back to overview"
 
@@ -1475,7 +2352,7 @@ msgstr "Received on"
 
 #: .\posts\templates\posts\mail_detail.html:26
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:30
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:35
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:33
 msgid "Ihr SecureNet Team"
 msgstr "Your SecureNet Team"
 
@@ -1500,38 +2377,36 @@ msgstr "Delegate task"
 msgid "Zurück zum Posteingang"
 msgstr "Back to inbox"
 
-#: .\posts\templates\posts\neue_kategorie.html:6
+#: .\posts\templates\posts\neue_kategorie.html:7
 msgid "Aufgabenkategorien verwalten"
 msgstr "Manage task categories"
 
-#: .\posts\templates\posts\neue_kategorie.html:11
+#: .\posts\templates\posts\neue_kategorie.html:12
 msgid "Aufgabenkategorie hinzufügen"
 msgstr "Add task category"
 
-#: .\posts\templates\posts\neue_kategorie.html:14
+#: .\posts\templates\posts\neue_kategorie.html:15
 msgid "Bestehende Aufgabenkategorien"
 msgstr "Existing task category"
 
-#: .\posts\templates\posts\neue_kategorie.html:23
+#: .\posts\templates\posts\neue_kategorie.html:28
 msgid "Soll die Kategorie wirklich gelöscht werden?"
 msgstr "Do you really want to delete the category?"
 
-#: .\posts\templates\posts\neue_kategorie.html:31
+#: .\posts\templates\posts\neue_kategorie.html:37
 #: .\posts\templates\posts\neues_unternehmen.html:40
 msgid "Zurück zur Aufgabenerstellung"
 msgstr "Back to task creation"
-
-#: .\posts\templates\posts\neues_unternehmen.html:6
-msgid "Unternehmen verwalten"
-msgstr "Manage Business/Case studys"
 
 #: .\posts\templates\posts\neues_unternehmen.html:12 .\users\models.py:79
 msgid "Anzeigename"
 msgstr "Display name"
 
 #: .\posts\templates\posts\neues_unternehmen.html:18
-msgid "verhindert Randomisierung der Lösungswerte"
-msgstr "Prevents randomization of solution values"
+msgid ""
+"Randomisierung (Anfangsbestände und Buchungssätze um einen einheitlichen "
+"Faktor randomisieren)"
+msgstr ""
 
 #: .\posts\templates\posts\neues_unternehmen.html:20
 msgid "Unternehmen hinzufügen"
@@ -1700,7 +2575,7 @@ msgstr "The reverse entry is made to offset the incorrect booking."
 msgid "Buchungssatz"
 msgstr "Journal entry"
 
-#: .\posts\templates\posts\rechnung.html:266
+#: .\posts\templates\posts\rechnung.html:267
 msgid ""
 "Hinweis: Sämtliche Buchungen (auch falsche Buchungen) werden in das "
 "Hauptbuch eingetragen. Bei Fehlerhaften Buchungen muss eine Korrekturbuchung "
@@ -1781,23 +2656,23 @@ msgstr "(VAT-exempt)"
 msgid " "
 msgstr " "
 
-#: .\posts\templates\posts\rechnungen\betrag.html:14
+#: .\posts\templates\posts\rechnungen\betrag.html:15
 msgid "Betrag netto"
 msgstr "Net amount"
 
-#: .\posts\templates\posts\rechnungen\betrag.html:16
+#: .\posts\templates\posts\rechnungen\betrag.html:17
 msgid "Umsatzsteuer"
 msgstr "Output VAT"
 
-#: .\posts\templates\posts\rechnungen\betrag.html:18
+#: .\posts\templates\posts\rechnungen\betrag.html:20
 msgid "Gesamtbetrag"
 msgstr "Total amount"
 
-#: .\posts\templates\posts\rechnungen\betrag.html:23
+#: .\posts\templates\posts\rechnungen\betrag.html:26
 msgid "Zahlungsweise:"
 msgstr "Payment method:"
 
-#: .\posts\templates\posts\rechnungen\betrag.html:23
+#: .\posts\templates\posts\rechnungen\betrag.html:26
 msgid "Keine Zahlungsart angegeben"
 msgstr "No payment method specified"
 
@@ -1811,8 +2686,8 @@ msgstr "Hello,"
 
 #: .\posts\templates\posts\rechnungen\rechnung_ausgehend.html:31
 #: .\posts\templates\posts\rechnungen\rechnung_eingehend.html:30
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:36
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:39
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:34
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:37
 msgid "Kontakt:"
 msgstr "Contact:"
 
@@ -1824,26 +2699,26 @@ msgstr "Dear "
 msgid "Datum:"
 msgstr "Date:"
 
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:12
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:11
 msgid "Dokument:"
 msgstr "Document:"
 
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:12
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:11
 #: .\posts\templates\posts\rechnungen\rechnungsnummer.html:5
 msgid "Keine Nummer angegeben"
 msgstr "No number provided"
 
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:19
 #: .\posts\templates\posts\rechnungen\rechnung_intern.html:21
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:23
 msgid "Sehr geehrte Buchhaltung,"
 msgstr "Dear Accounting Department,"
 
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:21
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:19
 msgid "Folgender Geschäftsvorfall ist eingegangen und muss bearbeitet werden:"
 msgstr ""
 "The following business transaction has been received and must be processed:"
 
-#: .\posts\templates\posts\rechnungen\rechnung_intern.html:41
+#: .\posts\templates\posts\rechnungen\rechnung_intern.html:39
 msgid "Ihre SecureNet GmbH"
 msgstr "Your SecureNet GmbH"
 
@@ -1887,95 +2762,107 @@ msgstr "No invoices found"
 msgid "↩ Zurück zum Hauptbuch"
 msgstr "↩ Back to general ledger"
 
-#: .\posts\views.py:58
-#, python-format
-msgid "Fehlende Berechtigung<br><a href=\"%(link)s\">Zurück zur Startseite</a>"
-msgstr "Missing permission<br><a href=\"%(link)s\">Back to homepage</a>"
-
-#: .\posts\views.py:70 .\posts\views.py:88
-msgid "Das Formular ist nicht gültig."
-msgstr "The form is not valid."
-
-#: .\posts\views.py:85
-msgid "Aufgabe und Details erfolgreich erstellt."
-msgstr "Task and details created successfully."
-
-#: .\posts\views.py:252
-#, python-format
-msgid "%(anzahl)d Aufgaben erfolgreich importiert."
-msgstr "%(anzahl)d tasks imported successfully."
-
-#: .\posts\views.py:255
-#, python-format
-msgid "%(anzahl)d Aufgaben konnten nicht importiert werden: %(fehler)s"
-msgstr "%(anzahl)d tasks could not be imported: %(fehler)s"
-
-#: .\posts\views.py:261
-msgid "Fehlerhafte Eingaben oder keine Datei hochgeladen."
-msgstr "Invalid entries or no file uploaded."
-
-#: .\posts\views.py:862
+#: .\posts\views.py:253
 msgid "Unternehmen erfolgreich hinzugefügt."
 msgstr "Business added successfully."
 
-#: .\posts\views.py:865
+#: .\posts\views.py:256
 msgid "Fehler beim Speichern des Unternehmens."
 msgstr "Error while saving the Business."
 
-#: .\posts\views.py:889 .\users\views.py:126 .\users\views.py:155
+#: .\posts\views.py:271 .\users\views.py:130 .\users\views.py:159
 msgid "Keine Berechtigung zum Löschen."
 msgstr "No permission to delete."
 
-#: .\posts\views.py:891
+#: .\posts\views.py:273
 #, python-format
 msgid "Das Unternehmen '%(name)s' wurde gelöscht."
 msgstr "The Business '%(name)s' has been deleted."
 
-#: .\posts\views.py:901
+#: .\posts\views.py:289
 msgid "Kategorie erfolgreich hinzugefügt."
 msgstr "Successfully created category"
 
-#: .\posts\views.py:904
+#: .\posts\views.py:292
 msgid "Fehler beim Speichern der Kategorie."
 msgstr "Error while saving the category."
 
-#: .\posts\views.py:916
+#: .\posts\views.py:317 .\posts\views.py:323
 #, python-format
 msgid "Die Kategorie '%(name)s' wurde gelöscht."
 msgstr "The category '%(name)s' has been deleted."
 
-#: .\posts\views.py:1009
+#: .\posts\views.py:326
+#, fuzzy
+#| msgid "Keine Berechtigung zum Löschen dieser Aufgabe."
+msgid "Keine Berechtigung zum Löschen dieser Kategorie."
+msgstr "No permission to delete this task."
+
+#: .\posts\views.py:433
 msgid "Keine Berechtigung zum Bearbeiten."
 msgstr "No permission to edit."
 
-#: .\posts\views.py:1112
+#: .\posts\views.py:536
 msgid "Aufgabe erfolgreich bearbeitet."
 msgstr "Tasks successfully edited."
 
-#: .\posts\views.py:1184
+#: .\posts\views.py:608
 #, python-format
 msgid "Korrekturbuchung im Versuch %(versuch)s erfolgreich durchgeführt."
 msgstr "Adjustment entry in attempt %(versuch)s completed successfully."
 
-#: .\posts\views.py:1299
+#: .\posts\views.py:723
 msgid "Konto erfolgreich hinzugefügt."
 msgstr "Successfully created account"
 
-#: .\posts\views.py:1302
+#: .\posts\views.py:726
 msgid "Fehler: Überprüfe deine Eingaben."
 msgstr "Error: Check your entries."
 
-#: .\posts\views.py:1373
-msgid "Konten erfolgreich importiert."
-msgstr "Accounts successfully imported"
-
-#: .\posts\views.py:1780
+#: .\posts\views.py:1219
 msgid "Keine Berechtigung zum Löschen dieser Aufgabe."
 msgstr "No permission to delete this task."
 
-#: .\posts\views.py:1947 .\posts\views.py:1951
+#: .\posts\views.py:1388 .\posts\views.py:1392
 msgid "(aktuell)"
 msgstr "(current)"
+
+#: .\posts\views_logik\aufgabe_erstellen\aufgabe_erstellen.py:24
+msgid "Aufgabe und Details erfolgreich erstellt."
+msgstr "Task and details created successfully."
+
+#: .\posts\views_logik\aufgabe_erstellen\aufgabe_erstellen.py:63
+msgid "Das Formular ist nicht gültig."
+msgstr "The form is not valid."
+
+#: .\posts\views_logik\aufgabe_importieren\excel_imports.py:157
+#, python-format
+msgid "%(anzahl)d Aufgaben erfolgreich importiert."
+msgstr "%(anzahl)d tasks imported successfully."
+
+#: .\posts\views_logik\aufgabe_importieren\excel_imports.py:160
+#, python-format
+msgid "%(anzahl)d Aufgaben konnten nicht importiert werden: %(fehler)s"
+msgstr "%(anzahl)d tasks could not be imported: %(fehler)s"
+
+#: .\posts\views_logik\aufgabe_importieren\excel_imports.py:221
+#, python-format
+msgid "Einige Zeilen wurden übersprungen (Reihen: %(rows)s)"
+msgstr ""
+
+#: .\posts\views_logik\aufgabe_importieren\excel_imports.py:223
+msgid "Konten erfolgreich importiert."
+msgstr "Accounts successfully imported"
+
+#: .\posts\views_logik\aufgabe_importieren\excel_imports.py:234
+#, python-format
+msgid "Fehler beim Import: %(err)s"
+msgstr ""
+
+#: .\posts\views_logik\utils.py:34
+#, python-format
+msgid "Fehlende Berechtigung<br><a href=\"%(link)s\">Zurück zur Startseite</a>"
+msgstr "Missing permission<br><a href=\"%(link)s\">Back to homepage</a>"
 
 #: .\templates\frontpage.html:11
 msgid "Willkommen bei SecureNet!"
@@ -2044,7 +2931,7 @@ msgstr "Your progress"
 msgid "Leistungsübersicht Studierende"
 msgstr "Student Performance Overview"
 
-#: .\templates\frontpage.html:58 .\templates\index.html:107
+#: .\templates\frontpage.html:58 .\templates\index.html:117
 #: .\users\templates\users\bulk_student_creation.html:30
 msgid "Semester:"
 msgstr "Semester:"
@@ -2054,14 +2941,14 @@ msgstr "Semester:"
 msgid "Alle"
 msgstr "All"
 
-#: .\templates\frontpage.html:64 .\templates\index.html:106
+#: .\templates\frontpage.html:64 .\templates\index.html:116
 #: .\users\templates\users\bulk_student_creation.html:23
 msgid "Studiengang:"
 msgstr "Study Program:"
 
 #: .\templates\frontpage.html:70
 msgid "Aufgabe:"
-msgstr "List of tasks"
+msgstr "Task: "
 
 #: .\templates\frontpage.html:76
 msgid "Filtern"
@@ -2107,6 +2994,12 @@ msgstr "Your role: Admin"
 msgid "Ihre Rolle:"
 msgstr "Your role:"
 
+#: .\templates\index.html:65
+#, fuzzy
+#| msgid "Bearbeitungsstand"
+msgid "Bearbeitungsmodus aktivieren"
+msgstr "Processing status"
+
 #: .\templates\index.html:70
 msgid "Ihre Studierenden:"
 msgstr "List of your students:"
@@ -2123,19 +3016,19 @@ msgstr "Login: Yes"
 msgid "Login: Nein"
 msgstr "Login: No"
 
-#: .\templates\index.html:92
+#: .\templates\index.html:100
 msgid "User löschen"
 msgstr "Delete user"
 
-#: .\templates\index.html:103
+#: .\templates\index.html:113
 msgid "Sie haben derzeit keine Studierenden unter Ihrer Betreuung."
 msgstr "You currently don't havy any students"
 
-#: .\templates\index.html:108
+#: .\templates\index.html:118
 msgid "Ihr Professor:"
 msgstr "Your teacher"
 
-#: .\templates\index.html:112
+#: .\templates\index.html:122
 msgid "Sie haben derzeit keinen zugewiesenen Professor."
 msgstr "You don't havy any teacher assigned to you"
 
@@ -2159,31 +3052,14 @@ msgstr "User guide"
 msgid "Handbuch Lehrende"
 msgstr "User guide teachers"
 
-#: .\templates\master_layout.html:51
-msgid "Verwaltung"
-msgstr "Management"
-
 #: .\templates\master_layout.html:53
 msgid "Meine Studierenden"
-msgstr "List of your students:"
+msgstr "My students"
 
 #: .\templates\master_layout.html:54
 #: .\users\templates\users\bulk_student_creation.html:58
 msgid "Studierende anlegen"
 msgstr "Create student program"
-
-#: .\templates\master_layout.html:55
-msgid "Aufgabenliste"
-msgstr "List of tasks"
-
-#: .\templates\master_layout.html:56
-#: .\users\templates\users\aufgaben_zuweisen.html:9
-msgid "Aufgaben zuweisen"
-msgstr "Assign tasks"
-
-#: .\templates\master_layout.html:57
-msgid "Aufgabe erstellen"
-msgstr "Create task"
 
 #: .\templates\master_layout.html:63
 msgid "Buchhaltung"
@@ -2302,7 +3178,7 @@ msgstr "Choose Program"
 msgid "Aufgabe zuweisen"
 msgstr "Assign task"
 
-#: .\users\templates\users\aufgaben_zuweisen.html:85
+#: .\users\templates\users\aufgaben_zuweisen.html:86
 msgid "Alle Aufgaben mir zuweisen"
 msgstr "Assign all tasks to myself"
 
@@ -2432,65 +3308,89 @@ msgstr "Automatic name"
 msgid "Individueller Name:"
 msgstr "Custom name:"
 
-#: .\users\views.py:57
+#: .\users\views.py:62
 msgid "Fehlende Berechtigung"
 msgstr "Permission Denied"
 
-#: .\users\views.py:57
+#: .\users\views.py:62
 msgid "Zurück zur Startseite"
 msgstr "Back to frontpage"
 
-#: .\users\views.py:86
+#: .\users\views.py:90
 msgid "Benutzername oder Passwort ist nicht korrekt."
 msgstr "Username or password are not correct"
 
-#: .\users\views.py:138
+#: .\users\views.py:142
 msgid "Semester erfolgreich hinzugefügt."
 msgstr "Successfully created semester"
 
-#: .\users\views.py:157
+#: .\users\views.py:161
 msgid "Semester erfolgreich gelöscht."
 msgstr "Successfully deleted semester"
 
-#: .\users\views.py:203
+#: .\users\views.py:212
 #, python-format
 msgid "Folgende Namen sind bereits vergeben: %(namen)s"
 msgstr "The following names were already taken: %(namen)s"
 
-#: .\users\views.py:208
+#: .\users\views.py:217
 #, python-format
 msgid "%(anzahl)d Studierende erfolgreich erstellt."
 msgstr "%(anzahl)d students successfully created"
 
-#: .\users\views.py:296
+#: .\users\views.py:304
 msgid "Aufgaben erfolgreich zugewiesen."
 msgstr "Tasks successfully assigned"
 
-#: .\users\views.py:338
+#: .\users\views.py:347
 msgid "Alle Aufgaben wurden dir erfolgreich zugewiesen."
 msgstr "Assign all tasks to myself"
 
-#: .\users\views.py:365
+#: .\users\views.py:374
 msgid "Passwörter stimmen nicht überein."
 msgstr "Passwords are incorrect"
 
-#: .\users\views.py:370
+#: .\users\views.py:379
 msgid "Profil erfolgreich aktualisiert."
 msgstr "Profile update successfull"
 
-#: .\users\views.py:381
+#: .\users\views.py:390
 msgid "Keine Änderungen vorgenommen."
 msgstr "No Changes submitted"
 
-#: .\users\views.py:530
+#: .\users\views.py:561
 msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
 msgstr "The organizational task has been marked as completed."
 
+#~ msgid "Unternehmen Kategorie"
+#~ msgstr "Business category"
+
+#~ msgid "Zur Rechnung"
+#~ msgstr "To the invoice"
+
+#~ msgid "Link"
+#~ msgstr "Link"
+
+#~ msgid "Gewinn"
+#~ msgstr "Profit"
+
+#~ msgid "Verlust"
+#~ msgstr "Loss"
+
+#~ msgid "Untertyp wählen"
+#~ msgstr "Please select a subtype"
+
+#~ msgid "GuV Konto abschließen v2"
+#~ msgstr "Close P&L account v2"
+
+#~ msgid "verhindert Randomisierung der Lösungswerte"
+#~ msgstr "Prevents randomization of solution values"
+
+#~ msgid "Fehlerhafte Eingaben oder keine Datei hochgeladen."
+#~ msgstr "Invalid entries or no file uploaded."
+
 #~ msgid "Meine Nutzer"
 #~ msgstr "My Users"
-
-#~ msgid "Nutzer anlegen"
-#~ msgstr "Create Users"
 
 #~ msgid "Fehler beim Bearbeiten der Details."
 #~ msgstr "Error while editing the details."

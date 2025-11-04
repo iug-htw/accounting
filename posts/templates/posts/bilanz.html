@@ -16,20 +16,8 @@
 
 <section class="hauptbuch">
     {% for konto, daten in t_konten.items %}
-    <div class="konto" data-konto="{{ daten.name }}" data-konto-id="{{ konto }}" data-kategorie="{{ bestandskonten|get_item:konto }}">
+    <div class="konto" data-konto="{{ daten.name }}" data-konto-id="{{ konto }}" data-unterkategorie="{{ bestands_unterkategorien|get_item:konto }}">
         <h2>{{ daten.name }}</h2>
-        <label>{% trans "Kategorie:"%}</label>
-        <select class="konto-kategorie">
-            <option value="" selected disabled>{% trans "Bitte wählen..."%}</option>
-            {% if konto == 'GuV' %}
-            <option value="Passiva">{% trans "Gewinn"%}</option>
-            <option value="Aktiva">{% trans "Verlust"%}</option>
-            {% else %}
-            <option value="Aktiva">{% trans "Aktiva"%}</option>
-            <option value="Passiva">{% trans "Passiva"%}</option>
-            {% endif %}
-        </select>
-        <button class="konto-abschluss-btn">{% trans "Konto abschließen"%}</button>
         <table>
             <thead>
                 <tr><th class="soll">{% trans "Soll"%}</th><th class="haben">{% trans "Haben"%}</th></tr>
@@ -88,7 +76,7 @@
             </div>
         </div>
     </section>
-
+<button id="alle-konten-abschliessen-btn">{% trans "Alle Konten abschließen" %}</button>
 <button id="abschluss-alle-btn">{% trans "Bilanz speichern"%}</button>
 <button id="bilanz-reset-btn">{% trans "Bilanz löschen"%}</button>
 
@@ -97,6 +85,7 @@ function isEigenkapitalName(name){
   const n = (name||'').toLowerCase();
   return n.includes('eigenkapital') || n.includes('gezeichnetes kapital') || n.includes('kapital ');
 }
+let bilanzBody = document.getElementById("bilanz-body");
 const gettexts = {
         sbk: "{{ _('SBK') }}",
         summe: "{{ _('Summe') }}",
@@ -112,71 +101,9 @@ function isGuVLabel(txt){
          t.includes('jahresfehlbetrag') ||
          t.includes('gewinn') || t.includes('verlust');
 }
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
-        button.addEventListener("click", function() {
-            let kontoDiv = this.closest(".konto");
-            let sollTabelle = kontoDiv.querySelector(".soll-tabelle");
-            let habenTabelle = kontoDiv.querySelector(".haben-tabelle");
 
-            let sollWerte = Array.from(sollTabelle.querySelectorAll("td.betrag"));
-            let habenWerte = Array.from(habenTabelle.querySelectorAll("td.betrag"));
-
-            let sollSumme = sollWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.dataset.value) || 0), 0);
-            let habenSumme = habenWerte.reduce((sum, cell) => sum + Math.abs(parseFloat(cell.dataset.value) || 0), 0);
-
-
-            let differenz = Math.abs(sollSumme - habenSumme);
-            let istAktiv = kontoDiv.querySelector(".konto-kategorie").value === "Aktiva";
-
-            // **Zeilenanzahl ausgleichen**
-            let sollZeilen = sollTabelle.rows.length;
-            let habenZeilen = habenTabelle.rows.length;
-            let maxZeilen = Math.max(sollZeilen, habenZeilen);
-
-            while (sollTabelle.rows.length < maxZeilen -1) {
-                let leerZeile = sollTabelle.insertRow();
-                leerZeile.innerHTML = "<td></td><td></td>";
-            }
-            while (habenTabelle.rows.length < maxZeilen -1) {
-                let leerZeile = habenTabelle.insertRow();
-                leerZeile.innerHTML = "<td></td><td></td>";
-            }
-
-            // **Differenz auf der kleineren Seite unter der ersten leeren Zeile hinzufügen**
-            let differenzZeile = document.createElement("tr");
-                if (sollSumme > habenSumme) {
-                    differenzZeile.innerHTML = `<td>${gettexts.sbk}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
-                    habenTabelle.appendChild(differenzZeile);
-                } else {
-                    differenzZeile.innerHTML = `<td>${gettexts.sbk}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
-                    sollTabelle.appendChild(differenzZeile);
-                }
-
-
-            // **Summenzeile auf der größeren Seite hinzufügen**
-            let summenZeile = document.createElement("tr");
-            summenZeile.style.fontWeight = "bold";
-            const maxSumme = Math.max(sollSumme, habenSumme);
-            summenZeile.innerHTML = `<td>${gettexts.summe}</td><td data-value="${maxSumme}">${formatNumber(maxSumme)}</td>`;
-            sollTabelle.appendChild(summenZeile.cloneNode(true)); 
-            habenTabelle.appendChild(summenZeile);
-
-
-            this.disabled = true;
-            this.innerText = `${gettexts.abgeschlossen}`;
-        });
-    });
-
-    document.getElementById("abschluss-alle-btn").addEventListener("click", function() {
-        document.querySelectorAll(".konto-abschluss-btn:not([disabled])").forEach(button => {
-            button.click();
-        });
-    });
-});
 
 document.addEventListener("DOMContentLoaded", function() {
-    let bilanzBody = document.getElementById("bilanz-body");
     let summeAktivElement = document.getElementById("summe-aktiv");
     let summePassivElement = document.getElementById("summe-passiv");
 
@@ -497,5 +424,129 @@ function collectBilanz(){
   });
   return {aktiva, passiva};
 }
+function parseLocalizedNumber(text){
+  if(!text) return 0;
+  const t = String(text).replace(/\./g,'').replace(',', '.');
+  const v = parseFloat(t);
+  return isNaN(v) ? 0 : v;
+}
+
+function summeAusTabelle(tbl){
+  return Array.from(tbl.querySelectorAll('td.betrag'))
+              .reduce((s,td)=> s + Math.abs(parseFloat(td.dataset.value||0)), 0);
+}
+
+function parseValFromRow(row){
+  const td = row.querySelector('td.betrag');
+  if (!td) return 0;
+  const v = parseFloat(td.dataset.value || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+function handleEigenkapitalAbschluss(div, body) {
+    const kontoId   = div.dataset.kontoId;
+    const kontoName = div.dataset.konto;
+
+    const sollTbl  = div.querySelector('.soll-tabelle');
+    const habenTbl = div.querySelector('.haben-tabelle');
+
+    const rowsH = Array.from(habenTbl.querySelectorAll('tr'));
+    const rowsS = Array.from(sollTbl.querySelectorAll('tr'));
+
+    const getLabel = r => (r.cells[0]?.innerText || "").trim();
+    const isGuVLabel = txt => ["guv", "jahresüberschuss", "jahresfehlbetrag"].some(w => txt.toLowerCase().includes(w));
+
+    // EK aus Haben-EBK
+    const ekVal = rowsH
+        .filter(row => getLabel(row).toLowerCase().startsWith("ebk"))
+        .reduce((a, row) => a + (parseFloat(row.querySelector('[data-value]')?.dataset.value) || 0), 0);
+
+    // GuV aus Haben (Gewinn) oder Soll (Verlust)
+    let guvVal = 0;
+    const guvH = rowsH.filter(r => isGuVLabel(getLabel(r)));
+    const guvS = rowsS.filter(r => isGuVLabel(getLabel(r)));
+
+    if (guvH.length) guvVal =  guvH.reduce((a, r) => a + (parseFloat(r.querySelector('[data-value]')?.dataset.value) || 0), 0);
+    if (guvS.length) guvVal = -guvS.reduce((a, r) => a + (parseFloat(r.querySelector('[data-value]')?.dataset.value) || 0), 0);
+
+    // EK Zeile
+    const trEK = document.createElement("tr");
+    trEK.innerHTML = `
+        <td></td><td></td>
+        <td data-konto-id="${kontoId}">${kontoName}</td>
+        <td data-value="${ekVal}">${formatNumber(ekVal)}</td>
+    `;
+    body.appendChild(trEK);
+
+    // GuV Zeile
+    const trGuV = document.createElement("tr");
+    trGuV.innerHTML = `
+        <td></td><td></td>
+        <td data-konto-id="GUV">Jahresüberschuss/Jahresfehlbetrag</td>
+        <td data-value="${guvVal}">${formatNumber(guvVal)}</td>
+    `;
+    body.appendChild(trGuV);
+
+    // Wir haben alles erledigt, der Haupt-Flow soll abbrechen
+    return true;
+}
+
+function finalizeSingleKonto(div) {
+    const kontoId   = div.dataset.kontoId;
+    const kontoName = div.dataset.konto;
+    const uk        = (div.dataset.unterkategorie || '').toLowerCase(); // aktiva/passiva
+    const body = document.getElementById("bilanz-body");
+
+    // Sonderfall: Eigenkapital → delegieren
+    if (uk === "passiva" && isEigenkapitalName(kontoName)) {
+        const handled = handleEigenkapitalAbschluss(div, body);
+        if (handled) return;
+    }
+
+    // Standard: Saldo normal übertragen
+    const soll = summeAusTabelle(div.querySelector('.soll-tabelle'));
+    const haben = summeAusTabelle(div.querySelector('.haben-tabelle'));
+    const diff = Math.abs(soll - haben);
+    if (!diff) return;
+
+    const tr = document.createElement("tr");
+    if (uk === "aktiva") {
+        tr.innerHTML = `
+            <td data-konto-id="${kontoId}">${kontoName}</td>
+            <td data-value="${diff}">${formatNumber(diff)}</td>
+            <td></td><td></td>
+        `;
+    } else {
+        tr.innerHTML = `
+            <td></td><td></td>
+            <td data-konto-id="${kontoId}">${kontoName}</td>
+            <td data-value="${diff}">${formatNumber(diff)}</td>
+        `;
+    }
+    body.appendChild(tr);
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const btnAlle = document.getElementById('alle-konten-abschliessen-btn');
+  if (!btnAlle) return;
+
+  btnAlle.addEventListener('click', ()=>{
+    // 1) Bilanz-Body leeren
+    const body = document.getElementById('bilanz-body');
+    body.innerHTML = '';
+
+    // 2) Alle Konten (nur Bestandskonten sind gerendert) in Bilanz schreiben
+    document.querySelectorAll('.hauptbuch .konto').forEach(div => finalizeSingleKonto(div));
+
+    // 3) Summen neu berechnen
+    let sumA=0, sumP=0;
+    Array.from(body.querySelectorAll('tr')).forEach(row=>{
+      sumA += parseFloat(row.cells[1]?.dataset.value || 0);
+      sumP += parseFloat(row.cells[3]?.dataset.value || 0);
+    });
+    document.getElementById('summe-aktiv').innerText  = formatNumber(sumA);
+    document.getElementById('summe-passiv').innerText = formatNumber(sumP);
+  });
+});
 </script>
 {% endblock %}

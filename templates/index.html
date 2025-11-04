@@ -56,7 +56,7 @@ input:checked + .slider-round:before {
     {% else %}
         <p>{% trans "Ihre Rolle:"%} {{ user.get_role_display }}</p>
     {% endif %}
-    
+    {% if user.role == 'teacher' %}
     <div style="margin-bottom: 1em;">
     <label class="switch">
         <input type="checkbox" id="edit-toggle" onchange="toggleBearbeitungsmodus()">
@@ -64,7 +64,7 @@ input:checked + .slider-round:before {
     </label>
     <span>{% trans "Bearbeitungsmodus aktivieren"%}</span>
     </div>
-
+    {% endif %}
     <!-- Nur für Lehrkräfte die Studierenden anzeigen -->
     {% if user.role == 'teacher' %}
         <h2>{% trans "Ihre Studierenden:"%}</h2>
@@ -84,8 +84,9 @@ input:checked + .slider-round:before {
                                 {% for entry in studenten %}
                                     {% with student=entry.student abschluss=entry.abschluss %}
                                     <li id="studi-{{ student.id }}">
-                                        {{ student.username }} – 
+                                        {{ student.username }} – <i>{{student.unternehmen.name}}</i> -
                                         {% if student.last_login %}{% trans "Login: Ja" %}{% else %}{% trans "Login: Nein" %}{% endif %}
+                                        
                                         <span id="progress-text-{{ student.id }}">0%</span>
                                         <span id="progress-icon-{{ student.id }}"></span>
                                         <!-- NEU: GuV / Bilanz Status -->

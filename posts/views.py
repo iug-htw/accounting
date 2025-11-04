@@ -2,6 +2,7 @@ from .views_logik.bibliotheken import _
 from .views_logik.bibliotheken import *
 from .views_logik.utils import lehrkraft_required,student_required,admin_required,safe_parse
 from .views_logik.aufgabe_importieren.excel_imports import verarbeite_excel_import
+from django.utils.translation import gettext as _
 
 @login_required
 def kontenplan_konten_laden(request):
@@ -341,7 +342,7 @@ def hauptbuch_view(request):
     buchungen = Buchung.objects.filter(nutzer=user)
     # T-Konten erstellen mit anfangsbestaenden UND Buchungen
     guv_konto = ermittle_guv_konto(request)
-    t_konten = build_t_konten(buchungen, anfangsbestaende,guv_konto_id=guv_konto.id if guv_konto else None)
+    t_konten = build_t_konten(buchungen, anfangsbestaende,konten=None, guv_konto_id=guv_konto.id if guv_konto else None)
     def label_for(b):
         if b.aufgabe:
             return f"{b.aufgabe.id} {b.versuch})"
@@ -364,13 +365,22 @@ def generate_color(aufgabe_id):
     hue = hash_value % 360
     return f"hsl({hue}, 70%, 85%)"
 
-def build_t_konten(buchungen, anfangsbestände,guv_konto_id=None):
+def build_t_konten(buchungen, anfangsbestände,konten,guv_konto_id=None):
     t_konten = {}
     aufgabe_farben = {}
-    id_to_name = {str(konto.id): konto.name for konto in Konto.objects.all()}
+    if konten is None:
+        konten_qs = Konto.objects.all()
+        allowed_ids = None  # keine Beschränkung
+    else:
+        konten_qs = konten
+        allowed_ids = set(str(k.id) for k in konten_qs)
+
+    id_to_name = {str(konto.id): konto.name for konto in konten_qs}
     # Anfangsbestände in die T-Konten-Struktur aufnehmen
     for bestand in anfangsbestände:
         konto_id = str(bestand.konto.id)
+        if allowed_ids is not None and konto_id not in allowed_ids:
+            continue
         t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
 
         if bestand.konto.unterkategorie == "Aktiva":  # EBK für Aktivkonten auf Soll-Seite
@@ -402,10 +412,16 @@ def build_t_konten(buchungen, anfangsbestände,guv_konto_id=None):
         haben_betraege = safe_parse(buchung.antwort_betrag_haben or "[]")
 
         for konto_id, betrag in zip(soll_konten, soll_betraege):
+            # ❗ Neu: Filter respektieren
+            if allowed_ids is not None and konto_id not in allowed_ids:
+                continue
             t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
             t_konten[konto_id]["soll"].append((aufgabe_id_mit_versuch, betrag, farbe))
 
         for konto_id, betrag in zip(haben_konten, haben_betraege):
+            # ❗ Neu: Filter respektieren
+            if allowed_ids is not None and konto_id not in allowed_ids:
+                continue
             t_konten.setdefault(konto_id, {"soll": [], "haben": [], "name": id_to_name.get(konto_id)})
             t_konten[konto_id]["haben"].append((aufgabe_id_mit_versuch, betrag, farbe))
     return t_konten
@@ -711,16 +727,20 @@ def konten_verwalten(request):
     else:
         form = KontoForm(user=request.user)
 
+    if request.user.id == 1:
+        kontenplaene = Kontenplan.objects.all()
+        konten = Konto.objects.all().order_by('kontonummer', 'name')
+    else:
     # Nur Konten aus Kontenplan 1 und eigene Pläne laden
-    superuser_filter = Q(erstellt_von=request.user) | Q(erstellt_von__isnull=True) | Q(erstellt_von__is_superuser=True)
-    konten = Konto.objects.filter(
-        Q(kontenplan__nutzer=request.user) | Q(kontenplan__nutzer__is_superuser=True)
-    ).filter(
-        superuser_filter
-    ).order_by('kontonummer', 'name')
-    kontenplaene = Kontenplan.objects.filter(
-        Q(nutzer=request.user) | Q(nutzer__is_superuser=True)
-    )
+        superuser_filter = Q(erstellt_von=request.user) | Q(erstellt_von__isnull=True) | Q(erstellt_von__is_superuser=True)
+        konten = Konto.objects.filter(
+            Q(kontenplan__nutzer=request.user) | Q(kontenplan__nutzer__is_superuser=True)
+        ).filter(
+            superuser_filter
+        ).order_by('kontonummer', 'name')
+        kontenplaene = Kontenplan.objects.filter(
+            Q(nutzer=request.user) | Q(nutzer__is_superuser=True)
+        )
 
     # Gruppieren nach Kontenplan-ID
     konten_nach_plan = defaultdict(list)
@@ -940,6 +960,9 @@ def guv_uebersicht(request):
     # Filtere alle Konten außer GuV
     konten = Konto.objects.exclude(name=guv_konto.name)
     konten = Konto.objects.exclude(name=ek_konto.name)
+    konten = Konto.objects.filter(
+        Q(kategorie="Erfolgskonto") | Q(unterkategorie__in=["Aufwand", "Ertrag"])
+    )
     # Filtere Buchungen ohne GuV (SOLL und HABEN)
     buchungen = (
         Buchung.objects.filter(nutzer=request.user)
@@ -947,13 +970,13 @@ def guv_uebersicht(request):
         .exclude(antwort_konten_haben__icontains=str(guv_konto.id))
         .exclude(antwort_konten_soll__icontains=str(ek_konto.id))
         .exclude(antwort_konten_haben__icontains=str(ek_konto.id))
-        .exclude(aufgabe_id__isnull=True)
+        
     )
     # Anfangsbestände ohne GuV
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)\
         .exclude(konto__in=[guv_konto, ek_konto])
     # Baue T-Konten-Struktur
-    t_konten = build_t_konten(buchungen, anfangsbestaende,guv_konto_id=None)
+    t_konten = build_t_konten(buchungen, anfangsbestaende,konten,guv_konto_id=None)
     #t_konten = verrechne_steuerkonten(t_konten, konten)
     # ✅ Filtere das GuV-Konto auch aus den T-Konten heraus
     guv_id = str(guv_konto.id)
@@ -1060,7 +1083,7 @@ def ermittle_guv_konto(request):
         return None
 
     kontenplan = unternehmen.kontenplan
-    suchbegriffe = ["guv", "gewinn", "verlust", "p&l", "profit", "loss", "pl"]
+    suchbegriffe = ["guv", "gewinn", "verlust", "p&l", "profit", "loss", "profit and loss"]
 
     query = Q(kontenplan=kontenplan) & Q(name__iregex="|".join(suchbegriffe))
 
@@ -1094,21 +1117,24 @@ def bilanz_uebersicht(request):
     buchungen = Buchung.objects.filter(
         nutzer=request.user
     ).filter(
-        Q(aufgabe_id__isnull=False) |
+        Q(aufgabe_id__isnull=False) | Q(aufgabe_id__isnull=True) |
         Q(antwort_konten_soll__icontains=str(guv_konto.id)) |
         Q(antwort_konten_haben__icontains=str(guv_konto.id))
     )
     anfangsbestaende = Anfangsbestand.objects.filter(nutzer=request.user)
 
     # T-Konten aufbauen und ggf. GuV entfernen
-    t_konten_all = build_t_konten(buchungen, anfangsbestaende, guv_konto_id=guv_konto.id if guv_konto else None)
+    t_konten_all = build_t_konten(buchungen, anfangsbestaende, konten=None,guv_konto_id=guv_konto.id if guv_konto else None)
     konto_kategorien = {str(k.id): k.unterkategorie for k in bestandskonten}
     t_konten = {k: v for k, v in t_konten_all.items() if k in konto_kategorien}
     if guv_konto and str(guv_konto.id) in t_konten:
         del t_konten[str(guv_konto.id)]
     t_konten = verrechne_steuerkonten(t_konten, bestandskonten)
+
+    bestands_unterkategorien = {str(k.id): k.unterkategorie for k in bestandskonten}
     return render(request, "posts/bilanz.html", {
         "t_konten": t_konten,
+        "bestands_unterkategorien": bestands_unterkategorien,
         "aktive_konten": [k.name for k in bestandskonten if k.unterkategorie == "Aktiva"],
         "passive_konten": [k.name for k in bestandskonten if k.unterkategorie == "Passiva"],
         "bestandskonten": bestandskonten,
@@ -1456,71 +1482,71 @@ def finde_steuer_sammelkonto(user):
     if not u or not getattr(u, "kontenplan", None): return None
     rx = "steuer.*(sammel|verrechnung)|ust.*verrechnung|umsatzsteuerverrechnung|steuerverrechnung"
     return Konto.objects.filter(kontenplan=u.kontenplan, name__iregex=rx).first()
+#Alte Logik um ein automatisches Steuerkonto für die Bilanz zu erstellen, bestehend aus allen Aufgaben, die Steuern enthalten
+# def konsolidiere_steuerkonten_bestand(bestand, user):
+#     """
+#     Bildet das Steuerverrechnungskonto als DIFFERENZ: Vorsteuer - Umsatzsteuer.
+#     Positive Differenz -> Aktiva (Forderung), negative -> Passiva (Zahllast).
+#     Entfernt die Einzel-VSt/USt-Konten und ersetzt sie durch den Sammelposten.
+#     """
+#     KEY = "STEUER_SAMMEL"
 
-def konsolidiere_steuerkonten_bestand(bestand, user):
-    """
-    Bildet das Steuerverrechnungskonto als DIFFERENZ: Vorsteuer - Umsatzsteuer.
-    Positive Differenz -> Aktiva (Forderung), negative -> Passiva (Zahllast).
-    Entfernt die Einzel-VSt/USt-Konten und ersetzt sie durch den Sammelposten.
-    """
-    KEY = "STEUER_SAMMEL"
+#     # Vorhandenen Sammelposten entfernen
+#     aktiva = bestand.get("aktiva", {})
+#     passiva = bestand.get("passiva", {})
+#     existing_akt = aktiva.pop(KEY, None)
+#     existing_pas = passiva.pop(KEY, None)
 
-    # Vorhandenen Sammelposten entfernen
-    aktiva = bestand.get("aktiva", {})
-    passiva = bestand.get("passiva", {})
-    existing_akt = aktiva.pop(KEY, None)
-    existing_pas = passiva.pop(KEY, None)
+#     # IDs einsammeln und Konten lookup
+#     ids = [k for k in list(aktiva.keys()) + list(passiva.keys()) if str(k).isdigit()]
+#     if not ids:
+#         return bestand
+#     num_ids = [int(k) for k in ids]
 
-    # IDs einsammeln und Konten lookup
-    ids = [k for k in list(aktiva.keys()) + list(passiva.keys()) if str(k).isdigit()]
-    if not ids:
-        return bestand
-    num_ids = [int(k) for k in ids]
+#     from .models import Konto  # ggf. an den Dateikopf ziehen
+#     konten = {str(k.id): k for k in Konto.objects.filter(id__in=num_ids)}
 
-    from .models import Konto  # ggf. an den Dateikopf ziehen
-    konten = {str(k.id): k for k in Konto.objects.filter(id__in=num_ids)}
+#     # Summen getrennt erfassen
+#     vst_total = 0.0
+#     ust_total = 0.0
+#     vst_ids, ust_ids = [], []
 
-    # Summen getrennt erfassen
-    vst_total = 0.0
-    ust_total = 0.0
-    vst_ids, ust_ids = [], []
+#     for sid in ids:
+#         ko = konten.get(str(sid))
+#         if not ko:
+#             continue
+#         flag = int(getattr(ko, "steuerkonto", 0))  # 1=VSt, 2=USt
+#         if flag not in (1, 2):
+#             continue
 
-    for sid in ids:
-        ko = konten.get(str(sid))
-        if not ko:
-            continue
-        flag = int(getattr(ko, "steuerkonto", 0))  # 1=VSt, 2=USt
-        if flag not in (1, 2):
-            continue
+#         val = float(aktiva.get(sid, passiva.get(sid, 0.0)))
+#         if flag == 1:
+#             vst_total += val
+#             vst_ids.append(sid)
+#         else:
+#             ust_total += val
+#             ust_ids.append(sid)
 
-        val = float(aktiva.get(sid, passiva.get(sid, 0.0)))
-        if flag == 1:
-            vst_total += val
-            vst_ids.append(sid)
-        else:
-            ust_total += val
-            ust_ids.append(sid)
+#     # Einzel-Steuerkonten entfernen
+#     for sid in vst_ids + ust_ids:
+#         aktiva.pop(sid, None)
+#         passiva.pop(sid, None)
 
-    # Einzel-Steuerkonten entfernen
-    for sid in vst_ids + ust_ids:
-        aktiva.pop(sid, None)
-        passiva.pop(sid, None)
+#     # Differenz bilden und Sammelposten schreiben
+#     net = round(vst_total - ust_total, 2)
+#     if net > 0:
+#         aktiva[KEY] = net          # Forderung (Soll)
+#     elif net < 0:
+#         passiva[KEY] = -net        # Zahllast (Haben)
+#     else:
+#         # 🔧 NEU: Wenn es gar keine VSt/USt-IDs gab, den vom Client gelieferten Sammelposten wiederherstellen
+#         if not (vst_ids or ust_ids):
+#             if existing_akt is not None:
+#                 aktiva[KEY] = existing_akt
+#             elif existing_pas is not None:
+#                 passiva[KEY] = existing_pas
 
-    # Differenz bilden und Sammelposten schreiben
-    net = round(vst_total - ust_total, 2)
-    if net > 0:
-        aktiva[KEY] = net          # Forderung (Soll)
-    elif net < 0:
-        passiva[KEY] = -net        # Zahllast (Haben)
-    else:
-        # 🔧 NEU: Wenn es gar keine VSt/USt-IDs gab, den vom Client gelieferten Sammelposten wiederherstellen
-        if not (vst_ids or ust_ids):
-            if existing_akt is not None:
-                aktiva[KEY] = existing_akt
-            elif existing_pas is not None:
-                passiva[KEY] = existing_pas
-
-    return bestand
+#     return bestand
 
 def aggregate_erfolg(user):
     res, dyn = {"aufwand": {}, "ertrag": {}}, _dyn_fetch(user).get("erfolg", {})
@@ -1547,7 +1573,8 @@ def berechne_bilanz(bestand, guv_saldo, user):
     'guv_saldo' ist z.B. {"typ": "Gewinn"|"Verlust", "betrag": 4911.0}
     """
     # Zuerst Steuer-Sammelkonto im Bestand konsolidieren
-    bestand = konsolidiere_steuerkonten_bestand(bestand, user)
+    #Alte Logik um ein automatisches Steuerkonto für die Bilanz zu erstellen, bestehend aus allen Aufgaben, die Steuern enthalten
+    #bestand = konsolidiere_steuerkonten_bestand(bestand, user)
 
     # GUV immer auf Passiva aufnehmen (Gewinn +, Verlust -)
     if guv_saldo and guv_saldo.get("betrag"):
@@ -1620,12 +1647,12 @@ def _konto_id_from_token(user, token):
         return "GUV"
 
     # Steuer-Sammelkonto
-    if t.upper() == "STEUER_SAMMEL" or tl in (
-        "steuer (sammel)", "steuer (sammelkonto)", "steuersammel", "steuer-sammel",
-        "steuerverrechnung", "steuer-verrechnung", "steuer verrechnung",
-        "umsatzsteuerverrechnung", "vorsteuerverrechnung"
-    ):
-        return "STEUER_SAMMEL"
+    # if t.upper() == "STEUER_SAMMEL" or tl in (
+    #     "steuer (sammel)", "steuer (sammelkonto)", "steuersammel", "steuer-sammel",
+    #     "steuerverrechnung", "steuer-verrechnung", "steuer verrechnung",
+    #     "umsatzsteuerverrechnung", "vorsteuerverrechnung"
+    # ):
+    #     return "STEUER_SAMMEL"
 
     if t.isdigit():
         return str(int(t))
@@ -1663,7 +1690,7 @@ def _normalize_for_compare(user, typ, client_json):
         return _normalize_client_guv(user, client_json)
     b = _normalize_client_bilanz(user, client_json)
     # Sammelkonto konsolidieren UND GUV immer auf Passiva (Verlust negativ) abbilden
-    b = konsolidiere_steuerkonten_bestand(b, user)
+    #b = konsolidiere_steuerkonten_bestand(b, user)
     b = _ensure_guv_in_passiva(b)
     return b
 

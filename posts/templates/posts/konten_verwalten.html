@@ -67,19 +67,23 @@
         <th>{% trans "Anfangsbestand"%}</th>
         <th>{% trans "Aktionen"%}</th>
     </tr>
-    {% for plan_nr, konten in konten_nach_plan.items %}
+    {% for plan_nr, konten in konten_nach_plan.items %} 
         <tr>
             <th colspan="4" style="background:#e0e0e0;">
                 {% trans "Kontenplan"%} {{ plan_nr }}
-                {% with konten.0.kontenplan as plan %}
-                    {% if plan.nutzer.id == user.id or user.is_superuser %}
-                        <form method="post" action="{% url 'posts:kontenplan_loeschen' plan.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" onclick="return confirm('Diesen Kontenplan wirklich löschen?');">🗑️</button>
-                        </form>
-                    {% endif %}
-                {% endwith %}
+                {% if konten|length and konten.0.kontenplan %}
+                    {% with plan=konten.0.kontenplan %}
+                    ({{ plan.nutzer.username }})
+                        {% if plan.nutzer_id == user.id or user.is_superuser %}
+                            <form method="post" action="{% url 'posts:kontenplan_loeschen' plan.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Diesen Kontenplan wirklich löschen?');">🗑️</button>
+                            </form>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
             </th>
+
         </tr>
             {% for konto in konten %}
             <tr>

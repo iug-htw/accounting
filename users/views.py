@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.http import HttpResponse,JsonResponse
 from .models import Studiengang, Semester, CustomUser
 from posts.views import lehrkraft_required, admin_required, student_required
-from posts.models import Mail, NutzerAufgabe, Absender, Unternehmen
+from posts.models import Mail, NutzerAufgabe, Absender, Unternehmen, Aufgabenkategorie
 from django.contrib import messages
 from posts.views import generiere_zufaellige_werte, speichere_nutzer_aufgabe, berechne_naechsten_versuch, erstelle_aufgaben_mail,generate_user_anfangsbestaende
 from posts.views import Aufgabe_neu
@@ -21,6 +21,11 @@ from collections import defaultdict
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
+from io import BytesIO
+from django.http import HttpResponse
+from django.utils.text import slugify
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
 
 ORGA_MAILS = [
@@ -64,6 +69,7 @@ def register_view(request):
             user.role = 'student'  # Ensure the created user is always a student
             user.professor = request.user  # Automatically assign the logged-in teacher as the professor
             user.studiengang = form.cleaned_data.get('studiengang')
+            user.unternehmen = form.cleaned_data.get('unternehmen')
             user.semester = form.cleaned_data.get('semester') or Semester.objects.get(id=1)
             user.nutzergruppe = random.randint(1, 4)
             user.save()
@@ -79,8 +85,6 @@ def login_view(request):
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            if "next" in request.POST and request.POST.get("next"):
-                return redirect(request.POST.get("next"))
             return redirect("frontpage")
         else:
             messages.error(request, _("Benutzername oder Passwort ist nicht korrekt."))
@@ -299,13 +303,14 @@ def aufgaben_zuweisen_view(request):
 
         messages.success(request, _("Aufgaben erfolgreich zugewiesen."))
         return redirect('users:aufgaben_zuweisen')
-
+    aufgabenkategorien = Aufgabenkategorie.objects.all().order_by('name')
     return render(request, 'users/aufgaben_zuweisen.html', {
         'normale_aufgaben': normale_aufgaben,
         'fallstudien_aufgaben': fallstudien_aufgaben,
         'semester': eigene_semester,
         'studiengaenge': eigene_studiengaenge,
-        'aufgaben_uebersicht': aufgaben_uebersicht
+        'aufgaben_uebersicht': aufgaben_uebersicht,
+        'aufgabenkategorien': aufgabenkategorien,
     })
 
 @lehrkraft_required

@@ -201,7 +201,7 @@ def create_konto_from_row(kontenplan, nutzer, kontonummer, name, kategorie, unte
 def importiere_konten_aus_excel(datei, kontenplan, nutzer):
     sheet = parse_excel_file(datei); fehler = []
     for idx, row in enumerate(sheet.iter_rows(min_row=2, max_col=7, values_only=True), start=2):
-        kontonummer, name, kat, ukat, bilpos, steuer, ab = row
+        name,kontonummer, kat, ukat, bilpos, steuer, ab = row
         if not konto_row_required_fields_ok(name, kat):
             fehler.append(idx); continue
         try:

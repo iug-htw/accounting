@@ -44,7 +44,7 @@ class Aufgabe_neu(models.Model):
         ('intern', _('Interner Vorgang')),
         ('non', _('Keine Rechnungsansicht'))
     ]
-    unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE,help_text="Das Unternehmen oder die Fallstudie, zu welcher die Aufgabe zugeordnet wird.", verbose_name=_("Unternehmen Kategorie"))
+    unternehmen_kategorie = models.ForeignKey(Unternehmen, on_delete=models.CASCADE,help_text="Das Unternehmen oder die Fallstudie, zu welcher die Aufgabe zugeordnet wird.", verbose_name=_("Unternehmen/Fallstudie"))
     fragentyp = models.ForeignKey(Aufgabenkategorie,null=True, on_delete=models.CASCADE, help_text="Der Aufgabentyp; Was für eine Art von Aufgabe liegt vor?", verbose_name=_("Fragentyp"))
     ersteller = models.IntegerField(null=True, blank=True, verbose_name=_("Ersteller"))
     unterkategorie = models.IntegerField(null = True, blank=True, default = 1,help_text="Feld für Unterteilung von Fragen mit dem selben Fragentyp", verbose_name=_("Unterkategorie"))
@@ -57,7 +57,7 @@ class Aufgabe_neu(models.Model):
     feedback_betrag_falsch = models.TextField(null=True, blank=True, help_text="Ein allgemeines Feedback für eine falsche Lösung hinsichtlich des Betrages.", verbose_name=_("Feedback Betrag falsch"))
     immer_feedback = models.BooleanField(null=True, blank=True, verbose_name=_("immer Feedback"))
     #anschrift_kunde = models.TextField(blank=True, null=True, default='Kunde XYZ\nMusterstraße 1\n12345 Musterstadt')
-    umsatzsteuerfrei = models.BooleanField(null=True, blank=True, default=0,help_text="Zeigt im Dokument an, dass der Betrag steuerfrei ist.")
+    umsatzsteuerfrei = models.BooleanField(null=True, blank=True, default=0,help_text="Zeigt im Dokument an, dass der Betrag steuerfrei ist. Dieses Feld wirkt sich nicht auf den Buchungssatz aus. Die Steuer muss in der Beschreibung enthalten sein.")
     eigene_ansicht = models.TextField(blank=True, null=True,help_text="Angezeigter Text in der Mail, welche für die Nutzer verschickt wird. Zeigt die Addresse des eigenen Unternehmens", verbose_name=_("Eigene Ansicht"))
     rechnungsnummer = models.CharField(max_length=50, blank=True, null=True, default='RE-00001', verbose_name=_("Rechnungsnummer"))
     datum = models.DateField(blank=True, null=True, auto_now_add=True, verbose_name=_("Datum"))

@@ -22,7 +22,6 @@
                         <th>{% trans "Fragentyp" %}</th>
                         <th>{% trans "Beschreibung" %}</th>
                         <th>{% trans "Bearbeiten" %}</th>
-                        <th>{% trans "Zur Rechnung" %}</th>
                         <th>{% trans "Löschen" %}</th>
                     </tr>
                 </thead>
@@ -34,9 +33,6 @@
                             <td>{{ aufgabe.beschreibung|default:"Keine Beschreibung" }}</td>
                             <td>
                                 <a href="{% url 'posts:aufgabe_bearbeiten' aufgabe.id %}" class="btn">{% trans "Bearbeiten" %}</a>
-                            </td>
-                            <td>
-                                <a href="{% url 'posts:rechnung_detail' aufgabe.id %}" class="btn">{% trans "Link" %}</a>
                             </td>
                             {% if aufgabe.ersteller == request.user.id or request.user.is_superuser %}
                             <td>

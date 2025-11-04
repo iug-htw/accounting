@@ -24,18 +24,6 @@
     {% for konto, daten in t_konten.items %}
     <div class="konto" data-konto="{{ daten.name }}" data-konto-id="{{ konto }}" data-kategorie="{{ konto_kategorien|get_item:konto }}" data-unterkategorie="{{ konto_unterkategorien|get_item:konto }}">
         <h2>{{ daten.name }} </h2>
-        <label>{% trans "Kategorie:"%}</label>
-        <select class="konto-kategorie">
-            <option value="" selected disabled>{% trans "Bitte wählen..."%}</option>
-            <option value="Bestandskonto">{% trans "Bestandskonto"%}</option>
-            <option value="Erfolgskonto">{% trans "Erfolgskonto"%}</option>
-        </select>
-         <select class="konto-untertyp" style="display:none; margin-left:.5rem;">
-            <option value="" selected disabled>{% trans "Untertyp wählen" %}</option>
-            <option value="Aufwand">{% trans "Aufwand" %}</option>
-            <option value="Ertrag">{% trans "Ertrag" %}</option>
-        </select>
-        <button class="konto-abschluss-btn">{% trans "Konto abschließen"%}</button>
         <table>
             <thead>
                 <tr><th class="soll">{% trans "Soll"%}</th><th class="haben">{% trans "Haben"%}</th></tr>
@@ -96,6 +84,7 @@
         </div>
     </div>
 </section>
+<button id="abschluss-alle-btn">{% trans "Alle Konten abschließen" %}</button>
 <button id="abschluss-v2-btn">{% trans "GuV-Konto abschließen"%}</button>
 <button id="guv-reset-btn">{% trans "GuV-Konto löschen"%}</button>
 <script>
@@ -104,248 +93,165 @@
         summe: "{{ _('Summe') }}",
         abgeschlossen: "{{ _('Abgeschlossen') }}"
     };
+let guvBody = document.getElementById("guv-body");
+function aktualisiereGuVSumme() {
+    const guvBody = document.getElementById("guv-body");
+    let sollGesamt = 0, habenGesamt = 0;
+    guvBody.querySelectorAll("tr").forEach(row => {
+        sollGesamt += parseFloat(row.cells[1]?.dataset?.value) || parseLocalizedNumber(row.cells[1]?.innerText || '');
+        habenGesamt += parseFloat(row.cells[3]?.dataset?.value) || parseLocalizedNumber(row.cells[3]?.innerText || '');
+    });
+    const summeSollElement = document.getElementById("summe-soll");
+    const summeHabenElement = document.getElementById("summe-haben");
+    const sprache = document.documentElement.lang;
+    if (summeSollElement) {
+          summeSollElement.innerText = formatNumber(sollGesamt);
+      }
+      if (summeHabenElement) {
+          summeHabenElement.innerText = formatNumber(habenGesamt);
+      }
+}
+function addToGuV(seite, kontoId, kontoName, betrag) {
+  const body = document.getElementById("guv-body");
+
+  // 1) Bestehende Beträge dieser Konto-ID einsammeln (beidseitig)
+  let currSoll = 0, currHaben = 0;
+  const rowsToClean = [];
+  for (const row of body.querySelectorAll("tr")) {
+    const ks = row.cells[0]?.dataset?.kontoId;
+    const kh = row.cells[2]?.dataset?.kontoId;
+
+    if (ks === String(kontoId)) {
+      const v = parseFloat(row.cells[1]?.dataset?.value) || parseLocalizedNumber(row.cells[1]?.innerText || '');
+      currSoll += v || 0;
+      rowsToClean.push(row);
+    }
+    if (kh === String(kontoId)) {
+      const v = parseFloat(row.cells[3]?.dataset?.value) || parseLocalizedNumber(row.cells[3]?.innerText || '');
+      currHaben += v || 0;
+      if (!rowsToClean.includes(row)) rowsToClean.push(row);
+    }
+  }
+
+  // 2) Neuen Betrag addieren
+  if (seite === "Soll")   currSoll  += betrag;
+  if (seite === "Haben")  currHaben += betrag;
+
+  // 3) Netto bilden (Verrechnung Soll/Haben)
+  const netSoll  = Math.max(currSoll  - currHaben, 0);
+  const netHaben = Math.max(currHaben - currSoll, 0);
+
+  // 4) Alte Fragmente entfernen
+  rowsToClean.forEach(r => r.remove());
+
+  // 5) Falls saldo 0 → nichts schreiben (Konto ist ausgeglichen)
+  if (netSoll === 0 && netHaben === 0) {
+    aktualisiereGuVSumme();
+    return;
+  }
+
+  // 6) Eine konsolidierte Zeile neu schreiben (auf der Seite mit Restbetrag)
+  const tr = document.createElement("tr");
+  if (netSoll > 0) {
+    tr.innerHTML = `<td data-konto-id="${kontoId}">${kontoName}</td>
+                    <td data-value="${netSoll}">${formatNumber(netSoll)}</td>
+                    <td></td><td></td>`;
+  } else { // netHaben > 0
+    tr.innerHTML = `<td></td><td></td>
+                    <td data-konto-id="${kontoId}">${kontoName}</td>
+                    <td data-value="${netHaben}">${formatNumber(netHaben)}</td>`;
+  }
+  body.appendChild(tr);
+
+  // 7) Summen aktualisieren
+  aktualisiereGuVSumme();
+}
+
+
+function insertSBKRow() {
+  const body = document.getElementById("guv-body");
+  let sollGesamt = 0, habenGesamt = 0;
+
+  body.querySelectorAll("tr").forEach(row => {
+    const kontoSoll  = row.cells[0]?.innerText.trim();
+    const kontoHaben = row.cells[2]?.innerText.trim();
+
+    if (kontoSoll !== gettexts.sbk) {
+      sollGesamt += parseFloat(row.cells[1]?.dataset?.value) || parseLocalizedNumber(row.cells[1]?.innerText || '');
+    }
+    if (kontoHaben !== gettexts.sbk) {
+      habenGesamt += parseFloat(row.cells[3]?.dataset?.value) || parseLocalizedNumber(row.cells[3]?.innerText || '');
+    }
+  });
+
+  const differenz = Math.abs(sollGesamt - habenGesamt);
+
+  // ggf. alte SBK-Zeile entfernen (idempotent)
+  Array.from(body.querySelectorAll("tr")).forEach(row => {
+    if (row.cells[0]?.innerText.trim() === gettexts.sbk || row.cells[2]?.innerText.trim() === gettexts.sbk) {
+      row.remove();
+    }
+  });
+
+  if (!differenz) { // bereits ausgeglichen
+    aktualisiereGuVSumme();
+    return 0;
+  }
+
+  // neue SBK-Zeile auf kleinere Seite
+  const tr = document.createElement("tr");
+  if (sollGesamt < habenGesamt) {
+    tr.innerHTML = `<td>${gettexts.sbk}</td><td data-value="${differenz}">${formatNumber(differenz)}</td><td></td><td></td>`;
+  } else {
+    tr.innerHTML = `<td></td><td></td><td>${gettexts.sbk}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
+  }
+  body.appendChild(tr);
+
+  aktualisiereGuVSumme();
+
+  // ➕ Vorzeichen bestimmen: Gewinn (+) wenn Haben > Soll, sonst Verlust (−)
+  const signedResult = (habenGesamt > sollGesamt) ? differenz : -differenz;
+  return signedResult;
+}
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".konto").forEach(kontoDiv => {
-    const cat = kontoDiv.querySelector(".konto-kategorie");
-    const sub = kontoDiv.querySelector(".konto-untertyp");
-
-    // INIT: nur bei Erfolgskonto zeigen
-    //if (cat && sub) sub.style.display = (cat.value === "Erfolgskonto") ? "inline-block" : "none";
-
-    cat?.addEventListener("change", () => {
-        if (!sub) return;
-        sub.style.display = (cat.value === "Erfolgskonto") ? "inline-block" : "none";
-        //if (cat.value !== "Erfolgskonto") sub.value = ""; // zurücksetzen, wenn nicht Erfolgskonto
-    });
-    });
-    document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            const kontoDiv = this.closest(".konto");
-            const kontoName = kontoDiv.dataset.konto; // FIX: statt dataset.name
-            const kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
-            const kategorie = kategorieDropdown ? kategorieDropdown.value : "";
-            const echteKategorie = kontoDiv.dataset.kategorie;          // "Bestandskonto" | "Erfolgskonto"
-            const echteUnterkategorie = (kontoDiv.dataset.unterkategorie || "").toLowerCase(); // "aufwand" | "ertrag" (bei Erfolgskonten)
-            const untertypSelect = kontoDiv.querySelector(".konto-untertyp");
-            const untertyp = (untertypSelect && untertypSelect.style.display !== "none") ? (untertypSelect.value || "") : "";
-
-            if (kategorie === "Bestandskonto") {
-                kontoDiv.style.display = "none";
-                return;
-            }
-            
-
-            let sollTabelle = kontoDiv.querySelector(".soll-werte table");
-            let habenTabelle = kontoDiv.querySelector(".haben-werte table");
-
-            let sollWerte = Array.from(sollTabelle.querySelectorAll("tr"));
-            let habenWerte = Array.from(habenTabelle.querySelectorAll("tr"));
-
-            let sollSumme = sollWerte.reduce((sum, row) => sum + Math.abs(parseFloat(row.cells[1]?.dataset.value) || 0), 0);
-            let habenSumme = habenWerte.reduce((sum, row) => sum + Math.abs(parseFloat(row.cells[1]?.dataset.value) || 0), 0);
-
-            let differenz = Math.abs(sollSumme - habenSumme);
-
-            // Zeilenanzahl angleichen
-            let maxZeilen = Math.max(sollWerte.length, habenWerte.length);
-
-            while (sollTabelle.rows.length < maxZeilen - 1) {
-                let leerZeile = sollTabelle.insertRow();
-                leerZeile.innerHTML = "<td></td><td></td>";
-            }
-            while (habenTabelle.rows.length < maxZeilen - 1) {
-                let leerZeile = habenTabelle.insertRow();
-                leerZeile.innerHTML = "<td></td><td></td>";
-            }
-
-            // Differenz (SBK) auf der kleineren Seite einfügen
-            let differenzZeile = document.createElement("tr");
-            if (sollSumme > habenSumme) {
-                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
-                habenTabelle.appendChild(differenzZeile);
-            } else {
-                differenzZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
-                sollTabelle.appendChild(differenzZeile);
-            }
-
-            // Summenzeile einfügen
-            let summenZeile = document.createElement("tr");
-            summenZeile.style.fontWeight = "bold";
-            const maxSumme = Math.max(sollSumme, habenSumme);
-            summenZeile.innerHTML = `<td>${gettext("Summe")}</td><td data-value="${maxSumme}">${formatNumber(maxSumme)}</td>`;
-            sollTabelle.appendChild(summenZeile.cloneNode(true));
-            habenTabelle.appendChild(summenZeile);
-            this.disabled = true;
-            this.innerText = gettext("Abgeschlossen");
-        });
-    });    
-});
-    
-  document.addEventListener("DOMContentLoaded", function () {
-      let guvBody = document.getElementById("guv-body");
-  
-      document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
+  document.querySelectorAll(".konto-abschluss-btn").forEach(button => {
     button.addEventListener("click", function () {
-        const kontoDiv  = this.closest(".konto");
-        const kontoName = kontoDiv.getAttribute("data-konto");
-        const kontoId   = kontoDiv.dataset.kontoId;
+      const kontoDiv  = this.closest(".konto");
+      const kontoName = kontoDiv.getAttribute("data-konto");
+      const kontoId   = kontoDiv.dataset.kontoId;
 
-        // 1) Zugeordnete Bestandskonten NICHT in die GuV schreiben
-        const kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
-        if (kategorieDropdown && kategorieDropdown.value === "Bestandskonto") {
-        return;
-        }
+      // Bestandskonten nicht in die GuV
+      const kategorieDropdown = kontoDiv.querySelector(".konto-kategorie");
+      if (kategorieDropdown && kategorieDropdown.value === "Bestandskonto") return;
 
-        // 2) Betrag = |Summe(Soll) - Summe(Haben)| des Kontos (ohne SBK-/Summenzeilen)
-        const parseCell = (cell) => {
+      const parseCell = (cell) => {
         if (!cell) return 0;
         const dv = cell.dataset?.value;
         return dv ? Math.abs(parseFloat(dv) || 0) : Math.abs(parseLocalizedNumber(cell.innerText) || 0);
-        };
-        const sumRows = (tableEl) => Array.from(tableEl.querySelectorAll("tr"))
+      };
+      const sumRows = (tableEl) => Array.from(tableEl.querySelectorAll("tr"))
         .filter(row => {
-            const label = (row.cells[0]?.innerText || "").trim().toLowerCase();
-            return label !== "sbk" &&
-                label !== gettext("SBK").toLowerCase() &&
-                label !== gettext("Summe").toLowerCase();
+          const label = (row.cells[0]?.innerText || "").trim().toLowerCase();
+          return label !== "sbk" &&
+                 label !== gettext("SBK").toLowerCase() &&
+                 label !== gettext("Summe").toLowerCase();
         })
         .reduce((sum, row) => sum + parseCell(row.cells[1]), 0);
 
-        const sollTbl    = kontoDiv.querySelector(".soll-werte table");
-        const habenTbl   = kontoDiv.querySelector(".haben-werte table");
-        const sollSumme  = sumRows(sollTbl);
-        const habenSumme = sumRows(habenTbl);
-        const betrag     = Math.abs(sollSumme - habenSumme);
+      const sollSumme  = sumRows(kontoDiv.querySelector(".soll-werte table"));
+      const habenSumme = sumRows(kontoDiv.querySelector(".haben-werte table"));
 
-        if (!betrag) {
-        // Nichts zu buchen -> optional einfach ignorieren
-        return;
-        }
+      if (sollSumme > 0)  addToGuV("Soll",  kontoId, kontoName, sollSumme);
+      if (habenSumme > 0) addToGuV("Haben", kontoId, kontoName, habenSumme);
 
-        // 3) Seite NUR nach Unterkategorie bestimmen:
-        //    Aufwand -> Soll, Ertrag -> Haben (ohne weitere Prüfungen)
-        const ukRaw = (kontoDiv.getAttribute("data-unterkategorie") || "").toLowerCase();
-        const seite = ukRaw.startsWith("aufwand") ? "Soll" : "Haben"; // Default: Ertrag/Haben
-
-        // 4) In nächste freie Zelle oder neue Zeile schreiben
-        let eingefuegt = false;
-        for (let row of document.getElementById("guv-body").querySelectorAll("tr")) {
-        if (seite === "Soll" && !row.cells[0].innerText.trim()) {
-            row.cells[0].dataset.kontoId = kontoId;
-            row.cells[0].innerText = kontoName;
-            row.cells[1].dataset.value = betrag;
-            row.cells[1].innerText = formatNumber(betrag);
-            eingefuegt = true;
-            break;
-        } else if (seite === "Haben" && !row.cells[2].innerText.trim()) {
-            row.cells[2].dataset.kontoId = kontoId;
-            row.cells[2].innerText = kontoName;
-            row.cells[3].dataset.value = betrag;
-            row.cells[3].innerText = formatNumber(betrag);
-            eingefuegt = true;
-            break;
-        }
-        }
-        if (!eingefuegt) {
-        const tr = document.createElement("tr");
-        if (seite === "Soll") {
-            tr.innerHTML = `<td data-konto-id="${kontoId}">${kontoName}</td><td data-value="${betrag}">${formatNumber(betrag)}</td><td></td><td></td>`;
-        } else {
-            tr.innerHTML = `<td></td><td></td><td data-konto-id="${kontoId}">${kontoName}</td><td data-value="${betrag}">${formatNumber(betrag)}</td>`;
-        }
-        document.getElementById("guv-body").appendChild(tr);
-        }
-
-        aktualisiereGuVSumme();
+      aktualisiereGuVSumme();
     });
-    });
-      function insertSBKRow() {
-          let sollGesamt = 0, habenGesamt = 0;
-          guvBody.querySelectorAll("tr").forEach(row => {
-            const kontoSoll = row.cells[0]?.innerText.trim();
-            const kontoHaben = row.cells[2]?.innerText.trim();
-
-            if (kontoSoll !== "SBK") {
-                sollGesamt += parseFloat(row.cells[1]?.dataset?.value) || parseLocalizedNumber(row.cells[1]?.innerText || '');
-            }
-
-            if (kontoHaben !== "SBK") {
-                habenGesamt += parseFloat(row.cells[3]?.dataset?.value) || parseLocalizedNumber(row.cells[3]?.innerText || '');
-            }
-        });
-      
-          let differenz = Math.abs(sollGesamt - habenGesamt);
-      
-          // Neue Zeile für SBK erstellen
-          let neueSBKZeile = document.createElement("tr");
-      
-          // Schreibe den SBK-Wert auf die kleinere Seite
-          if (sollGesamt < habenGesamt) {
-                neueSBKZeile.innerHTML = `<td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td><td></td><td></td>`;
-            } else {
-                neueSBKZeile.innerHTML = `<td></td><td></td><td>${gettext("SBK")}</td><td data-value="${differenz}">${formatNumber(differenz)}</td>`;
-            }
-
-      
-          guvBody.appendChild(neueSBKZeile);
-          const signedResult = (habenGesamt > sollGesamt) ? differenz : -differenz;
-          // ✅ AJAX-Request zum Speichern des SBK-Betrags
-          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-          fetch("/posts/speichere_guv_ergebnis/", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/x-www-form-urlencoded",
-                  "X-CSRFToken": csrfToken
-              },
-              body: `guv_result=${signedResult}`
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  console.log("SBK-Betrag erfolgreich gespeichert");
-              } else {
-                  console.error("Fehler beim Speichern:", data.error);
-              }
-          })
-          .catch(error => console.error("Netzwerkfehler:", error));
-      
-          aktualisiereGuVSumme();
-      }
-      
-  
-  function aktualisiereGuVSumme() {
-      let sollGesamt = 0, habenGesamt = 0;
-      guvBody.querySelectorAll("tr").forEach(row => {
-          sollGesamt += parseFloat(row.cells[1]?.dataset?.value) || parseLocalizedNumber(row.cells[1]?.innerText || '');
-          habenGesamt += parseFloat(row.cells[3]?.dataset?.value) || parseLocalizedNumber(row.cells[3]?.innerText || '');
-      });
-      const summeSollElement = document.getElementById("summe-soll");
-      const summeHabenElement = document.getElementById("summe-haben");
-      const sprache = document.documentElement.lang;
-      if (summeSollElement) {
-            summeSollElement.innerText = formatNumber(sollGesamt);
-        }
-        if (summeHabenElement) {
-            summeHabenElement.innerText = formatNumber(habenGesamt);
-        }
-
-  }
-  
-  let abschlussV2Btn = document.getElementById("abschluss-v2-btn");
-  
-  abschlussV2Btn.addEventListener("click", function () {
-      // Kommentiere die Bedingung aus, damit nicht alle Konten abgeschlossen sein müssen
-      // let offeneKonten = document.querySelectorAll(".konto-abschluss-btn:not([disabled])");
-      // if (offeneKonten.length > 0) {
-      //     alert("Bitte alle Konten abschließen, bevor das GuV Konto abgeschlossen wird.");
-      //     return;
-      // }
-      insertSBKRow();
-      abschlussV2Btn.disabled = true; // Deaktiviere den Button nach dem ersten Klick
   });
-  
-    
 });
+
 function formatNumber(value) {
     const lang = document.documentElement.lang || 'de';  // 'de' oder 'en'
     const locale = lang === 'de' ? 'de-DE' : 'en-US';
@@ -388,6 +294,15 @@ function collectGuV() {
   return {soll, haben};
 }
 document.getElementById("abschluss-v2-btn").addEventListener("click", async ()=>{
+  const signed = insertSBKRow();           // Gewinn/Verlust aus der Tabelle
+  if (signed !== 0) {
+    await fetch("/posts/speichere_guv_ergebnis/", {    // erstellt/updated EK↔GuV Buchung
+      method: "POST",
+      headers: {'Content-Type': 'application/x-www-form-urlencoded','X-CSRFToken': csrf()},
+      body: `guv_result=${encodeURIComponent(signed)}`
+    });
+  }
+
   const payload = {typ:"GUV", daten: collectGuV()};
   const res = await fetch("{% url 'posts:abschluss_client_speichern' %}", {
     method:"POST",
@@ -396,6 +311,7 @@ document.getElementById("abschluss-v2-btn").addEventListener("click", async ()=>
   });
   const r = await res.json();
   alert(r.korrekt ? "{{_('GuV ist korrekt gespeichert.')}}" : "{{_('GuV ist falsch gespeichert.')}}");
+  document.getElementById("abschluss-v2-btn").disabled = true;
 });
 
 async function ladeServerGuv(){
@@ -447,5 +363,46 @@ async function resetGuv(){
   });
   document.getElementById("abschluss-v2-btn").disabled=false;
 }
+
+function finalizeSingleKonto(kontoDiv) {
+  const kontoName = kontoDiv.getAttribute("data-konto");
+  const kontoId   = kontoDiv.dataset.kontoId;
+
+  const parseCell = (cell) => {
+    if (!cell) return 0;
+    const dv = cell.dataset?.value;
+    return dv ? Math.abs(parseFloat(dv) || 0) : Math.abs(parseLocalizedNumber(cell.innerText) || 0);
+  };
+  const sumRows = (tableEl) => Array.from(tableEl.querySelectorAll("tr"))
+    .filter(row => {
+      const label = (row.cells[0]?.innerText || "").trim().toLowerCase();
+      return label !== "sbk" &&
+             label !== gettext("SBK").toLowerCase() &&
+             label !== gettext("Summe").toLowerCase();
+    })
+    .reduce((sum, row) => sum + parseCell(row.cells[1]), 0);
+
+  const sollSumme  = sumRows(kontoDiv.querySelector(".soll-werte table"));
+  const habenSumme = sumRows(kontoDiv.querySelector(".haben-werte table"));
+
+  if (sollSumme > 0)  addToGuV("Soll",  kontoId, kontoName, sollSumme);
+  if (habenSumme > 0) addToGuV("Haben", kontoId, kontoName, habenSumme);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const alleBtn = document.getElementById("abschluss-alle-btn");
+  if (alleBtn) {
+    alleBtn.addEventListener("click", function () {
+      document.querySelectorAll(".hauptbuch .konto").forEach(kontoDiv => {
+        finalizeSingleKonto(kontoDiv);
+      });
+      aktualisiereGuVSumme();
+      // Optional: Button nach Lauf deaktivieren
+      // alleBtn.disabled = true;
+      // alleBtn.style.opacity = "0.7";
+    });
+  }
+});
+
 </script>
 {% endblock %}
