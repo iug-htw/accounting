@@ -35,4 +35,5 @@ Neustart der VM
 sudo systemctl restart gunicorn
 sudo systemctl restart nginx
 
-PS C:\Users\iug> scp wiuser@train.f4.htw-berlin.de:~/individuelles-tempo/db.sqlite3 "C:\Users\iug\Downloads"
+Download letzter Datenbank
+scp wiuser@train.f4.htw-berlin.de:~/individuelles-tempo/db.sqlite3 "C:\Users\iug\Downloads"
