@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-04 13:49+0100\n"
+"POT-Creation-Date: 2025-11-05 10:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,10 +95,8 @@ msgid "Keine Rechnungsansicht"
 msgstr "No invoice view"
 
 #: .\posts\models.py:47
-#, fuzzy
-#| msgid "Unternehmen/Fallstudien verwalten"
 msgid "Unternehmen/Fallstudie"
-msgstr "Manage Business/Case studys"
+msgstr "Business/Case studys"
 
 #: .\posts\models.py:48 .\posts\templates\posts\aufgaben_verwalten.html:22
 #: .\posts\templates\posts\rechnungsuebersicht.html:18
@@ -481,8 +479,8 @@ msgstr "Save"
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:94
 #: .\posts\templates\posts\aufgabe_erstellen.html:43
 #: .\posts\templates\posts\aufgabe_erstellen.html:71
-#: .\posts\templates\posts\bilanz.html:23 .\posts\templates\posts\guv.html:29
-#: .\posts\templates\posts\guv.html:67
+#: .\posts\templates\posts\bilanz.html:23 .\posts\templates\posts\guv.html:25
+#: .\posts\templates\posts\guv.html:63
 #: .\posts\templates\posts\hauptbuch.html:37
 #: .\posts\templates\posts\rechnung_js.html:7
 msgid "Soll"
@@ -491,8 +489,8 @@ msgstr "Debit"
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:95
 #: .\posts\templates\posts\aufgabe_erstellen.html:44
 #: .\posts\templates\posts\aufgabe_erstellen.html:72
-#: .\posts\templates\posts\bilanz.html:23 .\posts\templates\posts\guv.html:29
-#: .\posts\templates\posts\guv.html:68
+#: .\posts\templates\posts\bilanz.html:23 .\posts\templates\posts\guv.html:25
+#: .\posts\templates\posts\guv.html:64
 #: .\posts\templates\posts\hauptbuch.html:38
 msgid "Haben"
 msgstr "Credit"
@@ -622,7 +620,7 @@ msgstr "No tasks available"
 
 #: .\posts\templates\posts\bilanz.html:11
 #: .\posts\templates\posts\bilanz.html:55 .\posts\templates\posts\faq.html:285
-#: .\templates\index.html:96 .\templates\master_layout.html:67
+#: .\templates\index.html:96 .\templates\master_layout.html:58
 msgid "Bilanz"
 msgstr "Balance sheet"
 
@@ -635,26 +633,24 @@ msgstr ""
 "important to close the P&L account beforehand."
 
 #: .\posts\templates\posts\bilanz.html:13
-msgid ""
-"Aktuell wird die Bilanz nicht gespeichert, sie dient lediglich zur "
-"Kontrolle, ob die Buchungssätze und Zuweisungen der Konten richtig erfolgt "
-"sind."
+msgid "Bevor eine neue Bilanz aufgestellt wird, muss die alte gelöscht werden."
 msgstr ""
-"Currently, the balance sheet is not saved; it serves only to check whether "
-"the journal entries and account assignments have been made correctly."
+"Before a new balance sheet is prepared, the previous one must be deleted."
 
-#: .\posts\templates\posts\bilanz.html:14 .\posts\templates\posts\guv.html:20
-msgid "Hinweis: Freie Buchungen werden hier nicht angezeigt."
-msgstr ""
+#: .\posts\templates\posts\bilanz.html:14
+msgid ""
+"Aktivkonten werden automatisch in die Aktivaseite geschrieben und "
+"Passivkonten in die Passivaseite."
+msgstr "Asset accounts are automatically placed on the asset side, and liability accounts on the liabilities side."
 
 #: .\posts\templates\posts\bilanz.html:69
 #: .\posts\templates\posts\bilanz.html:71
-#: .\posts\templates\posts\bilanz.html:91 .\posts\templates\posts\guv.html:77
-#: .\posts\templates\posts\guv.html:79 .\posts\templates\posts\guv.html:93
+#: .\posts\templates\posts\bilanz.html:94 .\posts\templates\posts\guv.html:73
+#: .\posts\templates\posts\guv.html:75 .\posts\templates\posts\guv.html:89
 msgid "Summe"
 msgstr "Total"
 
-#: .\posts\templates\posts\bilanz.html:79 .\posts\templates\posts\guv.html:87
+#: .\posts\templates\posts\bilanz.html:79 .\posts\templates\posts\guv.html:83
 msgid "Alle Konten abschließen"
 msgstr "Close all accounts"
 
@@ -666,33 +662,29 @@ msgstr "Save Balance Sheets"
 msgid "Bilanz löschen"
 msgstr "Delete Balance Sheet"
 
-#: .\posts\templates\posts\bilanz.html:90 .\posts\templates\posts\guv.html:92
+#: .\posts\templates\posts\bilanz.html:93 .\posts\templates\posts\guv.html:88
 msgid "SBK"
 msgstr "CBA"
 
-#: .\posts\templates\posts\bilanz.html:92 .\posts\templates\posts\guv.html:94
+#: .\posts\templates\posts\bilanz.html:95 .\posts\templates\posts\guv.html:90
 msgid "Abgeschlossen"
 msgstr "Completed"
 
-#: .\posts\templates\posts\bilanz.html:94 .\posts\views.py:407
+#: .\posts\templates\posts\bilanz.html:97 .\posts\views.py:407
 msgid "Jahresüberschuss/Jahresfehlbetrag"
 msgstr "Net Income/Net Loss"
 
-#: .\posts\templates\posts\bilanz.html:300
+#: .\posts\templates\posts\bilanz.html:306
 msgid "Bilanz ist korrekt gespeichert."
 msgstr "Balance Sheet is correct"
 
-#: .\posts\templates\posts\bilanz.html:300
+#: .\posts\templates\posts\bilanz.html:306
 msgid "Bilanz ist falsch gespeichert."
 msgstr "Balance sheet is wrong"
 
-#: .\posts\templates\posts\bilanz.html:314
+#: .\posts\templates\posts\bilanz.html:323
 msgid "Steuer (Sammel)"
 msgstr "VAT (all)"
-
-#: .\posts\templates\posts\bilanz.html:358 .\posts\templates\posts\guv.html:362
-msgid "Konto abschließen"
-msgstr "Close account"
 
 #: .\posts\templates\posts\buchungssatz_uebersicht.html:10
 msgid "Buchungssatz-Übersicht"
@@ -708,7 +700,7 @@ msgid "an"
 msgstr " "
 
 #: .\posts\templates\posts\faq.html:74 .\templates\frontpage.html:22
-#: .\templates\master_layout.html:83
+#: .\templates\master_layout.html:74
 msgid "FAQ"
 msgstr "FAQ"
 
@@ -1171,7 +1163,7 @@ msgstr "To the general ledger"
 msgid "Frei buchen"
 msgstr "Custom Journal Entry"
 
-#: .\posts\templates\posts\faq.html:261 .\templates\master_layout.html:65
+#: .\posts\templates\posts\faq.html:261 .\templates\master_layout.html:56
 msgid "Hauptbuch"
 msgstr "General ledger"
 
@@ -1191,8 +1183,8 @@ msgstr ""
 "Once all business transactions have been processed (or even in between), the "
 "income statement and balance sheet can be prepared."
 
-#: .\posts\templates\posts\faq.html:278 .\posts\templates\posts\guv.html:62
-#: .\templates\index.html:93 .\templates\master_layout.html:66
+#: .\posts\templates\posts\faq.html:278 .\posts\templates\posts\guv.html:58
+#: .\templates\index.html:93 .\templates\master_layout.html:57
 msgid "GuV"
 msgstr "P&L"
 
@@ -1221,7 +1213,7 @@ msgstr ""
 "the balance sheet. The income statement account can be closed at the bottom "
 "of the page using the button"
 
-#: .\posts\templates\posts\faq.html:282 .\posts\templates\posts\guv.html:88
+#: .\posts\templates\posts\faq.html:282 .\posts\templates\posts\guv.html:84
 msgid "GuV-Konto abschließen"
 msgstr "Close P&L account"
 
@@ -1275,8 +1267,6 @@ msgid "Buchungssätze bearbeiten"
 msgstr "Edit Journal entries"
 
 #: .\posts\templates\posts\faq.html:310
-#, fuzzy
-#| msgid "GuV und Bilanz aufstellen"
 msgid "GuV/Bilanz erstellen"
 msgstr "Prepare income statement and balance sheet"
 
@@ -1288,7 +1278,7 @@ msgstr "See the feedback from tasks"
 msgid "Darüber hinaus gibt es weitere Funktionen, die hauptsächlich unter "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:313 .\templates\master_layout.html:51
+#: .\posts\templates\posts\faq.html:313 .\templates\master_layout.html:42
 msgid "Verwaltung"
 msgstr "Management"
 
@@ -1406,7 +1396,7 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:384 .\posts\templates\posts\faq.html:385
-#: .\templates\master_layout.html:55
+#: .\templates\master_layout.html:46
 msgid "Aufgabenliste"
 msgstr "Task List"
 
@@ -1450,7 +1440,8 @@ msgstr ""
 
 #: .\posts\templates\posts\faq.html:413
 msgid "Kontenplan: Wählt den Kontenplan aus, auf den sicht die Aufgabe bezieht"
-msgstr "Chart of Accounts: Choose the chart of accounts corresponding to the task."
+msgstr ""
+"Chart of Accounts: Choose the chart of accounts corresponding to the task."
 
 #: .\posts\templates\posts\faq.html:414
 msgid ""
@@ -1556,7 +1547,7 @@ msgid ""
 "immer 5%%"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:443 .\templates\master_layout.html:57
+#: .\posts\templates\posts\faq.html:443 .\templates\master_layout.html:48
 msgid "Aufgabe erstellen"
 msgstr "Create task"
 
@@ -1736,13 +1727,11 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:573
-#, fuzzy
-#| msgid "Aufgaben aus Excel importieren"
 msgid "Aufgaben importieren"
 msgstr "Import tasks from Excel"
 
 #: .\posts\templates\posts\faq.html:581 .\posts\templates\posts\faq.html:599
-#: .\posts\templates\posts\faq.html:600 .\templates\master_layout.html:56
+#: .\posts\templates\posts\faq.html:600 .\templates\master_layout.html:47
 #: .\users\templates\users\aufgaben_zuweisen.html:9
 msgid "Aufgaben zuweisen"
 msgstr "Assign tasks"
@@ -1782,10 +1771,8 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:608
-#, fuzzy
-#| msgid "Keine Rechnungsansicht"
 msgid "Was machen die verschiedenen Rechnungsansichten"
-msgstr "No invoice view"
+msgstr "What do the different kind of invoices do"
 
 #: .\posts\templates\posts\faq.html:613
 msgid ""
@@ -1820,40 +1807,28 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:626
-#, fuzzy
-#| msgid "Ausgehende Rechnung"
 msgid "Ausgehend"
-msgstr "Outgoing invoice"
+msgstr "Outgoing"
 
 #: .\posts\templates\posts\faq.html:627
-#, fuzzy
-#| msgid "ansehen."
 msgid "ausgehend"
-msgstr "."
+msgstr "outgoing"
 
 #: .\posts\templates\posts\faq.html:628
-#, fuzzy
-#| msgid " einsehen"
 msgid "Eingehend"
-msgstr " view"
+msgstr "incoming"
 
 #: .\posts\templates\posts\faq.html:629
-#, fuzzy
-#| msgid " einsehen"
 msgid "eingehend"
-msgstr " view"
+msgstr "incoming"
 
 #: .\posts\templates\posts\faq.html:630
-#, fuzzy
-#| msgid "Filtern"
 msgid "Intern"
-msgstr "Filter"
+msgstr "Internally"
 
 #: .\posts\templates\posts\faq.html:631
-#, fuzzy
-#| msgid "Filtern"
 msgid "intern"
-msgstr "Filter"
+msgstr "intern"
 
 #: .\posts\templates\posts\faq.html:632
 msgid "Keine"
@@ -1874,28 +1849,20 @@ msgid "Folgende Informationen sind für alle sichtbar"
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:647
-#, fuzzy
-#| msgid "Aufgaben zuweisen"
 msgid "Aufgaben von SecureNet"
-msgstr "Assign tasks"
+msgstr "Tasks from SecureNet"
 
 #: .\posts\templates\posts\faq.html:648
-#, fuzzy
-#| msgid "Aufgabe bearbeiten"
 msgid "Aufgaben von SecureNet_en"
-msgstr "Edit task"
+msgstr "Tasks from SecureNet_en"
 
 #: .\posts\templates\posts\faq.html:649
-#, fuzzy
-#| msgid "Vorhandene Studiengänge"
 msgid "Vordefinierte Studiengänge"
-msgstr "Existing programs"
+msgstr "Predefined Study Programs"
 
 #: .\posts\templates\posts\faq.html:650
-#, fuzzy
-#| msgid "Vorhandene Semester"
 msgid "Vordefinierte Semester"
-msgstr "Existing semester"
+msgstr "Predefined Semesters"
 
 #: .\posts\templates\posts\faq.html:651
 msgid "Vordefinierte Fragetypen"
@@ -1910,28 +1877,20 @@ msgid "Folgende Informationen sind nur für einen selbst sichtbar"
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:657
-#, fuzzy
-#| msgid "Alle Aufgaben"
 msgid "Erstellte Aufgaben"
-msgstr "All tasks"
+msgstr "Created tasks"
 
 #: .\posts\templates\posts\faq.html:658
-#, fuzzy
-#| msgid "Alle Studiengänge"
 msgid "Erstellte Studiengänge"
-msgstr "All study programs"
+msgstr "Created study programs"
 
 #: .\posts\templates\posts\faq.html:659
-#, fuzzy
-#| msgid "Alle Semester"
 msgid "Erstellte Semester"
-msgstr "All Semesters"
+msgstr "Created Semesters"
 
 #: .\posts\templates\posts\faq.html:660
-#, fuzzy
-#| msgid "Erstellt am"
 msgid "Erstellte Fragetypen"
-msgstr "Created at"
+msgstr "Created question types"
 
 #: .\posts\templates\posts\faq.html:661
 msgid ""
@@ -1940,22 +1899,16 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:662
-#, fuzzy
-#| msgid "Erstellte Studierende"
 msgid "Erstellte Kontenpläne"
-msgstr "Created students:"
+msgstr "Created chart of accounts"
 
 #: .\posts\templates\posts\faq.html:663
-#, fuzzy
-#| msgid "Ersteller"
 msgid "Erstellte Nutzer"
-msgstr "Creator"
+msgstr "Created Users"
 
 #: .\posts\templates\posts\faq.html:664
-#, fuzzy
-#| msgid "Bestehende Unternehmen"
 msgid "Erstellte Unternehmen"
-msgstr "Existing companies"
+msgstr "Created Businesses"
 
 #: .\posts\templates\posts\faq.html:673
 msgid "Wie kann ich Feedback für typische Fehler erstellen?"
@@ -2054,10 +2007,8 @@ msgid ""
 msgstr ""
 
 #: .\posts\templates\posts\faq.html:732
-#, fuzzy
-#| msgid "Wichtig"
 msgid "Wichtig: "
-msgstr "Important"
+msgstr "Important: "
 
 #: .\posts\templates\posts\faq.html:732
 msgid "Das gilt nur für selbst erstellte Aufgaben."
@@ -2133,37 +2084,32 @@ msgstr "Here you can close your accounts and create the P&L statement."
 
 #: .\posts\templates\posts\guv.html:14
 msgid ""
-"Um ein Konto abzuschließen, muss die Art des Kontos ausgewählt werden und "
-"über den Button 'Konto abschließen' wird das abgeschlossene Konto in das GuV-"
-"Konto geschrieben. Das GuV-Konto ist am Seitenende einsehbar und wird "
-"dynamisch mit jedem abgeschlossenem Erfolgskonto erweitert. Bestandskonten "
-"werden nicht in das GuV-Konto geschrieben."
+"Gehe dafür an das untere Seitenende und clicke auf den Button, um alle "
+"Konten abzuschließen. Das GuV-Konto wird dann automatisch befüllt und der "
+"Jahresüberschuss/Jahresfehlbetrag wird automatisch ergänzt. Speichere "
+"anschließend das Ergebnis, sodass der Betrag auch in der Bilanz angezeigt "
+"wird."
 msgstr ""
-"To close an account, the type of account must be selected. By clicking the "
-"'Close Account' button, the closed account is transferred to the income "
-"statement (P&L) account. The P&L account can be viewed at the bottom of the "
-"page and is dynamically updated with each closed income account. Balance "
-"sheet accounts are not transferred to the P&L account."
+"Scroll to the bottom of the page and click the button to close all accounts. "
+"The profit and loss account will then be filled automatically, and the net "
+"income/net loss will be added. Afterwards, save the result so that the "
+"amount is also shown in the balance sheet."
 
 #: .\posts\templates\posts\guv.html:16
-msgid "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."
-msgstr "The P&L account is closed at the bottom of the page using the button."
-
-#: .\posts\templates\posts\guv.html:18
 msgid ""
-"Wenn ein Konto als Bestandskonto zugewiesen wird, wird dieses ausgeblendet. "
-"Beim Neuladen der Seite wird dieses Konto wieder angezeigt"
-msgstr ""
+"Die Konten werden abhängig von ihren jeweiligen Schlussbilanzen in das GuV-"
+"Konto geschrieben, unabhängig davon, ob es Ertrags- oder Aufwandskonten sind."
+msgstr "The accounts are posted to the profit and loss account based on their respective closing balances, regardless of whether they are revenue or expense accounts."
 
-#: .\posts\templates\posts\guv.html:89
+#: .\posts\templates\posts\guv.html:85
 msgid "GuV-Konto löschen"
 msgstr "Delete P&L Account"
 
-#: .\posts\templates\posts\guv.html:313
+#: .\posts\templates\posts\guv.html:309
 msgid "GuV ist korrekt gespeichert."
 msgstr "P&L Statement is correct"
 
-#: .\posts\templates\posts\guv.html:313
+#: .\posts\templates\posts\guv.html:309
 msgid "GuV ist falsch gespeichert."
 msgstr "P&L Statement is wrong"
 
@@ -2282,7 +2228,7 @@ msgstr "Balance sheet position:"
 
 #: .\posts\templates\posts\konto_bearbeiten.html:25
 msgid "Steuerkonto:"
-msgstr ""
+msgstr "VAT Account"
 
 #: .\posts\templates\posts\konto_bearbeiten.html:29
 msgid "Änderungen speichern"
@@ -2369,6 +2315,8 @@ msgid ""
 "Randomisierung (Anfangsbestände und Buchungssätze um einen einheitlichen "
 "Faktor randomisieren)"
 msgstr ""
+"Randomization (randomize opening balances and journal entries by a uniform "
+"factor)"
 
 #: .\posts\templates\posts\neues_unternehmen.html:20
 msgid "Unternehmen hinzufügen"
@@ -2808,7 +2756,7 @@ msgstr "%(anzahl)d tasks could not be imported: %(fehler)s"
 #: .\posts\views_logik\aufgabe_importieren\excel_imports.py:221
 #, python-format
 msgid "Einige Zeilen wurden übersprungen (Reihen: %(rows)s)"
-msgstr ""
+msgstr "Some rows were skipeed (Rows: %(rows)s)"
 
 #: .\posts\views_logik\aufgabe_importieren\excel_imports.py:223
 msgid "Konten erfolgreich importiert."
@@ -2817,7 +2765,7 @@ msgstr "Accounts successfully imported"
 #: .\posts\views_logik\aufgabe_importieren\excel_imports.py:234
 #, python-format
 msgid "Fehler beim Import: %(err)s"
-msgstr ""
+msgstr "Error at import %(err)s"
 
 #: .\posts\views_logik\utils.py:34
 #, python-format
@@ -2998,40 +2946,32 @@ msgstr "Home"
 msgid "Rechnungen"
 msgstr "Billings"
 
-#: .\templates\master_layout.html:39 .\templates\master_layout.html:41
+#: .\templates\master_layout.html:38
 msgid "Profil"
 msgstr "Account"
 
-#: .\templates\master_layout.html:42
-msgid "Handbuch"
-msgstr "User guide"
-
 #: .\templates\master_layout.html:44
-msgid "Handbuch Lehrende"
-msgstr "User guide teachers"
-
-#: .\templates\master_layout.html:53
 msgid "Meine Studierenden"
 msgstr "My students"
 
-#: .\templates\master_layout.html:54
+#: .\templates\master_layout.html:45
 #: .\users\templates\users\bulk_student_creation.html:58
 msgid "Studierende anlegen"
 msgstr "Create student program"
 
-#: .\templates\master_layout.html:63
+#: .\templates\master_layout.html:54
 msgid "Buchhaltung"
 msgstr "Accounting"
 
-#: .\templates\master_layout.html:68
+#: .\templates\master_layout.html:59
 msgid "Buchungssätze"
 msgstr "Journal entries"
 
-#: .\templates\master_layout.html:69
+#: .\templates\master_layout.html:60
 msgid "Freien Buchungssatz erstellen"
 msgstr "Create a custom journal entry"
 
-#: .\templates\master_layout.html:79 .\templates\master_layout.html:81
+#: .\templates\master_layout.html:70 .\templates\master_layout.html:72
 msgid "Impressum"
 msgstr "Site notice"
 
@@ -3319,6 +3259,41 @@ msgstr "No Changes submitted"
 #: .\users\views.py:561
 msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
 msgstr "The organizational task has been marked as completed."
+
+#~ msgid "Konto abschließen"
+#~ msgstr "Close account"
+
+#~ msgid ""
+#~ "Aktuell wird die Bilanz nicht gespeichert, sie dient lediglich zur "
+#~ "Kontrolle, ob die Buchungssätze und Zuweisungen der Konten richtig "
+#~ "erfolgt sind."
+#~ msgstr ""
+#~ "Currently, the balance sheet is not saved; it serves only to check "
+#~ "whether the journal entries and account assignments have been made "
+#~ "correctly."
+
+#~ msgid ""
+#~ "Um ein Konto abzuschließen, muss die Art des Kontos ausgewählt werden und "
+#~ "über den Button 'Konto abschließen' wird das abgeschlossene Konto in das "
+#~ "GuV-Konto geschrieben. Das GuV-Konto ist am Seitenende einsehbar und wird "
+#~ "dynamisch mit jedem abgeschlossenem Erfolgskonto erweitert. "
+#~ "Bestandskonten werden nicht in das GuV-Konto geschrieben."
+#~ msgstr ""
+#~ "To close an account, the type of account must be selected. By clicking "
+#~ "the 'Close Account' button, the closed account is transferred to the "
+#~ "income statement (P&L) account. The P&L account can be viewed at the "
+#~ "bottom of the page and is dynamically updated with each closed income "
+#~ "account. Balance sheet accounts are not transferred to the P&L account."
+
+#~ msgid "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."
+#~ msgstr ""
+#~ "The P&L account is closed at the bottom of the page using the button."
+
+#~ msgid "Handbuch"
+#~ msgstr "User guide"
+
+#~ msgid "Handbuch Lehrende"
+#~ msgstr "User guide teachers"
 
 #~ msgid "Unternehmen Kategorie"
 #~ msgstr "Business category"

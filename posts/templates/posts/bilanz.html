@@ -10,8 +10,8 @@
 {% block content %}
 <h1>{%trans "Bilanz"%}</h1>
 <p>{% trans "Hier können alle Konten abgeschlossen werden, um die Bilanz aufzustellen. Wichtig ist, dass vorher das GuV-Konto abgeschlossen wird."%} 
-    <br>{% trans "Aktuell wird die Bilanz nicht gespeichert, sie dient lediglich zur Kontrolle, ob die Buchungssätze und Zuweisungen der Konten richtig erfolgt sind."%}
-    <br>{% trans "Hinweis: Freie Buchungen werden hier nicht angezeigt."%}
+    <br>{% trans "Bevor eine neue Bilanz aufgestellt wird, muss die alte gelöscht werden."%}
+    <br>{% trans "Aktivkonten werden automatisch in die Aktivaseite geschrieben und Passivkonten in die Passivaseite."%}
 </p>
 
 <section class="hauptbuch">
@@ -76,9 +76,9 @@
             </div>
         </div>
     </section>
-<button id="alle-konten-abschliessen-btn">{% trans "Alle Konten abschließen" %}</button>
-<button id="abschluss-alle-btn">{% trans "Bilanz speichern"%}</button>
-<button id="bilanz-reset-btn">{% trans "Bilanz löschen"%}</button>
+<button id="alle-konten-abschliessen-btn" class="konto-abschluss-btn">{% trans "Alle Konten abschließen" %}</button>
+<button id="abschluss-alle-btn" class="konto-abschluss-btn">{% trans "Bilanz speichern"%}</button>
+<button id="bilanz-reset-btn" class="konto-abschluss-btn">{% trans "Bilanz löschen"%}</button>
 
 <script>
 function isEigenkapitalName(name){
@@ -304,6 +304,9 @@ document.getElementById("abschluss-alle-btn").addEventListener("click", async ()
     });
     const r = await res.json();
     alert(r.korrekt ? "{{_('Bilanz ist korrekt gespeichert.')}}" : "{{_('Bilanz ist falsch gespeichert.')}}");
+    const butt = document.getElementById("abschluss-alle-btn");
+        butt.disabled = true;
+        butt.style.opacity = "0.5";
   }, 100);
 });
 
@@ -361,8 +364,11 @@ async function resetBilanz(){
   document.getElementById("summe-aktiv").innerText = "";
   document.getElementById("summe-passiv").innerText = "";
   document.querySelectorAll(".konto-abschluss-btn").forEach(btn=>{
-    btn.disabled=false; btn.innerText="{{ _('Konto abschließen') }}";
+    btn.disabled=false;
   });
+  const bilBtn = document.getElementById("abschluss-alle-btn");
+    bilBtn.disabled = false;
+    bilBtn.style.opacity = "1";
 }
 
 // ---- NEU: beim Laden einlesen + Reset-Button binden ----

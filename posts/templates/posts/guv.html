@@ -11,13 +11,9 @@
 <h1>{% trans "GuV Übersicht"%}</h1>
 <p>{% trans "Hier kannst du deine Konten abschließen und die GuV erstellen."%}
 <br>
-{% trans "Um ein Konto abzuschließen, muss die Art des Kontos ausgewählt werden und über den Button 'Konto abschließen' wird das abgeschlossene Konto in das GuV-Konto geschrieben. Das GuV-Konto ist am Seitenende einsehbar und wird dynamisch mit jedem abgeschlossenem Erfolgskonto erweitert. Bestandskonten werden nicht in das GuV-Konto geschrieben."%}
+{% trans "Gehe dafür an das untere Seitenende und clicke auf den Button, um alle Konten abzuschließen. Das GuV-Konto wird dann automatisch befüllt und der Jahresüberschuss/Jahresfehlbetrag wird automatisch ergänzt. Speichere anschließend das Ergebnis, sodass der Betrag auch in der Bilanz angezeigt wird."%}
 <br>
-{% trans "Das GuV-Konto wird am Seitenende durch den Button abgeschlossen."%}
-<br>
-{% trans "Wenn ein Konto als Bestandskonto zugewiesen wird, wird dieses ausgeblendet. Beim Neuladen der Seite wird dieses Konto wieder angezeigt"%}
-<br>
-{% trans "Hinweis: Freie Buchungen werden hier nicht angezeigt."%}
+{% trans "Die Konten werden abhängig von ihren jeweiligen Schlussbilanzen in das GuV-Konto geschrieben, unabhängig davon, ob es Ertrags- oder Aufwandskonten sind."%}
 </p>
 
 <section class="hauptbuch">
@@ -84,9 +80,9 @@
         </div>
     </div>
 </section>
-<button id="abschluss-alle-btn">{% trans "Alle Konten abschließen" %}</button>
-<button id="abschluss-v2-btn">{% trans "GuV-Konto abschließen"%}</button>
-<button id="guv-reset-btn">{% trans "GuV-Konto löschen"%}</button>
+<button id="abschluss-alle-btn" class="konto-abschluss-btn">{% trans "Alle Konten abschließen" %}</button>
+<button id="abschluss-v2-btn" class="konto-abschluss-btn">{% trans "GuV-Konto abschließen"%}</button>
+<button id="guv-reset-btn" class="konto-abschluss-btn">{% trans "GuV-Konto löschen"%}</button>
 <script>
     const gettexts = {
         sbk: "{{ _('SBK') }}",
@@ -312,6 +308,7 @@ document.getElementById("abschluss-v2-btn").addEventListener("click", async ()=>
   const r = await res.json();
   alert(r.korrekt ? "{{_('GuV ist korrekt gespeichert.')}}" : "{{_('GuV ist falsch gespeichert.')}}");
   document.getElementById("abschluss-v2-btn").disabled = true;
+  document.getElementById("abschluss-v2-btn").style.opacity = "0.5";
 });
 
 async function ladeServerGuv(){
@@ -359,9 +356,11 @@ async function resetGuv(){
   document.getElementById("summe-soll").innerText = "";
   document.getElementById("summe-haben").innerText = "";
   document.querySelectorAll(".konto-abschluss-btn").forEach(btn=>{
-    btn.disabled=false; btn.innerText="{{ _('Konto abschließen') }}";
+    btn.disabled=false;
   });
-  document.getElementById("abschluss-v2-btn").disabled=false;
+  const guvBtn = document.getElementById("abschluss-v2-btn");
+    guvBtn.disabled = false;
+    guvBtn.style.opacity = "1";
 }
 
 function finalizeSingleKonto(kontoDiv) {
