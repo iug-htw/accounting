@@ -55,12 +55,13 @@ python manage.py migrate
 ```
 
 ### Admin-User
-Login-Daten sind bei **Katharina Simbeck** erhältlich.
+Login-Daten, sowie die **config.py** und ein **Datenbankbackup** sind in der Softwaredokumentation bei **Katharina Simbeck** erhältlich.
 
 ### Entwicklungsserver starten
 ```bash
 python manage.py runserver
 ```
+
 
 ---
 
