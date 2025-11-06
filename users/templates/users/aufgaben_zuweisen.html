@@ -32,6 +32,7 @@
     <div class="card-section">
         <h2>{% trans "Aufgaben auswählen" %}</h2>
         <!-- Pro Fallstudie ein eigener Block -->
+         <p><strong>Bei größeren Zuweisungen (ca. 50 Studierende + ca. 10 Aufgaben) kann eine Fehlermeldung kommen, weil der Server ein Timeout erzeugt. Bei einer weiteren Zuweisung der selben Aufgaben wird dann dennoch alles richtig für die Studierenden freigeschaltet</strong></p>
         {% for unternehmensname, aufgaben in fallstudien_aufgaben.items %}
             <div class="fallstudien-header">
                 <label class="fallstudie-label">
