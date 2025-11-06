@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-05 10:21+0100\n"
+"POT-Creation-Date: 2025-11-06 11:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: .\posts\forms.py:11 .\posts\forms.py:83 .\posts\models.py:89
-#: .\posts\models.py:239 .\posts\templates\posts\faq.html:528
+#: .\posts\models.py:239 .\posts\templates\posts\faq.html:525
 #: .\posts\templates\posts\konten_verwalten.html:52
 #: .\posts\templates\posts\konten_verwalten.html:73
 #: .\posts\templates\posts\neues_unternehmen.html:14
@@ -190,7 +190,7 @@ msgstr "Task"
 #: .\posts\models.py:86 .\posts\models.py:258
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:92
 #: .\posts\templates\posts\aufgabe_erstellen.html:69
-#: .\posts\templates\posts\faq.html:703 .\posts\templates\posts\faq.html:704
+#: .\posts\templates\posts\faq.html:700 .\posts\templates\posts\faq.html:701
 msgid "Konto"
 msgstr "Account"
 
@@ -202,7 +202,7 @@ msgstr "Credit/Debit"
 #: .\posts\models.py:88 .\posts\models.py:259
 #: .\posts\templates\posts\aufgabe_bearbeiten.html:96
 #: .\posts\templates\posts\aufgabe_erstellen.html:73
-#: .\posts\templates\posts\faq.html:701 .\posts\templates\posts\faq.html:702
+#: .\posts\templates\posts\faq.html:698 .\posts\templates\posts\faq.html:699
 #: .\posts\templates\posts\rechnung_js.html:5
 msgid "Betrag"
 msgstr "Amount"
@@ -512,18 +512,18 @@ msgstr "Manage Business/Case studys"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:14
 #: .\posts\templates\posts\aufgabe_import_form.html:13
-#: .\posts\templates\posts\faq.html:401 .\posts\templates\posts\faq.html:480
+#: .\posts\templates\posts\faq.html:398 .\posts\templates\posts\faq.html:477
 msgid "Fragentyp verwalten"
 msgstr "Manage question type"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:15
 #: .\posts\templates\posts\aufgabe_import_form.html:14
-#: .\posts\templates\posts\faq.html:402 .\posts\templates\posts\faq.html:500
+#: .\posts\templates\posts\faq.html:399 .\posts\templates\posts\faq.html:497
 msgid "Konten verwalten"
 msgstr "Manage accounts"
 
 #: .\posts\templates\posts\aufgabe_erstellen.html:16
-#: .\posts\templates\posts\faq.html:403 .\posts\templates\posts\faq.html:557
+#: .\posts\templates\posts\faq.html:400 .\posts\templates\posts\faq.html:554
 msgid "Aufgaben aus Excel importieren"
 msgstr "Import tasks from Excel"
 
@@ -619,7 +619,7 @@ msgid "Keine Aufgaben vorhanden."
 msgstr "No tasks available"
 
 #: .\posts\templates\posts\bilanz.html:11
-#: .\posts\templates\posts\bilanz.html:55 .\posts\templates\posts\faq.html:285
+#: .\posts\templates\posts\bilanz.html:55 .\posts\templates\posts\faq.html:283
 #: .\templates\index.html:96 .\templates\master_layout.html:58
 msgid "Bilanz"
 msgstr "Balance sheet"
@@ -641,7 +641,9 @@ msgstr ""
 msgid ""
 "Aktivkonten werden automatisch in die Aktivaseite geschrieben und "
 "Passivkonten in die Passivaseite."
-msgstr "Asset accounts are automatically placed on the asset side, and liability accounts on the liabilities side."
+msgstr ""
+"Asset accounts are automatically placed on the asset side, and liability "
+"accounts on the liabilities side."
 
 #: .\posts\templates\posts\bilanz.html:69
 #: .\posts\templates\posts\bilanz.html:71
@@ -716,7 +718,7 @@ msgstr ""
 msgid "Bei Fragen: felix.bartl@htw-berlin.de"
 msgstr "If you have any questions: felix.bartl@htw-berlin.de"
 
-#: .\posts\templates\posts\faq.html:78 .\posts\templates\posts\faq.html:304
+#: .\posts\templates\posts\faq.html:78 .\posts\templates\posts\faq.html:301
 msgid "Allgemein"
 msgstr "General"
 
@@ -748,7 +750,7 @@ msgstr ""
 "transactions arrive via the inbox and can then be processed in the invoice "
 "overview. The entries made here are then posted to the general ledger"
 
-#: .\posts\templates\posts\faq.html:85 .\posts\templates\posts\faq.html:289
+#: .\posts\templates\posts\faq.html:85
 msgid "Wichtig"
 msgstr "Important"
 
@@ -1190,114 +1192,79 @@ msgstr "P&L"
 
 #: .\posts\templates\posts\faq.html:280
 msgid ""
-"Jedes Konto kann entweder als Bestandskonto oder als Aufwandskonto markiert "
-"werden. Nach der Auswahl kann das Konto abgeschlossen werden. Hier können "
-"nur Aufwandskonten abgeschlossen werden. Für Bestandskonten erscheint eine "
-"Rückmeldung, dass diese hier nicht abgeschlossen werden können."
+"Hier werden alle Erfolgskonten angezeigt. Am Seitenende befinden sich "
+"Buttons, um das GuV-Konto mit einen Knopfdruck abzuschließen. Es werden alle "
+"Schlussbilanzen der einzelnen Konten gebildet und in das GuV-Konto unten "
+"eingetragen. Es erscheint außerdem ein Popup, dass Feedback über die "
+"Richtigkeit der GuV ausgibt."
 msgstr ""
-"Each account can be marked as either a balance sheet account or an expense "
-"account. Once selected, the account can be closed. Only expense accounts can "
-"be closed here. For balance sheet accounts, a message will appear indicating "
-"that they cannot be closed in this section."
 
-#: .\posts\templates\posts\faq.html:282
+#: .\posts\templates\posts\faq.html:285
 msgid ""
-"Nachdem ein Aufwandskonto abgeschlossen wurde, wird es unten dynamisch in "
-"das GuV-Konto übernommen. Wenn alle Konten zugeordnet wurden, kann das GuV-"
-"Konto abgeschlossen werden. Dieses wird dann für die Bilanz zur Verfügung "
-"gestellt. Das GuV-Konto kann ganz unten auf der Seite über den Button"
+"Analog zur GuV müssen werden hier die Konten in Aktiva und Passiva "
+"abgeschlossen. Es gibt hier ebenfalls ein Feedback, welches sagt, ob die "
+"Bilanz richtig oder falsch ist. "
 msgstr ""
-"Once an expense account has been closed, it is dynamically transferred to "
-"the income statement account below. When all accounts have been assigned, "
-"the income statement account can be closed. It will then be available for "
-"the balance sheet. The income statement account can be closed at the bottom "
-"of the page using the button"
 
-#: .\posts\templates\posts\faq.html:282 .\posts\templates\posts\guv.html:84
-msgid "GuV-Konto abschließen"
-msgstr "Close P&L account"
-
-#: .\posts\templates\posts\faq.html:282
-msgid "abgeschlossen werden."
-msgstr "can be done."
-
-#: .\posts\templates\posts\faq.html:287
-msgid ""
-"Analog zur GuV müssen hier die Konten den Bereichen Aktiva oder Passiva "
-"zugeordnet werden. Nach der Zuteilung und dem Abschluss eines Kontos wird es "
-"dynamisch in die Bilanz übernommen."
-msgstr ""
-"Just like in the income statement, the accounts must be assigned to either "
-"assets or liabilities. Once an account is assigned and closed, it is "
-"dynamically transferred to the balance sheet."
-
-#: .\posts\templates\posts\faq.html:289
-msgid ""
-"Die Bilanz wird nicht gespeichert. Sie dient lediglich als Kontrolle und zum "
-"besseren Verständnis."
-msgstr ""
-"Currently, the balance sheet is not saved; it serves only to check whether "
-"the journal entries and account assignments have been made correctly."
-
-#: .\posts\templates\posts\faq.html:294
+#: .\posts\templates\posts\faq.html:291
 msgid "GuV und Bilanz"
 msgstr "P&L and Balance Sheet"
 
-#: .\posts\templates\posts\faq.html:295
+#: .\posts\templates\posts\faq.html:292
 msgid "GuV und Bilanz aufstellen"
 msgstr "Prepare income statement and balance sheet"
 
-#: .\posts\templates\posts\faq.html:302
+#: .\posts\templates\posts\faq.html:299
 msgid "Funktionen für Lehrende"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:306
+#: .\posts\templates\posts\faq.html:303
 msgid ""
 "Als Lehrkraft sind prinzipiell alle Funktionen von Studierenden verfügbar, "
 "welche im oberen Abschnitt beschrieben werden. Es ist also folgende "
 "Funktionen möglich: "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:308
+#: .\posts\templates\posts\faq.html:305
 msgid "Posteingang einsehen"
 msgstr "View the Inbox"
 
-#: .\posts\templates\posts\faq.html:309
+#: .\posts\templates\posts\faq.html:306
 msgid "Buchungssätze bearbeiten"
 msgstr "Edit Journal entries"
 
-#: .\posts\templates\posts\faq.html:310
+#: .\posts\templates\posts\faq.html:307
 msgid "GuV/Bilanz erstellen"
 msgstr "Prepare income statement and balance sheet"
 
-#: .\posts\templates\posts\faq.html:311
+#: .\posts\templates\posts\faq.html:308
 msgid "Feedback von Aufgaben einsehen"
 msgstr "See the feedback from tasks"
 
-#: .\posts\templates\posts\faq.html:313
+#: .\posts\templates\posts\faq.html:310
 msgid "Darüber hinaus gibt es weitere Funktionen, die hauptsächlich unter "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:313 .\templates\master_layout.html:42
+#: .\posts\templates\posts\faq.html:310 .\templates\master_layout.html:42
 msgid "Verwaltung"
 msgstr "Management"
 
-#: .\posts\templates\posts\faq.html:313
+#: .\posts\templates\posts\faq.html:310
 msgid "zu finden sind und hier in den nächsten Blöcken genauer erklärt werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:319 .\posts\templates\posts\faq.html:340
+#: .\posts\templates\posts\faq.html:316 .\posts\templates\posts\faq.html:337
 msgid "Nutzererstellung"
 msgstr "User Creation"
 
-#: .\posts\templates\posts\faq.html:323
+#: .\posts\templates\posts\faq.html:320
 msgid ""
 "Unter Studierende anlegen können neue Studierende bzw. Nutzer angelegt "
 "werden. Mithilfe von Studiengang und Semester können diese zu kategorisiert "
 "werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:325
+#: .\posts\templates\posts\faq.html:322
 msgid ""
 "Das Feld Fallstudie gibt dabei an, welche Aufgaben für diese Nutzer "
 "bereitgestellt werden können. Automatisch sind SecureNet und SecureNet_en "
@@ -1306,7 +1273,7 @@ msgid ""
 "ausgewählt werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:327
+#: .\posts\templates\posts\faq.html:324
 #, python-format
 msgid ""
 "Aktuell werden den Nutzenden zu 50%% Wahrscheinlichkeit KI-Feedback "
@@ -1317,44 +1284,44 @@ msgid ""
 "Nutzenden immer KI Feedback."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:329
+#: .\posts\templates\posts\faq.html:326
 msgid ""
 "Wie das Feedback aufgebaut ist, ist im Reiter Feedback oben genauer erklärt. "
 "Zusätzlich wird die Erstellung von Feedback für bestimmte Fehler weiter "
 "unten erklärt."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:331
+#: .\posts\templates\posts\faq.html:328
 msgid ""
 "Zuletzt ist noch die Namensgenerierung für die neuen Nutzer festzulegen. "
 "Wird der Namensmodus ausgewählt, kann ein eigener Name gewählt werden und "
 "die Nutzer werden dann durchnummeriert erstellt (User1, User2 ...User30)"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:333
+#: .\posts\templates\posts\faq.html:330
 msgid ""
 "Wenn Namensmodus nicht ausgewählt wurde, wird ein automatischer Name "
 "erstellt, bestehend aus: Name der Lehrkraft, Semester, Studiengang. Dieser "
 "ist tendenziell nicht gut lesbar (BWLbaWiSe 24/2501)"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:335
+#: .\posts\templates\posts\faq.html:332
 msgid ""
 "Nach der Erstellung werden alle erstellen Konten inklusive Passwort "
 "angezeigt. Das Passwort ist dabei analog zum Nutzernamen. Sollte ein Konto "
 "mit diesem Namen bereits existieren, wird dies auch angezeigt."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:341
+#: .\posts\templates\posts\faq.html:338
 msgid "Nutzer erstellen"
 msgstr "Create User"
 
-#: .\posts\templates\posts\faq.html:349 .\posts\templates\posts\faq.html:363
-#: .\posts\templates\posts\faq.html:364
+#: .\posts\templates\posts\faq.html:346 .\posts\templates\posts\faq.html:360
+#: .\posts\templates\posts\faq.html:361
 msgid "Nutzer managen"
 msgstr "Manage Users"
 
-#: .\posts\templates\posts\faq.html:354
+#: .\posts\templates\posts\faq.html:351
 msgid ""
 "Unter dem Reiter 'Meine Studierenden' kann der Fortschritt der einzelnen "
 "Studierenden eingesehen werden. Hier werden die Studierenden nach Semester "
@@ -1362,14 +1329,14 @@ msgid ""
 "eingesehen werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:356
+#: .\posts\templates\posts\faq.html:353
 msgid ""
 "Darüber hinaus kann mithilfe des Sliders der Bearbeitungsmodus aktiviert "
 "werden, was das Löschen von Studierenden ermöglicht. Dies kann nicht "
 "rückgängig gemacht werden und sollte nur mit Vorsicht benutzt werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:358
+#: .\posts\templates\posts\faq.html:355
 msgid ""
 "Auf der Frontpage kann darüber hinaus noch der Fortschritt aller "
 "Studierenden eingesehen werden und nachgeschaut werden, welche Aufgaben "
@@ -1377,11 +1344,11 @@ msgid ""
 "(Semester und Studiengang) benutzt werden, um einen Überblick zu erhalten"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:372
+#: .\posts\templates\posts\faq.html:369
 msgid "Aufgabenübersicht"
 msgstr "Task List"
 
-#: .\posts\templates\posts\faq.html:377
+#: .\posts\templates\posts\faq.html:374
 msgid ""
 "Unter 'Aufgabenliste' werden alle verfügbaren Aufgaben angezeigt. Dies "
 "beinhaltet alle Aufgaben für SecureNet und SecureNet_en, sowie selbst "
@@ -1389,87 +1356,87 @@ msgid ""
 "gelöscht werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:379
+#: .\posts\templates\posts\faq.html:376
 msgid ""
 "Wichtig: Sollten selbst Aufgaben erstellt werden, sind diese nicht für "
 "andere Nutzer (außer Admins) sichtbar."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:384 .\posts\templates\posts\faq.html:385
+#: .\posts\templates\posts\faq.html:381 .\posts\templates\posts\faq.html:382
 #: .\templates\master_layout.html:46
 msgid "Aufgabenliste"
 msgstr "Task List"
 
-#: .\posts\templates\posts\faq.html:393 .\posts\templates\posts\faq.html:442
+#: .\posts\templates\posts\faq.html:390 .\posts\templates\posts\faq.html:439
 msgid "Aufgabenerstellung"
 msgstr "Create task"
 
-#: .\posts\templates\posts\faq.html:398
+#: .\posts\templates\posts\faq.html:395
 msgid ""
 "Vor der Aufgabenerstellung, müssen zunächst einige Vorbereitungen getätigt "
 "werden. Diese sind oben in der Übersicht verlinkt und werden weiter unten "
 "genauer erklärt:"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:400 .\posts\templates\posts\faq.html:451
+#: .\posts\templates\posts\faq.html:397 .\posts\templates\posts\faq.html:448
 msgid "Fallstudie/Unternehmen verwalten"
 msgstr "Manage Business/Case studys"
 
-#: .\posts\templates\posts\faq.html:405
+#: .\posts\templates\posts\faq.html:402
 msgid ""
 "Der Import aus Excel stellt eine alternative Methode für die "
 "Aufgabenerstellung da."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:407
+#: .\posts\templates\posts\faq.html:404
 msgid ""
 "Wichtig: Studierende können nur Aufgaben sehen, wenn das Unternehmen bzw. "
 "die Fallstudie gleich sind."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:409
+#: .\posts\templates\posts\faq.html:406
 msgid ""
 "Bei der Nutzererstellung wird ein Unternehmen zugewiesen und bei der "
 "Aufgabenerstellung wird ein Unternehmen zugewiesen, wenn diese "
 "Unterschiedlich sind, können Nutzer eine zugewiesene Aufgabe nicht einsehen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:411
+#: .\posts\templates\posts\faq.html:408
 msgid "Im Folgenden werden die einzelnen Felder genauer erklärt: "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:413
+#: .\posts\templates\posts\faq.html:410
 msgid "Kontenplan: Wählt den Kontenplan aus, auf den sicht die Aufgabe bezieht"
 msgstr ""
 "Chart of Accounts: Choose the chart of accounts corresponding to the task."
 
-#: .\posts\templates\posts\faq.html:414
+#: .\posts\templates\posts\faq.html:411
 msgid ""
 "Unternehmen Kategorie: Unternehmen/Fallstudie, zu welcher diese Aufgabe "
 "kategorisiert wird"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:415
+#: .\posts\templates\posts\faq.html:412
 msgid ""
 "Rechnungstyp: Gibt die Ansicht an, wie die Aufgabe für die Nutzer "
 "dargestellt wird. Genaueres unter 'Rechnungstyp'"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:416
+#: .\posts\templates\posts\faq.html:413
 msgid "Fragentyp: Gibt den Fragentyp an (Skonto, Rabatt, Abschreibung etc.)"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:417
+#: .\posts\templates\posts\faq.html:414
 msgid ""
 "Mailbetreff Geschäftsvorfall: Gibt für die Nutzer den Betreff an, der in der "
 "Mail im Posteingang zu der Aufgabe angezeigt wird"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:418
+#: .\posts\templates\posts\faq.html:415
 msgid "Mailtext: Gibt den Text der Mail im Posteingang an"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:419
+#: .\posts\templates\posts\faq.html:416
 msgid ""
 "Umsatzsteuerfrei: In der Aufgabenansicht wird angezeigt, dass diese Aufgabe "
 "Steuerfrei ist (wirkt sich nicht auf den Buchungssatz aus). Wird hier nein "
@@ -1477,51 +1444,51 @@ msgid ""
 "angegeben."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:420
+#: .\posts\templates\posts\faq.html:417
 msgid ""
 "Hat Leistungszeitraum: Falls es sich um einen Leistungszeitraum handelt, "
 "wird hierüber automatisch ein Leistungszeitraum berechnet, welcher bis zu 3 "
 "Monate als ist und bis zu 3 Wochen lang "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:421
+#: .\posts\templates\posts\faq.html:418
 msgid "Nutzungsdauer: Die Nutzungsdauer für Abschreibungen"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:422
+#: .\posts\templates\posts\faq.html:419
 msgid ""
 "Feedback Konto falsch: Falls die Nutzer kein KI-Feedback erhalten, wird "
 "dieses Feedback bei der 2. Falschen Antwort angezeigt."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:423
+#: .\posts\templates\posts\faq.html:420
 msgid ""
 "Feedback Betrag falsch: Analog zum Konto, hier wird Feedback zum falschen "
 "Betrag angezeigt"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:424
+#: .\posts\templates\posts\faq.html:421
 msgid "Zahlweise: Zeigt in der Aufgabenansicht die Zahlweise an"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:425
+#: .\posts\templates\posts\faq.html:422
 msgid ""
 "Beschreibung: Der genaue Aufgabentext, der die Grundlage der Aufgabenansicht "
 "bildet. Der Betrag "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:426
+#: .\posts\templates\posts\faq.html:423
 msgid "Verabschiedung: Gibt die Verabschiedung in der Aufgabenansicht an"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:427
+#: .\posts\templates\posts\faq.html:424
 msgid ""
 "Zusatzinformation zur Aufgabe: Hier können für jede Aufgabe zusätzliche "
 "Hinweise gegeben werden, die für Nutzer dann sichtbar sind, sofern welche "
 "angegeben wurden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:428
+#: .\posts\templates\posts\faq.html:425
 msgid ""
 "Buchungssätze hinzufügen: Hier ist die Maske, um den Buchungssatz "
 "abzubilden. Grundsätzlich sollte über diese Felder hier der Buchungssatz "
@@ -1529,109 +1496,109 @@ msgid ""
 "individuelle Feedback wird weiter unten genauer erklärt."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:431
+#: .\posts\templates\posts\faq.html:428
 msgid "Wichtige Informationen:"
 msgstr "Important information:"
 
-#: .\posts\templates\posts\faq.html:434
+#: .\posts\templates\posts\faq.html:431
 msgid ""
 "Für Abschreibungen muss die Kategorie Abschreibungen ausgewählt werden. Hier "
 "wird der angezeigte Rechnungsbetrag aus dem Buchungssatz und der "
 "Nutzungsdauer automatisch ermittelt und für die Nutzer angezeigt"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:435
+#: .\posts\templates\posts\faq.html:432
 #, python-format
 msgid ""
 "Für Rabatte wird der Betrag vor dem Rabatt angezeigt. Dieser beträgt aktuell "
 "immer 5%%"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:443 .\templates\master_layout.html:48
+#: .\posts\templates\posts\faq.html:440 .\templates\master_layout.html:48
 msgid "Aufgabe erstellen"
 msgstr "Create task"
 
-#: .\posts\templates\posts\faq.html:456
+#: .\posts\templates\posts\faq.html:453
 msgid "Hier können eigene Fallstudien angelegt werden. "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:458
+#: .\posts\templates\posts\faq.html:455
 msgid "Der Name wird bei der Aufgabenerstellung in dem Dropdown angezeigt"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:460
+#: .\posts\templates\posts\faq.html:457
 msgid "Der Anzeige Name ist der angezeigte Name in der Rechnungsansicht"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:462
+#: .\posts\templates\posts\faq.html:459
 msgid "Der Kontenplan bezieht sich auf den verwendeten Kontenplan"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:464
+#: .\posts\templates\posts\faq.html:461
 msgid ""
 "Die Checkbox verhindert, dass die Werte randomisiert werden. Falls die Werte "
 "randomisiert werden sollen, wird jeder Teil des Buchungssatzes mit einem "
 "Faktor von 0,25 bis 1,75 multipliziert."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:466
+#: .\posts\templates\posts\faq.html:463
 msgid ""
 "Nur eigene Unternehmen und die vordefinierten Unternehmen sind für einen "
 "selbst sichtbar. Nur eigene Unternehmen können gelöscht werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:471 .\posts\templates\posts\faq.html:472
+#: .\posts\templates\posts\faq.html:468 .\posts\templates\posts\faq.html:469
 #: .\posts\templates\posts\neues_unternehmen.html:6
 msgid "Unternehmen verwalten"
 msgstr "Manage Business/Case studys"
 
-#: .\posts\templates\posts\faq.html:484
+#: .\posts\templates\posts\faq.html:481
 msgid ""
 "Hier können individuelle Aufgabenkategorien erstellt werden und für die "
 "Aufgaben sichtbar gemacht werden. Die Aufgabenkategorien werden bei der "
 "Aufgabenzuweisung angezeigt."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:486
+#: .\posts\templates\posts\faq.html:483
 msgid ""
 "Nur eigene Kategorien und die vordefinierten Kategorien sind für einen "
 "selbst sichtbar. Nur eigene Kategorien können gelöscht werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:491 .\posts\templates\posts\faq.html:492
+#: .\posts\templates\posts\faq.html:488 .\posts\templates\posts\faq.html:489
 msgid "Aufgabenkategorie"
 msgstr "Task categories"
 
-#: .\posts\templates\posts\faq.html:504
+#: .\posts\templates\posts\faq.html:501
 msgid ""
 "Diese Übersicht ermöglicht die Erstellung eigener Kontenpläne. Es ist "
 "außerdem möglich Kontenpläne zu importieren über eine Excel vorlage. Das "
 "wird nächsten Punkt genauer erklärt."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:506
+#: .\posts\templates\posts\faq.html:503
 msgid ""
 "Bevor Konten einem Kontenplan zugewiesen werden können, muss ein Kontenplan "
 "erstellt werden. Dafür reicht ein Click auf 'Neuen Kontenplan erstellen'."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:508
+#: .\posts\templates\posts\faq.html:505
 msgid ""
 "Im Anschluss können nun Konten diesem Plan hinzugefügt werden. Dafür müssen "
 "die Felder oben in der Ansicht ausgefüllt werden. "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:510
+#: .\posts\templates\posts\faq.html:507
 msgid "Name: Der Name des Kontos"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:512
+#: .\posts\templates\posts\faq.html:509
 msgid ""
 "Kategorie und Unterkategorie: Um welche Art von Konto es sich handelt. Diese "
 "Auswahl wird verwendet, um Hauptbuch/GuV und Bilanz anzuzeigen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:514
+#: .\posts\templates\posts\faq.html:511
 msgid ""
 "Hat Anfangsbestand: Wenn ein Konto für das vorangegangene Geschäftsjahr ein "
 "Anfangsbestand haben soll, kann die Checkbox ausgewählt werden. Anschließend "
@@ -1641,20 +1608,20 @@ msgid ""
 "zugeordnet, was eine Randomisierung unterbindet."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:516
+#: .\posts\templates\posts\faq.html:513
 msgid ""
 "Es ist möglich Konten für die bestehenden Kontenpläne (SecureNet) "
 "hinzuzufügen. Diese sind nur für einen selbst sichtbar und löschbar."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:518
+#: .\posts\templates\posts\faq.html:515
 msgid ""
 "Um den Konten noch Kontennummern zuzuordnen, muss auf 'Bearbeiten' gedrückt "
 "werden bei dem entsprechenden Konto. In der Ansicht kann dann die "
 "Kontonummer hinzugefügt werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:520
+#: .\posts\templates\posts\faq.html:517
 msgid ""
 "In der Ansicht kann außerdem eine Bilanzposition mit angegeben werden. Die "
 "sorgt dafür, dass ein Konto unter der angegebenen Bilanzposition "
@@ -1663,22 +1630,22 @@ msgid ""
 "Bilanzposition als richtiges Ergebnis für den Buchungssatz zugelassen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:522
+#: .\posts\templates\posts\faq.html:519
 msgid ""
 "Nur eigene Kontenpläne und die vordefinierten Kontenpläne sind für einen "
 "selbst sichtbar. Nur eigene Kontenpläne können gelöscht werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:527
+#: .\posts\templates\posts\faq.html:524
 msgid "Kontenplan und Konten"
 msgstr "Chart of accounts"
 
-#: .\posts\templates\posts\faq.html:536
+#: .\posts\templates\posts\faq.html:533
 #: .\posts\templates\posts\konten_verwalten.html:43
 msgid "Konten aus Excel importieren"
 msgstr "Import accounts from Excel"
 
-#: .\posts\templates\posts\faq.html:541
+#: .\posts\templates\posts\faq.html:538
 msgid ""
 "Alternativ kann das folgende Excel-Template benutzt werden, um Konten zu "
 "importieren. Wichtig ist hierbei, dass zunächst der Kontenplan erstellt "
@@ -1686,57 +1653,57 @@ msgid ""
 "Importieren importiert werden. "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:543
+#: .\posts\templates\posts\faq.html:540
 msgid "Konten importieren"
 msgstr "Import accounts from Excel"
 
-#: .\posts\templates\posts\faq.html:548 .\posts\templates\posts\faq.html:549
+#: .\posts\templates\posts\faq.html:545 .\posts\templates\posts\faq.html:546
 msgid "Kontenimport"
 msgstr "Import accounts"
 
-#: .\posts\templates\posts\faq.html:562
+#: .\posts\templates\posts\faq.html:559
 msgid ""
 "Aufgaben können auch alternativ über Excel importiert werden. Die "
 "Beschreibung der Felder sind aus dem Reiter 'Aufgabenerstellung' zu "
 "entnehmen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:564
+#: .\posts\templates\posts\faq.html:561
 msgid ""
 "Prinzipiell müssen keine Felder ausgefüllt werden, sprich, es wird kein "
 "Fehler ausgeworfen, wenn ein Eintrag leer bleibt. "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:566
+#: .\posts\templates\posts\faq.html:563
 msgid "Folgende Punkte sind zu beachten:"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:568
+#: .\posts\templates\posts\faq.html:565
 msgid "Der Kontenname muss exakt zum Kontennamen im Kontenplan sein"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:569
+#: .\posts\templates\posts\faq.html:566
 msgid "Statt des Kontennamens kann auch die Bilanzposition verwendet werden"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:570
+#: .\posts\templates\posts\faq.html:567
 msgid ""
 "Der Buchungssatz wird über die nummerierten Felder kontoname_1, soll/"
 "haben_1, betrag_1 dargestellt. Es können beliebig viele weitere Felder "
 "hinzugefügt werden, jedoch muss die Reihenfolge beibehalten werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:573
+#: .\posts\templates\posts\faq.html:570
 msgid "Aufgaben importieren"
 msgstr "Import tasks from Excel"
 
-#: .\posts\templates\posts\faq.html:581 .\posts\templates\posts\faq.html:599
-#: .\posts\templates\posts\faq.html:600 .\templates\master_layout.html:47
+#: .\posts\templates\posts\faq.html:578 .\posts\templates\posts\faq.html:596
+#: .\posts\templates\posts\faq.html:597 .\templates\master_layout.html:47
 #: .\users\templates\users\aufgaben_zuweisen.html:9
 msgid "Aufgaben zuweisen"
 msgstr "Assign tasks"
 
-#: .\posts\templates\posts\faq.html:586
+#: .\posts\templates\posts\faq.html:583
 msgid ""
 "In dieser Übersicht werden alle verfügbaren Aufgaben (vorgefertigte sowie "
 "selbst erstellte) angezeigt und nach Unternehmen sortiert. Hier ist es "
@@ -1745,176 +1712,176 @@ msgid ""
 "eine Benachrichtigung über den Posteingang und können die Aufgabe bearbeiten."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:588
+#: .\posts\templates\posts\faq.html:585
 msgid ""
 "Es ist außerdem möglich, dass die Aufgaben auch selbst zugewiesen werden. "
 "Somit ist es möglich die Aufgaben im Vorhinein anzusehen, bevor diese an die "
 "Nutzer übergeben werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:590
+#: .\posts\templates\posts\faq.html:587
 msgid ""
 "Die Ansicht oben dient für den Überblick, um zu erkennen, welche Gruppen "
 "welche Aufgaben erhalten haben."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:592
+#: .\posts\templates\posts\faq.html:589
 msgid ""
 "Anzumerken ist, dass Aufgaben nur Gruppen von Nutzern zugewiesen werden "
 "können, nicht einzelnen Nutzern."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:594
+#: .\posts\templates\posts\faq.html:591
 msgid ""
 "Für die Zuweisung die entsprechenden Aufgaben auswählen und unten das "
 "Semester und den Studiengang auswählen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:608
+#: .\posts\templates\posts\faq.html:605
 msgid "Was machen die verschiedenen Rechnungsansichten"
 msgstr "What do the different kind of invoices do"
 
-#: .\posts\templates\posts\faq.html:613
+#: .\posts\templates\posts\faq.html:610
 msgid ""
 "Die verschiedenen Rechnungsansichten bilden die verschiedenen Arten von "
 "Geschäftsvorfällen ab. Hier wird unterschieden zwischen ausgehenden, "
 "eingehenden und internen Vorgängen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:615
+#: .\posts\templates\posts\faq.html:612
 msgid ""
 "Ausgehende Rechnungen sind Rechnungen, die das eigene Unternehmen an Kunden "
 "leitet"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:617
+#: .\posts\templates\posts\faq.html:614
 msgid ""
 "Eingehende Rechnungen sind jene, die das Unternehmen von einem Kunden bzw. "
 "Geschäftspartner erhalten hat"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:619
+#: .\posts\templates\posts\faq.html:616
 msgid ""
 "Interne Vorgänge, wie z.B. Abschreibungen sind vorgänge, die keine externe "
 "Partei betreffen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:621
+#: .\posts\templates\posts\faq.html:618
 msgid ""
 "Falls die Aufgaben nicht in Form eines Geschäftsvorfalls dargestellt werden "
 "sollen, kann auch darauf verzichtet werden und es wird nur die Aufgabe und "
 "der Rechnungsbetrag angezeigt."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:626
+#: .\posts\templates\posts\faq.html:623
 msgid "Ausgehend"
 msgstr "Outgoing"
 
-#: .\posts\templates\posts\faq.html:627
+#: .\posts\templates\posts\faq.html:624
 msgid "ausgehend"
 msgstr "outgoing"
 
-#: .\posts\templates\posts\faq.html:628
+#: .\posts\templates\posts\faq.html:625
 msgid "Eingehend"
 msgstr "incoming"
 
-#: .\posts\templates\posts\faq.html:629
+#: .\posts\templates\posts\faq.html:626
 msgid "eingehend"
 msgstr "incoming"
 
-#: .\posts\templates\posts\faq.html:630
+#: .\posts\templates\posts\faq.html:627
 msgid "Intern"
 msgstr "Internally"
 
-#: .\posts\templates\posts\faq.html:631
+#: .\posts\templates\posts\faq.html:628
 msgid "intern"
 msgstr "intern"
 
-#: .\posts\templates\posts\faq.html:632
+#: .\posts\templates\posts\faq.html:629
 msgid "Keine"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:633
+#: .\posts\templates\posts\faq.html:630
 msgid "keine"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:641
+#: .\posts\templates\posts\faq.html:638
 msgid ""
 "Welche Informationen sehe nur ich? Welche Informationen können andere "
 "Lehrende sehen?"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:645
+#: .\posts\templates\posts\faq.html:642
 msgid "Folgende Informationen sind für alle sichtbar"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:647
+#: .\posts\templates\posts\faq.html:644
 msgid "Aufgaben von SecureNet"
 msgstr "Tasks from SecureNet"
 
-#: .\posts\templates\posts\faq.html:648
+#: .\posts\templates\posts\faq.html:645
 msgid "Aufgaben von SecureNet_en"
 msgstr "Tasks from SecureNet_en"
 
-#: .\posts\templates\posts\faq.html:649
+#: .\posts\templates\posts\faq.html:646
 msgid "Vordefinierte Studiengänge"
 msgstr "Predefined Study Programs"
 
-#: .\posts\templates\posts\faq.html:650
+#: .\posts\templates\posts\faq.html:647
 msgid "Vordefinierte Semester"
 msgstr "Predefined Semesters"
 
-#: .\posts\templates\posts\faq.html:651
+#: .\posts\templates\posts\faq.html:648
 msgid "Vordefinierte Fragetypen"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:652
+#: .\posts\templates\posts\faq.html:649
 msgid "Kontenpläne von Securenet und SecureNet_en"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:655
+#: .\posts\templates\posts\faq.html:652
 msgid "Folgende Informationen sind nur für einen selbst sichtbar"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:657
+#: .\posts\templates\posts\faq.html:654
 msgid "Erstellte Aufgaben"
 msgstr "Created tasks"
 
-#: .\posts\templates\posts\faq.html:658
+#: .\posts\templates\posts\faq.html:655
 msgid "Erstellte Studiengänge"
 msgstr "Created study programs"
 
-#: .\posts\templates\posts\faq.html:659
+#: .\posts\templates\posts\faq.html:656
 msgid "Erstellte Semester"
 msgstr "Created Semesters"
 
-#: .\posts\templates\posts\faq.html:660
+#: .\posts\templates\posts\faq.html:657
 msgid "Erstellte Fragetypen"
 msgstr "Created question types"
 
-#: .\posts\templates\posts\faq.html:661
+#: .\posts\templates\posts\faq.html:658
 msgid ""
 "Erstellte Konten (auch wenn diese in für alle sichtbare Kontenpläne "
 "hinzugefügt werden)"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:662
+#: .\posts\templates\posts\faq.html:659
 msgid "Erstellte Kontenpläne"
 msgstr "Created chart of accounts"
 
-#: .\posts\templates\posts\faq.html:663
+#: .\posts\templates\posts\faq.html:660
 msgid "Erstellte Nutzer"
 msgstr "Created Users"
 
-#: .\posts\templates\posts\faq.html:664
+#: .\posts\templates\posts\faq.html:661
 msgid "Erstellte Unternehmen"
 msgstr "Created Businesses"
 
-#: .\posts\templates\posts\faq.html:673
+#: .\posts\templates\posts\faq.html:670
 msgid "Wie kann ich Feedback für typische Fehler erstellen?"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:678
+#: .\posts\templates\posts\faq.html:675
 msgid ""
 "Bei der Aufgabenerstellung oder bei der Bearbeitung von Aufgaben können "
 "Feedbackblöcke für bestimmte Lösungen erstellt werden. Wenn z.B. Haben und "
@@ -1923,42 +1890,42 @@ msgid ""
 "werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:680
+#: .\posts\templates\posts\faq.html:677
 msgid ""
 "Der erstellte Buchungssatz für jede Aufgabe bildet dabei die Grundlage. Am "
 "besten lässt sich das mit einem Beispiel erklären. "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:682
+#: .\posts\templates\posts\faq.html:679
 msgid ""
 "Angenommen der Buchungssatz ist Konto A 100€ and Konto B 100€. Der Nutzer "
 "hat nun B 100€ and A 100€ eingegeben. "
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:684
+#: .\posts\templates\posts\faq.html:681
 msgid ""
 "Um diesen Fall abzufangen, kann für Konto A ein spezielles Feedback "
 "hinterlegt werden, dass bei der Eingabe von Konto B ein Text ausgegeben "
 "werden soll, wenn B statt A eingegeben wird."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:686
+#: .\posts\templates\posts\faq.html:683
 msgid ""
 "Das wird über den Button 'Konto-Feedback' ermöglicht. hier wird Konto B als "
 "Indikator verwendet um das spezielle Feedback auszugeben."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:688
+#: .\posts\templates\posts\faq.html:685
 msgid ""
 "Angenommen der Buchungssatz lautet Konto A 119€ an Konto B 100€ und Steuer "
 "19€"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:690
+#: .\posts\templates\posts\faq.html:687
 msgid "Die Nutzereingabe lautet Konto A 119€ and Konto B 119€"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:692
+#: .\posts\templates\posts\faq.html:689
 msgid ""
 "Hier kann nun ein Feedback hinterlegt werden, dass die Steuer vergessen "
 "wurde und in einem extra Konto erfasst werden muss. Dafür kann über den "
@@ -1967,36 +1934,36 @@ msgid ""
 "für den Feedbacktext verwendet werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:694
+#: .\posts\templates\posts\faq.html:691
 msgid ""
 "Wenn also für Konto B der Bereich 119€ gewählt wird (bestenfalls von 118 bis "
 "120 die grenzen setzen), dann wird der Fall abdegeckt und bei fehlender "
 "Steuer kann ein entsprechender Hinweis hinterlegt werden."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:696
+#: .\posts\templates\posts\faq.html:693
 msgid ""
 "Wichtig: Die Aufgaben werden randomisiert (außer das Unternehmen wurde "
 "anders eingestellt). Der Feedbackbereich wird um den selben Faktor "
 "randomisiert, sodass dieser immer abgegriffen wird."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:712
+#: .\posts\templates\posts\faq.html:709
 msgid "Kann ich Aufgaben nacheinander freischalten?"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:717
+#: .\posts\templates\posts\faq.html:714
 msgid ""
 "Ja. Die Aufgaben werden alle bei Aufgaben zuweisen einzeln angezeigt. Es ist "
 "möglich Aufgaben thematisch zu erstellen und nur diese zum passenden "
 "Zeitpunkt zur Verfügung zu stellen."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:725
+#: .\posts\templates\posts\faq.html:722
 msgid "Wie kann ich die Randomisierung der Aufgabenwerte verhindern?"
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:730
+#: .\posts\templates\posts\faq.html:727
 msgid ""
 "Die Randomisierung kann verhindert werden, indem das Unternehmen bzw. die "
 "Fallstudie, für die Aufgaben erstellt werden entsprechend eingestellt "
@@ -2006,11 +1973,11 @@ msgid ""
 "randomisiert."
 msgstr ""
 
-#: .\posts\templates\posts\faq.html:732
+#: .\posts\templates\posts\faq.html:729
 msgid "Wichtig: "
 msgstr "Important: "
 
-#: .\posts\templates\posts\faq.html:732
+#: .\posts\templates\posts\faq.html:729
 msgid "Das gilt nur für selbst erstellte Aufgaben."
 msgstr ""
 
@@ -2099,7 +2066,14 @@ msgstr ""
 msgid ""
 "Die Konten werden abhängig von ihren jeweiligen Schlussbilanzen in das GuV-"
 "Konto geschrieben, unabhängig davon, ob es Ertrags- oder Aufwandskonten sind."
-msgstr "The accounts are posted to the profit and loss account based on their respective closing balances, regardless of whether they are revenue or expense accounts."
+msgstr ""
+"The accounts are posted to the profit and loss account based on their "
+"respective closing balances, regardless of whether they are revenue or "
+"expense accounts."
+
+#: .\posts\templates\posts\guv.html:84
+msgid "GuV-Konto abschließen"
+msgstr "Close P&L account"
 
 #: .\posts\templates\posts\guv.html:85
 msgid "GuV-Konto löschen"
@@ -3252,13 +3226,58 @@ msgstr "Passwords are incorrect"
 msgid "Profil erfolgreich aktualisiert."
 msgstr "Profile update successfull"
 
-#: .\users\views.py:390
+#: .\users\views.py:391
 msgid "Keine Änderungen vorgenommen."
 msgstr "No Changes submitted"
 
-#: .\users\views.py:561
+#: .\users\views.py:562
 msgid "Die organisatorische Aufgabe wurde als erledigt markiert."
 msgstr "The organizational task has been marked as completed."
+
+#~ msgid ""
+#~ "Jedes Konto kann entweder als Bestandskonto oder als Aufwandskonto "
+#~ "markiert werden. Nach der Auswahl kann das Konto abgeschlossen werden. "
+#~ "Hier können nur Aufwandskonten abgeschlossen werden. Für Bestandskonten "
+#~ "erscheint eine Rückmeldung, dass diese hier nicht abgeschlossen werden "
+#~ "können."
+#~ msgstr ""
+#~ "Each account can be marked as either a balance sheet account or an "
+#~ "expense account. Once selected, the account can be closed. Only expense "
+#~ "accounts can be closed here. For balance sheet accounts, a message will "
+#~ "appear indicating that they cannot be closed in this section."
+
+#~ msgid ""
+#~ "Nachdem ein Aufwandskonto abgeschlossen wurde, wird es unten dynamisch in "
+#~ "das GuV-Konto übernommen. Wenn alle Konten zugeordnet wurden, kann das "
+#~ "GuV-Konto abgeschlossen werden. Dieses wird dann für die Bilanz zur "
+#~ "Verfügung gestellt. Das GuV-Konto kann ganz unten auf der Seite über den "
+#~ "Button"
+#~ msgstr ""
+#~ "Once an expense account has been closed, it is dynamically transferred to "
+#~ "the income statement account below. When all accounts have been assigned, "
+#~ "the income statement account can be closed. It will then be available for "
+#~ "the balance sheet. The income statement account can be closed at the "
+#~ "bottom of the page using the button"
+
+#~ msgid "abgeschlossen werden."
+#~ msgstr "can be done."
+
+#~ msgid ""
+#~ "Analog zur GuV müssen hier die Konten den Bereichen Aktiva oder Passiva "
+#~ "zugeordnet werden. Nach der Zuteilung und dem Abschluss eines Kontos wird "
+#~ "es dynamisch in die Bilanz übernommen."
+#~ msgstr ""
+#~ "Just like in the income statement, the accounts must be assigned to "
+#~ "either assets or liabilities. Once an account is assigned and closed, it "
+#~ "is dynamically transferred to the balance sheet."
+
+#~ msgid ""
+#~ "Die Bilanz wird nicht gespeichert. Sie dient lediglich als Kontrolle und "
+#~ "zum besseren Verständnis."
+#~ msgstr ""
+#~ "Currently, the balance sheet is not saved; it serves only to check "
+#~ "whether the journal entries and account assignments have been made "
+#~ "correctly."
 
 #~ msgid "Konto abschließen"
 #~ msgstr "Close account"
