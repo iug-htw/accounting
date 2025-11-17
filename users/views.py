@@ -175,7 +175,6 @@ def bulk_student_creation(request):
         existing_users = CustomUser.objects.values_list('username', flat=True)
         fehlgeschlagene_namen = []
         neue_studierende = []
-        nutzergruppe = 1 if request.POST.get("nutzergruppe") == "1" else random.randint(1,4)
         unternehmen = Unternehmen.objects.all()
         for i in range(1, anzahl_studierende + 1):
             if name_mode == "on" and custom_name:
@@ -186,7 +185,7 @@ def bulk_student_creation(request):
             if student_name in existing_users:
                 fehlgeschlagene_namen.append(student_name)
                 continue  # Überspringe Erstellung dieses Nutzers
-            
+            nutzergruppe = 1 if request.POST.get("nutzergruppe") == "1" else random.randint(1,2)
             student = CustomUser(
                 username=student_name,
                 role='student',

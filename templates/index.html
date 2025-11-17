@@ -86,7 +86,7 @@ input:checked + .slider-round:before {
                                     <li id="studi-{{ student.id }}">
                                         {{ student.username }} – <i>{{student.unternehmen.name}}</i> -
                                         {% if student.last_login %}{% trans "Login: Ja" %}{% else %}{% trans "Login: Nein" %}{% endif %}
-                                        
+                                        {% trans "KI-Feedback: "%}{% if student.nutzergruppe == 1 %} {% trans "Ja"%}{% else %} {% trans "Nein"%} {% endif %}
                                         <span id="progress-text-{{ student.id }}">0%</span>
                                         <span id="progress-icon-{{ student.id }}"></span>
                                         <!-- NEU: GuV / Bilanz Status -->
